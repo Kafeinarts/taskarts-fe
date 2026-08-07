@@ -1,0 +1,17 @@
+{
+  "name": "RajinKerja.id Work Suite",
+  "short_name": "RajinKerja",
+  "description": "Organizer pekerjaan, tugas harian, dan produktivitas karyawan profesional.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "120x120 192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
