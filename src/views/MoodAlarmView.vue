@@ -408,79 +408,68 @@
       </div>
     </div>
 
-    <!-- MODAL TAMBAH ALARM -->
-    <div v-if="showAddAlarmModal" class="modal-backdrop fade show" style="z-index: 1080;" @click="showAddAlarmModal = false"></div>
-    <div v-if="showAddAlarmModal" class="modal d-block fade show" style="z-index: 1085;" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
-          <div class="modal-header border-bottom bg-light p-4">
-            <h5 class="modal-title fw-bold text-dark"><i class="bi bi-plus-circle text-primary me-2"></i>Tambah Alarm Jam Kerja Baru</h5>
-            <button type="button" class="btn-close" @click="showAddAlarmModal = false"></button>
+    <!-- IN-PAGE FORM TAMBAH ALARM (NO MODAL) -->
+    <div v-if="showAddAlarmModal" class="card border-0 shadow rounded-4 p-4 my-4 bg-white border-top border-primary border-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-plus-circle text-primary me-2"></i>Tambah Alarm Jam Kerja Baru</h5>
+        <button type="button" class="btn-close" @click="showAddAlarmModal = false"></button>
+      </div>
+
+      <form @submit.prevent="saveNewAlarm">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold text-dark small">Pilih Jam & Menit <span class="text-danger">*</span></label>
+            <input type="time" class="form-control form-control-lg border-2 fw-extrabold text-center font-monospace fs-2" v-model="newAlarmForm.time" required />
           </div>
 
-          <form @submit.prevent="saveNewAlarm">
-            <div class="modal-body p-4">
-              <div class="mb-3">
-                <label class="form-label fw-bold text-dark small">Pilih Jam & Menit <span class="text-danger">*</span></label>
-                <input type="time" class="form-control form-control-lg border-2 fw-extrabold text-center font-monospace fs-2" v-model="newAlarmForm.time" required />
-              </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold text-dark small">Label / Judul Alarm <span class="text-danger">*</span></label>
+            <input type="text" class="form-control border-2" v-model="newAlarmForm.label" placeholder="misal: Jam Istirahat Siang & Minum Air" required />
+          </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold text-dark small">Label / Judul Alarm <span class="text-danger">*</span></label>
-                <input type="text" class="form-control border-2" v-model="newAlarmForm.label" placeholder="misal: Jam Istirahat Siang & Minum Air" required />
-              </div>
+          <div class="col-6">
+            <label class="form-label fw-bold text-dark small">Nada Suara Alarm</label>
+            <select class="form-select border-2" v-model="newAlarmForm.sound">
+              <option value="beep">Beep Digital Nyaring</option>
+              <option value="chime">Soft Chime Melodic</option>
+              <option value="siren">Chime Siren Kerja</option>
+            </select>
+          </div>
 
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-bold text-dark small">Nada Suara Alarm</label>
-                  <select class="form-select border-2" v-model="newAlarmForm.sound">
-                    <option value="beep">Beep Digital Nyaring</option>
-                    <option value="chime">Soft Chime Melodic</option>
-                    <option value="siren">Chime Siren Kerja</option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-bold text-dark small">Pengulangan Hari</label>
-                  <select class="form-select border-2" v-model="newAlarmForm.repeat">
-                    <option value="Senin - Jumat">Senin - Jumat</option>
-                    <option value="Setiap Hari">Setiap Hari</option>
-                    <option value="Sekali Saja">Sekali Saja</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+          <div class="col-6">
+            <label class="form-label fw-bold text-dark small">Pengulangan Hari</label>
+            <select class="form-select border-2" v-model="newAlarmForm.repeat">
+              <option value="Senin - Jumat">Senin - Jumat</option>
+              <option value="Setiap Hari">Setiap Hari</option>
+              <option value="Sekali Saja">Sekali Saja</option>
+            </select>
+          </div>
 
-            <div class="modal-footer border-top p-3 bg-light">
-              <button type="button" class="btn btn-light border px-4 rounded-3" @click="showAddAlarmModal = false">Batal</button>
-              <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold">Simpan Alarm</button>
-            </div>
-          </form>
+          <div class="col-12 text-end border-top pt-3">
+            <button type="button" class="btn btn-light border px-4 me-2 rounded-3" @click="showAddAlarmModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold">Simpan Alarm</button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
 
-    <!-- TRIGGERED ALARM POPUP OVERLAY -->
-    <div v-if="ringingAlarm" class="modal-backdrop fade show" style="z-index: 1090;"></div>
-    <div v-if="ringingAlarm" class="modal d-block fade show" style="z-index: 1095;" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden bg-danger text-white text-center p-4">
-          <div class="p-3 bg-white text-danger rounded-circle mx-auto mb-3 animate-bounce d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-            <i class="bi bi-alarm-fill display-4"></i>
-          </div>
+    <!-- IN-PAGE TRIGGERED ALARM ALERT CARD -->
+    <div v-if="ringingAlarm" class="card border-0 shadow-lg rounded-4 overflow-hidden bg-danger text-white text-center p-4 my-4">
+      <div class="p-3 bg-white text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+        <i class="bi bi-alarm-fill display-4"></i>
+      </div>
 
-          <h2 class="fw-extrabold mb-1">⏰ ALARM KERJA BUNYI!</h2>
-          <div class="display-5 font-monospace fw-bold mb-2">{{ ringingAlarm.time }}</div>
-          <h4 class="fw-bold mb-3 bg-black bg-opacity-25 p-2 rounded-3">{{ ringingAlarm.label }}</h4>
+      <h2 class="fw-extrabold mb-1">⏰ ALARM KERJA BUNYI!</h2>
+      <div class="display-5 font-monospace fw-bold mb-2">{{ ringingAlarm.time }}</div>
+      <h4 class="fw-bold mb-3 bg-black bg-opacity-25 p-2 rounded-3">{{ ringingAlarm.label }}</h4>
 
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-light text-dark btn-lg rounded-pill px-4 fw-bold shadow" @click="snoozeAlarm">
-              <i class="bi bi-snooze me-1"></i> Tunda 5 Menit
-            </button>
-            <button class="btn btn-dark btn-lg rounded-pill px-4 fw-bold shadow" @click="stopRingingAlarm">
-              <i class="bi bi-stop-circle me-1"></i> Matikan Alarm
-            </button>
-          </div>
-        </div>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-warning btn-lg rounded-pill px-4 fw-bold text-dark" @click="snoozeAlarm(ringingAlarm)">
+          <i class="bi bi-snooze me-1"></i> Tunda 5 Menit
+        </button>
+        <button class="btn btn-light btn-lg rounded-pill px-4 fw-bold text-danger" @click="stopRingingAlarm">
+          <i class="bi bi-stop-circle-fill me-1"></i> Matikan Alarm
+        </button>
       </div>
     </div>
 

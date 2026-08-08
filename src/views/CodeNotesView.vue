@@ -82,68 +82,66 @@
       </div>
     </div>
 
-    <!-- Add Snippet Modal -->
-    <div v-if="showModal" class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3">
-      <div class="card border-0 shadow-lg rounded-4 bg-white max-w-2xl w-100 p-4 animate-scale">
-        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-code-square me-2 text-primary"></i>Tambah Code Snippet</h5>
-          <button class="btn-close" @click="showModal = false"></button>
+    <!-- In-Page Form Add Snippet (No Modal) -->
+    <div v-if="showModal" class="card border-0 shadow rounded-4 bg-white p-4 my-4 animate-scale border-top border-primary border-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-code-square me-2 text-primary"></i>Form Tambah Code Snippet</h5>
+        <button class="btn-close" @click="showModal = false"></button>
+      </div>
+
+      <form @submit.prevent="saveSnippet">
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Judul Snippet <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" placeholder="Contoh: Fetch API dengan Vue 3 Composition API" v-model="form.title" required />
         </div>
 
-        <form @submit.prevent="saveSnippet">
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark small">Judul Snippet <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" placeholder="Contoh: Fetch API dengan Vue 3 Composition API" v-model="form.title" required />
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Bahasa Pemrograman</label>
+            <select class="form-select" v-model="form.language">
+              <option value="javascript">JavaScript / TypeScript</option>
+              <option value="python">Python</option>
+              <option value="sql">SQL</option>
+              <option value="html">HTML / Vue / JSX</option>
+              <option value="css">CSS / Tailwind</option>
+              <option value="php">PHP</option>
+              <option value="java">Java</option>
+              <option value="cpp">C / C++</option>
+              <option value="shell">Bash / Shell</option>
+            </select>
           </div>
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label fw-bold text-dark small">Bahasa Pemrograman</label>
-              <select class="form-select" v-model="form.language">
-                <option value="javascript">JavaScript / TypeScript</option>
-                <option value="python">Python</option>
-                <option value="sql">SQL</option>
-                <option value="html">HTML / Vue / JSX</option>
-                <option value="css">CSS / Tailwind</option>
-                <option value="php">PHP</option>
-                <option value="java">Java</option>
-                <option value="cpp">C / C++</option>
-                <option value="shell">Bash / Shell</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-bold text-dark small">Tags (Pisahkan Koma)</label>
-              <input type="text" class="form-control" placeholder="api, vue3, composition" v-model="form.tagsInput" />
-            </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Tags (Pisahkan Koma)</label>
+            <input type="text" class="form-control" placeholder="api, vue3, composition" v-model="form.tagsInput" />
           </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark small">Kode Sumber <span class="text-danger">*</span></label>
-            <textarea
-              class="form-control font-monospace bg-dark text-success border-2"
-              rows="6"
-              placeholder="Paste potongan kode kodingan Anda di sini..."
-              v-model="form.code"
-              @input="detectLanguage"
-              required
-            ></textarea>
-            <small v-if="detectedLangLabel" class="text-primary fw-bold mt-1 d-block">
-              ✨ Auto-Detected Language: {{ detectedLangLabel }}
-            </small>
-          </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Kode Sumber <span class="text-danger">*</span></label>
+          <textarea
+            class="form-control font-monospace bg-dark text-success border-2"
+            rows="6"
+            placeholder="Paste potongan kode kodingan Anda di sini..."
+            v-model="form.code"
+            @input="detectLanguage"
+            required
+          ></textarea>
+          <small v-if="detectedLangLabel" class="text-primary fw-bold mt-1 d-block">
+            ✨ Auto-Detected Language: {{ detectedLangLabel }}
+          </small>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark small">Catatan / Keterangan Tambahan</label>
-            <input type="text" class="form-control" placeholder="Cara penggunaan singkat atau konteks pustaka..." v-model="form.description" />
-          </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Catatan / Keterangan Tambahan</label>
+          <input type="text" class="form-control" placeholder="Cara penggunaan singkat atau konteks pustaka..." v-model="form.description" />
+        </div>
 
-          <div class="d-flex justify-content-end gap-2 border-top pt-3">
-            <button type="button" class="btn btn-light rounded-pill px-4" @click="showModal = false">Batal</button>
-            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Simpan Snippet</button>
-          </div>
-        </form>
-      </div>
+        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+          <button type="button" class="btn btn-light rounded-pill px-4" @click="showModal = false">Batal</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Simpan Snippet</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>

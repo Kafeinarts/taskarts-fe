@@ -8,7 +8,7 @@
             <i class="bi bi-calculator-fill me-1"></i> Rencana Anggaran Biaya (RAB)
           </span>
           <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill shadow-sm">
-            Live Calculation Engine
+            Clean 0 Rp Start State
           </span>
         </div>
         <h2 class="fw-bold mb-1 text-dark">📋 RAB & Kas Kegiatan (Management Anggaran)</h2>
@@ -17,15 +17,15 @@
 
       <div class="d-flex flex-wrap gap-2 align-items-center">
         <button class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold" @click="triggerLoadSampleData">
-          <i class="bi bi-magic me-1"></i> Load Contoh RAB
+          <i class="bi bi-magic me-1"></i> Load Contoh Data
         </button>
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
           <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel (.xlsx)
         </button>
-        <button class="btn btn-outline-dark px-3 py-2 rounded-3 fw-semibold" @click="openPdfExportModal">
-          <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> Export PDF / Cetak
+        <button class="btn btn-outline-dark px-3 py-2 rounded-3 fw-semibold" @click="exportToPdf">
+          <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> Export PDF / Cetak Laporan
         </button>
-        <button class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm" @click="openModal('rab')">
+        <button class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm" @click="openForm('rab')">
           <i class="bi bi-plus-circle-fill me-1"></i> + Tambah Item RAB
         </button>
       </div>
@@ -149,6 +149,168 @@
       </div>
     </div>
 
+    <!-- IN-PAGE FORM SECTION (TERPISAH, TANPA MODAL) -->
+    <div v-if="showForm" id="inPageFormCard" class="card border-0 shadow rounded-4 p-4 mb-4 bg-white border-top border-4" :class="formBorderClass">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i :class="formIcon" class="me-2"></i> {{ formTitle }}
+        </h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" @click="closeForm" title="Tutup Form">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- FORM 1: ITEM RAB -->
+      <form v-if="formType === 'rab'" @submit.prevent="saveRabItem">
+        <div class="row g-3">
+          <div class="col-12 col-md-8">
+            <label class="form-label fw-semibold">Nama Item Kegiatan / Pengadaan <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" v-model="rabForm.nama_item" placeholder="Contoh: Sewa Peralatan Stage & Sound" required />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Status Anggaran <span class="text-danger">*</span></label>
+            <select class="form-select" v-model="rabForm.status" required>
+              <option value="Rencana">Rencana</option>
+              <option value="Disetujui">Disetujui</option>
+              <option value="Proses Belanja">Proses Belanja</option>
+              <option value="Lunas / Terbayar">Lunas / Terbayar</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Deskripsi Barang / Catatan Spesifikasi</label>
+            <textarea class="form-control" rows="2" v-model="rabForm.catatan" placeholder="Masukkan rincian deskripsi barang, vendor, atau catatan pendukung"></textarea>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Jumlah (Qty) <span class="text-danger">*</span></label>
+            <input type="number" min="1" class="form-control" v-model.number="rabForm.qty" required />
+          </div>
+
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Satuan <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" v-model="rabForm.satuan" placeholder="pcs / unit / porsi / paket" required />
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
+            <input type="number" min="0" class="form-control font-monospace fw-semibold" v-model.number="rabForm.harga_satuan" placeholder="0" required />
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Harga Total (Otomatis)</label>
+            <div class="form-control bg-light font-monospace fw-bold text-primary">
+              Rp {{ formatRupiah((rabForm.qty || 0) * (rabForm.harga_satuan || 0)) }}
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Income / Dana Alokasi Item (Rp)</label>
+            <input type="number" min="0" class="form-control font-monospace text-success fw-semibold" v-model.number="rabForm.income" placeholder="0 jika belum ada" />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Tanggal Transaksi / Rencana <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" v-model="rabForm.tanggal" required />
+          </div>
+
+          <div class="col-12 text-end pt-3 border-top">
+            <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeForm">Batal</button>
+            <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold">Simpan Item RAB</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- FORM 2: INCOME / PEMASUKAN -->
+      <form v-else-if="formType === 'income'" @submit.prevent="saveIncome">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Sumber Dana / Donatur <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" v-model="incomeForm.sumber_dana" placeholder="Contoh: Sponsor PT Mitra Bersama, Kas Utama" required />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Tanggal Terima <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" v-model="incomeForm.tanggal" required />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Nominal Pemasukan (Rp) <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light fw-bold">Rp</span>
+              <input type="number" min="1" class="form-control fw-bold fs-5 text-success font-monospace" v-model.number="incomeForm.nominal" placeholder="0" required />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Keterangan Catatan</label>
+            <textarea class="form-control" rows="2" v-model="incomeForm.keterangan" placeholder="Kuitansi #102 / Bukti transfer donatur"></textarea>
+          </div>
+
+          <div class="col-12 text-end pt-3 border-top">
+            <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeForm">Batal</button>
+            <button type="submit" class="btn btn-success px-4 rounded-3 fw-bold">Simpan Pemasukan</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- FORM 3: EXPENSE / PENGELUARAN REALISASI -->
+      <form v-else-if="formType === 'expense'" @submit.prevent="saveExpense">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold">Hubungkan dengan Item RAB</label>
+            <select class="form-select" v-model="expenseForm.rab_item_id" @change="onSelectRabItem">
+              <option :value="null">-- Non-RAB / Pengeluaran Tak Terduga --</option>
+              <option v-for="item in rabItems" :key="item.id" :value="item.id">
+                {{ item.nama_item }} (Target RAB: Rp {{ formatRupiah(item.total) }})
+              </option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Deskripsi Belanja Realisasi <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" v-model="expenseForm.deskripsi" placeholder="Contoh: Pembayaran DP Tempat Lapangan" required />
+          </div>
+
+          <div class="col-6 col-md-4">
+            <label class="form-label fw-semibold">Jumlah (Qty) <span class="text-danger">*</span></label>
+            <input type="number" min="1" class="form-control" v-model.number="expenseForm.qty" required />
+          </div>
+
+          <div class="col-6 col-md-4">
+            <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
+            <input type="number" min="0" class="form-control font-monospace" v-model.number="expenseForm.harga_satuan" required />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Tanggal Nota <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" v-model="expenseForm.tanggal" required />
+          </div>
+
+          <div class="col-12">
+            <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold text-muted">Total Realisasi Belanja:</span>
+              <span class="fs-5 fw-black text-danger font-monospace">
+                Rp {{ formatRupiah((expenseForm.qty || 0) * (expenseForm.harga_satuan || 0)) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Nomor Nota / Catatan Vendor</label>
+            <textarea class="form-control" rows="2" v-model="expenseForm.keterangan" placeholder="Kuitansi Toko Jaya Makmur"></textarea>
+          </div>
+
+          <div class="col-12 text-end pt-3 border-top">
+            <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeForm">Batal</button>
+            <button type="submit" class="btn btn-danger px-4 rounded-3 fw-bold">Simpan Pengeluaran</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
     <!-- MAIN TAB NAVIGATION (NO-PRINT) -->
     <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white no-print">
       <div class="card-header bg-transparent border-bottom p-2 p-md-3">
@@ -203,12 +365,12 @@
       </div>
     </div>
 
-    <!-- TAB 1: TABEL UTAMA RAB (LENGKAP) -->
+    <!-- TAB 1: TABEL UTAMA RAB (HEADER STRUCTURAL: ITEM, HARGA OVERALL, INFO) -->
     <div v-if="activeTab === 'rab_items' || isPrinting" class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 no-print">
         <div>
           <h5 class="fw-bold mb-1"><i class="bi bi-list-stars text-primary me-2"></i> Data Detail Rencana Anggaran Biaya (RAB)</h5>
-          <p class="text-muted small mb-0">Rincian data per item termasuk Qty, Income Alokasi, Harga Satuan, Total, Tanggal, dan Status.</p>
+          <p class="text-muted small mb-0">Struktur tabel lengkap meliputi Item, Deskripsi, Qty, Harga Satuan, Harga Total, Tanggal, dan Status.</p>
         </div>
 
         <div class="d-flex align-items-center gap-2">
@@ -226,45 +388,47 @@
             <option value="Selesai">Selesai</option>
           </select>
 
-          <button class="btn btn-primary btn-sm rounded-3 fw-semibold text-nowrap px-3" @click="openModal('rab')">
+          <button class="btn btn-primary btn-sm rounded-3 fw-semibold text-nowrap px-3" @click="openForm('rab')">
             <i class="bi bi-plus-circle me-1"></i> Input Item Baru
           </button>
         </div>
       </div>
 
-      <!-- MAIN RAB TABLE -->
+      <!-- MAIN GROUPED RAB TABLE -->
       <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle mb-0">
-          <thead class="table-dark text-white">
+          <thead class="table-dark text-white text-center align-middle">
             <tr>
-              <th class="text-center" style="width: 45px;">No</th>
-              <th>Nama Item Kegiatan / Pengadaan</th>
-              <th class="text-center" style="width: 80px;">Qty</th>
-              <th class="text-end">Income (Rp)</th>
-              <th class="text-end">Harga Satuan (Rp)</th>
-              <th class="text-end">Harga Total (Rp)</th>
-              <th class="text-center">Tanggal</th>
-              <th class="text-center">Status</th>
-              <th>Catatan / Keterangan</th>
-              <th class="text-center no-print" style="width: 90px;">Aksi</th>
+              <th rowspan="2" style="width: 45px;">No</th>
+              <th colspan="2" class="bg-primary text-white">ITEM</th>
+              <th colspan="3" class="bg-success text-white">Harga Overall</th>
+              <th colspan="2" class="bg-dark text-white">Info</th>
+              <th rowspan="2" class="no-print" style="width: 90px;">Aksi</th>
+            </tr>
+            <tr>
+              <th>Nama Item</th>
+              <th>Deskripsi Barang</th>
+              <th style="width: 80px;">Qty</th>
+              <th>Harga Satuan</th>
+              <th>Harga Total</th>
+              <th>Tanggal</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="filteredRabItems.length === 0">
-              <td colspan="10" class="text-center py-5 text-muted">
+              <td colspan="9" class="text-center py-5 text-muted">
                 <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                Belum ada data RAB. Klik tombol <strong>+ Input Item Baru</strong> atau <strong>Load Contoh RAB</strong>.
+                Belum ada data RAB (Start 0 Rp). Klik tombol <strong>+ Tambah Item RAB</strong> atau <strong>Load Contoh Data</strong>.
               </td>
             </tr>
 
             <tr v-for="(item, idx) in filteredRabItems" :key="item.id">
               <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
               <td class="fw-bold text-dark">{{ item.nama_item }}</td>
+              <td class="small text-muted">{{ item.catatan || item.deskripsi || '-' }}</td>
               <td class="text-center">
                 <span class="badge bg-light text-dark border px-2 py-1">{{ item.qty }} {{ item.satuan || 'pcs' }}</span>
-              </td>
-              <td class="text-end font-monospace text-success fw-bold">
-                Rp {{ formatRupiah(item.income || 0) }}
               </td>
               <td class="text-end font-monospace text-secondary">
                 Rp {{ formatRupiah(item.harga_satuan || 0) }}
@@ -280,9 +444,6 @@
                   {{ item.status || 'Rencana' }}
                 </span>
               </td>
-              <td class="small text-muted">
-                {{ item.catatan || '-' }}
-              </td>
               <td class="text-center no-print">
                 <div class="btn-group btn-group-sm">
                   <button class="btn btn-outline-primary" @click="editRabItem(item)" title="Edit Data">
@@ -297,12 +458,12 @@
           </tbody>
           <tfoot class="table-light fw-bold">
             <tr>
-              <td colspan="3" class="text-end fs-6">TOTAL RANGKUMAN:</td>
-              <td class="text-end fs-6 text-success font-monospace">Rp {{ formatRupiah(totalRabItemIncome) }}</td>
+              <td colspan="3" class="text-end fs-6">TOTAL TARGET RANGKUMAN:</td>
+              <td class="text-center font-monospace text-muted">-</td>
               <td class="text-end font-monospace text-muted">-</td>
               <td class="text-end fs-6 text-primary font-monospace">Rp {{ formatRupiah(totalRabAmount) }}</td>
-              <td colspan="4" class="no-print"></td>
-              <td colspan="3" class="print-only"></td>
+              <td colspan="2"></td>
+              <td class="no-print"></td>
             </tr>
           </tfoot>
         </table>
@@ -316,7 +477,7 @@
           <h5 class="fw-bold mb-1"><i class="bi bi-wallet2 text-success me-2"></i> Records Pemasukan / Income Kas</h5>
           <p class="text-muted small mb-0">Pencatatan sumber dana masuk, iuran, donatur, atau kas internal.</p>
         </div>
-        <button class="btn btn-success rounded-3 fw-semibold px-4" @click="openModal('income')">
+        <button class="btn btn-success rounded-3 fw-semibold px-4" @click="openForm('income')">
           <i class="bi bi-plus-circle me-1"></i> Catat Pemasukan Baru
         </button>
       </div>
@@ -379,7 +540,7 @@
           <h5 class="fw-bold mb-1"><i class="bi bi-cart-check text-danger me-2"></i> Records Pengeluaran Realisasi (Belanja)</h5>
           <p class="text-muted small mb-0">Pencatatan realisasi belanja aktual di lapangan berdasarkan kuitansi/nota.</p>
         </div>
-        <button class="btn btn-danger rounded-3 fw-semibold px-4" @click="openModal('expense')">
+        <button class="btn btn-danger rounded-3 fw-semibold px-4" @click="openForm('expense')">
           <i class="bi bi-plus-circle me-1"></i> Catat Realisasi Belanja
         </button>
       </div>
@@ -477,7 +638,7 @@
               <td class="fw-bold text-muted text-center">{{ idx + 1 }}</td>
               <td>
                 <div class="fw-bold text-dark">{{ row.item.nama_item }}</div>
-                <div class="small text-muted">{{ row.item.catatan || '-' }}</div>
+                <div class="small text-muted">{{ row.item.catatan || row.item.deskripsi || '-' }}</div>
               </td>
               <td class="text-center fw-semibold">{{ row.item.qty }} {{ row.item.satuan || 'pcs' }}</td>
               <td class="text-end font-monospace fw-bold text-primary">Rp {{ formatRupiah(row.item.total) }}</td>
@@ -537,178 +698,11 @@
         Dokumen Laporan Anggaran ini diciptakan secara sah menggunakan Sistem Management RAB.
       </div>
     </div>
-
-    <!-- MODAL FORM INPUT/EDIT (RAB / INCOME / EXPENSE) -->
-    <div v-if="showModal" class="modal-backdrop fade show" style="z-index: 1040;"></div>
-    <div v-if="showModal" class="modal fade show d-block" tabindex="-1" style="z-index: 1050;">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-          <div class="modal-header border-bottom p-4">
-            <h5 class="modal-title fw-bold">
-              <i :class="modalIcon" class="me-2"></i> {{ modalTitle }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-
-          <div class="modal-body p-4">
-            <!-- FORM 1: RAB ITEM -->
-            <form v-if="modalType === 'rab'" @submit.prevent="saveRabItem">
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Nama Item Kegiatan / Barang <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="rabForm.nama_item" placeholder="Contoh: Sewa Peralatan Sound & Stage" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Jumlah (Qty) <span class="text-danger">*</span></label>
-                  <input type="number" min="1" class="form-control" v-model.number="rabForm.qty" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Satuan <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="rabForm.satuan" placeholder="pcs / unit / porsi / paket / hari" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Income / Alokasi Dana (Rp)</label>
-                  <input type="number" min="0" class="form-control text-success fw-semibold" v-model.number="rabForm.income" placeholder="0 jika belum ada" />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
-                  <input type="number" min="0" class="form-control" v-model.number="rabForm.harga_satuan" placeholder="100000" required />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Tanggal Transaksi / RAB <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" v-model="rabForm.tanggal" required />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Status Anggaran <span class="text-danger">*</span></label>
-                  <select class="form-select" v-model="rabForm.status" required>
-                    <option value="Rencana">Rencana</option>
-                    <option value="Disetujui">Disetujui</option>
-                    <option value="Proses Belanja">Proses Belanja</option>
-                    <option value="Lunas / Terbayar">Lunas / Terbayar</option>
-                    <option value="Selesai">Selesai</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Harga Total (Otomatis Qty x Satuan)</label>
-                  <div class="form-control bg-light font-monospace fw-bold text-primary">
-                    Rp {{ formatRupiah((rabForm.qty || 0) * (rabForm.harga_satuan || 0)) }}
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Catatan / Keterangan Spesifikasi</label>
-                  <textarea class="form-control" rows="2" v-model="rabForm.catatan" placeholder="Detail lokasi, Vendor, atau catatan persetujuan"></textarea>
-                </div>
-
-                <div class="col-12 text-end pt-3 border-top">
-                  <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold">Simpan Data RAB</button>
-                </div>
-              </div>
-            </form>
-
-            <!-- FORM 2: INCOME / PEMASUKAN -->
-            <form v-else-if="modalType === 'income'" @submit.prevent="saveIncome">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Sumber Dana / Donatur <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="incomeForm.sumber_dana" placeholder="Contoh: Sponsorship PT ABC, Kas Utama" required />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Tanggal Terima <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" v-model="incomeForm.tanggal" required />
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Nominal Pemasukan (Rp) <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <span class="input-group-text bg-light fw-bold">Rp</span>
-                    <input type="number" min="1" class="form-control fw-bold fs-5 text-success" v-model.number="incomeForm.nominal" placeholder="1000000" required />
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Keterangan Catatan</label>
-                  <textarea class="form-control" rows="2" v-model="incomeForm.keterangan" placeholder="Bukti transfer / kuitansi / perincian sponsor"></textarea>
-                </div>
-
-                <div class="col-12 text-end pt-3 border-top">
-                  <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-success px-4 rounded-3 fw-bold">Simpan Pemasukan</button>
-                </div>
-              </div>
-            </form>
-
-            <!-- FORM 3: EXPENSE / PENGELUARAN REALISASI -->
-            <form v-else-if="modalType === 'expense'" @submit.prevent="saveExpense">
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Hubungkan dengan Item RAB</label>
-                  <select class="form-select" v-model="expenseForm.rab_item_id" @change="onSelectRabItem">
-                    <option :value="null">-- Non-RAB / Pengeluaran Tak Terduga --</option>
-                    <option v-for="item in rabItems" :key="item.id" :value="item.id">
-                      {{ item.nama_item }} (Target RAB: Rp {{ formatRupiah(item.total) }})
-                    </option>
-                  </select>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Deskripsi Belanja Realisasi <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="expenseForm.deskripsi" placeholder="Contoh: Pembayaran DP Tempat Lapangan" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Jumlah (Qty) <span class="text-danger">*</span></label>
-                  <input type="number" min="1" class="form-control" v-model.number="expenseForm.qty" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
-                  <input type="number" min="0" class="form-control" v-model.number="expenseForm.harga_satuan" required />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold">Tanggal Nota <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" v-model="expenseForm.tanggal" required />
-                </div>
-
-                <div class="col-12">
-                  <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-muted">Total Realisasi Belanja:</span>
-                    <span class="fs-5 fw-black text-danger font-monospace">
-                      Rp {{ formatRupiah((expenseForm.qty || 0) * (expenseForm.harga_satuan || 0)) }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Nomor Nota / Catatan Vendor</label>
-                  <textarea class="form-control" rows="2" v-model="expenseForm.keterangan" placeholder="Kuitansi #901 Toko Perkasa"></textarea>
-                </div>
-
-                <div class="col-12 text-end pt-3 border-top">
-                  <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-danger px-4 rounded-3 fw-bold">Simpan Pengeluaran</button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
 
@@ -770,7 +764,9 @@ export default {
     // Filtered RAB items
     const filteredRabItems = computed(() => {
       return rabItems.value.filter(item => {
-        const matchesQuery = searchQuery.value === '' || item.nama_item.toLowerCase().includes(searchQuery.value.toLowerCase());
+        const matchesQuery = searchQuery.value === '' || 
+          item.nama_item.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          (item.catatan && item.catatan.toLowerCase().includes(searchQuery.value.toLowerCase()));
         const matchesStatus = filterStatus.value === 'ALL' || item.status === filterStatus.value;
         return matchesQuery && matchesStatus;
       });
@@ -848,9 +844,9 @@ export default {
       return '- (Over)';
     });
 
-    // MODAL STATE
-    const showModal = ref(false);
-    const modalType = ref('rab'); // 'rab', 'income', 'expense'
+    // IN-PAGE FORM STATE (NO MODAL)
+    const showForm = ref(false);
+    const formType = ref('rab'); // 'rab', 'income', 'expense'
     const editingId = ref(null);
 
     const rabForm = ref({
@@ -880,20 +876,26 @@ export default {
       keterangan: ''
     });
 
-    const modalTitle = computed(() => {
-      if (modalType.value === 'rab') return editingId.value ? 'Edit Item RAB' : 'Tambah Item RAB Baru';
-      if (modalType.value === 'income') return editingId.value ? 'Edit Catatan Pemasukan' : 'Catat Pemasukan / Income Kas';
-      return editingId.value ? 'Edit Catatan Realisasi' : 'Catat Realisasi Belanja Baru';
+    const formTitle = computed(() => {
+      if (formType.value === 'rab') return editingId.value ? 'Form Edit Item RAB' : 'Form Input Item RAB Baru';
+      if (formType.value === 'income') return editingId.value ? 'Form Edit Catatan Pemasukan' : 'Form Input Pemasukan / Income Kas';
+      return editingId.value ? 'Form Edit Catatan Realisasi' : 'Form Input Realisasi Belanja Baru';
     });
 
-    const modalIcon = computed(() => {
-      if (modalType.value === 'rab') return 'bi bi-calculator-fill text-primary';
-      if (modalType.value === 'income') return 'bi bi-wallet2 text-success';
+    const formIcon = computed(() => {
+      if (formType.value === 'rab') return 'bi bi-calculator-fill text-primary';
+      if (formType.value === 'income') return 'bi bi-wallet2 text-success';
       return 'bi bi-cart-check text-danger';
     });
 
-    const openModal = (type) => {
-      modalType.value = type;
+    const formBorderClass = computed(() => {
+      if (formType.value === 'rab') return 'border-primary';
+      if (formType.value === 'income') return 'border-success';
+      return 'border-danger';
+    });
+
+    const openForm = (type) => {
+      formType.value = type;
       editingId.value = null;
       if (type === 'rab') {
         rabForm.value = {
@@ -911,33 +913,49 @@ export default {
       } else if (type === 'expense') {
         expenseForm.value = { rab_item_id: null, deskripsi: '', qty: 1, harga_satuan: 0, tanggal: new Date().toISOString().split('T')[0], keterangan: '' };
       }
-      showModal.value = true;
+      showForm.value = true;
+      nextTick(() => {
+        const el = document.getElementById('inPageFormCard');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      });
     };
 
-    const closeModal = () => {
-      showModal.value = false;
+    const closeForm = () => {
+      showForm.value = false;
       editingId.value = null;
     };
 
     const editRabItem = (item) => {
-      modalType.value = 'rab';
+      formType.value = 'rab';
       editingId.value = item.id;
       rabForm.value = { ...item };
-      showModal.value = true;
+      showForm.value = true;
+      nextTick(() => {
+        const el = document.getElementById('inPageFormCard');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      });
     };
 
     const editIncome = (inc) => {
-      modalType.value = 'income';
+      formType.value = 'income';
       editingId.value = inc.id;
       incomeForm.value = { ...inc };
-      showModal.value = true;
+      showForm.value = true;
+      nextTick(() => {
+        const el = document.getElementById('inPageFormCard');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      });
     };
 
     const editExpense = (exp) => {
-      modalType.value = 'expense';
+      formType.value = 'expense';
       editingId.value = exp.id;
       expenseForm.value = { ...exp };
-      showModal.value = true;
+      showForm.value = true;
+      nextTick(() => {
+        const el = document.getElementById('inPageFormCard');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      });
     };
 
     const onSelectRabItem = () => {
@@ -960,7 +978,7 @@ export default {
         store.dispatch('addRabItem', { ...rabForm.value });
         alert('Berhasil! Item RAB baru berhasil ditambahkan.');
       }
-      closeModal();
+      closeForm();
     };
 
     const saveIncome = () => {
@@ -971,7 +989,7 @@ export default {
         store.dispatch('addRabIncome', { ...incomeForm.value });
         alert('Berhasil! Pemasukan baru berhasil dicatat.');
       }
-      closeModal();
+      closeForm();
     };
 
     const saveExpense = () => {
@@ -982,7 +1000,7 @@ export default {
         store.dispatch('addRabExpense', { ...expenseForm.value });
         alert('Berhasil! Realisasi pengeluaran baru berhasil dicatat.');
       }
-      closeModal();
+      closeForm();
     };
 
     // DELETE HANDLERS (Native JS confirm)
@@ -1007,7 +1025,7 @@ export default {
       }
     };
 
-    // SAMPLE DATA LOAD & RESET
+    // SAMPLE DATA LOAD
     const triggerLoadSampleData = () => {
       if (confirm('Muat Contoh Data RAB Kegiatan?\n\nData RAB, Pemasukan/Income, dan Realisasi Pengeluaran contoh akan dimuat.')) {
         store.dispatch('loadSampleRabData');
@@ -1021,59 +1039,51 @@ export default {
         const rows = filteredRabItems.value.map((item, idx) => ({
           'No': idx + 1,
           'Nama Item': item.nama_item,
+          'Deskripsi Barang': item.catatan || item.deskripsi || '-',
           'Qty': item.qty,
           'Satuan': item.satuan || 'pcs',
-          'Income (Rp)': item.income || 0,
           'Harga Satuan (Rp)': item.harga_satuan || 0,
           'Harga Total (Rp)': item.total || (item.qty * item.harga_satuan),
           'Tanggal': item.tanggal || '-',
-          'Status': item.status || 'Rencana',
-          'Catatan': item.catatan || '-'
+          'Status': item.status || 'Rencana'
         }));
 
-        // Add Summary Row at Bottom
+        // Summary row
         rows.push({
           'No': 'TOTAL',
           'Nama Item': 'RANGKUMAN DANA',
+          'Deskripsi Barang': 'Exported by: ' + (exporterMeta.namaExporter || 'System Exporter'),
           'Qty': '-',
           'Satuan': '-',
-          'Income (Rp)': totalRabItemIncome.value,
           'Harga Satuan (Rp)': '-',
           'Harga Total (Rp)': totalRabAmount.value,
           'Tanggal': '-',
-          'Status': 'Total Target',
-          'Catatan': 'Exported by: ' + (exporterMeta.namaExporter || 'System Exporter')
+          'Status': 'Total Target'
         });
 
         const worksheet = XLSX.utils.json_to_sheet(rows);
 
-        // Append Exporter Info Header on top
+        // Append Exporter Info metadata at bottom
         XLSX.utils.sheet_add_aoa(worksheet, [
-          ['LAPORAN RENCANA ANGGARAN BIAYA & KAS KEGIATAN'],
-          ['Exported By:', exporterMeta.namaExporter || 'Arip (Bendahara)'],
-          ['Jabatan Exporter:', exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB'],
-          ['Disetujui Oleh:', exporterMeta.namaPenyetuju || 'Ketua Panitia / Manajer Proyek'],
-          ['Lokasi & Tanggal:', exporterMeta.lokasiTanggal || 'Jakarta'],
-          [''] // blank row
-        ], { origin: 'A1' });
+          [],
+          ['--- INFORMASI DOKUMEN EXPORTER ---'],
+          ['Exported By', exporterMeta.namaExporter || '-'],
+          ['Jabatan Exporter', exporterMeta.jabatanExporter || '-'],
+          ['Disetujui Oleh', exporterMeta.namaPenyetuju || '-'],
+          ['Lokasi & Tanggal', exporterMeta.lokasiTanggal || '-']
+        ], { origin: -1 });
 
-        // Shift rows down for data worksheet table
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan_RAB');
-
-        const filename = `Laporan_RAB_Kegiatan_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(workbook, filename);
-
-        alert(`Berhasil! File Excel "${filename}" telah diunduh.`);
+        XLSX.writeFile(workbook, `Laporan_RAB_${new Date().toISOString().split('T')[0]}.xlsx`);
+        alert('Berhasil! File Excel Laporan RAB berhasil diunduh.');
       } catch (err) {
-        console.error('Export Excel Error:', err);
         alert('Terjadi kesalahan saat mengunduh Excel: ' + err.message);
       }
     };
 
     // EXPORT TO PDF / PRINT PDF WITH EXPORTER META & SIGNATURE SLOTS
-    const openPdfExportModal = () => {
-      // Trigger native browser print dialog formatted as formal PDF document with signature slots
+    const exportToPdf = () => {
       activeTab.value = 'rab_items';
       isPrinting.value = true;
       setTimeout(() => {
@@ -1108,20 +1118,24 @@ export default {
       evalBadgeClass,
       selisihVsTextClass,
       selisihVsPrefix,
-      showModal,
-      modalType,
+      
+      // Form state (No modal)
+      showForm,
+      formType,
       editingId,
       rabForm,
       incomeForm,
       expenseForm,
-      modalTitle,
-      modalIcon,
-      openModal,
-      closeModal,
+      formTitle,
+      formIcon,
+      formBorderClass,
+      openForm,
+      closeForm,
       editRabItem,
       editIncome,
       editExpense,
       onSelectRabItem,
+      
       saveRabItem,
       saveIncome,
       saveExpense,
@@ -1130,7 +1144,7 @@ export default {
       deleteExpenseConfirm,
       triggerLoadSampleData,
       exportToExcel,
-      openPdfExportModal
+      exportToPdf
     };
   }
 };
@@ -1141,61 +1155,39 @@ export default {
   font-weight: 900;
 }
 
-.tracking-wider {
-  letter-spacing: 0.05em;
-}
-
 .bg-gradient-success {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #198754 0%, #0d5132 100%);
 }
 
 .bg-gradient-danger {
-  background: linear-gradient(135deg, #dc2626 0%, #f43f5e 100%);
+  background: linear-gradient(135deg, #dc3545 0%, #842029 100%);
+}
+
+.text-indigo {
+  color: #6610f2;
 }
 
 .print-only {
   display: none !important;
 }
 
-/* Print CSS Styles for PDF Generation */
 @media print {
   .no-print {
     display: none !important;
   }
-
   .print-only {
     display: block !important;
   }
-
   body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 11pt !important;
+    background: #fff !important;
+    color: #000 !important;
   }
-
   .card {
-    border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
+    border: none !important;
   }
-
   .table-responsive {
     overflow: visible !important;
-  }
-
-  .table {
-    border-collapse: collapse !important;
-    width: 100% !important;
-  }
-
-  .table th, .table td {
-    border: 1px solid #333 !important;
-    padding: 6px 8px !important;
-  }
-
-  .table-dark {
-    background-color: #222 !important;
-    color: #fff !important;
   }
 }
 </style>

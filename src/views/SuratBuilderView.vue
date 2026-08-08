@@ -197,88 +197,87 @@
       </div>
     </div>
 
-    <!-- WhatsApp Modal -->
-    <div v-if="showWaModal" class="modal fade show d-block print-hide" style="background: rgba(0,0,0,0.55);" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-          <div class="modal-header bg-success text-white rounded-top-4 py-3">
-            <h5 class="modal-title fw-bold">
-              <i class="bi bi-whatsapp me-2"></i> Kirim Surat via WhatsApp
-            </h5>
-            <button type="button" class="btn-close btn-close-white" @click="closeWaModal"></button>
+    <!-- In-Page WhatsApp Panel (No Modal) -->
+    <div v-if="showWaModal" class="card border-0 shadow rounded-4 p-4 my-4 bg-white border-top border-success border-4 print-hide">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-whatsapp text-success me-2"></i> Kirim Surat via WhatsApp
+        </h5>
+        <button type="button" class="btn-close" @click="closeWaModal"></button>
+      </div>
+
+      <div class="p-2">
+        <!-- Source Selector: Contact vs Manual -->
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Pilih Sumber Nomor Tujuan WhatsApp</label>
+          <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="waMode" id="waModeContact" value="contact" v-model="waRecipientMode" />
+            <label class="btn btn-outline-success fw-semibold" for="waModeContact">
+              <i class="bi bi-person-lines-fill me-1"></i> Pilih dari Kontak Tim & WA
+            </label>
+
+            <input type="radio" class="btn-check" name="waMode" id="waModeManual" value="manual" v-model="waRecipientMode" />
+            <label class="btn btn-outline-success fw-semibold" for="waModeManual">
+              <i class="bi bi-pencil-square me-1"></i> Input Nomor Manual
+            </label>
           </div>
-          <div class="modal-body p-4">
-            <!-- Source Selector: Contact vs Manual -->
-            <div class="mb-3">
-              <label class="form-label fw-bold text-dark small">Pilih Sumber Nomor Tujuan WhatsApp</label>
-              <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="waMode" id="waModeContact" value="contact" v-model="waRecipientMode" />
-                <label class="btn btn-outline-success fw-semibold" for="waModeContact">
-                  <i class="bi bi-person-lines-fill me-1"></i> Pilih dari Kontak Tim & WA
-                </label>
+        </div>
 
-                <input type="radio" class="btn-check" name="waMode" id="waModeManual" value="manual" v-model="waRecipientMode" />
-                <label class="btn btn-outline-success fw-semibold" for="waModeManual">
-                  <i class="bi bi-pencil-square me-1"></i> Input Nomor Manual
-                </label>
-              </div>
-            </div>
-
-            <!-- Contact Picker -->
-            <div v-if="waRecipientMode === 'contact'" class="mb-3 bg-light p-3 rounded-3 border">
-              <label class="form-label fw-bold text-dark small">Daftar Kontak Tim / Client</label>
-              <div v-if="contactsList.length > 0">
-                <select class="form-select form-select-sm border-2" v-model="selectedContactId" @change="onSelectContact">
-                  <option value="">-- Pilih Anggota Tim / Client --</option>
-                  <option v-for="c in contactsList" :key="c.id" :value="c.id">
-                    {{ c.name }} - {{ c.company || 'Umum' }} ({{ c.phone || 'Tanpa no hp' }})
-                  </option>
-                </select>
-                <div v-if="selectedContactPhone" class="form-text text-success mt-1 small">
-                  <i class="bi bi-check-circle-fill me-1"></i> Nomor Terpilih: <strong>{{ selectedContactPhone }}</strong>
-                </div>
-              </div>
-              <div v-else class="text-center py-2">
-                <p class="text-muted small mb-2">Belum ada data kontak di penyimpanan.</p>
-                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" @click="loadSampleContacts">
-                  <i class="bi bi-download me-1"></i> Load Contoh Kontak Tim
-                </button>
-              </div>
-            </div>
-
-            <!-- Manual Number Input -->
-            <div v-if="waRecipientMode === 'manual'" class="mb-3 bg-light p-3 rounded-3 border">
-              <label class="form-label fw-bold text-dark small">Nomor WhatsApp Tujuan</label>
-              <input
-                type="tel"
-                class="form-control form-control-sm border-2"
-                v-model="manualPhone"
-                placeholder="Contoh: 081234567890 / 6281234567890"
-              />
-              <div class="form-text small text-muted">Format lokal (08...) akan otomatis dikonversi ke format WhatsApp internasional (628...).</div>
-            </div>
-
-            <!-- Message Preview / Editable -->
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <label class="form-label fw-bold text-dark small mb-0">Preview Pesan Teks Surat</label>
-                <button type="button" class="btn btn-xs btn-link text-decoration-none text-success" @click="resetWaMessage">
-                  <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Teks
-                </button>
-              </div>
-              <textarea class="form-control font-monospace border-2 rounded-3 small" rows="8" v-model="waCustomMessage"></textarea>
+        <!-- Contact Picker -->
+        <div v-if="waRecipientMode === 'contact'" class="mb-3 bg-light p-3 rounded-3 border">
+          <label class="form-label fw-bold text-dark small">Daftar Kontak Tim / Client</label>
+          <div v-if="contactsList.length > 0">
+            <select class="form-select form-select-sm border-2" v-model="selectedContactId" @change="onSelectContact">
+              <option value="">-- Pilih Anggota Tim / Client --</option>
+              <option v-for="c in contactsList" :key="c.id" :value="c.id">
+                {{ c.name }} - {{ c.company || 'Umum' }} ({{ c.phone || 'Tanpa no hp' }})
+              </option>
+            </select>
+            <div v-if="selectedContactPhone" class="form-text text-success mt-1 small">
+              <i class="bi bi-check-circle-fill me-1"></i> Nomor Terpilih: <strong>{{ selectedContactPhone }}</strong>
             </div>
           </div>
-
-          <div class="modal-footer bg-light rounded-bottom-4">
-            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @click="copyWaMessage">
-              <i class="bi bi-clipboard me-1"></i> Salin Teks
-            </button>
-            <button type="button" class="btn btn-light rounded-pill px-3" @click="closeWaModal">Batal</button>
-            <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" @click="sendWhatsApp">
-              <i class="bi bi-whatsapp me-1"></i> Kirim via WhatsApp
+          <div v-else class="text-center py-2">
+            <p class="text-muted small mb-2">Belum ada data kontak di penyimpanan.</p>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" @click="loadSampleContacts">
+              <i class="bi bi-download me-1"></i> Load Contoh Kontak Tim
             </button>
           </div>
+        </div>
+
+        <!-- Manual Number Input -->
+        <div v-if="waRecipientMode === 'manual'" class="mb-3 bg-light p-3 rounded-3 border">
+          <label class="form-label fw-bold text-dark small">Nomor WhatsApp Tujuan</label>
+          <input
+            type="tel"
+            class="form-control form-control-sm border-2"
+            v-model="manualPhone"
+            placeholder="Contoh: 081234567890 / 6281234567890"
+          />
+          <div class="form-text small text-muted">Format lokal (08...) akan otomatis dikonversi ke format WhatsApp internasional (628...).</div>
+        </div>
+
+        <!-- Message Preview / Editable -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-bold text-dark small mb-0">Preview Pesan Teks Surat</label>
+            <button type="button" class="btn btn-xs btn-link text-decoration-none text-success" @click="resetWaMessage">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Teks
+            </button>
+          </div>
+          <textarea class="form-control font-monospace border-2 rounded-3 small" rows="8" v-model="waCustomMessage"></textarea>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @click="copyWaMessage">
+          <i class="bi bi-clipboard me-1"></i> Salin Teks
+        </button>
+        <div>
+          <button type="button" class="btn btn-light rounded-pill px-3 me-2" @click="closeWaModal">Batal</button>
+          <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" @click="sendWhatsApp">
+            <i class="bi bi-whatsapp me-1"></i> Kirim via WhatsApp
+          </button>
         </div>
       </div>
     </div>
