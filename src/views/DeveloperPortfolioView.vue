@@ -617,7 +617,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import Swal from 'sweetalert2';
+// Native JS alert/confirm used for maximum compatibility
 
 export default {
   name: 'DeveloperPortfolioView',
@@ -1274,24 +1274,12 @@ export default {
       const encodedText = encodeURIComponent(waText);
       const waURL = `https://wa.me/${waNumber}?text=${encodedText}`;
 
-      Swal.fire({
-        title: 'PESAN DISIAPKAN! 🚀',
-        text: 'Pesan Anda telah dirakit otomatis. Mari lanjutkan obrolan kita di WhatsApp!',
-        icon: 'success',
-        customClass: { popup: 'swal-neo', confirmButton: 'swal-neo-btn' },
-        buttonsStyling: false,
-        confirmButtonText: 'LANJUT KE WA 👉',
-        showCancelButton: true,
-        cancelButtonText: 'BATAL',
-        cancelButtonClass: 'btn btn-dark brutal-box ms-2 text-white fw-bold'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.open(waURL, '_blank');
-          waForm.name = '';
-          waForm.company = '';
-          waForm.message = '';
-        }
-      });
+      if (confirm('PESAN DISIAPKAN! 🚀\n\nPesan Anda telah dirakit otomatis. Lanjutkan obrolan di WhatsApp?')) {
+        window.open(waURL, '_blank');
+        waForm.name = '';
+        waForm.company = '';
+        waForm.message = '';
+      }
     };
 
     return {

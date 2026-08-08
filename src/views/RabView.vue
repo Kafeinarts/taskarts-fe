@@ -1,91 +1,108 @@
 <template>
   <div class="container-fluid p-0" data-aos="fade-up">
-    <!-- Top Header Banner -->
+    <!-- TOP HEADER BANNER (NO-PRINT) -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border no-print">
       <div>
         <div class="d-flex align-items-center gap-2 mb-1">
-          <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill">
-            <i class="bi bi-building me-1"></i> Kepanitiaan & Event Warga
+          <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1.5 rounded-pill">
+            <i class="bi bi-calculator-fill me-1"></i> Rencana Anggaran Biaya (RAB)
           </span>
-          <span class="badge bg-success text-white fw-bold px-3 py-2 rounded-pill shadow-sm">
-            Live Calculations
+          <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill shadow-sm">
+            Live Calculation Engine
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">📋 RAB & Kas Kegiatan (17-an / Event)</h2>
-        <p class="text-muted mb-0">Kelola Rencana Anggaran Biaya (RAB), pencatatan iuran warga, pengeluaran aktual, dan evaluasi budget secara real-time.</p>
+        <h2 class="fw-bold mb-1 text-dark">📋 RAB & Kas Kegiatan (Management Anggaran)</h2>
+        <p class="text-muted mb-0">Kelola estimasi biaya, alokasi dana income, realisasi pengeluaran, serta ekspor laporan resmi ke Excel & PDF.</p>
       </div>
 
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
         <button class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold" @click="triggerLoadSampleData">
-          <i class="bi bi-magic me-1"></i> Load Contoh 17 Agustus
+          <i class="bi bi-magic me-1"></i> Load Contoh RAB
         </button>
-        <button class="btn btn-outline-secondary px-3 py-2 rounded-3 fw-semibold" @click="printReport">
-          <i class="bi bi-printer-fill me-1"></i> Cetak PDF / Print
+        <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
+          <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel (.xlsx)
         </button>
-        <button class="btn btn-success px-4 py-2 rounded-3 fw-semibold shadow-sm" @click="openQuickAddModal">
-          <i class="bi bi-plus-circle-fill me-1"></i> Tambah Transaksi
+        <button class="btn btn-outline-dark px-3 py-2 rounded-3 fw-semibold" @click="openPdfExportModal">
+          <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> Export PDF / Cetak
+        </button>
+        <button class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm" @click="openModal('rab')">
+          <i class="bi bi-plus-circle-fill me-1"></i> + Tambah Item RAB
         </button>
       </div>
     </div>
 
-    <!-- PRINT HEADER (Only visible when printing) -->
-    <div class="print-only mb-4 text-center">
-      <h2 class="fw-bold text-uppercase mb-1">LAPORAN REKAPITULASI RAB & KAS KEGIATAN</h2>
-      <p class="mb-0 text-muted">Panitia Kegiatan 17 Agustus / Event Warga • Tanggal Cetak: {{ formattedToday }}</p>
-      <hr class="my-3 border-2 border-dark" />
+    <!-- PRINT HEADER (Only visible when printing / generating PDF) -->
+    <div class="print-only mb-4">
+      <div class="text-center mb-3">
+        <h2 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">LAPORAN RENCANA ANGGARAN BIAYA & KAS KEGIATAN</h2>
+        <p class="mb-0 text-secondary fw-semibold">Dokumen Anggaran Resmi • Tanggal Cetak: {{ exporterMeta.tanggalCetak || formattedToday }}</p>
+        <hr class="my-3 border-2 border-dark" />
+      </div>
+
+      <!-- Exporter Info Metadata Box in Print -->
+      <div class="row g-2 mb-3 p-3 bg-light rounded border text-dark small">
+        <div class="col-6">
+          <div><strong>Exported By (Diajukan Oleh):</strong> {{ exporterMeta.namaExporter || 'Arip (Bendahara)' }}</div>
+          <div><strong>Jabatan Exporter:</strong> {{ exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB' }}</div>
+        </div>
+        <div class="col-6 text-end">
+          <div><strong>Disetujui Oleh:</strong> {{ exporterMeta.namaPenyetuju || 'Ketua Panitia / Manajer Proyek' }}</div>
+          <div><strong>Lokasi & Tanggal:</strong> {{ exporterMeta.lokasiTanggal || 'Jakarta, ' + formattedToday }}</div>
+        </div>
+      </div>
     </div>
 
-    <!-- REAL-TIME DASHBOARD METRIC CARDS -->
+    <!-- METRIC CARDS SUMMARY -->
     <div class="row g-3 mb-4">
-      <!-- 1. Total RAB -->
+      <!-- 1. Total RAB (Target) -->
       <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-4 border-primary">
           <div class="card-body p-3.5">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="text-muted small fw-bold text-uppercase tracking-wider">Total RAB (Target)</span>
+              <span class="text-muted small fw-bold text-uppercase tracking-wider">Total Target RAB</span>
               <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
                 <i class="bi bi-calculator fs-5"></i>
               </div>
             </div>
             <h3 class="fw-black mb-1 text-primary">Rp {{ formatRupiah(totalRabAmount) }}</h3>
-            <span class="small text-muted">{{ rabItems.length }} Item Rencana Anggaran</span>
+            <span class="small text-muted">{{ rabItems.length }} Item Anggaran Terdaftar</span>
           </div>
         </div>
       </div>
 
-      <!-- 2. Total Pemasukan -->
+      <!-- 2. Total Income (Alokasi Dana Masuk) -->
       <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-4 border-success">
           <div class="card-body p-3.5">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="text-muted small fw-bold text-uppercase tracking-wider">Total Pemasukan</span>
+              <span class="text-muted small fw-bold text-uppercase tracking-wider">Total Income (Dana)</span>
               <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
                 <i class="bi bi-arrow-down-left-circle-fill fs-5"></i>
               </div>
             </div>
             <h3 class="fw-black mb-1 text-success">Rp {{ formatRupiah(totalRabIncome) }}</h3>
-            <span class="small text-muted">{{ rabIncomes.length }} Sumber Dana / Iuran Warga</span>
+            <span class="small text-muted">Dana Masuk / Teralokasi</span>
           </div>
         </div>
       </div>
 
-      <!-- 3. Total Pengeluaran Aktual -->
+      <!-- 3. Total Realisasi Pengeluaran -->
       <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-4 border-danger">
           <div class="card-body p-3.5">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="text-muted small fw-bold text-uppercase tracking-wider">Pengeluaran Aktual</span>
+              <span class="text-muted small fw-bold text-uppercase tracking-wider">Realisasi Belanja</span>
               <div class="p-2 bg-danger bg-opacity-10 text-danger rounded-3">
-                <i class="bi bi-arrow-up-right-circle-fill fs-5"></i>
+                <i class="bi bi-cart-check-fill fs-5"></i>
               </div>
             </div>
             <h3 class="fw-black mb-1 text-danger">Rp {{ formatRupiah(totalRabExpense) }}</h3>
-            <span class="small text-muted">{{ rabExpenses.length }} Transaksi Realisasi Belanja</span>
+            <span class="small text-muted">{{ rabExpenses.length }} Transaksi Belanja Realisasi</span>
           </div>
         </div>
       </div>
 
-      <!-- 4. Sisa Uang / Saldo -->
+      <!-- 4. Sisa Uang Kas / Surplus -->
       <div class="col-12 col-sm-6 col-xl-3">
         <div
           class="card border-0 shadow-sm rounded-4 h-100 text-white"
@@ -93,84 +110,58 @@
         >
           <div class="card-body p-3.5">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="text-white text-opacity-85 small fw-bold text-uppercase tracking-wider">Sisa Uang Kas (Aktual)</span>
+              <span class="text-white text-opacity-85 small fw-bold text-uppercase tracking-wider">Saldo Uang Kas</span>
               <div class="p-2 bg-white bg-opacity-20 text-white rounded-3">
                 <i class="bi bi-wallet-fill fs-5"></i>
               </div>
             </div>
             <h3 class="fw-black mb-1">Rp {{ formatRupiah(sisaRabAktual) }}</h3>
             <div class="small text-white text-opacity-85 d-flex justify-content-between">
-              <span>Est. Sisa RAB:</span>
-              <span class="fw-bold">Rp {{ formatRupiah(sisaRabAmount) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EVALUASI SELISIH BANNER (HEMAT VS OVER BUDGET) -->
-    <div
-      class="card border-0 shadow-sm rounded-4 mb-4 p-4 no-print transition-all"
-      :class="evalBannerClass"
-    >
-      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <div class="p-3 rounded-4 fs-2 d-flex align-items-center justify-content-center" :class="evalIconClass">
-            <i :class="evalIcon"></i>
-          </div>
-          <div>
-            <div class="d-flex align-items-center gap-2">
-              <h5 class="fw-bold mb-0" :class="evalTextClass">
-                Evaluasi Realisasi Budget: {{ rabStatusInfo.status }}
-              </h5>
-              <span class="badge fw-bold px-3 py-1 rounded-pill" :class="evalBadgeClass">
-                {{ rabStatusInfo.label }}
+              <span>Selisih RAB vs Belanja:</span>
+              <span class="fw-bold">
+                {{ selisihRabVsExpense >= 0 ? '+' : '-' }} Rp {{ formatRupiah(Math.abs(selisihRabVsExpense)) }}
               </span>
             </div>
-            <p class="small mb-0 mt-1" :class="evalSubtextClass">
-              {{ evalDescription }}
-            </p>
           </div>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-          <div class="text-end me-2 d-none d-lg-block">
-            <div class="small text-muted fw-semibold">Selisih RAB vs Pengeluaran:</div>
-            <div class="fs-5 fw-black" :class="selisihVsTextClass">
-              {{ selisihVsPrefix }} Rp {{ formatRupiah(Math.abs(selisihRabVsExpense)) }}
-            </div>
-          </div>
-          <button class="btn btn-sm btn-outline-dark rounded-3 px-3" @click="activeTab = 'comparison'">
-            Lihat Analisa Detail <i class="bi bi-arrow-right ms-1"></i>
-          </button>
         </div>
       </div>
     </div>
 
-    <!-- MAIN TAB NAVIGATION -->
+    <!-- EXPORTER CONFIGURATION BAR (NO-PRINT) -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white no-print">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-bold small text-muted mb-1"><i class="bi bi-person-badge me-1"></i> Exported By (Nama Exporter)</label>
+          <input type="text" class="form-control form-control-sm rounded-3" v-model="exporterMeta.namaExporter" placeholder="Masukkan nama Anda..." />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-bold small text-muted mb-1"><i class="bi bi-briefcase me-1"></i> Jabatan Exporter</label>
+          <input type="text" class="form-control form-control-sm rounded-3" v-model="exporterMeta.jabatanExporter" placeholder="Contoh: Bendahara / Financial Coordinator" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-bold small text-muted mb-1"><i class="bi bi-person-check me-1"></i> Mengetahui / Disetujui Oleh</label>
+          <input type="text" class="form-control form-control-sm rounded-3" v-model="exporterMeta.namaPenyetuju" placeholder="Contoh: Ketua Panitia / Manajer Proyek" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-bold small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i> Lokasi & Tanggal Dokumen</label>
+          <input type="text" class="form-control form-control-sm rounded-3" v-model="exporterMeta.lokasiTanggal" placeholder="Contoh: Jakarta, 8 Agustus 2026" />
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TAB NAVIGATION (NO-PRINT) -->
     <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white no-print">
       <div class="card-header bg-transparent border-bottom p-2 p-md-3">
         <ul class="nav nav-pills card-header-pills gap-1 flex-wrap">
           <li class="nav-item">
             <button
               class="nav-link fw-bold rounded-3 px-3 py-2 d-flex align-items-center gap-2"
-              :class="{ active: activeTab === 'dashboard' }"
-              @click="activeTab = 'dashboard'"
-            >
-              <i class="bi bi-pie-chart-fill"></i>
-              <span>Ringkasan Dashboard</span>
-            </button>
-          </li>
-
-          <li class="nav-item">
-            <button
-              class="nav-link fw-bold rounded-3 px-3 py-2 d-flex align-items-center gap-2"
               :class="{ active: activeTab === 'rab_items' }"
               @click="activeTab = 'rab_items'"
             >
-              <i class="bi bi-list-check"></i>
-              <span>Daftar RAB Item</span>
-              <span class="badge rounded-pill bg-light text-dark ms-1">{{ rabItems.length }}</span>
+              <i class="bi bi-table"></i>
+              <span>Tabel Utama RAB</span>
+              <span class="badge rounded-pill bg-primary text-white ms-1">{{ rabItems.length }}</span>
             </button>
           </li>
 
@@ -181,7 +172,7 @@
               @click="activeTab = 'income'"
             >
               <i class="bi bi-wallet2"></i>
-              <span>Pemasukan / Income</span>
+              <span>Pemasukan / Income Kas</span>
               <span class="badge rounded-pill bg-success text-white ms-1">{{ rabIncomes.length }}</span>
             </button>
           </li>
@@ -193,7 +184,7 @@
               @click="activeTab = 'expense'"
             >
               <i class="bi bi-cart-check"></i>
-              <span>Pengeluaran Aktual</span>
+              <span>Pengeluaran Realisasi</span>
               <span class="badge rounded-pill bg-danger text-white ms-1">{{ rabExpenses.length }}</span>
             </button>
           </li>
@@ -205,417 +196,349 @@
               @click="activeTab = 'comparison'"
             >
               <i class="bi bi-sliders2"></i>
-              <span>Analisa RAB vs Aktual</span>
+              <span>Analisa RAB vs Realisasi</span>
             </button>
           </li>
         </ul>
       </div>
     </div>
 
-    <!-- TAB 1: DASHBOARD RINGKASAN -->
-    <div v-if="activeTab === 'dashboard'" class="row g-4">
-      <!-- Quick Action Shortcuts -->
-      <div class="col-12 col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
-            <i class="bi bi-speedometer2 text-primary"></i> Progress Realiasi Anggaran
-          </h5>
+    <!-- TAB 1: TABEL UTAMA RAB (LENGKAP) -->
+    <div v-if="activeTab === 'rab_items' || isPrinting" class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 no-print">
+        <div>
+          <h5 class="fw-bold mb-1"><i class="bi bi-list-stars text-primary me-2"></i> Data Detail Rencana Anggaran Biaya (RAB)</h5>
+          <p class="text-muted small mb-0">Rincian data per item termasuk Qty, Income Alokasi, Harga Satuan, Total, Tanggal, dan Status.</p>
+        </div>
 
-          <!-- Progress Bar Budget Realization -->
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-bold small text-muted">Pengeluaran vs Target RAB</span>
-              <span class="fw-bold small text-dark">{{ percentUsed.toFixed(1) }}% Terpakai</span>
-            </div>
-            <div class="progress rounded-pill style-progress" style="height: 12px;">
-              <div
-                class="progress-bar rounded-pill"
-                :class="percentUsed > 100 ? 'bg-danger' : (percentUsed > 80 ? 'bg-warning' : 'bg-success')"
-                role="progressbar"
-                :style="{ width: Math.min(percentUsed, 100) + '%' }"
-              ></div>
-            </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="input-group input-group-sm" style="max-width: 260px;">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control bg-light border-start-0" placeholder="Cari item RAB..." v-model="searchQuery" />
           </div>
 
-          <!-- Progress Bar Income Coverage -->
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-bold small text-muted">Cakupan Pemasukan vs Total RAB</span>
-              <span class="fw-bold small text-dark">{{ percentIncomeCovered.toFixed(1) }}% Terkumpul</span>
-            </div>
-            <div class="progress rounded-pill style-progress" style="height: 12px;">
-              <div
-                class="progress-bar rounded-pill bg-info"
-                role="progressbar"
-                :style="{ width: Math.min(percentIncomeCovered, 100) + '%' }"
-              ></div>
-            </div>
-          </div>
+          <select class="form-select form-select-sm" v-model="filterStatus" style="max-width: 170px;">
+            <option value="ALL">Semua Status</option>
+            <option value="Rencana">Rencana</option>
+            <option value="Disetujui">Disetujui</option>
+            <option value="Proses Belanja">Proses Belanja</option>
+            <option value="Lunas / Terbayar">Lunas / Terbayar</option>
+            <option value="Selesai">Selesai</option>
+          </select>
 
-          <!-- Quick Actions Grid -->
-          <div class="row g-2 mt-2">
-            <div class="col-6 col-md-3">
-              <button class="btn btn-outline-primary w-100 py-3 rounded-4 d-flex flex-column align-items-center gap-1" @click="openModal('rab')">
-                <i class="bi bi-file-earmark-plus fs-3"></i>
-                <span class="small fw-semibold">+ RAB Item</span>
-              </button>
-            </div>
-            <div class="col-6 col-md-3">
-              <button class="btn btn-outline-success w-100 py-3 rounded-4 d-flex flex-column align-items-center gap-1" @click="openModal('income')">
-                <i class="bi bi-plus-circle fs-3"></i>
-                <span class="small fw-semibold">+ Pemasukan</span>
-              </button>
-            </div>
-            <div class="col-6 col-md-3">
-              <button class="btn btn-outline-danger w-100 py-3 rounded-4 d-flex flex-column align-items-center gap-1" @click="openModal('expense')">
-                <i class="bi bi-dash-circle fs-3"></i>
-                <span class="small fw-semibold">+ Pengeluaran</span>
-              </button>
-            </div>
-            <div class="col-6 col-md-3">
-              <button class="btn btn-outline-secondary w-100 py-3 rounded-4 d-flex flex-column align-items-center gap-1" @click="activeTab = 'comparison'">
-                <i class="bi bi-table fs-3"></i>
-                <span class="small fw-semibold">Analisa Item</span>
-              </button>
-            </div>
-          </div>
+          <button class="btn btn-primary btn-sm rounded-3 fw-semibold text-nowrap px-3" @click="openModal('rab')">
+            <i class="bi bi-plus-circle me-1"></i> Input Item Baru
+          </button>
         </div>
       </div>
 
-      <!-- Quick Summary Stats Side Card -->
-      <div class="col-12 col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
-            <i class="bi bi-info-circle text-primary"></i> Ringkasan Keuangan
-          </h5>
+      <!-- MAIN RAB TABLE -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle mb-0">
+          <thead class="table-dark text-white">
+            <tr>
+              <th class="text-center" style="width: 45px;">No</th>
+              <th>Nama Item Kegiatan / Pengadaan</th>
+              <th class="text-center" style="width: 80px;">Qty</th>
+              <th class="text-end">Income (Rp)</th>
+              <th class="text-end">Harga Satuan (Rp)</th>
+              <th class="text-end">Harga Total (Rp)</th>
+              <th class="text-center">Tanggal</th>
+              <th class="text-center">Status</th>
+              <th>Catatan / Keterangan</th>
+              <th class="text-center no-print" style="width: 90px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="filteredRabItems.length === 0">
+              <td colspan="10" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+                Belum ada data RAB. Klik tombol <strong>+ Input Item Baru</strong> atau <strong>Load Contoh RAB</strong>.
+              </td>
+            </tr>
 
-          <ul class="list-group list-group-flush small">
-            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-              <span class="text-muted"><i class="bi bi-circle-fill text-primary me-2 fs-6"></i> Total RAB:</span>
-              <span class="fw-bold text-dark">Rp {{ formatRupiah(totalRabAmount) }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-              <span class="text-muted"><i class="bi bi-circle-fill text-success me-2 fs-6"></i> Total Pemasukan:</span>
-              <span class="fw-bold text-success">Rp {{ formatRupiah(totalRabIncome) }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-              <span class="text-muted"><i class="bi bi-circle-fill text-danger me-2 fs-6"></i> Total Pengeluaran:</span>
-              <span class="fw-bold text-danger">Rp {{ formatRupiah(totalRabExpense) }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5 bg-light rounded-3 px-2 my-1">
-              <span class="fw-bold text-dark">Selisih RAB vs Belanja:</span>
-              <span class="fw-bold" :class="selisihVsTextClass">
+            <tr v-for="(item, idx) in filteredRabItems" :key="item.id">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td class="fw-bold text-dark">{{ item.nama_item }}</td>
+              <td class="text-center">
+                <span class="badge bg-light text-dark border px-2 py-1">{{ item.qty }} {{ item.satuan || 'pcs' }}</span>
+              </td>
+              <td class="text-end font-monospace text-success fw-bold">
+                Rp {{ formatRupiah(item.income || 0) }}
+              </td>
+              <td class="text-end font-monospace text-secondary">
+                Rp {{ formatRupiah(item.harga_satuan || 0) }}
+              </td>
+              <td class="text-end font-monospace fw-bold text-primary">
+                Rp {{ formatRupiah(item.total || (item.qty * item.harga_satuan)) }}
+              </td>
+              <td class="text-center small font-monospace text-muted">
+                {{ item.tanggal || '-' }}
+              </td>
+              <td class="text-center">
+                <span class="badge fw-bold px-2.5 py-1 rounded-pill" :class="getStatusBadgeClass(item.status)">
+                  {{ item.status || 'Rencana' }}
+                </span>
+              </td>
+              <td class="small text-muted">
+                {{ item.catatan || '-' }}
+              </td>
+              <td class="text-center no-print">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" @click="editRabItem(item)" title="Edit Data">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" @click="deleteRabItemConfirm(item.id)" title="Hapus Data">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td colspan="3" class="text-end fs-6">TOTAL RANGKUMAN:</td>
+              <td class="text-end fs-6 text-success font-monospace">Rp {{ formatRupiah(totalRabItemIncome) }}</td>
+              <td class="text-end font-monospace text-muted">-</td>
+              <td class="text-end fs-6 text-primary font-monospace">Rp {{ formatRupiah(totalRabAmount) }}</td>
+              <td colspan="4" class="no-print"></td>
+              <td colspan="3" class="print-only"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: KAS PEMASUKAN / INCOME -->
+    <div v-if="activeTab === 'income'" class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1"><i class="bi bi-wallet2 text-success me-2"></i> Records Pemasukan / Income Kas</h5>
+          <p class="text-muted small mb-0">Pencatatan sumber dana masuk, iuran, donatur, atau kas internal.</p>
+        </div>
+        <button class="btn btn-success rounded-3 fw-semibold px-4" @click="openModal('income')">
+          <i class="bi bi-plus-circle me-1"></i> Catat Pemasukan Baru
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="width: 50px;">No</th>
+              <th>Sumber Dana / Donatur</th>
+              <th class="text-center">Tanggal Terima</th>
+              <th class="text-end">Nominal (Rp)</th>
+              <th>Keterangan</th>
+              <th class="text-center no-print" style="width: 90px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="rabIncomes.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-wallet-fill fs-1 d-block mb-2 text-secondary"></i>
+                Belum ada catatan pemasukan. Klik <strong>+ Catat Pemasukan Baru</strong>.
+              </td>
+            </tr>
+            <tr v-for="(inc, idx) in rabIncomes" :key="inc.id">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td class="fw-bold text-dark">
+                <span class="badge bg-success-subtle text-success me-2"><i class="bi bi-person-fill"></i></span>
+                {{ inc.sumber_dana }}
+              </td>
+              <td class="text-center small font-monospace text-muted">{{ inc.tanggal }}</td>
+              <td class="text-end font-monospace fw-bold text-success">Rp {{ formatRupiah(inc.nominal) }}</td>
+              <td class="small text-muted">{{ inc.keterangan || '-' }}</td>
+              <td class="text-center no-print">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" @click="editIncome(inc)" title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" @click="deleteIncomeConfirm(inc.id)" title="Hapus">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-group-divider fw-bold" v-if="rabIncomes.length > 0">
+            <tr>
+              <td colspan="3" class="text-end fs-6">TOTAL PEMASUKAN TERIMA:</td>
+              <td class="text-end fs-6 text-success font-monospace">Rp {{ formatRupiah(totalRabIncome) }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: PENGELUARAN REALISASI -->
+    <div v-if="activeTab === 'expense'" class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1"><i class="bi bi-cart-check text-danger me-2"></i> Records Pengeluaran Realisasi (Belanja)</h5>
+          <p class="text-muted small mb-0">Pencatatan realisasi belanja aktual di lapangan berdasarkan kuitansi/nota.</p>
+        </div>
+        <button class="btn btn-danger rounded-3 fw-semibold px-4" @click="openModal('expense')">
+          <i class="bi bi-plus-circle me-1"></i> Catat Realisasi Belanja
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="width: 50px;">No</th>
+              <th>Deskripsi Realisasi Belanja</th>
+              <th>Item RAB Terkait</th>
+              <th class="text-center">Tanggal Nota</th>
+              <th class="text-center">Qty</th>
+              <th class="text-end">Harga Satuan</th>
+              <th class="text-end">Total Realisasi</th>
+              <th>Keterangan / Kuitansi</th>
+              <th class="text-center no-print" style="width: 90px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="rabExpenses.length === 0">
+              <td colspan="9" class="text-center py-5 text-muted">
+                <i class="bi bi-cart-x fs-1 d-block mb-2 text-secondary"></i>
+                Belum ada pengeluaran realisasi. Klik <strong>+ Catat Realisasi Belanja</strong>.
+              </td>
+            </tr>
+            <tr v-for="(exp, idx) in rabExpenses" :key="exp.id">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td class="fw-bold text-dark">{{ exp.deskripsi }}</td>
+              <td>
+                <span v-if="getRabItemName(exp.rab_item_id)" class="badge bg-primary-subtle text-primary border">
+                  {{ getRabItemName(exp.rab_item_id) }}
+                </span>
+                <span v-else class="badge bg-secondary-subtle text-secondary border">
+                  Lain-lain / Non-RAB
+                </span>
+              </td>
+              <td class="text-center small font-monospace text-muted">{{ exp.tanggal }}</td>
+              <td class="text-center"><span class="badge bg-light text-dark border">{{ exp.qty }}</span></td>
+              <td class="text-end font-monospace text-secondary">Rp {{ formatRupiah(exp.harga_satuan) }}</td>
+              <td class="text-end font-monospace fw-bold text-danger">Rp {{ formatRupiah(exp.total) }}</td>
+              <td class="small text-muted">{{ exp.keterangan || '-' }}</td>
+              <td class="text-center no-print">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" @click="editExpense(exp)" title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" @click="deleteExpenseConfirm(exp.id)" title="Hapus">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-group-divider fw-bold" v-if="rabExpenses.length > 0">
+            <tr>
+              <td colspan="6" class="text-end fs-6">TOTAL REALISASI BELANJA:</td>
+              <td class="text-end fs-6 text-danger font-monospace">Rp {{ formatRupiah(totalRabExpense) }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: ANALISA RAB VS REALISASI -->
+    <div v-if="activeTab === 'comparison'" class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1"><i class="bi bi-sliders2 text-indigo me-2"></i> Analisa Perbandingan Target RAB vs Realisasi Belanja</h5>
+          <p class="text-muted small mb-0">Laporan efisiensi anggaran: bandingkan mana item yang hemat, pas, atau over budget.</p>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0">
+          <thead class="table-dark text-white">
+            <tr>
+              <th class="text-center" style="width: 40px;">No</th>
+              <th>Nama Item RAB</th>
+              <th class="text-center">Target Qty</th>
+              <th class="text-end">Target Total RAB</th>
+              <th class="text-end">Realisasi Belanja</th>
+              <th class="text-end">Selisih (Variance)</th>
+              <th class="text-center">Status Budget</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="comparisonList.length === 0">
+              <td colspan="7" class="text-center py-4 text-muted">
+                Belum ada data RAB untuk dianalisa.
+              </td>
+            </tr>
+            <tr v-for="(row, idx) in comparisonList" :key="row.item.id">
+              <td class="fw-bold text-muted text-center">{{ idx + 1 }}</td>
+              <td>
+                <div class="fw-bold text-dark">{{ row.item.nama_item }}</div>
+                <div class="small text-muted">{{ row.item.catatan || '-' }}</div>
+              </td>
+              <td class="text-center fw-semibold">{{ row.item.qty }} {{ row.item.satuan || 'pcs' }}</td>
+              <td class="text-end font-monospace fw-bold text-primary">Rp {{ formatRupiah(row.item.total) }}</td>
+              <td class="text-end font-monospace fw-bold" :class="row.actualExpense > 0 ? 'text-dark' : 'text-muted'">
+                Rp {{ formatRupiah(row.actualExpense) }}
+              </td>
+              <td class="text-end font-monospace fw-bold" :class="row.diffClass">
+                {{ row.diffPrefix }} Rp {{ formatRupiah(Math.abs(row.diff)) }}
+              </td>
+              <td class="text-center">
+                <span class="badge fw-bold px-2.5 py-1.5 rounded-pill" :class="row.badgeClass">
+                  {{ row.statusText }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td colspan="3" class="text-end fs-6">TOTAL TARGET VS REALISASI:</td>
+              <td class="text-end fs-6 text-primary font-monospace">Rp {{ formatRupiah(totalRabAmount) }}</td>
+              <td class="text-end fs-6 text-danger font-monospace">Rp {{ formatRupiah(totalRabExpense) }}</td>
+              <td class="text-end fs-6 font-monospace" :class="selisihVsTextClass">
                 {{ selisihVsPrefix }} Rp {{ formatRupiah(Math.abs(selisihRabVsExpense)) }}
-              </span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-              <span class="text-muted">Sisa Kas Real-Time:</span>
-              <span class="fw-black text-dark">Rp {{ formatRupiah(sisaRabAktual) }}</span>
-            </li>
-          </ul>
-
-          <div class="mt-3 text-center">
-            <button class="btn btn-sm btn-light text-muted w-100 rounded-3" @click="resetConfirm">
-              <i class="bi bi-trash me-1"></i> Reset Seluruh Data RAB
-            </button>
-          </div>
-        </div>
+              </td>
+              <td class="text-center">
+                <span class="badge fw-bold px-3 py-1.5 rounded-pill" :class="evalBadgeClass">
+                  {{ rabStatusInfo.status }}
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
 
-    <!-- TAB 2: DAFTAR RAB ITEM -->
-    <div v-if="activeTab === 'rab_items'">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-          <div>
-            <h5 class="fw-bold mb-1"><i class="bi bi-list-check text-primary me-2"></i> Rencana Anggaran Biaya (RAB)</h5>
-            <p class="text-muted small mb-0">Daftar estimasi item barang/layanan, jumlah qty, satuan, dan harga unit.</p>
-          </div>
-          <button class="btn btn-primary rounded-3 fw-semibold px-4" @click="openModal('rab')">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Item RAB
-          </button>
+    <!-- PRINT & PDF FOOTER SIGNATURE SLOTS (PRINT ONLY) -->
+    <div class="print-only mt-5 pt-4">
+      <div class="d-flex justify-content-between align-items-start px-4 text-dark">
+        <!-- Signature Left: Exporter / Bendahara -->
+        <div class="text-center" style="width: 260px;">
+          <p class="mb-1 text-muted fw-bold">Disiapkan & Diajukan oleh,</p>
+          <p class="fw-bold mb-5 text-dark">{{ exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB' }}</p>
+          <div class="border-bottom border-dark my-2 mx-auto" style="width: 200px;"></div>
+          <p class="fw-bold mb-0 text-dark">{{ exporterMeta.namaExporter || '( Nama Exporter / Bendahara )' }}</p>
         </div>
 
-        <!-- Table RAB Items -->
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th>Nama Item Barang / Kegiatan</th>
-                <th>Qty</th>
-                <th>Satuan</th>
-                <th class="text-end">Harga Satuan</th>
-                <th class="text-end">Total RAB</th>
-                <th>Catatan</th>
-                <th class="text-end no-print" style="width: 100px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="rabItems.length === 0">
-                <td colspan="8" class="text-center py-5 text-muted">
-                  <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                  Belum ada item RAB. Klik tombol <strong>+ Tambah Item RAB</strong> atau <strong>Load Contoh 17 Agustus</strong>.
-                </td>
-              </tr>
-              <tr v-for="(item, idx) in rabItems" :key="item.id">
-                <td class="fw-bold text-muted">{{ idx + 1 }}</td>
-                <td class="fw-bold text-dark">{{ item.nama_item }}</td>
-                <td><span class="badge bg-light text-dark border">{{ item.qty }}</span></td>
-                <td><span class="text-uppercase small fw-semibold text-muted">{{ item.satuan }}</span></td>
-                <td class="text-end font-monospace">Rp {{ formatRupiah(item.harga_satuan) }}</td>
-                <td class="text-end font-monospace fw-bold text-primary">Rp {{ formatRupiah(item.total) }}</td>
-                <td class="small text-muted">{{ item.catatan || '-' }}</td>
-                <td class="text-end no-print">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" @click="editRabItem(item)" title="Edit">
-                      <i class="bi bi-pencil-fill"></i>
-                    </button>
-                    <button class="btn btn-outline-danger" @click="deleteRabItemConfirm(item.id)" title="Hapus">
-                      <i class="bi bi-trash-fill"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="table-group-divider fw-bold" v-if="rabItems.length > 0">
-              <tr>
-                <td colspan="5" class="text-end fs-6">TOTAL RENCANA ANGGARAN (RAB):</td>
-                <td class="text-end fs-6 text-primary font-monospace">Rp {{ formatRupiah(totalRabAmount) }}</td>
-                <td colspan="2"></td>
-              </tr>
-            </tfoot>
-          </table>
+        <!-- Signature Right: Approver / Chairman -->
+        <div class="text-center" style="width: 260px;">
+          <p class="mb-1 text-muted fw-bold">Mengetahui & Disetujui oleh,</p>
+          <p class="fw-bold mb-5 text-dark">Ketua / Manajer Proyek</p>
+          <div class="border-bottom border-dark my-2 mx-auto" style="width: 200px;"></div>
+          <p class="fw-bold mb-0 text-dark">{{ exporterMeta.namaPenyetuju || '( Nama Penyetuju / Ketua )' }}</p>
         </div>
+      </div>
+
+      <div class="text-center text-muted small mt-4 pt-3 border-top">
+        Dokumen Laporan Anggaran ini diciptakan secara sah menggunakan Sistem Management RAB.
       </div>
     </div>
 
-    <!-- TAB 3: KAS PEMASUKAN (INCOME) -->
-    <div v-if="activeTab === 'income'">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-          <div>
-            <h5 class="fw-bold mb-1"><i class="bi bi-wallet2 text-success me-2"></i> Kas Pemasukan (Income)</h5>
-            <p class="text-muted small mb-0">Catatan penerimaan uang dari Pa RT, iuran warga, sponsor, atau donatur.</p>
-          </div>
-          <button class="btn btn-success rounded-3 fw-semibold px-4" @click="openModal('income')">
-            <i class="bi bi-plus-circle me-1"></i> Catat Pemasukan
-          </button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th>Sumber Dana / Donatur</th>
-                <th>Tanggal</th>
-                <th class="text-end">Nominal (Rp)</th>
-                <th>Keterangan</th>
-                <th class="text-end no-print" style="width: 100px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="rabIncomes.length === 0">
-                <td colspan="6" class="text-center py-5 text-muted">
-                  <i class="bi bi-wallet-fill fs-1 d-block mb-2 text-secondary"></i>
-                  Belum ada data pemasukan. Klik <strong>+ Catat Pemasukan</strong>.
-                </td>
-              </tr>
-              <tr v-for="(inc, idx) in rabIncomes" :key="inc.id">
-                <td class="fw-bold text-muted">{{ idx + 1 }}</td>
-                <td class="fw-bold text-dark">
-                  <span class="badge bg-success-subtle text-success me-2"><i class="bi bi-person-fill"></i></span>
-                  {{ inc.sumber_dana }}
-                </td>
-                <td class="small text-muted">{{ inc.tanggal }}</td>
-                <td class="text-end font-monospace fw-bold text-success">Rp {{ formatRupiah(inc.nominal) }}</td>
-                <td class="small text-muted">{{ inc.keterangan || '-' }}</td>
-                <td class="text-end no-print">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" @click="editIncome(inc)" title="Edit">
-                      <i class="bi bi-pencil-fill"></i>
-                    </button>
-                    <button class="btn btn-outline-danger" @click="deleteIncomeConfirm(inc.id)" title="Hapus">
-                      <i class="bi bi-trash-fill"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="table-group-divider fw-bold" v-if="rabIncomes.length > 0">
-              <tr>
-                <td colspan="3" class="text-end fs-6">TOTAL PEMASUKAN DITERIMA:</td>
-                <td class="text-end fs-6 text-success font-monospace">Rp {{ formatRupiah(totalRabIncome) }}</td>
-                <td colspan="2"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: PENGELUARAN AKTUAL (EXPENSE) -->
-    <div v-if="activeTab === 'expense'">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-          <div>
-            <h5 class="fw-bold mb-1"><i class="bi bi-cart-check text-danger me-2"></i> Pengeluaran / Belanja Aktual</h5>
-            <p class="text-muted small mb-0">Catatan pembelian riil yang dihubungkan dengan item RAB terkait.</p>
-          </div>
-          <button class="btn btn-danger rounded-3 fw-semibold px-4" @click="openModal('expense')">
-            <i class="bi bi-plus-circle me-1"></i> Catat Pengeluaran
-          </button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th>Deskripsi Pengeluaran</th>
-                <th>Item RAB Terkait</th>
-                <th>Tanggal</th>
-                <th>Qty</th>
-                <th class="text-end">Harga Satuan</th>
-                <th class="text-end">Total Aktual</th>
-                <th>Keterangan</th>
-                <th class="text-end no-print" style="width: 100px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="rabExpenses.length === 0">
-                <td colspan="9" class="text-center py-5 text-muted">
-                  <i class="bi bi-cart-x fs-1 d-block mb-2 text-secondary"></i>
-                  Belum ada catatan pengeluaran aktual. Klik <strong>+ Catat Pengeluaran</strong>.
-                </td>
-              </tr>
-              <tr v-for="(exp, idx) in rabExpenses" :key="exp.id">
-                <td class="fw-bold text-muted">{{ idx + 1 }}</td>
-                <td class="fw-bold text-dark">{{ exp.deskripsi }}</td>
-                <td>
-                  <span v-if="getRabItemName(exp.rab_item_id)" class="badge bg-primary-subtle text-primary border">
-                    {{ getRabItemName(exp.rab_item_id) }}
-                  </span>
-                  <span v-else class="badge bg-secondary-subtle text-secondary border">
-                    Lain-lain / Non-RAB
-                  </span>
-                </td>
-                <td class="small text-muted">{{ exp.tanggal }}</td>
-                <td><span class="badge bg-light text-dark border">{{ exp.qty }}</span></td>
-                <td class="text-end font-monospace">Rp {{ formatRupiah(exp.harga_satuan) }}</td>
-                <td class="text-end font-monospace fw-bold text-danger">Rp {{ formatRupiah(exp.total) }}</td>
-                <td class="small text-muted">{{ exp.keterangan || '-' }}</td>
-                <td class="text-end no-print">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" @click="editExpense(exp)" title="Edit">
-                      <i class="bi bi-pencil-fill"></i>
-                    </button>
-                    <button class="btn btn-outline-danger" @click="deleteExpenseConfirm(exp.id)" title="Hapus">
-                      <i class="bi bi-trash-fill"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="table-group-divider fw-bold" v-if="rabExpenses.length > 0">
-              <tr>
-                <td colspan="6" class="text-end fs-6">TOTAL PENGELUARAN AKTUAL:</td>
-                <td class="text-end fs-6 text-danger font-monospace">Rp {{ formatRupiah(totalRabExpense) }}</td>
-                <td colspan="2"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 5: ANALISA PERBANDINGAN (RAB VS AKTUAL) -->
-    <div v-if="activeTab === 'comparison' || isPrinting">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-          <div>
-            <h5 class="fw-bold mb-1"><i class="bi bi-sliders2 text-indigo me-2"></i> Analisa Perbandingan RAB vs Pengeluaran Aktual</h5>
-            <p class="text-muted small mb-0">Evaluasi efisiensi budget per item. Ketahui item mana yang hemat, pas, atau over budget.</p>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 no-print">
-            <div class="input-group input-group-sm" style="max-width: 250px;">
-              <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-              <input type="text" class="form-control bg-light border-start-0" placeholder="Cari item..." v-model="searchQuery" />
-            </div>
-            <select class="form-select form-select-sm" v-model="filterStatus" style="max-width: 160px;">
-              <option value="ALL">Semua Status</option>
-              <option value="HEMAT">Hemat</option>
-              <option value="SESUAI">Sesuai RAB</option>
-              <option value="OVER">Over Budget</option>
-              <option value="BELUM">Belum Realisasi</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Detailed Comparison Table -->
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle mb-0">
-            <thead class="table-dark text-white">
-              <tr>
-                <th style="width: 40px;">#</th>
-                <th>Nama Item RAB</th>
-                <th class="text-center">Target Qty</th>
-                <th class="text-end">Target Total RAB</th>
-                <th class="text-end">Realisasi Belanja</th>
-                <th class="text-end">Selisih (Variance)</th>
-                <th class="text-center">Status Budget</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="filteredComparisonList.length === 0">
-                <td colspan="7" class="text-center py-4 text-muted">
-                  Tidak ada item yang cocok dengan filter.
-                </td>
-              </tr>
-              <tr v-for="(row, idx) in filteredComparisonList" :key="row.item.id">
-                <td class="fw-bold text-muted text-center">{{ idx + 1 }}</td>
-                <td>
-                  <div class="fw-bold text-dark">{{ row.item.nama_item }}</div>
-                  <div class="small text-muted">{{ row.item.catatan || '-' }}</div>
-                </td>
-                <td class="text-center fw-semibold">{{ row.item.qty }} {{ row.item.satuan }}</td>
-                <td class="text-end font-monospace fw-bold text-primary">Rp {{ formatRupiah(row.item.total) }}</td>
-                <td class="text-end font-monospace fw-bold" :class="row.actualExpense > 0 ? 'text-dark' : 'text-muted'">
-                  Rp {{ formatRupiah(row.actualExpense) }}
-                </td>
-                <td class="text-end font-monospace fw-bold" :class="row.diffClass">
-                  {{ row.diffPrefix }} Rp {{ formatRupiah(Math.abs(row.diff)) }}
-                </td>
-                <td class="text-center">
-                  <span class="badge fw-bold px-2.5 py-1.5 rounded-pill" :class="row.badgeClass">
-                    {{ row.statusText }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="table-light fw-bold">
-              <tr>
-                <td colspan="3" class="text-end fs-6">TOTAL RENCANA & REALISASI:</td>
-                <td class="text-end fs-6 text-primary font-monospace">Rp {{ formatRupiah(totalRabAmount) }}</td>
-                <td class="text-end fs-6 text-danger font-monospace">Rp {{ formatRupiah(totalRabExpense) }}</td>
-                <td class="text-end fs-6 font-monospace" :class="selisihVsTextClass">
-                  {{ selisihVsPrefix }} Rp {{ formatRupiah(Math.abs(selisihRabVsExpense)) }}
-                </td>
-                <td class="text-center">
-                  <span class="badge fw-bold px-3 py-1.5 rounded-pill" :class="evalBadgeClass">
-                    {{ rabStatusInfo.status }}
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL FORM FORM TAMBAH / EDIT ITEM -->
+    <!-- MODAL FORM INPUT/EDIT (RAB / INCOME / EXPENSE) -->
     <div v-if="showModal" class="modal-backdrop fade show" style="z-index: 1040;"></div>
     <div v-if="showModal" class="modal fade show d-block" tabindex="-1" style="z-index: 1050;">
       <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -632,8 +555,8 @@
             <form v-if="modalType === 'rab'" @submit.prevent="saveRabItem">
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label fw-semibold">Nama Item RAB / Rencana Kegiatan <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="rabForm.nama_item" placeholder="Contoh: Bendera Merah Putih" required />
+                  <label class="form-label fw-semibold">Nama Item Kegiatan / Barang <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" v-model="rabForm.nama_item" placeholder="Contoh: Sewa Peralatan Sound & Stage" required />
                 </div>
 
                 <div class="col-md-4">
@@ -643,31 +566,50 @@
 
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Satuan <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="rabForm.satuan" placeholder="pcs / pack / porsi / set / bungkus" required />
+                  <input type="text" class="form-control" v-model="rabForm.satuan" placeholder="pcs / unit / porsi / paket / hari" required />
                 </div>
 
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
-                  <input type="number" min="0" class="form-control" v-model.number="rabForm.harga_satuan" placeholder="10000" required />
+                  <label class="form-label fw-semibold">Income / Alokasi Dana (Rp)</label>
+                  <input type="number" min="0" class="form-control text-success fw-semibold" v-model.number="rabForm.income" placeholder="0 jika belum ada" />
                 </div>
 
-                <div class="col-12">
-                  <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-muted">Total Otomatis (Qty x Harga Satuan):</span>
-                    <span class="fs-5 fw-black text-primary font-monospace">
-                      Rp {{ formatRupiah((rabForm.qty || 0) * (rabForm.harga_satuan || 0)) }}
-                    </span>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Harga Satuan (Rp) <span class="text-danger">*</span></label>
+                  <input type="number" min="0" class="form-control" v-model.number="rabForm.harga_satuan" placeholder="100000" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Tanggal Transaksi / RAB <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" v-model="rabForm.tanggal" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Status Anggaran <span class="text-danger">*</span></label>
+                  <select class="form-select" v-model="rabForm.status" required>
+                    <option value="Rencana">Rencana</option>
+                    <option value="Disetujui">Disetujui</option>
+                    <option value="Proses Belanja">Proses Belanja</option>
+                    <option value="Lunas / Terbayar">Lunas / Terbayar</option>
+                    <option value="Selesai">Selesai</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Harga Total (Otomatis Qty x Satuan)</label>
+                  <div class="form-control bg-light font-monospace fw-bold text-primary">
+                    Rp {{ formatRupiah((rabForm.qty || 0) * (rabForm.harga_satuan || 0)) }}
                   </div>
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label fw-semibold">Catatan / Keterangan</label>
-                  <textarea class="form-control" rows="2" v-model="rabForm.catatan" placeholder="Detail spesifikasi barang / lokasi beli"></textarea>
+                  <label class="form-label fw-semibold">Catatan / Keterangan Spesifikasi</label>
+                  <textarea class="form-control" rows="2" v-model="rabForm.catatan" placeholder="Detail lokasi, Vendor, atau catatan persetujuan"></textarea>
                 </div>
 
                 <div class="col-12 text-end pt-3 border-top">
                   <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-primary px-4 rounded-3 fw-semibold">Simpan Item RAB</button>
+                  <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold">Simpan Data RAB</button>
                 </div>
               </div>
             </form>
@@ -677,7 +619,7 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">Sumber Dana / Donatur <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="incomeForm.sumber_dana" placeholder="Contoh: Pa RT, Warga Blok A, Kas RT" required />
+                  <input type="text" class="form-control" v-model="incomeForm.sumber_dana" placeholder="Contoh: Sponsorship PT ABC, Kas Utama" required />
                 </div>
 
                 <div class="col-md-6">
@@ -689,38 +631,38 @@
                   <label class="form-label fw-semibold">Nominal Pemasukan (Rp) <span class="text-danger">*</span></label>
                   <div class="input-group">
                     <span class="input-group-text bg-light fw-bold">Rp</span>
-                    <input type="number" min="1" class="form-control fw-bold fs-5 text-success" v-model.number="incomeForm.nominal" placeholder="500000" required />
+                    <input type="number" min="1" class="form-control fw-bold fs-5 text-success" v-model.number="incomeForm.nominal" placeholder="1000000" required />
                   </div>
                 </div>
 
                 <div class="col-12">
                   <label class="form-label fw-semibold">Keterangan Catatan</label>
-                  <textarea class="form-control" rows="2" v-model="incomeForm.keterangan" placeholder="Iuran sukarela / donasi spanduk / kas RT"></textarea>
+                  <textarea class="form-control" rows="2" v-model="incomeForm.keterangan" placeholder="Bukti transfer / kuitansi / perincian sponsor"></textarea>
                 </div>
 
                 <div class="col-12 text-end pt-3 border-top">
                   <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-success px-4 rounded-3 fw-semibold">Simpan Pemasukan</button>
+                  <button type="submit" class="btn btn-success px-4 rounded-3 fw-bold">Simpan Pemasukan</button>
                 </div>
               </div>
             </form>
 
-            <!-- FORM 3: EXPENSE / PENGELUARAN -->
+            <!-- FORM 3: EXPENSE / PENGELUARAN REALISASI -->
             <form v-else-if="modalType === 'expense'" @submit.prevent="saveExpense">
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label fw-semibold">Hubungkan dengan Item RAB</label>
                   <select class="form-select" v-model="expenseForm.rab_item_id" @change="onSelectRabItem">
-                    <option :value="null">-- Tidak Diatribusikan (Lain-lain / Non-RAB) --</option>
+                    <option :value="null">-- Non-RAB / Pengeluaran Tak Terduga --</option>
                     <option v-for="item in rabItems" :key="item.id" :value="item.id">
-                      {{ item.nama_item }} (Target: Rp {{ formatRupiah(item.total) }})
+                      {{ item.nama_item }} (Target RAB: Rp {{ formatRupiah(item.total) }})
                     </option>
                   </select>
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label fw-semibold">Deskripsi Pengeluaran Belanja <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" v-model="expenseForm.deskripsi" placeholder="Contoh: Beli Bendera Merah Putih 10 pcs" required />
+                  <label class="form-label fw-semibold">Deskripsi Belanja Realisasi <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" v-model="expenseForm.deskripsi" placeholder="Contoh: Pembayaran DP Tempat Lapangan" required />
                 </div>
 
                 <div class="col-md-4">
@@ -740,7 +682,7 @@
 
                 <div class="col-12">
                   <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-muted">Total Pengeluaran Aktual (Qty x Harga):</span>
+                    <span class="fw-bold text-muted">Total Realisasi Belanja:</span>
                     <span class="fs-5 fw-black text-danger font-monospace">
                       Rp {{ formatRupiah((expenseForm.qty || 0) * (expenseForm.harga_satuan || 0)) }}
                     </span>
@@ -748,13 +690,13 @@
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label fw-semibold">Keterangan / Nomor Nota</label>
-                  <textarea class="form-control" rows="2" v-model="expenseForm.keterangan" placeholder="Nota Toko Pak Haris / garansi / dll"></textarea>
+                  <label class="form-label fw-semibold">Nomor Nota / Catatan Vendor</label>
+                  <textarea class="form-control" rows="2" v-model="expenseForm.keterangan" placeholder="Kuitansi #901 Toko Perkasa"></textarea>
                 </div>
 
                 <div class="col-12 text-end pt-3 border-top">
                   <button type="button" class="btn btn-light px-4 me-2 rounded-3" @click="closeModal">Batal</button>
-                  <button type="submit" class="btn btn-danger px-4 rounded-3 fw-semibold">Simpan Pengeluaran</button>
+                  <button type="submit" class="btn btn-danger px-4 rounded-3 fw-bold">Simpan Pengeluaran</button>
                 </div>
               </div>
             </form>
@@ -766,18 +708,27 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useStore } from 'vuex';
-import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 
 export default {
   name: 'RabView',
   setup() {
     const store = useStore();
-    const activeTab = ref('dashboard');
+    const activeTab = ref('rab_items');
     const isPrinting = ref(false);
     const searchQuery = ref('');
     const filterStatus = ref('ALL');
+
+    // Exporter metadata
+    const exporterMeta = reactive({
+      namaExporter: 'Arip (Bendahara)',
+      jabatanExporter: 'Bendahara / Pengelola RAB',
+      namaPenyetuju: 'Ketua Panitia / Manajer Proyek',
+      lokasiTanggal: 'Jakarta, ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+      tanggalCetak: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    });
 
     // Store state & getters
     const rabItems = computed(() => store.getters.getRabItems);
@@ -785,6 +736,7 @@ export default {
     const rabExpenses = computed(() => store.getters.getRabExpenses);
 
     const totalRabAmount = computed(() => store.getters.totalRabAmount);
+    const totalRabItemIncome = computed(() => store.getters.totalRabItemIncome);
     const totalRabIncome = computed(() => store.getters.totalRabIncome);
     const totalRabExpense = computed(() => store.getters.totalRabExpense);
 
@@ -805,83 +757,23 @@ export default {
       return Math.round(val).toLocaleString('id-ID');
     };
 
-    // Percentages
-    const percentUsed = computed(() => {
-      if (totalRabAmount.value === 0) return 0;
-      return (totalRabExpense.value / totalRabAmount.value) * 100;
-    });
-
-    const percentIncomeCovered = computed(() => {
-      if (totalRabAmount.value === 0) return 0;
-      return (totalRabIncome.value / totalRabAmount.value) * 100;
-    });
-
-    // Banner Styling
-    const evalBannerClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'bg-success bg-opacity-10 border border-2 border-success';
-      if (diff === 0) return 'bg-primary bg-opacity-10 border border-2 border-primary';
-      return 'bg-danger bg-opacity-10 border border-2 border-danger';
-    });
-
-    const evalIconClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'bg-success text-white';
-      if (diff === 0) return 'bg-primary text-white';
-      return 'bg-danger text-white';
-    });
-
-    const evalIcon = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'bi bi-emoji-smile-fill';
-      if (diff === 0) return 'bi bi-check-circle-fill';
-      return 'bi bi-exclamation-triangle-fill';
-    });
-
-    const evalTextClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'text-success';
-      if (diff === 0) return 'text-primary';
-      return 'text-danger';
-    });
-
-    const evalSubtextClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'text-success fw-semibold';
-      if (diff === 0) return 'text-primary fw-semibold';
-      return 'text-danger fw-semibold';
-    });
-
-    const evalBadgeClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'bg-success text-white';
-      if (diff === 0) return 'bg-primary text-white';
-      return 'bg-danger text-white';
-    });
-
-    const evalDescription = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) {
-        return `🎉 Luar biasa! Pengeluaran aktual lebih hemat Rp ${formatRupiah(diff)} dibanding batas Rencana Anggaran Biaya (RAB).`;
-      } else if (diff === 0) {
-        return `✅ Sesuai Target! Pengeluaran aktual persis sesuai dengan estimasi Rencana Anggaran Biaya (RAB).`;
-      } else {
-        return `⚠️ Perhatian! Realisasi pengeluaran melampaui RAB sebesar Rp ${formatRupiah(Math.abs(diff))}. Evaluasi kembali pos belanja!`;
+    const getStatusBadgeClass = (status) => {
+      switch (status) {
+        case 'Disetujui': return 'bg-info text-dark';
+        case 'Proses Belanja': return 'bg-warning text-dark';
+        case 'Lunas / Terbayar': return 'bg-success text-white';
+        case 'Selesai': return 'bg-primary text-white';
+        default: return 'bg-secondary text-white';
       }
-    });
+    };
 
-    const selisihVsTextClass = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return 'text-success';
-      if (diff === 0) return 'text-primary';
-      return 'text-danger';
-    });
-
-    const selisihVsPrefix = computed(() => {
-      const diff = selisihRabVsExpense.value;
-      if (diff > 0) return '+ (Hemat)';
-      if (diff === 0) return '';
-      return '- (Over)';
+    // Filtered RAB items
+    const filteredRabItems = computed(() => {
+      return rabItems.value.filter(item => {
+        const matchesQuery = searchQuery.value === '' || item.nama_item.toLowerCase().includes(searchQuery.value.toLowerCase());
+        const matchesStatus = filterStatus.value === 'ALL' || item.status === filterStatus.value;
+        return matchesQuery && matchesStatus;
+      });
     });
 
     // Get RAB Item Name helper
@@ -894,7 +786,6 @@ export default {
     // Detailed Comparison List
     const comparisonList = computed(() => {
       return rabItems.value.map(item => {
-        // Find expenses linked to this RAB item
         const linkedExpenses = rabExpenses.value.filter(e => e.rab_item_id === item.id);
         const actualExpense = linkedExpenses.reduce((acc, e) => acc + (Number(e.total) || (Number(e.qty) * Number(e.harga_satuan))), 0);
         const diff = (Number(item.total) || 0) - actualExpense;
@@ -935,17 +826,26 @@ export default {
       });
     });
 
-    const filteredComparisonList = computed(() => {
-      return comparisonList.value.filter(row => {
-        const matchesQuery = searchQuery.value === '' || row.item.nama_item.toLowerCase().includes(searchQuery.value.toLowerCase());
-        let matchesStatus = true;
-        if (filterStatus.value === 'HEMAT') matchesStatus = row.statusText === 'Hemat';
-        else if (filterStatus.value === 'SESUAI') matchesStatus = row.statusText === 'Sesuai RAB';
-        else if (filterStatus.value === 'OVER') matchesStatus = row.statusText === 'Over Budget';
-        else if (filterStatus.value === 'BELUM') matchesStatus = row.statusText === 'Belum Realisasi';
+    // Status Banner Evaluator
+    const evalBadgeClass = computed(() => {
+      const diff = selisihRabVsExpense.value;
+      if (diff > 0) return 'bg-success text-white';
+      if (diff === 0) return 'bg-primary text-white';
+      return 'bg-danger text-white';
+    });
 
-        return matchesQuery && matchesStatus;
-      });
+    const selisihVsTextClass = computed(() => {
+      const diff = selisihRabVsExpense.value;
+      if (diff > 0) return 'text-success';
+      if (diff === 0) return 'text-primary';
+      return 'text-danger';
+    });
+
+    const selisihVsPrefix = computed(() => {
+      const diff = selisihRabVsExpense.value;
+      if (diff > 0) return '+ (Hemat)';
+      if (diff === 0) return '';
+      return '- (Over)';
     });
 
     // MODAL STATE
@@ -957,7 +857,10 @@ export default {
       nama_item: '',
       qty: 1,
       satuan: 'pcs',
+      income: 0,
       harga_satuan: 0,
+      tanggal: new Date().toISOString().split('T')[0],
+      status: 'Rencana',
       catatan: ''
     });
 
@@ -979,8 +882,8 @@ export default {
 
     const modalTitle = computed(() => {
       if (modalType.value === 'rab') return editingId.value ? 'Edit Item RAB' : 'Tambah Item RAB Baru';
-      if (modalType.value === 'income') return editingId.value ? 'Edit Catatan Pemasukan' : 'Catat Pemasukan / Iuran Baru';
-      return editingId.value ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran / Belanja Baru';
+      if (modalType.value === 'income') return editingId.value ? 'Edit Catatan Pemasukan' : 'Catat Pemasukan / Income Kas';
+      return editingId.value ? 'Edit Catatan Realisasi' : 'Catat Realisasi Belanja Baru';
     });
 
     const modalIcon = computed(() => {
@@ -993,7 +896,16 @@ export default {
       modalType.value = type;
       editingId.value = null;
       if (type === 'rab') {
-        rabForm.value = { nama_item: '', qty: 1, satuan: 'pcs', harga_satuan: 0, catatan: '' };
+        rabForm.value = {
+          nama_item: '',
+          qty: 1,
+          satuan: 'pcs',
+          income: 0,
+          harga_satuan: 0,
+          tanggal: new Date().toISOString().split('T')[0],
+          status: 'Rencana',
+          catatan: ''
+        };
       } else if (type === 'income') {
         incomeForm.value = { sumber_dana: '', tanggal: new Date().toISOString().split('T')[0], nominal: 0, keterangan: '' };
       } else if (type === 'expense') {
@@ -1002,13 +914,30 @@ export default {
       showModal.value = true;
     };
 
-    const openQuickAddModal = () => {
-      openModal('rab');
-    };
-
     const closeModal = () => {
       showModal.value = false;
       editingId.value = null;
+    };
+
+    const editRabItem = (item) => {
+      modalType.value = 'rab';
+      editingId.value = item.id;
+      rabForm.value = { ...item };
+      showModal.value = true;
+    };
+
+    const editIncome = (inc) => {
+      modalType.value = 'income';
+      editingId.value = inc.id;
+      incomeForm.value = { ...inc };
+      showModal.value = true;
+    };
+
+    const editExpense = (exp) => {
+      modalType.value = 'expense';
+      editingId.value = exp.id;
+      expenseForm.value = { ...exp };
+      showModal.value = true;
     };
 
     const onSelectRabItem = () => {
@@ -1022,14 +951,14 @@ export default {
       }
     };
 
-    // SAVE HANDLERS
+    // SAVE HANDLERS (Native JS alert)
     const saveRabItem = () => {
       if (editingId.value) {
         store.dispatch('updateRabItem', { ...rabForm.value, id: editingId.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Item RAB berhasil diperbarui!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Item RAB berhasil diperbarui.');
       } else {
         store.dispatch('addRabItem', { ...rabForm.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Item RAB baru berhasil ditambahkan!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Item RAB baru berhasil ditambahkan.');
       }
       closeModal();
     };
@@ -1037,10 +966,10 @@ export default {
     const saveIncome = () => {
       if (editingId.value) {
         store.dispatch('updateRabIncome', { ...incomeForm.value, id: editingId.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Catatan pemasukan diperbarui!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Catatan pemasukan berhasil diperbarui.');
       } else {
         store.dispatch('addRabIncome', { ...incomeForm.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Pemasukan baru berhasil dicatat!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Pemasukan baru berhasil dicatat.');
       }
       closeModal();
     };
@@ -1048,131 +977,109 @@ export default {
     const saveExpense = () => {
       if (editingId.value) {
         store.dispatch('updateRabExpense', { ...expenseForm.value, id: editingId.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Catatan pengeluaran diperbarui!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Catatan pengeluaran berhasil diperbarui.');
       } else {
         store.dispatch('addRabExpense', { ...expenseForm.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Pengeluaran baru berhasil dicatat!', timer: 1500, showConfirmButton: false });
+        alert('Berhasil! Realisasi pengeluaran baru berhasil dicatat.');
       }
       closeModal();
     };
 
-    // EDIT HANDLERS
-    const editRabItem = (item) => {
-      editingId.value = item.id;
-      modalType.value = 'rab';
-      rabForm.value = { ...item };
-      showModal.value = true;
-    };
-
-    const editIncome = (inc) => {
-      editingId.value = inc.id;
-      modalType.value = 'income';
-      incomeForm.value = { ...inc };
-      showModal.value = true;
-    };
-
-    const editExpense = (exp) => {
-      editingId.value = exp.id;
-      modalType.value = 'expense';
-      expenseForm.value = { ...exp };
-      showModal.value = true;
-    };
-
-    // DELETE HANDLERS
+    // DELETE HANDLERS (Native JS confirm)
     const deleteRabItemConfirm = (id) => {
-      Swal.fire({
-        title: 'Hapus Item RAB?',
-        text: 'Pengeluaran yang terhubung akan disesuaikan menjadi Non-RAB.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('deleteRabItem', id);
-          Swal.fire('Terhapus!', 'Item RAB telah dihapus.', 'success');
-        }
-      });
+      if (confirm('Hapus Item RAB ini?\n\nPengeluaran realisasi yang terhubung akan disesuaikan menjadi Non-RAB.')) {
+        store.dispatch('deleteRabItem', id);
+        alert('Terhapus! Item RAB telah dihapus.');
+      }
     };
 
     const deleteIncomeConfirm = (id) => {
-      Swal.fire({
-        title: 'Hapus Pemasukan?',
-        text: 'Catatan nominal penerimaan ini akan dihapus dari kas.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('deleteRabIncome', id);
-          Swal.fire('Terhapus!', 'Catatan pemasukan dihapus.', 'success');
-        }
-      });
+      if (confirm('Hapus Pemasukan?\n\nCatatan nominal penerimaan ini akan dihapus dari kas.')) {
+        store.dispatch('deleteRabIncome', id);
+        alert('Terhapus! Catatan pemasukan telah dihapus.');
+      }
     };
 
     const deleteExpenseConfirm = (id) => {
-      Swal.fire({
-        title: 'Hapus Pengeluaran?',
-        text: 'Catatan pengeluaran aktual ini akan dihapus.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('deleteRabExpense', id);
-          Swal.fire('Terhapus!', 'Pengeluaran dihapus.', 'success');
-        }
-      });
+      if (confirm('Hapus Realisasi Pengeluaran?\n\nCatatan pengeluaran aktual ini akan dihapus.')) {
+        store.dispatch('deleteRabExpense', id);
+        alert('Terhapus! Pengeluaran telah dihapus.');
+      }
     };
 
-    // SAMPLE DATA LOAD
+    // SAMPLE DATA LOAD & RESET
     const triggerLoadSampleData = () => {
-      Swal.fire({
-        title: 'Muat Contoh Data 17 Agustus?',
-        text: 'Data RAB, Pemasukan (Pa RT / Iuran Warga), dan Pengeluaran contoh akan dimuat.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Muat Data'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('loadSampleRabData');
-          Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Contoh data RAB & Kas Kegiatan 17 Agustus telah dimuat.',
-            timer: 1500,
-            showConfirmButton: false
-          });
-        }
-      });
+      if (confirm('Muat Contoh Data RAB Kegiatan?\n\nData RAB, Pemasukan/Income, dan Realisasi Pengeluaran contoh akan dimuat.')) {
+        store.dispatch('loadSampleRabData');
+        alert('Berhasil! Contoh data RAB Kegiatan telah dimuat.');
+      }
     };
 
-    const resetConfirm = () => {
-      Swal.fire({
-        title: 'Reset Semua Data RAB?',
-        text: 'Semua item RAB, Pemasukan, dan Pengeluaran akan dikosongkan.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Ya, Kosongkan!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('resetRabData');
-          Swal.fire('Direset!', 'Seluruh data RAB telah dikosongkan.', 'success');
-        }
-      });
+    // EXPORT TO EXCEL (.XLSX)
+    const exportToExcel = () => {
+      try {
+        const rows = filteredRabItems.value.map((item, idx) => ({
+          'No': idx + 1,
+          'Nama Item': item.nama_item,
+          'Qty': item.qty,
+          'Satuan': item.satuan || 'pcs',
+          'Income (Rp)': item.income || 0,
+          'Harga Satuan (Rp)': item.harga_satuan || 0,
+          'Harga Total (Rp)': item.total || (item.qty * item.harga_satuan),
+          'Tanggal': item.tanggal || '-',
+          'Status': item.status || 'Rencana',
+          'Catatan': item.catatan || '-'
+        }));
+
+        // Add Summary Row at Bottom
+        rows.push({
+          'No': 'TOTAL',
+          'Nama Item': 'RANGKUMAN DANA',
+          'Qty': '-',
+          'Satuan': '-',
+          'Income (Rp)': totalRabItemIncome.value,
+          'Harga Satuan (Rp)': '-',
+          'Harga Total (Rp)': totalRabAmount.value,
+          'Tanggal': '-',
+          'Status': 'Total Target',
+          'Catatan': 'Exported by: ' + (exporterMeta.namaExporter || 'System Exporter')
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+
+        // Append Exporter Info Header on top
+        XLSX.utils.sheet_add_aoa(worksheet, [
+          ['LAPORAN RENCANA ANGGARAN BIAYA & KAS KEGIATAN'],
+          ['Exported By:', exporterMeta.namaExporter || 'Arip (Bendahara)'],
+          ['Jabatan Exporter:', exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB'],
+          ['Disetujui Oleh:', exporterMeta.namaPenyetuju || 'Ketua Panitia / Manajer Proyek'],
+          ['Lokasi & Tanggal:', exporterMeta.lokasiTanggal || 'Jakarta'],
+          [''] // blank row
+        ], { origin: 'A1' });
+
+        // Shift rows down for data worksheet table
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan_RAB');
+
+        const filename = `Laporan_RAB_Kegiatan_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(workbook, filename);
+
+        alert(`Berhasil! File Excel "${filename}" telah diunduh.`);
+      } catch (err) {
+        console.error('Export Excel Error:', err);
+        alert('Terjadi kesalahan saat mengunduh Excel: ' + err.message);
+      }
     };
 
-    // PRINT REPORT
-    const printReport = () => {
+    // EXPORT TO PDF / PRINT PDF WITH EXPORTER META & SIGNATURE SLOTS
+    const openPdfExportModal = () => {
+      // Trigger native browser print dialog formatted as formal PDF document with signature slots
+      activeTab.value = 'rab_items';
       isPrinting.value = true;
       setTimeout(() => {
         window.print();
         isPrinting.value = false;
-      }, 200);
+      }, 300);
     };
 
     return {
@@ -1180,10 +1087,13 @@ export default {
       isPrinting,
       searchQuery,
       filterStatus,
+      exporterMeta,
       rabItems,
       rabIncomes,
       rabExpenses,
+      filteredRabItems,
       totalRabAmount,
+      totalRabItemIncome,
       totalRabIncome,
       totalRabExpense,
       sisaRabAmount,
@@ -1192,42 +1102,35 @@ export default {
       rabStatusInfo,
       formattedToday,
       formatRupiah,
-      percentUsed,
-      percentIncomeCovered,
-      evalBannerClass,
-      evalIconClass,
-      evalIcon,
-      evalTextClass,
-      evalSubtextClass,
+      getStatusBadgeClass,
+      getRabItemName,
+      comparisonList,
       evalBadgeClass,
-      evalDescription,
       selisihVsTextClass,
       selisihVsPrefix,
-      getRabItemName,
-      filteredComparisonList,
       showModal,
       modalType,
-      modalTitle,
-      modalIcon,
+      editingId,
       rabForm,
       incomeForm,
       expenseForm,
+      modalTitle,
+      modalIcon,
       openModal,
-      openQuickAddModal,
       closeModal,
+      editRabItem,
+      editIncome,
+      editExpense,
       onSelectRabItem,
       saveRabItem,
       saveIncome,
       saveExpense,
-      editRabItem,
-      editIncome,
-      editExpense,
       deleteRabItemConfirm,
       deleteIncomeConfirm,
       deleteExpenseConfirm,
       triggerLoadSampleData,
-      resetConfirm,
-      printReport
+      exportToExcel,
+      openPdfExportModal
     };
   }
 };
@@ -1238,39 +1141,61 @@ export default {
   font-weight: 900;
 }
 
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
 .bg-gradient-success {
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
 }
 
 .bg-gradient-danger {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #f43f5e 100%);
 }
 
-.style-progress {
-  background-color: #f1f5f9;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+.print-only {
+  display: none !important;
 }
 
+/* Print CSS Styles for PDF Generation */
 @media print {
   .no-print {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
   }
-  body {
-    background: white !important;
-    color: black !important;
-  }
-  .card {
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
-  }
-}
 
-@media screen {
-  .print-only {
-    display: none !important;
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .table-responsive {
+    overflow: visible !important;
+  }
+
+  .table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  .table th, .table td {
+    border: 1px solid #333 !important;
+    padding: 6px 8px !important;
+  }
+
+  .table-dark {
+    background-color: #222 !important;
+    color: #fff !important;
   }
 }
 </style>

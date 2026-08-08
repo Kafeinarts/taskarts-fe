@@ -167,92 +167,107 @@ const DEFAULT_WORK_ALARMS = [
   { id: 'al_4', time: '17:00', label: 'Jam Selesai Kerja & Evaluasi', active: true, sound: 'siren', repeat: 'Senin - Jumat' }
 ];
 
-// Sample RAB data generator for committee / event budgeting
+// Sample RAB data generator for general project & event budgeting
 const SAMPLE_RAB_ITEMS = [
   {
     id: 'rab_1',
-    nama_item: 'Bendera Merah Putih',
-    qty: 10,
-    satuan: 'pcs',
-    harga_satuan: 5000,
-    total: 50000,
-    catatan: 'Bendera hiasan jalan 17-an',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    nama_item: 'Sewa Tempat & Stage Perlengkapan',
+    qty: 1,
+    satuan: 'paket',
+    income: 2500000,
+    harga_satuan: 2000000,
+    total: 2000000,
+    tanggal: '2026-08-01',
+    status: 'Lunas / Terbayar',
+    catatan: 'Termasuk sound system & panggung utama',
+    created_at: '2026-08-01',
+    updated_at: '2026-08-01'
   },
   {
     id: 'rab_2',
-    nama_item: 'Balon Warna-Warni',
-    qty: 2,
-    satuan: 'pack',
+    nama_item: 'Konsumsi & Snack Peserta',
+    qty: 50,
+    satuan: 'porsi',
+    income: 1000000,
     harga_satuan: 15000,
-    total: 30000,
-    catatan: 'Dekorasi panggung utama & gapura',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    total: 750000,
+    tanggal: '2026-08-03',
+    status: 'Disetujui',
+    catatan: 'Nasi kotak + air mineral gelas',
+    created_at: '2026-08-03',
+    updated_at: '2026-08-03'
   },
   {
     id: 'rab_3',
-    nama_item: 'Kerupuk Kaleng Lomba',
-    qty: 5,
-    satuan: 'bungkus',
-    harga_satuan: 10000,
-    total: 50000,
-    catatan: 'Lomba makan kerupuk anak',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    nama_item: 'Cetak Banner & Spanduk Acara',
+    qty: 3,
+    satuan: 'pcs',
+    income: 300000,
+    harga_satuan: 85000,
+    total: 255000,
+    tanggal: '2026-08-04',
+    status: 'Proses Belanja',
+    catatan: 'Ukuran 3x1m bahan outdoor flexi',
+    created_at: '2026-08-04',
+    updated_at: '2026-08-04'
   },
   {
     id: 'rab_4',
-    nama_item: 'Paket Hadiah Lomba Anak',
-    qty: 1,
-    satuan: 'paket',
-    harga_satuan: 250000,
-    total: 250000,
-    catatan: 'Alat tulis & snack pemenang',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    nama_item: 'Honor Pemateri / Narasumber',
+    qty: 2,
+    satuan: 'orang',
+    income: 1500000,
+    harga_satuan: 500000,
+    total: 1000000,
+    tanggal: '2026-08-05',
+    status: 'Rencana',
+    catatan: 'Sertifikat & plakat narasumber',
+    created_at: '2026-08-05',
+    updated_at: '2026-08-05'
   },
   {
     id: 'rab_5',
-    nama_item: 'Consumsi & Snack Panitia',
-    qty: 40,
-    satuan: 'porsi',
-    harga_satuan: 11750,
-    total: 470000,
-    catatan: 'Nasi kotak & air minum',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    nama_item: 'Atribut & Modul Pelatihan',
+    qty: 50,
+    satuan: 'pack',
+    income: 500000,
+    harga_satuan: 8000,
+    total: 400000,
+    tanggal: '2026-08-06',
+    status: 'Selesai',
+    catatan: 'Stopmap, ballpoint, & printout modul',
+    created_at: '2026-08-06',
+    updated_at: '2026-08-06'
   }
 ];
 
 const SAMPLE_RAB_INCOMES = [
   {
     id: 'inc_1',
-    sumber_dana: 'Pa RT',
-    tanggal: '2026-08-08',
-    nominal: 800000,
-    keterangan: 'Dana kegiatan dari Kas RT',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    sumber_dana: 'Kas Utama / Dana Awal',
+    tanggal: '2026-08-01',
+    nominal: 3000000,
+    keterangan: 'Alokasi dana awal dari pimpinan',
+    created_at: '2026-08-01',
+    updated_at: '2026-08-01'
   },
   {
     id: 'inc_2',
-    sumber_dana: 'Warga A',
-    tanggal: '2026-08-08',
-    nominal: 100000,
-    keterangan: 'Iuran warga Blok A',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    sumber_dana: 'Sponsorship / Donatur Utama',
+    tanggal: '2026-08-02',
+    nominal: 2000000,
+    keterangan: 'Dana sponsor PT Mitra Bersama',
+    created_at: '2026-08-02',
+    updated_at: '2026-08-02'
   },
   {
     id: 'inc_3',
-    sumber_dana: 'Warga B',
-    tanggal: '2026-08-08',
-    nominal: 50000,
-    keterangan: 'Iuran warga Blok B',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    sumber_dana: 'Iuran Pendaftaran Peserta',
+    tanggal: '2026-08-04',
+    nominal: 800000,
+    keterangan: 'Pendaftaran 16 peserta',
+    created_at: '2026-08-04',
+    updated_at: '2026-08-04'
   }
 ];
 
@@ -260,38 +275,26 @@ const SAMPLE_RAB_EXPENSES = [
   {
     id: 'exp_1',
     rab_item_id: 'rab_1',
-    deskripsi: 'Bendera Merah Putih',
-    tanggal: '2026-08-08',
-    qty: 10,
-    harga_satuan: 4500,
-    total: 45000,
-    keterangan: 'Pembelian di Toko Grosir Jaya',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    deskripsi: 'DP Tempat & Stage Perlengkapan',
+    tanggal: '2026-08-01',
+    qty: 1,
+    harga_satuan: 2000000,
+    total: 2000000,
+    keterangan: 'Lunas kuitansi No. 088',
+    created_at: '2026-08-01',
+    updated_at: '2026-08-01'
   },
   {
     id: 'exp_2',
-    rab_item_id: 'rab_2',
-    deskripsi: 'Balon Warna-Warni',
-    tanggal: '2026-08-08',
-    qty: 2,
-    harga_satuan: 17500,
-    total: 35000,
-    keterangan: 'Beli balon latex premium',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
-  },
-  {
-    id: 'exp_3',
     rab_item_id: 'rab_3',
-    deskripsi: 'Kerupuk Kaleng Lomba',
-    tanggal: '2026-08-08',
-    qty: 5,
-    harga_satuan: 10000,
-    total: 50000,
-    keterangan: 'Kerupuk kaleng blek',
-    created_at: '2026-08-08',
-    updated_at: '2026-08-08'
+    deskripsi: 'Cetak Banner & Spanduk Acara',
+    tanggal: '2026-08-04',
+    qty: 3,
+    harga_satuan: 80000,
+    total: 240000,
+    keterangan: 'Cetak di Percetakan Cepat Hemat Rp15.000',
+    created_at: '2026-08-04',
+    updated_at: '2026-08-04'
   }
 ];
 
@@ -326,9 +329,9 @@ export default createStore({
       moodLogs: loadLocal('ft_moodLogs', []),
       workAlarms: loadLocal('ft_workAlarms', DEFAULT_WORK_ALARMS),
       geminiApiKey: loadLocal('ft_geminiApiKey', ''),
-      rabItems: loadLocal('ft_rabItems', SAMPLE_RAB_ITEMS),
-      rabIncomes: loadLocal('ft_rabIncomes', SAMPLE_RAB_INCOMES),
-      rabExpenses: loadLocal('ft_rabExpenses', SAMPLE_RAB_EXPENSES),
+      rabItems: loadLocal('ft_rabItems', []),
+      rabIncomes: loadLocal('ft_rabIncomes', []),
+      rabExpenses: loadLocal('ft_rabExpenses', []),
       aiProvider: loadLocal('ft_aiProvider', 'gemini'),
       aiModel: loadLocal('ft_aiModel', 'gemini-1.5-flash'),
       themeMode: 'light', // Light mode default
@@ -424,7 +427,12 @@ export default createStore({
     getRabIncomes: (state) => state.rabIncomes || [],
     getRabExpenses: (state) => state.rabExpenses || [],
     totalRabAmount: (state) => (state.rabItems || []).reduce((acc, item) => acc + (Number(item.total) || (Number(item.qty || 0) * Number(item.harga_satuan || 0))), 0),
-    totalRabIncome: (state) => (state.rabIncomes || []).reduce((acc, inc) => acc + (Number(inc.nominal) || 0), 0),
+    totalRabItemIncome: (state) => (state.rabItems || []).reduce((acc, item) => acc + (Number(item.income) || 0), 0),
+    totalRabIncome: (state, getters) => {
+      const directInc = (state.rabIncomes || []).reduce((acc, inc) => acc + (Number(inc.nominal) || 0), 0);
+      const itemInc = getters.totalRabItemIncome;
+      return Math.max(directInc, itemInc);
+    },
     totalRabExpense: (state) => (state.rabExpenses || []).reduce((acc, exp) => acc + (Number(exp.total) || (Number(exp.qty || 0) * Number(exp.harga_satuan || 0))), 0),
     sisaRabAmount: (state, getters) => getters.totalRabIncome - getters.totalRabAmount,
     sisaRabAktual: (state, getters) => getters.totalRabIncome - getters.totalRabExpense,
@@ -934,6 +942,13 @@ export default createStore({
       state.habits = [];
       state.notes = [];
       state.events = [];
+      state.rabItems = [];
+      state.rabIncomes = [];
+      state.rabExpenses = [];
+      state.codeNotes = [];
+      state.suratList = [];
+      state.selfieGallery = [];
+      state.moodLogs = [];
 
       saveLocal('ft_contacts', []);
       saveLocal('ft_projects', []);
@@ -943,6 +958,13 @@ export default createStore({
       saveLocal('ft_habits', []);
       saveLocal('ft_notes', []);
       saveLocal('ft_events', []);
+      saveLocal('ft_rabItems', []);
+      saveLocal('ft_rabIncomes', []);
+      saveLocal('ft_rabExpenses', []);
+      saveLocal('ft_codeNotes', []);
+      saveLocal('ft_suratList', []);
+      saveLocal('ft_selfieGallery', []);
+      saveLocal('ft_moodLogs', []);
     },
 
     LOAD_SAMPLE_DATA(state) {
@@ -953,6 +975,9 @@ export default createStore({
       state.habits = [...SAMPLE_HABITS];
       state.notes = [...DEFAULT_NOTES];
       state.events = [...DEFAULT_EVENTS];
+      state.rabItems = [...SAMPLE_RAB_ITEMS];
+      state.rabIncomes = [...SAMPLE_RAB_INCOMES];
+      state.rabExpenses = [...SAMPLE_RAB_EXPENSES];
 
       saveLocal('ft_contacts', state.contacts);
       saveLocal('ft_projects', state.projects);
@@ -961,6 +986,9 @@ export default createStore({
       saveLocal('ft_habits', state.habits);
       saveLocal('ft_notes', state.notes);
       saveLocal('ft_events', state.events);
+      saveLocal('ft_rabItems', state.rabItems);
+      saveLocal('ft_rabIncomes', state.rabIncomes);
+      saveLocal('ft_rabExpenses', state.rabExpenses);
     },
 
     IMPORT_FULL_DATA(state, data) {
@@ -973,6 +1001,9 @@ export default createStore({
       state.habits = data.habits || [];
       state.notes = data.notes || [];
       state.events = data.events || [];
+      state.rabItems = data.rabItems || [];
+      state.rabIncomes = data.rabIncomes || [];
+      state.rabExpenses = data.rabExpenses || [];
       if (data.themeMode) state.themeMode = data.themeMode;
       if (data.accentColor) state.accentColor = data.accentColor;
       if (data.budgetThreshold) state.budgetThreshold = data.budgetThreshold;
@@ -986,6 +1017,9 @@ export default createStore({
       saveLocal('ft_habits', state.habits);
       saveLocal('ft_notes', state.notes);
       saveLocal('ft_events', state.events);
+      saveLocal('ft_rabItems', state.rabItems);
+      saveLocal('ft_rabIncomes', state.rabIncomes);
+      saveLocal('ft_rabExpenses', state.rabExpenses);
       saveLocal('ft_themeMode', state.themeMode);
       saveLocal('ft_accentColor', state.accentColor);
       saveLocal('ft_budgetThreshold', state.budgetThreshold);

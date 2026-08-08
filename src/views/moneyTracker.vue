@@ -39,11 +39,11 @@
           </div>
           <div>
             <div class="d-flex align-items-center gap-2">
-              <h5 class="fw-bold mb-0 text-white">📋 Aplikasi RAB & Kas Kegiatan (17-an / Event Warga)</h5>
-              <span class="badge bg-warning text-dark fw-bold rounded-pill px-2.5 py-1">FITUR BARU</span>
+              <h5 class="fw-bold mb-0 text-white">📋 Management RAB & Kas Kegiatan (Project & Event)</h5>
+              <span class="badge bg-warning text-dark fw-bold rounded-pill px-2.5 py-1">FITUR UTAMA</span>
             </div>
             <p class="small text-white text-opacity-85 mb-0 mt-1">
-              Pencatatan Rencana Anggaran Biaya (RAB), Pemasukan (Pa RT / Iuran Warga), Pengeluaran Aktual, dan Evaluasi Hemat / Over Budget secara otomatis.
+              Pencatatan Rencana Anggaran Biaya (RAB), Alokasi Income/Dana, Realisasi Belanja, serta Ekspor Laporan Resmi Excel (.xlsx) & PDF lengkap Slot Tanda Tangan Exporter.
             </p>
           </div>
         </div>
