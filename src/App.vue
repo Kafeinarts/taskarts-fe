@@ -94,6 +94,12 @@
           </span>
         </router-link>
 
+        <router-link to="/rab" class="material-nav-link" title="RAB & Kas Kegiatan Kepanitiaan">
+          <i class="bi bi-calculator-fill me-3 fs-5 nav-icon text-success"></i>
+          <span v-if="!isCollapsed" class="nav-label">RAB & Kas Kegiatan</span>
+          <span v-if="!isCollapsed" class="badge rounded-pill bg-success text-white ms-auto small fw-bold">NEW</span>
+        </router-link>
+
         <router-link to="/invoice" class="material-nav-link" title="Invoice Generator (PDF)">
           <i class="bi bi-receipt me-3 fs-5 nav-icon text-indigo"></i>
           <span v-if="!isCollapsed" class="nav-label">Invoice Generator</span>
@@ -268,6 +274,7 @@
             <div class="sidebar-divider my-2"></div>
             <div class="sidebar-section-header px-1">💰 KEUANGAN & DATA</div>
             <router-link to="/finance" class="material-nav-link"><i class="bi bi-wallet2 me-3 text-primary"></i>Keuangan</router-link>
+            <router-link to="/rab" class="material-nav-link"><i class="bi bi-calculator-fill me-3 text-success"></i>RAB & Kas Kegiatan</router-link>
             <router-link to="/invoice" class="material-nav-link"><i class="bi bi-receipt me-3 text-info"></i>Invoice Generator</router-link>
             <router-link to="/sql" class="material-nav-link"><i class="bi bi-database-fill-gear me-3 text-warning"></i>SQL Data Export</router-link>
 

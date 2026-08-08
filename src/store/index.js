@@ -167,6 +167,134 @@ const DEFAULT_WORK_ALARMS = [
   { id: 'al_4', time: '17:00', label: 'Jam Selesai Kerja & Evaluasi', active: true, sound: 'siren', repeat: 'Senin - Jumat' }
 ];
 
+// Sample RAB data generator for committee / event budgeting
+const SAMPLE_RAB_ITEMS = [
+  {
+    id: 'rab_1',
+    nama_item: 'Bendera Merah Putih',
+    qty: 10,
+    satuan: 'pcs',
+    harga_satuan: 5000,
+    total: 50000,
+    catatan: 'Bendera hiasan jalan 17-an',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'rab_2',
+    nama_item: 'Balon Warna-Warni',
+    qty: 2,
+    satuan: 'pack',
+    harga_satuan: 15000,
+    total: 30000,
+    catatan: 'Dekorasi panggung utama & gapura',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'rab_3',
+    nama_item: 'Kerupuk Kaleng Lomba',
+    qty: 5,
+    satuan: 'bungkus',
+    harga_satuan: 10000,
+    total: 50000,
+    catatan: 'Lomba makan kerupuk anak',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'rab_4',
+    nama_item: 'Paket Hadiah Lomba Anak',
+    qty: 1,
+    satuan: 'paket',
+    harga_satuan: 250000,
+    total: 250000,
+    catatan: 'Alat tulis & snack pemenang',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'rab_5',
+    nama_item: 'Consumsi & Snack Panitia',
+    qty: 40,
+    satuan: 'porsi',
+    harga_satuan: 11750,
+    total: 470000,
+    catatan: 'Nasi kotak & air minum',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  }
+];
+
+const SAMPLE_RAB_INCOMES = [
+  {
+    id: 'inc_1',
+    sumber_dana: 'Pa RT',
+    tanggal: '2026-08-08',
+    nominal: 800000,
+    keterangan: 'Dana kegiatan dari Kas RT',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'inc_2',
+    sumber_dana: 'Warga A',
+    tanggal: '2026-08-08',
+    nominal: 100000,
+    keterangan: 'Iuran warga Blok A',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'inc_3',
+    sumber_dana: 'Warga B',
+    tanggal: '2026-08-08',
+    nominal: 50000,
+    keterangan: 'Iuran warga Blok B',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  }
+];
+
+const SAMPLE_RAB_EXPENSES = [
+  {
+    id: 'exp_1',
+    rab_item_id: 'rab_1',
+    deskripsi: 'Bendera Merah Putih',
+    tanggal: '2026-08-08',
+    qty: 10,
+    harga_satuan: 4500,
+    total: 45000,
+    keterangan: 'Pembelian di Toko Grosir Jaya',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'exp_2',
+    rab_item_id: 'rab_2',
+    deskripsi: 'Balon Warna-Warni',
+    tanggal: '2026-08-08',
+    qty: 2,
+    harga_satuan: 17500,
+    total: 35000,
+    keterangan: 'Beli balon latex premium',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  },
+  {
+    id: 'exp_3',
+    rab_item_id: 'rab_3',
+    deskripsi: 'Kerupuk Kaleng Lomba',
+    tanggal: '2026-08-08',
+    qty: 5,
+    harga_satuan: 10000,
+    total: 50000,
+    keterangan: 'Kerupuk kaleng blek',
+    created_at: '2026-08-08',
+    updated_at: '2026-08-08'
+  }
+];
+
 function loadLocal(key, defaultData) {
   try {
     const saved = localStorage.getItem(key);
@@ -198,6 +326,9 @@ export default createStore({
       moodLogs: loadLocal('ft_moodLogs', []),
       workAlarms: loadLocal('ft_workAlarms', DEFAULT_WORK_ALARMS),
       geminiApiKey: loadLocal('ft_geminiApiKey', ''),
+      rabItems: loadLocal('ft_rabItems', SAMPLE_RAB_ITEMS),
+      rabIncomes: loadLocal('ft_rabIncomes', SAMPLE_RAB_INCOMES),
+      rabExpenses: loadLocal('ft_rabExpenses', SAMPLE_RAB_EXPENSES),
       aiProvider: loadLocal('ft_aiProvider', 'gemini'),
       aiModel: loadLocal('ft_aiModel', 'gemini-1.5-flash'),
       themeMode: 'light', // Light mode default
@@ -287,6 +418,27 @@ export default createStore({
     getCodeNotes: (state) => state.codeNotes,
     getSuratList: (state) => state.suratList,
     getSelfieGallery: (state) => state.selfieGallery,
+
+    // RAB Getters
+    getRabItems: (state) => state.rabItems || [],
+    getRabIncomes: (state) => state.rabIncomes || [],
+    getRabExpenses: (state) => state.rabExpenses || [],
+    totalRabAmount: (state) => (state.rabItems || []).reduce((acc, item) => acc + (Number(item.total) || (Number(item.qty || 0) * Number(item.harga_satuan || 0))), 0),
+    totalRabIncome: (state) => (state.rabIncomes || []).reduce((acc, inc) => acc + (Number(inc.nominal) || 0), 0),
+    totalRabExpense: (state) => (state.rabExpenses || []).reduce((acc, exp) => acc + (Number(exp.total) || (Number(exp.qty || 0) * Number(exp.harga_satuan || 0))), 0),
+    sisaRabAmount: (state, getters) => getters.totalRabIncome - getters.totalRabAmount,
+    sisaRabAktual: (state, getters) => getters.totalRabIncome - getters.totalRabExpense,
+    selisihRabVsExpense: (state, getters) => getters.totalRabAmount - getters.totalRabExpense,
+    rabStatusInfo: (state, getters) => {
+      const diff = getters.selisihRabVsExpense;
+      if (diff > 0) {
+        return { status: 'Hemat', label: `Hemat Rp${diff.toLocaleString('id-ID')}`, color: 'success', diff };
+      } else if (diff === 0) {
+        return { status: 'Sesuai RAB', label: 'Sesuai Target RAB', color: 'primary', diff: 0 };
+      } else {
+        return { status: 'Over Budget', label: `Over Budget Rp${Math.abs(diff).toLocaleString('id-ID')}`, color: 'danger', diff };
+      }
+    },
 
     // Statistics
     totalClientsCount: (state) => state.contacts.length,
@@ -645,6 +797,133 @@ export default createStore({
       saveLocal('ft_selfieGallery', state.selfieGallery);
     },
 
+    // RAB Mutations
+    ADD_RAB_ITEM(state, item) {
+      if (!state.rabItems) state.rabItems = [];
+      const qty = Number(item.qty) || 1;
+      const harga_satuan = Number(item.harga_satuan) || 0;
+      const total = qty * harga_satuan;
+      const newItem = {
+        ...item,
+        qty,
+        harga_satuan,
+        total,
+        created_at: item.created_at || new Date().toISOString().split('T')[0],
+        updated_at: new Date().toISOString().split('T')[0]
+      };
+      state.rabItems.unshift(newItem);
+      saveLocal('ft_rabItems', state.rabItems);
+    },
+    UPDATE_RAB_ITEM(state, updated) {
+      const idx = state.rabItems.findIndex(i => i.id === updated.id);
+      if (idx !== -1) {
+        const qty = Number(updated.qty) || 1;
+        const harga_satuan = Number(updated.harga_satuan) || 0;
+        const total = qty * harga_satuan;
+        state.rabItems.splice(idx, 1, {
+          ...updated,
+          qty,
+          harga_satuan,
+          total,
+          updated_at: new Date().toISOString().split('T')[0]
+        });
+        saveLocal('ft_rabItems', state.rabItems);
+      }
+    },
+    DELETE_RAB_ITEM(state, id) {
+      state.rabItems = state.rabItems.filter(i => i.id !== id);
+      // Also dissociate or adjust linked expenses
+      if (state.rabExpenses) {
+        state.rabExpenses.forEach(exp => {
+          if (exp.rab_item_id === id) exp.rab_item_id = null;
+        });
+        saveLocal('ft_rabExpenses', state.rabExpenses);
+      }
+      saveLocal('ft_rabItems', state.rabItems);
+    },
+
+    ADD_RAB_INCOME(state, income) {
+      if (!state.rabIncomes) state.rabIncomes = [];
+      const newIncome = {
+        ...income,
+        nominal: Number(income.nominal) || 0,
+        created_at: income.created_at || new Date().toISOString().split('T')[0],
+        updated_at: new Date().toISOString().split('T')[0]
+      };
+      state.rabIncomes.unshift(newIncome);
+      saveLocal('ft_rabIncomes', state.rabIncomes);
+    },
+    UPDATE_RAB_INCOME(state, updated) {
+      const idx = state.rabIncomes.findIndex(i => i.id === updated.id);
+      if (idx !== -1) {
+        state.rabIncomes.splice(idx, 1, {
+          ...updated,
+          nominal: Number(updated.nominal) || 0,
+          updated_at: new Date().toISOString().split('T')[0]
+        });
+        saveLocal('ft_rabIncomes', state.rabIncomes);
+      }
+    },
+    DELETE_RAB_INCOME(state, id) {
+      state.rabIncomes = state.rabIncomes.filter(i => i.id !== id);
+      saveLocal('ft_rabIncomes', state.rabIncomes);
+    },
+
+    ADD_RAB_EXPENSE(state, expense) {
+      if (!state.rabExpenses) state.rabExpenses = [];
+      const qty = Number(expense.qty) || 1;
+      const harga_satuan = Number(expense.harga_satuan) || 0;
+      const total = qty * harga_satuan;
+      const newExpense = {
+        ...expense,
+        qty,
+        harga_satuan,
+        total,
+        created_at: expense.created_at || new Date().toISOString().split('T')[0],
+        updated_at: new Date().toISOString().split('T')[0]
+      };
+      state.rabExpenses.unshift(newExpense);
+      saveLocal('ft_rabExpenses', state.rabExpenses);
+    },
+    UPDATE_RAB_EXPENSE(state, updated) {
+      const idx = state.rabExpenses.findIndex(e => e.id === updated.id);
+      if (idx !== -1) {
+        const qty = Number(updated.qty) || 1;
+        const harga_satuan = Number(updated.harga_satuan) || 0;
+        const total = qty * harga_satuan;
+        state.rabExpenses.splice(idx, 1, {
+          ...updated,
+          qty,
+          harga_satuan,
+          total,
+          updated_at: new Date().toISOString().split('T')[0]
+        });
+        saveLocal('ft_rabExpenses', state.rabExpenses);
+      }
+    },
+    DELETE_RAB_EXPENSE(state, id) {
+      state.rabExpenses = state.rabExpenses.filter(e => e.id !== id);
+      saveLocal('ft_rabExpenses', state.rabExpenses);
+    },
+
+    RESET_RAB_DATA(state) {
+      state.rabItems = [];
+      state.rabIncomes = [];
+      state.rabExpenses = [];
+      saveLocal('ft_rabItems', []);
+      saveLocal('ft_rabIncomes', []);
+      saveLocal('ft_rabExpenses', []);
+    },
+
+    LOAD_SAMPLE_RAB_DATA(state) {
+      state.rabItems = [...SAMPLE_RAB_ITEMS];
+      state.rabIncomes = [...SAMPLE_RAB_INCOMES];
+      state.rabExpenses = [...SAMPLE_RAB_EXPENSES];
+      saveLocal('ft_rabItems', state.rabItems);
+      saveLocal('ft_rabIncomes', state.rabIncomes);
+      saveLocal('ft_rabExpenses', state.rabExpenses);
+    },
+
     // Global Reset & Import/Export
     CLEAR_ALL_DATA(state) {
       state.contacts = [];
@@ -910,6 +1189,44 @@ export default createStore({
     },
     deleteSelfie({ commit }, id) {
       commit('DELETE_SELFIE', id);
+    },
+
+    // RAB Actions
+    addRabItem({ commit }, item) {
+      commit('ADD_RAB_ITEM', { ...item, id: 'rab_' + Date.now() + Math.random().toString(36).substring(2, 5) });
+    },
+    updateRabItem({ commit }, item) {
+      commit('UPDATE_RAB_ITEM', item);
+    },
+    deleteRabItem({ commit }, id) {
+      commit('DELETE_RAB_ITEM', id);
+    },
+
+    addRabIncome({ commit }, income) {
+      commit('ADD_RAB_INCOME', { ...income, id: 'inc_' + Date.now() + Math.random().toString(36).substring(2, 5) });
+    },
+    updateRabIncome({ commit }, income) {
+      commit('UPDATE_RAB_INCOME', income);
+    },
+    deleteRabIncome({ commit }, id) {
+      commit('DELETE_RAB_INCOME', id);
+    },
+
+    addRabExpense({ commit }, expense) {
+      commit('ADD_RAB_EXPENSE', { ...expense, id: 'exp_' + Date.now() + Math.random().toString(36).substring(2, 5) });
+    },
+    updateRabExpense({ commit }, expense) {
+      commit('UPDATE_RAB_EXPENSE', expense);
+    },
+    deleteRabExpense({ commit }, id) {
+      commit('DELETE_RAB_EXPENSE', id);
+    },
+
+    resetRabData({ commit }) {
+      commit('RESET_RAB_DATA');
+    },
+    loadSampleRabData({ commit }) {
+      commit('LOAD_SAMPLE_RAB_DATA');
     },
 
     clearAllData({ commit }) {

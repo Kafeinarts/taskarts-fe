@@ -13,6 +13,10 @@
         <p class="text-muted mb-0">Pantau arus kas, batas anggaran bulanan, serta analisa grafik pemasukan vs pengeluaran.</p>
       </div>
       <div class="d-flex flex-wrap gap-2">
+        <router-link to="/rab" class="btn btn-primary px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2">
+          <i class="bi bi-calculator-fill fs-5"></i>
+          <span>Kelola RAB & Kas Kegiatan</span>
+        </router-link>
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
           <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel (.xlsx)
         </button>
@@ -23,6 +27,30 @@
           <i :class="showForm ? 'bi bi-x-lg' : 'bi bi-plus-circle-fill'" class="fs-5"></i>
           <span>{{ showForm ? 'Tutup Form' : 'Tambah / Bulk Transaksi' }}</span>
         </button>
+      </div>
+    </div>
+
+    <!-- RAB & Kas Kegiatan Shortcut Banner -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 text-white no-print" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0284c7 100%);">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-3 bg-white bg-opacity-20 rounded-4 text-white fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+            <i class="bi bi-calculator-fill"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="fw-bold mb-0 text-white">📋 Aplikasi RAB & Kas Kegiatan (17-an / Event Warga)</h5>
+              <span class="badge bg-warning text-dark fw-bold rounded-pill px-2.5 py-1">FITUR BARU</span>
+            </div>
+            <p class="small text-white text-opacity-85 mb-0 mt-1">
+              Pencatatan Rencana Anggaran Biaya (RAB), Pemasukan (Pa RT / Iuran Warga), Pengeluaran Aktual, dan Evaluasi Hemat / Over Budget secara otomatis.
+            </p>
+          </div>
+        </div>
+        <router-link to="/rab" class="btn btn-light btn-lg px-4 py-2 rounded-3 fw-bold text-dark shadow-sm text-nowrap d-flex align-items-center gap-2">
+          <span>Kelola RAB Sekarang</span>
+          <i class="bi bi-arrow-right"></i>
+        </router-link>
       </div>
     </div>
 
