@@ -55,6 +55,11 @@ const routes = [
     component: () => import("../views/RabView.vue"),
   },
   {
+    path: "/videos",
+    name: "videos",
+    component: () => import("../views/VideoHubView.vue"),
+  },
+  {
     path: "/games",
     name: "games",
     component: () => import("../views/GamesView.vue"),

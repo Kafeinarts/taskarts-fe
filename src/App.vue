@@ -60,6 +60,12 @@
           <span v-if="!isCollapsed" class="nav-label">CV & Resume Builder</span>
         </router-link>
 
+        <router-link to="/videos" class="material-nav-link" title="Tonton & Upload Video (YouTube Sync)">
+          <i class="bi bi-play-btn-fill me-3 fs-5 nav-icon text-danger"></i>
+          <span v-if="!isCollapsed" class="nav-label">Tonton & Sync Video</span>
+          <span v-if="!isCollapsed" class="badge rounded-pill bg-danger text-white ms-auto small fw-bold">YouTube</span>
+        </router-link>
+
         <div class="sidebar-divider my-2"></div>
 
         <!-- GROUP 2: TIM & KOMUNIKASI -->
