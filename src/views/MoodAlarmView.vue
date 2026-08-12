@@ -491,6 +491,7 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'MoodAlarmView',
@@ -719,15 +720,39 @@ export default {
     };
 
     const deleteMoodLog = (id) => {
-      store.commit('DELETE_MOOD_LOG', id);
-      showToast('Histori mood dihapus.');
+      Swal.fire({
+        title: 'Hapus Log Mood?',
+        text: 'Hapus catatan mood ini dari histori?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.commit('DELETE_MOOD_LOG', id);
+          showToast('Histori mood dihapus.');
+        }
+      });
     };
 
     const clearHistory = () => {
-      if (confirm('Apakah Anda yakin ingin menghapus seluruh histori mood?')) {
-        store.commit('CLEAR_MOOD_LOGS');
-        showToast('Seluruh histori mood berhasil dibersihkan.');
-      }
+      Swal.fire({
+        title: 'Bersihkan Seluruh Histori Mood?',
+        text: 'Apakah Anda yakin ingin menghapus seluruh histori mood?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Bersihkan Semua',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.commit('CLEAR_MOOD_LOGS');
+          showToast('Seluruh histori mood berhasil dibersihkan.');
+        }
+      });
     };
 
     // ALARM METHODS

@@ -895,6 +895,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'TodoList',
@@ -993,19 +994,7 @@ export default {
 
     const toast = ref({ show: false, message: '' });
 
-    // Confirmation Modal State for Task Deletion
-    const deleteModal = ref({
-      show: false,
-      type: 'single', // 'single' | 'bulk' | 'clear_completed'
-      targetId: null,
-      targetTitle: '',
-      count: 0
-    });
-
-    const closeDeleteModal = () => {
-      deleteModal.value.show = false;
-    };
-
+    // SweetAlert2 Handlers for Task & Folder Actions
     const confirmDeleteTask = (taskOrId) => {
       let targetTask = null;
       if (typeof taskOrId === 'object' && taskOrId !== null) {
@@ -1013,58 +1002,84 @@ export default {
       } else {
         targetTask = tasks.value.find(t => String(t.id) === String(taskOrId));
       }
+      const targetId = targetTask ? targetTask.id : taskOrId;
+      const targetTitle = targetTask ? targetTask.name : 'Tugas ini';
 
-      deleteModal.value = {
-        show: true,
-        type: 'single',
-        targetId: targetTask ? targetTask.id : taskOrId,
-        targetTitle: targetTask ? targetTask.name : 'Tugas ini',
-        count: 1
-      };
+      Swal.fire({
+        title: 'Hapus Tugas?',
+        html: `Hapus tugas <strong>"${targetTitle}"</strong> secara permanen?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteTask', targetId);
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus!',
+            text: 'Tugas berhasil dihapus.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     const confirmBulkDelete = () => {
       if (selectedIds.value.length === 0) return;
-      deleteModal.value = {
-        show: true,
-        type: 'bulk',
-        targetId: null,
-        targetTitle: '',
-        count: selectedIds.value.length
-      };
+      Swal.fire({
+        title: 'Hapus Masal Tugas?',
+        html: `Hapus <strong>${selectedIds.value.length} tugas terpilih</strong> secara permanen?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus Semua',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteTasksBulk', selectedIds.value);
+          selectedIds.value = [];
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus!',
+            text: 'Tugas terpilih berhasil dihapus.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     const confirmClearCompleted = () => {
       if (completedCount.value === 0) return;
-      deleteModal.value = {
-        show: true,
-        type: 'clear_completed',
-        targetId: null,
-        targetTitle: '',
-        count: completedCount.value
-      };
-    };
-
-    const executeDelete = () => {
-      if (deleteModal.value.type === 'single') {
-        if (deleteModal.value.targetId) {
-          store.dispatch('deleteTask', deleteModal.value.targetId);
-          showToastMsg('Tugas berhasil dihapus secara permanen.');
+      Swal.fire({
+        title: 'Bersihkan Task Selesai?',
+        html: `Bersihkan <strong>${completedCount.value} tugas yang telah selesai</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Bersihkan',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const completedIds = tasks.value.filter(t => t.done || t.statusColumn === 'done').map(t => t.id);
+          if (completedIds.length > 0) {
+            store.dispatch('deleteTasksBulk', completedIds);
+            Swal.fire({
+              icon: 'success',
+              title: 'Dibersihkan!',
+              text: 'Semua tugas selesai berhasil dibersihkan.',
+              timer: 1800,
+              showConfirmButton: false
+            });
+          }
         }
-      } else if (deleteModal.value.type === 'bulk') {
-        if (selectedIds.value.length > 0) {
-          store.dispatch('deleteTasksBulk', selectedIds.value);
-          showToastMsg(`${selectedIds.value.length} tugas berhasil dihapus secara permanen.`);
-          selectedIds.value = [];
-        }
-      } else if (deleteModal.value.type === 'clear_completed') {
-        const completedIds = tasks.value.filter(t => t.done || t.statusColumn === 'done').map(t => t.id);
-        if (completedIds.length > 0) {
-          store.dispatch('deleteTasksBulk', completedIds);
-          showToastMsg('Semua tugas selesai berhasil dibersihkan.');
-        }
-      }
-      closeDeleteModal();
+      });
     };
 
     // Custom Project Folders list state
@@ -1096,11 +1111,26 @@ export default {
     };
 
     const promptAddCustomFolder = () => {
-      const name = prompt('Masukkan nama Project Folder / Kategori baru:');
-      if (name) {
-        addCustomFolder(name);
-        form.value.category = name.trim();
-      }
+      Swal.fire({
+        title: 'Folder / Kategori Baru',
+        input: 'text',
+        inputLabel: 'Masukkan nama Project Folder baru:',
+        inputPlaceholder: 'misal: Marketing, Desain, Client A...',
+        showCancelButton: true,
+        confirmButtonText: 'Simpan Folder',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#0d6efd',
+        inputValidator: (value) => {
+          if (!value || !value.trim()) {
+            return 'Nama folder tidak boleh kosong!';
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed && result.value) {
+          addCustomFolder(result.value);
+          form.value.category = result.value.trim();
+        }
+      });
     };
 
     const onCustomFolderInput = () => {

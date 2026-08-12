@@ -175,6 +175,7 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'SettingsView',
@@ -225,11 +226,22 @@ export default {
       reader.onload = (e) => {
         try {
           const parsed = JSON.parse(e.target.result);
-          if (confirm('Import data ini dan timpa data lokal Anda saat ini?')) {
-            store.dispatch('importFullData', parsed);
-            showToastMsg('Data JSON berhasil dimuat dari file!');
-            importError.value = '';
-          }
+          Swal.fire({
+            title: 'Import Data?',
+            text: 'Import data ini dan timpa data lokal Anda saat ini?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Import',
+            cancelButtonText: 'Batal'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              store.dispatch('importFullData', parsed);
+              showToastMsg('Data JSON berhasil dimuat dari file!');
+              importError.value = '';
+            }
+          });
         } catch (err) {
           importError.value = 'Format file JSON tidak valid. Pastikan memilih berkas yang benar.';
         }
@@ -243,17 +255,39 @@ export default {
     };
 
     const resetToRawEmpty = () => {
-      if (confirm('Lakukan reset total? Seluruh data akan dikosongkan (raw & clean state).')) {
-        store.dispatch('clearAllData');
-        showToastMsg('Semua data berhasil dikosongkan (Raw Empty State).');
-      }
+      Swal.fire({
+        title: 'Reset Total Data?',
+        text: 'Lakukan reset total? Seluruh data akan dikosongkan (raw & clean state).',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Kosongkan Data',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('clearAllData');
+          showToastMsg('Semua data berhasil dikosongkan (Raw Empty State).');
+        }
+      });
     };
 
     const loadSampleData = () => {
-      if (confirm('Muat data contoh / demo?')) {
-        store.dispatch('loadSampleData');
-        showToastMsg('Data contoh berhasil dimuat!');
-      }
+      Swal.fire({
+        title: 'Muat Data Contoh?',
+        text: 'Muat data contoh / demo?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Muat Contoh',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('loadSampleData');
+          showToastMsg('Data contoh berhasil dimuat!');
+        }
+      });
     };
 
     const exportTransactionsExcel = () => {

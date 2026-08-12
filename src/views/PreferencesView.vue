@@ -597,6 +597,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 import { 
   getNotificationPermission, 
   requestNotificationPermission, 
@@ -962,23 +963,45 @@ export default {
     };
 
     const resetToRawEmpty = () => {
-      if (confirm('Lakukan reset total? Seluruh data akan dikosongkan.')) {
-        store.dispatch('clearAllData');
-        sendOnDeviceNotification('🗑️ Data Berhasil Dikosongkan', {
-          body: 'Sistem kembali ke Raw Clean State.',
-          type: 'warning'
-        });
-      }
+      Swal.fire({
+        title: 'Reset Total Data?',
+        text: 'Lakukan reset total? Seluruh data akan dikosongkan.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Kosongkan Data',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('clearAllData');
+          sendOnDeviceNotification('🗑️ Data Berhasil Dikosongkan', {
+            body: 'Sistem kembali ke Raw Clean State.',
+            type: 'warning'
+          });
+        }
+      });
     };
 
     const loadSampleData = () => {
-      if (confirm('Muat data contoh / demo?')) {
-        store.dispatch('loadSampleData');
-        sendOnDeviceNotification('📦 Data Contoh Berhasil Dimuat', {
-          body: 'Daftar tugas, proyek, dan kontak demo telah tersedia.',
-          type: 'success'
-        });
-      }
+      Swal.fire({
+        title: 'Muat Data Contoh?',
+        text: 'Muat data contoh / demo?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Muat Contoh',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('loadSampleData');
+          sendOnDeviceNotification('📦 Data Contoh Berhasil Dimuat', {
+            body: 'Daftar tugas, proyek, dan kontak demo telah tersedia.',
+            type: 'success'
+          });
+        }
+      });
     };
 
     // Excel Exports
