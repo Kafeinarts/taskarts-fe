@@ -51,6 +51,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: 'aboutDev'
+}
+</script>
+
 <style scoped>
 /* Glassmorphism Style */
 .glass-card {
