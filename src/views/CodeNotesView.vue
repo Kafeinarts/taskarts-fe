@@ -150,6 +150,7 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'CodeNotesView',
@@ -227,9 +228,21 @@ export default {
     };
 
     const deleteSnippet = (id) => {
-      if (confirm('Hapus code snippet ini?')) {
-        store.dispatch('deleteCodeNote', id);
-      }
+      Swal.fire({
+        title: 'Hapus Snippet?',
+        text: 'Hapus code snippet ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteCodeNote', id);
+          sendOnDeviceNotification('🗑️ Snippet Dihapus', { body: 'Code snippet telah dihapus.', type: 'info' });
+        }
+      });
     };
 
     const copyCode = (code) => {

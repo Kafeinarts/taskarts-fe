@@ -705,6 +705,7 @@
 import { ref, reactive, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'RabView',
@@ -969,14 +970,26 @@ export default {
       }
     };
 
-    // SAVE HANDLERS (Native JS alert)
+    // SAVE HANDLERS (SweetAlert2)
     const saveRabItem = () => {
       if (editingId.value) {
         store.dispatch('updateRabItem', { ...rabForm.value, id: editingId.value });
-        alert('Berhasil! Item RAB berhasil diperbarui.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Item RAB berhasil diperbarui.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         store.dispatch('addRabItem', { ...rabForm.value });
-        alert('Berhasil! Item RAB baru berhasil ditambahkan.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Item RAB baru berhasil ditambahkan.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       closeForm();
     };
@@ -984,10 +997,22 @@ export default {
     const saveIncome = () => {
       if (editingId.value) {
         store.dispatch('updateRabIncome', { ...incomeForm.value, id: editingId.value });
-        alert('Berhasil! Catatan pemasukan berhasil diperbarui.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Catatan pemasukan berhasil diperbarui.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         store.dispatch('addRabIncome', { ...incomeForm.value });
-        alert('Berhasil! Pemasukan baru berhasil dicatat.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Pemasukan baru berhasil dicatat.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       closeForm();
     };
@@ -995,42 +1020,122 @@ export default {
     const saveExpense = () => {
       if (editingId.value) {
         store.dispatch('updateRabExpense', { ...expenseForm.value, id: editingId.value });
-        alert('Berhasil! Catatan pengeluaran berhasil diperbarui.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Catatan pengeluaran berhasil diperbarui.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         store.dispatch('addRabExpense', { ...expenseForm.value });
-        alert('Berhasil! Realisasi pengeluaran baru berhasil dicatat.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Realisasi pengeluaran baru berhasil dicatat.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       closeForm();
     };
 
-    // DELETE HANDLERS (Native JS confirm)
+    // DELETE HANDLERS (SweetAlert2)
     const deleteRabItemConfirm = (id) => {
-      if (confirm('Hapus Item RAB ini?\n\nPengeluaran realisasi yang terhubung akan disesuaikan menjadi Non-RAB.')) {
-        store.dispatch('deleteRabItem', id);
-        alert('Terhapus! Item RAB telah dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Item RAB?',
+        text: 'Pengeluaran realisasi yang terhubung akan disesuaikan menjadi Non-RAB.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteRabItem', id);
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus!',
+            text: 'Item RAB telah dihapus.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     const deleteIncomeConfirm = (id) => {
-      if (confirm('Hapus Pemasukan?\n\nCatatan nominal penerimaan ini akan dihapus dari kas.')) {
-        store.dispatch('deleteRabIncome', id);
-        alert('Terhapus! Catatan pemasukan telah dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Pemasukan?',
+        text: 'Catatan nominal penerimaan ini akan dihapus dari kas.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteRabIncome', id);
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus!',
+            text: 'Catatan pemasukan telah dihapus.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     const deleteExpenseConfirm = (id) => {
-      if (confirm('Hapus Realisasi Pengeluaran?\n\nCatatan pengeluaran aktual ini akan dihapus.')) {
-        store.dispatch('deleteRabExpense', id);
-        alert('Terhapus! Pengeluaran telah dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Realisasi Pengeluaran?',
+        text: 'Catatan pengeluaran aktual ini akan dihapus.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteRabExpense', id);
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus!',
+            text: 'Pengeluaran telah dihapus.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     // SAMPLE DATA LOAD
     const triggerLoadSampleData = () => {
-      if (confirm('Muat Contoh Data RAB Kegiatan?\n\nData RAB, Pemasukan/Income, dan Realisasi Pengeluaran contoh akan dimuat.')) {
-        store.dispatch('loadSampleRabData');
-        alert('Berhasil! Contoh data RAB Kegiatan telah dimuat.');
-      }
+      Swal.fire({
+        title: 'Muat Contoh Data RAB?',
+        text: 'Data RAB, Pemasukan/Income, dan Realisasi Pengeluaran contoh akan dimuat.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Muat Contoh',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('loadSampleRabData');
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Contoh data RAB Kegiatan telah dimuat.',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      });
     };
 
     // EXPORT TO EXCEL (.XLSX)
@@ -1076,9 +1181,19 @@ export default {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan_RAB');
         XLSX.writeFile(workbook, `Laporan_RAB_${new Date().toISOString().split('T')[0]}.xlsx`);
-        alert('Berhasil! File Excel Laporan RAB berhasil diunduh.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'File Excel Laporan RAB berhasil diunduh.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } catch (err) {
-        alert('Terjadi kesalahan saat mengunduh Excel: ' + err.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Download Excel',
+          text: err.message
+        });
       }
     };
 

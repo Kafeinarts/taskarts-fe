@@ -338,6 +338,7 @@ import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'InvoiceView',
@@ -452,19 +453,41 @@ export default {
     };
 
     const deleteSingleInvoice = (id) => {
-      if (confirm('Hapus invoice ini dari riwayat tersimpan?')) {
-        store.dispatch('deleteInvoice', id);
-        showToastMsg('Invoice dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Invoice?',
+        text: 'Hapus invoice ini dari riwayat tersimpan?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteInvoice', id);
+          showToastMsg('Invoice dihapus.');
+        }
+      });
     };
 
     const bulkDelete = () => {
       if (selectedIds.value.length === 0) return;
-      if (confirm(`Hapus ${selectedIds.value.length} invoice terpilih?`)) {
-        store.dispatch('deleteInvoicesBulk', selectedIds.value);
-        showToastMsg(`${selectedIds.value.length} invoice dihapus.`);
-        selectedIds.value = [];
-      }
+      Swal.fire({
+        title: 'Hapus Masal Invoice?',
+        text: `Hapus ${selectedIds.value.length} invoice terpilih?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus Semua',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteInvoicesBulk', selectedIds.value);
+          showToastMsg(`${selectedIds.value.length} invoice dihapus.`);
+          selectedIds.value = [];
+        }
+      });
     };
 
     const saveInvoiceToStore = () => {

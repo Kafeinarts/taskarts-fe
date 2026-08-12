@@ -622,6 +622,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'MoneyTracker',
@@ -862,19 +863,41 @@ export default {
     };
 
     const deleteTx = (id) => {
-      if (confirm('Hapus transaksi ini dari riwayat keuangan?')) {
-        store.dispatch('deleteTransaction', id);
-        showToastMsg('Transaksi dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Transaksi?',
+        text: 'Hapus transaksi ini dari riwayat keuangan?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteTransaction', id);
+          showToastMsg('Transaksi dihapus.');
+        }
+      });
     };
 
     const bulkDelete = () => {
       if (selectedIds.value.length === 0) return;
-      if (confirm(`Hapus ${selectedIds.value.length} transaksi terpilih?`)) {
-        store.dispatch('deleteTransactionsBulk', selectedIds.value);
-        showToastMsg(`${selectedIds.value.length} transaksi berhasil dihapus.`);
-        selectedIds.value = [];
-      }
+      Swal.fire({
+        title: 'Hapus Masal?',
+        text: `Hapus ${selectedIds.value.length} transaksi terpilih?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus Semua',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteTransactionsBulk', selectedIds.value);
+          showToastMsg(`${selectedIds.value.length} transaksi berhasil dihapus.`);
+          selectedIds.value = [];
+        }
+      });
     };
 
     const resetFilters = () => {

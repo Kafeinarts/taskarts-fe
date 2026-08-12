@@ -341,6 +341,7 @@
 <script>
 import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'HabitTrackerView',
@@ -590,10 +591,21 @@ export default {
     };
 
     const confirmDeleteHabit = (habit) => {
-      if (confirm(`Apakah Anda yakin ingin menghapus habit "${habit.name}"?`)) {
-        store.dispatch('deleteHabit', habit.id);
-        showToast('Habit berhasil dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Habit?',
+        text: `Apakah Anda yakin ingin menghapus habit "${habit.name}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteHabit', habit.id);
+          showToast('Habit berhasil dihapus.');
+        }
+      });
     };
 
     const openHistoryModal = (habit) => {

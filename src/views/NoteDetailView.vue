@@ -277,6 +277,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { marked } from 'marked';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'NoteDetailView',
@@ -401,10 +402,21 @@ export default {
 
     const deleteNote = () => {
       if (!note.value) return;
-      if (confirm(`Apakah Anda yakin ingin menghapus catatan "${note.value.title}"?`)) {
-        store.commit('DELETE_NOTE', note.value.id);
-        router.push('/notes');
-      }
+      Swal.fire({
+        title: 'Hapus Catatan?',
+        text: `Apakah Anda yakin ingin menghapus catatan "${note.value.title}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.commit('DELETE_NOTE', note.value.id);
+          router.push('/notes');
+        }
+      });
     };
 
     const showToast = (msg) => {

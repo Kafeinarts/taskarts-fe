@@ -295,6 +295,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'ProjectManagement',
@@ -453,19 +454,41 @@ export default {
     };
 
     const deleteProject = (id) => {
-      if (confirm('Apakah Anda yakin ingin menghapus proyek ini?')) {
-        store.dispatch('deleteProject', id);
-        showToastMsg('Proyek dihapus.');
-      }
+      Swal.fire({
+        title: 'Hapus Proyek?',
+        text: 'Apakah Anda yakin ingin menghapus proyek ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteProject', id);
+          showToastMsg('Proyek dihapus.');
+        }
+      });
     };
 
     const bulkDelete = () => {
       if (selectedIds.value.length === 0) return;
-      if (confirm(`Hapus ${selectedIds.value.length} proyek terpilih?`)) {
-        store.dispatch('deleteProjectsBulk', selectedIds.value);
-        showToastMsg(`${selectedIds.value.length} proyek berhasil dihapus.`);
-        selectedIds.value = [];
-      }
+      Swal.fire({
+        title: 'Hapus Masal Proyek?',
+        text: `Hapus ${selectedIds.value.length} proyek terpilih?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus Semua',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          store.dispatch('deleteProjectsBulk', selectedIds.value);
+          showToastMsg(`${selectedIds.value.length} proyek berhasil dihapus.`);
+          selectedIds.value = [];
+        }
+      });
     };
 
     const createInvoiceForProject = (p) => {
