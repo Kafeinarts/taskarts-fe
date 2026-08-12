@@ -853,41 +853,6 @@
         </div>
       </div>
     </div>
-
-    <!-- INLINE DELETE CONFIRMATION PANEL (NO MODAL OVERLAY) -->
-    <transition name="fade-slide">
-      <div v-if="deleteModal.show" class="card border border-2 border-danger shadow-lg rounded-4 overflow-hidden mb-4 bg-white p-4">
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-          <div class="d-flex align-items-center gap-3">
-            <div class="p-3 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
-              <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-            </div>
-            <div>
-              <h5 class="fw-bold text-danger mb-1">Konfirmasi Hapus Permanen</h5>
-              <p class="small text-muted mb-0" v-if="deleteModal.type === 'single'">
-                Hapus tugas "<strong>{{ deleteModal.targetTitle }}</strong>"?
-              </p>
-              <p class="small text-muted mb-0" v-else-if="deleteModal.type === 'bulk'">
-                Hapus <strong>{{ deleteModal.count }} tugas terpilih</strong> secara permanen?
-              </p>
-              <p class="small text-muted mb-0" v-else-if="deleteModal.type === 'clear_completed'">
-                Bersihkan <strong>{{ deleteModal.count }} tugas selesai</strong>?
-              </p>
-            </div>
-          </div>
-
-          <div class="d-flex gap-2 justify-content-end">
-            <button type="button" class="btn btn-light px-4 py-2 rounded-pill fw-bold border" @click="closeDeleteModal">
-              Batal
-            </button>
-            <button type="button" class="btn btn-danger px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2" @click="executeDelete">
-              <i class="bi bi-trash-fill"></i>
-              <span>Ya, Hapus</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -1615,9 +1580,6 @@ export default {
       smartPriorityReason,
       runSmartPriorityAi,
       toast,
-      deleteModal,
-      closeDeleteModal,
-      executeDelete,
       getCategoryBadgeClass,
       toggleShowForm,
       openAddModal,
