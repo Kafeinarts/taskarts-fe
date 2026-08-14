@@ -16,6 +16,14 @@
       </div>
 
       <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-warning text-dark px-3 py-2 rounded-3 fw-semibold" @click="exportContactsJson" title="Backup Kontak ke JSON">
+          <i class="bi bi-filetype-json text-warning me-1"></i> Export JSON
+        </button>
+        <button class="btn btn-outline-info text-dark px-3 py-2 rounded-3 fw-semibold" @click="triggerImportContactsJson" title="Import Kontak dari JSON">
+          <i class="bi bi-upload text-info me-1"></i> Import JSON
+        </button>
+        <input type="file" ref="contactsJsonInput" accept=".json" class="d-none" @change="onContactsJsonSelected" />
+
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-bold d-flex align-items-center gap-2 shadow-sm" @click="openMeetupModal()">
           <i class="bi bi-cup-hot-fill text-success fs-5"></i>
           <span>☕ Ajak Ketemuan</span>
@@ -604,6 +612,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'ContactsView',
@@ -1098,6 +1107,108 @@ export default {
       showToastMsg('File Excel daftar kontak berhasil diunduh!');
     };
 
+    const contactsJsonInput = ref(null);
+
+    const exportContactsJson = () => {
+      try {
+        const payload = {
+          app: 'RajinKerja',
+          type: 'contacts_backup',
+          version: '2.5',
+          exportDate: new Date().toISOString(),
+          contacts: contacts.value
+        };
+        const jsonStr = JSON.stringify(payload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Kontak_RajinKerja_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Export Kontak Berhasil!',
+          text: `${contacts.value.length} kontak berhasil diunduh sebagai JSON.`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Export JSON',
+          text: err.message
+        });
+      }
+    };
+
+    const triggerImportContactsJson = () => {
+      if (contactsJsonInput.value) {
+        contactsJsonInput.value.value = '';
+        contactsJsonInput.value.click();
+      }
+    };
+
+    const onContactsJsonSelected = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incomingContacts = parsed.contacts || (Array.isArray(parsed) ? parsed : (parsed.klien || parsed.kontak || []));
+
+          if (!incomingContacts || incomingContacts.length === 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Format Kontak Tidak Ditemukan',
+              text: 'Berkas JSON ini tidak memiliki array data kontak yang valid.'
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: 'Pulihkan Data Kontak?',
+            html: `
+              <div class="text-start p-2 bg-light rounded border mb-2 small">
+                <p class="mb-1"><strong>Jumlah Kontak:</strong> ${incomingContacts.length} data</p>
+                <p class="mb-0"><strong>Contoh:</strong> ${incomingContacts[0]?.name || '-'}</p>
+              </div>
+              <p class="small text-muted mb-0">Apakah Anda ingin memulihkan atau menambahkan kontak dari berkas JSON ini?</p>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Pulihkan Kontak',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              store.dispatch('importContactsData', incomingContacts);
+              Swal.fire({
+                icon: 'success',
+                title: 'Data Kontak Berhasil Dipulihkan!',
+                text: `${incomingContacts.length} kontak telah tersimpan.`,
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Berkas Tidak Valid',
+            text: 'Gagal membaca berkas JSON: ' + err.message
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+
     return {
       searchQuery,
       filterCategory,
@@ -1129,6 +1240,10 @@ export default {
       getInitials,
       getAvatarColor,
       exportToExcel,
+      contactsJsonInput,
+      exportContactsJson,
+      triggerImportContactsJson,
+      onContactsJsonSelected,
 
       // Meetup Modal
       meetupModal,

@@ -300,22 +300,58 @@
                   </div>
 
                   <div class="row g-2 mb-3 text-center">
-                    <div class="col-4">
+                    <div class="col-6 col-sm-3">
                       <div class="p-2 bg-white rounded-3 border">
-                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">Tugas</small>
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">📋 Item RAB</small>
+                        <strong class="text-primary fs-6">{{ recoveryPreview.rabItemsCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">💵 Kas Masuk RAB</small>
+                        <strong class="text-success fs-6">{{ recoveryPreview.rabIncomesCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">🛒 Belanja RAB</small>
+                        <strong class="text-danger fs-6">{{ recoveryPreview.rabExpensesCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">✅ Tugas / Tasks</small>
                         <strong class="text-dark fs-6">{{ recoveryPreview.tasksCount }}</strong>
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-6 col-sm-3">
                       <div class="p-2 bg-white rounded-3 border">
-                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">Proyek</small>
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">📁 Proyek</small>
                         <strong class="text-dark fs-6">{{ recoveryPreview.projectsCount }}</strong>
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-6 col-sm-3">
                       <div class="p-2 bg-white rounded-3 border">
-                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">Transaksi</small>
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">💳 Keuangan</small>
                         <strong class="text-dark fs-6">{{ recoveryPreview.transactionsCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">🧾 Invoice</small>
+                        <strong class="text-dark fs-6">{{ recoveryPreview.invoicesCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">👥 Kontak Klien</small>
+                        <strong class="text-dark fs-6">{{ recoveryPreview.contactsCount }}</strong>
+                      </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                      <div class="p-2 bg-white rounded-3 border">
+                        <small class="text-muted d-block opacity-75" style="font-size: 10px;">🎬 Video Hub</small>
+                        <strong class="text-danger fs-6">{{ recoveryPreview.videosCount || 0 }}</strong>
                       </div>
                     </div>
                   </div>
@@ -654,16 +690,47 @@ export default {
     };
 
     const triggerNightlyBackupNow = () => {
+      let videos = [];
+      let customFolders = [];
+      try {
+        videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || localStorage.getItem('rk_video_hub_videos') || '[]');
+      } catch (e) {}
+      try {
+        customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+      } catch (e) {}
+
       const fullState = {
-        todos: store.state.todos,
-        projects: store.state.projects,
-        finances: store.state.finances,
-        notes: store.state.notes,
-        contacts: store.state.contacts,
-        events: store.state.events,
-        moodLogs: store.state.moodLogs,
-        myBusiness: store.state.myBusiness,
-        exportDate: new Date().toISOString()
+        app: 'RajinKerja',
+        version: '2.5',
+        exportDate: new Date().toISOString(),
+        rabItems: store.getters.getRabItems || [],
+        rabIncomes: store.getters.getRabIncomes || [],
+        rabExpenses: store.getters.getRabExpenses || [],
+        tasks: store.getters.getTasks || [],
+        projects: store.getters.getProjects || [],
+        transactions: store.getters.getTransactions || [],
+        invoices: store.getters.getInvoices || [],
+        contacts: store.getters.getContacts || [],
+        habits: store.getters.getHabits || [],
+        notes: store.getters.getNotes || [],
+        events: store.getters.getEvents || [],
+        codeNotes: store.getters.getCodeNotes || [],
+        suratList: store.getters.getSuratList || [],
+        cvData: store.getters.getCvData || {},
+        userProfile: store.getters.getUserProfile || {},
+        myBusiness: store.getters.getMyBusiness || {},
+        moodLogs: store.getters.getMoodLogs || [],
+        workAlarms: store.getters.getWorkAlarms || [],
+        selfieGallery: store.getters.getSelfieGallery || [],
+        videos,
+        customFolders,
+        themeMode: store.getters.getThemeMode,
+        accentColor: store.getters.getAccentColor,
+        budgetThreshold: store.getters.getBudgetThreshold,
+        welcomeBanner: store.getters.getWelcomeBanner,
+        geminiApiKey: store.getters.getGeminiApiKey,
+        aiProvider: store.getters.getAiProvider,
+        aiModel: store.getters.getAiModel
       };
 
       const today = new Date().toISOString().split('T')[0];
@@ -677,23 +744,54 @@ export default {
       lastBackupTime.value = time;
 
       sendOnDeviceNotification('💾 Nightly Backup Berhasil', {
-        body: `Snapshot data lokal tersimpan aman pada ${time}.`,
+        body: `Snapshot data lengkap tersimpan aman pada ${time}.`,
         type: 'success'
       });
     };
 
     const exportAllDataJson = () => {
+      let videos = [];
+      let customFolders = [];
+      try {
+        videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || localStorage.getItem('rk_video_hub_videos') || '[]');
+      } catch (e) {}
+      try {
+        customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+      } catch (e) {}
+
       const fullData = {
-        todos: store.state.todos,
-        projects: store.state.projects,
-        finances: store.state.finances,
-        notes: store.state.notes,
-        contacts: store.state.contacts,
-        events: store.state.events,
-        moodLogs: store.state.moodLogs,
-        myBusiness: store.state.myBusiness,
+        app: 'RajinKerja',
+        version: '2.5',
         exportTimestamp: new Date().toISOString(),
-        version: '2.5'
+        exportDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+        rabItems: store.getters.getRabItems || [],
+        rabIncomes: store.getters.getRabIncomes || [],
+        rabExpenses: store.getters.getRabExpenses || [],
+        tasks: store.getters.getTasks || [],
+        projects: store.getters.getProjects || [],
+        transactions: store.getters.getTransactions || [],
+        invoices: store.getters.getInvoices || [],
+        contacts: store.getters.getContacts || [],
+        habits: store.getters.getHabits || [],
+        notes: store.getters.getNotes || [],
+        events: store.getters.getEvents || [],
+        codeNotes: store.getters.getCodeNotes || [],
+        suratList: store.getters.getSuratList || [],
+        cvData: store.getters.getCvData || {},
+        userProfile: store.getters.getUserProfile || {},
+        myBusiness: store.getters.getMyBusiness || {},
+        moodLogs: store.getters.getMoodLogs || [],
+        workAlarms: store.getters.getWorkAlarms || [],
+        selfieGallery: store.getters.getSelfieGallery || [],
+        videos,
+        customFolders,
+        themeMode: store.getters.getThemeMode,
+        accentColor: store.getters.getAccentColor,
+        budgetThreshold: store.getters.getBudgetThreshold,
+        welcomeBanner: store.getters.getWelcomeBanner,
+        geminiApiKey: store.getters.getGeminiApiKey,
+        aiProvider: store.getters.getAiProvider,
+        aiModel: store.getters.getAiModel
       };
 
       const jsonStr = JSON.stringify(fullData, null, 2);
@@ -889,31 +987,64 @@ export default {
 
     // JSON Backup & Recovery
     const exportJSONBackup = () => {
+      let videos = [];
+      let customFolders = [];
+      try {
+        videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || localStorage.getItem('rk_video_hub_videos') || '[]');
+      } catch (e) {}
+      try {
+        customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+      } catch (e) {}
+
       const fullState = {
-        contacts: store.getters.getContacts,
-        projects: store.getters.getProjects,
-        tasks: store.getters.getTasks,
-        transactions: store.getters.getTransactions,
-        invoices: store.getters.getInvoices,
-        habits: store.getters.getHabits,
-        notes: store.getters.getNotes,
-        events: store.getters.getEvents,
+        app: 'RajinKerja',
+        version: '2.5',
+        exportDate: new Date().toISOString(),
+        formattedDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+        rabItems: store.getters.getRabItems || [],
+        rabIncomes: store.getters.getRabIncomes || [],
+        rabExpenses: store.getters.getRabExpenses || [],
+        contacts: store.getters.getContacts || [],
+        projects: store.getters.getProjects || [],
+        tasks: store.getters.getTasks || [],
+        transactions: store.getters.getTransactions || [],
+        invoices: store.getters.getInvoices || [],
+        habits: store.getters.getHabits || [],
+        notes: store.getters.getNotes || [],
+        events: store.getters.getEvents || [],
+        codeNotes: store.getters.getCodeNotes || [],
+        suratList: store.getters.getSuratList || [],
+        cvData: store.getters.getCvData || {},
+        userProfile: store.getters.getUserProfile || {},
+        myBusiness: store.getters.getMyBusiness || {},
+        moodLogs: store.getters.getMoodLogs || [],
+        workAlarms: store.getters.getWorkAlarms || [],
+        selfieGallery: store.getters.getSelfieGallery || [],
+        videos,
+        customFolders,
+        themeMode: store.getters.getThemeMode,
         accentColor: accentColor.value,
         budgetThreshold: store.getters.getBudgetThreshold,
-        myBusiness: store.getters.getMyBusiness,
-        exportDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID')
+        welcomeBanner: store.getters.getWelcomeBanner,
+        geminiApiKey: store.getters.getGeminiApiKey,
+        aiProvider: store.getters.getAiProvider,
+        aiModel: store.getters.getAiModel
       };
 
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullState, null, 2));
+      const jsonStr = JSON.stringify(fullState, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `rajinkerja_backup_${new Date().toISOString().split('T')[0]}.json`);
+      downloadAnchor.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.download = `rajinkerja_backup_${dateStr}.json`;
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+      URL.revokeObjectURL(url);
 
       sendOnDeviceNotification('💾 Backup JSON Berhasil', {
-        body: 'Berkas JSON backup data telah terunduh.',
+        body: 'Berkas JSON backup data (termasuk RAB) telah terunduh.',
         type: 'success'
       });
     };
@@ -927,11 +1058,30 @@ export default {
         try {
           const parsed = JSON.parse(e.target.result);
           parsedDataTemp.value = parsed;
+
+          const rabCount = (parsed.rabItems || parsed.rab || parsed.rabs || parsed.rab_items || parsed.daftar_rab || []).length;
+          const rabIncomesCount = (parsed.rabIncomes || parsed.incomes || parsed.rab_incomes || []).length;
+          const rabExpensesCount = (parsed.rabExpenses || parsed.expenses || parsed.rab_expenses || []).length;
+          const tasksCount = (parsed.tasks || parsed.todos || parsed.daftar_tugas || []).length;
+          const projectsCount = (parsed.projects || parsed.proyek || []).length;
+          const transactionsCount = (parsed.transactions || parsed.finances || parsed.keuangan || []).length;
+          const invoicesCount = (parsed.invoices || parsed.faktur || []).length;
+          const contactsCount = (parsed.contacts || parsed.klien || []).length;
+          const notesCount = (parsed.notes || parsed.catatan || []).length;
+          const videosCount = (parsed.videos || parsed.videoList || parsed.rk_video_hub_videos || []).length;
+
           recoveryPreview.value = {
-            exportDate: parsed.exportDate || 'Format Lama',
-            tasksCount: (parsed.tasks || []).length,
-            projectsCount: (parsed.projects || []).length,
-            transactionsCount: (parsed.transactions || []).length
+            exportDate: parsed.formattedDate || parsed.exportDate || parsed.exportTimestamp || 'Format Lama',
+            rabItemsCount: rabCount,
+            rabIncomesCount: rabIncomesCount,
+            rabExpensesCount: rabExpensesCount,
+            tasksCount: tasksCount,
+            projectsCount: projectsCount,
+            transactionsCount: transactionsCount,
+            invoicesCount: invoicesCount,
+            contactsCount: contactsCount,
+            notesCount: notesCount,
+            videosCount: videosCount
           };
           importError.value = '';
         } catch (err) {
@@ -947,8 +1097,15 @@ export default {
       store.dispatch('importFullData', parsedDataTemp.value);
       
       sendOnDeviceNotification('🔄 Restorasi Data Berhasil!', {
-        body: 'Seluruh data telah dipulihkan dari file JSON.',
+        body: 'Seluruh data (RAB, Tugas, Keuangan, Proyek) telah dipulihkan dari file JSON.',
         type: 'success'
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Restorasi Data Berhasil!',
+        text: 'Seluruh data lokal Anda telah berhasil dipulihkan secara utuh.',
+        timer: 2500
       });
 
       recoveryPreview.value = null;

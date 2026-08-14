@@ -992,38 +992,302 @@ export default createStore({
     },
 
     IMPORT_FULL_DATA(state, data) {
-      if (!data) return;
-      state.contacts = data.contacts || [];
-      state.projects = data.projects || [];
-      state.tasks = data.tasks || [];
-      state.transactions = data.transactions || [];
-      state.invoices = data.invoices || [];
-      state.habits = data.habits || [];
-      state.notes = data.notes || [];
-      state.events = data.events || [];
-      state.rabItems = data.rabItems || [];
-      state.rabIncomes = data.rabIncomes || [];
-      state.rabExpenses = data.rabExpenses || [];
-      if (data.themeMode) state.themeMode = data.themeMode;
-      if (data.accentColor) state.accentColor = data.accentColor;
-      if (data.budgetThreshold) state.budgetThreshold = data.budgetThreshold;
-      if (data.myBusiness) state.myBusiness = data.myBusiness;
+      if (!data || typeof data !== 'object') return;
 
-      saveLocal('ft_contacts', state.contacts);
-      saveLocal('ft_projects', state.projects);
-      saveLocal('ft_tasks', state.tasks);
-      saveLocal('ft_transactions', state.transactions);
-      saveLocal('ft_invoices', state.invoices);
-      saveLocal('ft_habits', state.habits);
-      saveLocal('ft_notes', state.notes);
-      saveLocal('ft_events', state.events);
+      // 1. RAB Items & Kas (Crucial: Normalize aliases and preserve if not provided)
+      const incomingRab = data.rabItems || data.rab || data.rabs || data.rab_items || data.daftar_rab;
+      if (Array.isArray(incomingRab)) {
+        state.rabItems = incomingRab;
+        saveLocal('ft_rabItems', state.rabItems);
+      }
+
+      const incomingRabIncomes = data.rabIncomes || data.incomes || data.rab_incomes || data.penerimaan;
+      if (Array.isArray(incomingRabIncomes)) {
+        state.rabIncomes = incomingRabIncomes;
+        saveLocal('ft_rabIncomes', state.rabIncomes);
+      }
+
+      const incomingRabExpenses = data.rabExpenses || data.expenses || data.rab_expenses || data.pengeluaran;
+      if (Array.isArray(incomingRabExpenses)) {
+        state.rabExpenses = incomingRabExpenses;
+        saveLocal('ft_rabExpenses', state.rabExpenses);
+      }
+
+      // 2. Contacts
+      const incomingContacts = data.contacts || data.klien || data.contactList;
+      if (Array.isArray(incomingContacts)) {
+        state.contacts = incomingContacts;
+        saveLocal('ft_contacts', state.contacts);
+      }
+
+      // 3. Projects
+      const incomingProjects = data.projects || data.proyek || data.projectList;
+      if (Array.isArray(incomingProjects)) {
+        state.projects = incomingProjects;
+        saveLocal('ft_projects', state.projects);
+      }
+
+      // 4. Tasks (Supports tasks, todos, daftar_tugas)
+      const incomingTasks = data.tasks || data.todos || data.daftar_tugas || data.taskList;
+      if (Array.isArray(incomingTasks)) {
+        state.tasks = incomingTasks;
+        saveLocal('ft_tasks', state.tasks);
+      }
+
+      // 5. Transactions (Supports transactions, finances, keuangan)
+      const incomingTransactions = data.transactions || data.finances || data.keuangan || data.transactionList;
+      if (Array.isArray(incomingTransactions)) {
+        state.transactions = incomingTransactions;
+        saveLocal('ft_transactions', state.transactions);
+      }
+
+      // 6. Invoices
+      const incomingInvoices = data.invoices || data.faktur || data.invoiceList;
+      if (Array.isArray(incomingInvoices)) {
+        state.invoices = incomingInvoices;
+        saveLocal('ft_invoices', state.invoices);
+      }
+
+      // 7. Habits
+      const incomingHabits = data.habits || data.kebiasaan;
+      if (Array.isArray(incomingHabits)) {
+        state.habits = incomingHabits;
+        saveLocal('ft_habits', state.habits);
+      }
+
+      // 8. Notes
+      const incomingNotes = data.notes || data.catatan;
+      if (Array.isArray(incomingNotes)) {
+        state.notes = incomingNotes;
+        saveLocal('ft_notes', state.notes);
+      }
+
+      // 9. Events
+      const incomingEvents = data.events || data.agenda;
+      if (Array.isArray(incomingEvents)) {
+        state.events = incomingEvents;
+        saveLocal('ft_events', state.events);
+      }
+
+      // 10. Code Notes
+      const incomingCodeNotes = data.codeNotes || data.snippets;
+      if (Array.isArray(incomingCodeNotes)) {
+        state.codeNotes = incomingCodeNotes;
+        saveLocal('ft_codeNotes', state.codeNotes);
+      }
+
+      // 11. Surat
+      const incomingSurat = data.suratList || data.surat || data.letters;
+      if (Array.isArray(incomingSurat)) {
+        state.suratList = incomingSurat;
+        saveLocal('ft_suratList', state.suratList);
+      }
+
+      // 12. CV Data
+      const incomingCv = data.cvData || data.cv || data.resume;
+      if (incomingCv && typeof incomingCv === 'object' && !Array.isArray(incomingCv)) {
+        state.cvData = { ...state.cvData, ...incomingCv };
+        saveLocal('ft_cvData', state.cvData);
+      }
+
+      // 13. User Profile
+      const incomingProfile = data.userProfile || data.profile;
+      if (incomingProfile && typeof incomingProfile === 'object' && !Array.isArray(incomingProfile)) {
+        state.userProfile = { ...state.userProfile, ...incomingProfile };
+        saveLocal('ft_userProfile', state.userProfile);
+      }
+
+      // 14. Business Profile
+      const incomingBiz = data.myBusiness || data.businessProfile;
+      if (incomingBiz && typeof incomingBiz === 'object' && !Array.isArray(incomingBiz)) {
+        state.myBusiness = { ...state.myBusiness, ...incomingBiz };
+        saveLocal('ft_myBusiness', state.myBusiness);
+      }
+
+      // 15. Mood Logs & Alarms
+      const incomingMoods = data.moodLogs || data.moods;
+      if (Array.isArray(incomingMoods)) {
+        state.moodLogs = incomingMoods;
+        saveLocal('ft_moodLogs', state.moodLogs);
+      }
+
+      const incomingAlarms = data.workAlarms || data.alarms;
+      if (Array.isArray(incomingAlarms)) {
+        state.workAlarms = incomingAlarms;
+        saveLocal('ft_workAlarms', state.workAlarms);
+      }
+
+      // 16. Selfies
+      const incomingSelfies = data.selfieGallery || data.selfies;
+      if (Array.isArray(incomingSelfies)) {
+        state.selfieGallery = incomingSelfies;
+        saveLocal('ft_selfieGallery', state.selfieGallery);
+      }
+
+      // 17. LocalStorage-based features: Videos & Custom Folders
+      const incomingVideos = data.videos || data.videoList || data.rk_video_hub_videos;
+      if (Array.isArray(incomingVideos)) {
+        try {
+          localStorage.setItem('ft_saved_video_hub_list', JSON.stringify(incomingVideos));
+          localStorage.setItem('rk_video_hub_videos', JSON.stringify(incomingVideos));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const incomingFolders = data.customFolders || data.projectFolders;
+      if (Array.isArray(incomingFolders)) {
+        try {
+          localStorage.setItem('ft_custom_folders', JSON.stringify(incomingFolders));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // 18. Settings & Preferences
+      if (data.themeMode) {
+        state.themeMode = data.themeMode;
+        saveLocal('ft_themeMode', state.themeMode);
+      }
+      if (data.accentColor) {
+        state.accentColor = data.accentColor;
+        saveLocal('ft_accentColor', state.accentColor);
+      }
+      if (data.budgetThreshold !== undefined) {
+        state.budgetThreshold = data.budgetThreshold;
+        saveLocal('ft_budgetThreshold', state.budgetThreshold);
+      }
+      if (data.welcomeBanner) {
+        state.welcomeBanner = data.welcomeBanner;
+        saveLocal('ft_welcomeBanner', state.welcomeBanner);
+      }
+      if (data.geminiApiKey !== undefined) {
+        state.geminiApiKey = data.geminiApiKey;
+        saveLocal('ft_geminiApiKey', state.geminiApiKey);
+      }
+      if (data.aiProvider) {
+        state.aiProvider = data.aiProvider;
+        saveLocal('ft_aiProvider', state.aiProvider);
+      }
+      if (data.aiModel) {
+        state.aiModel = data.aiModel;
+        saveLocal('ft_aiModel', state.aiModel);
+      }
+    },
+
+    SET_RAB_DATA(state, { items, incomes, expenses, merge = false }) {
+      if (merge) {
+        if (Array.isArray(items)) {
+          const existingIds = new Set(state.rabItems.map(i => i.id));
+          const newItems = items.filter(i => !existingIds.has(i.id));
+          state.rabItems = [...state.rabItems, ...newItems];
+        }
+        if (Array.isArray(incomes)) {
+          const existingIds = new Set(state.rabIncomes.map(i => i.id));
+          const newIncomes = incomes.filter(i => !existingIds.has(i.id));
+          state.rabIncomes = [...state.rabIncomes, ...newIncomes];
+        }
+        if (Array.isArray(expenses)) {
+          const existingIds = new Set(state.rabExpenses.map(i => i.id));
+          const newExpenses = expenses.filter(i => !existingIds.has(i.id));
+          state.rabExpenses = [...state.rabExpenses, ...newExpenses];
+        }
+      } else {
+        if (Array.isArray(items)) state.rabItems = items;
+        if (Array.isArray(incomes)) state.rabIncomes = incomes;
+        if (Array.isArray(expenses)) state.rabExpenses = expenses;
+      }
       saveLocal('ft_rabItems', state.rabItems);
       saveLocal('ft_rabIncomes', state.rabIncomes);
       saveLocal('ft_rabExpenses', state.rabExpenses);
-      saveLocal('ft_themeMode', state.themeMode);
-      saveLocal('ft_accentColor', state.accentColor);
-      saveLocal('ft_budgetThreshold', state.budgetThreshold);
-      saveLocal('ft_myBusiness', state.myBusiness);
+    },
+
+    SET_INVOICES_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.invoices.map(i => i.id));
+        const newItems = list.filter(i => !existingIds.has(i.id));
+        state.invoices = [...state.invoices, ...newItems];
+      } else {
+        state.invoices = list;
+      }
+      saveLocal('ft_invoices', state.invoices);
+    },
+
+    SET_TASKS_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.tasks.map(i => i.id));
+        const newItems = list.filter(i => !existingIds.has(i.id));
+        state.tasks = [...state.tasks, ...newItems];
+      } else {
+        state.tasks = list;
+      }
+      saveLocal('ft_tasks', state.tasks);
+    },
+
+    SET_PROJECTS_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.projects.map(p => p.id));
+        const newItems = list.filter(p => !existingIds.has(p.id));
+        state.projects = [...state.projects, ...newItems];
+      } else {
+        state.projects = list;
+      }
+      saveLocal('ft_projects', state.projects);
+    },
+
+    SET_TRANSACTIONS_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.transactions.map(t => t.id));
+        const newItems = list.filter(t => !existingIds.has(t.id));
+        state.transactions = [...state.transactions, ...newItems];
+      } else {
+        state.transactions = list;
+      }
+      saveLocal('ft_transactions', state.transactions);
+    },
+
+    SET_CONTACTS_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.contacts.map(c => c.id));
+        const newItems = list.filter(c => !existingIds.has(c.id));
+        state.contacts = [...state.contacts, ...newItems];
+      } else {
+        state.contacts = list;
+      }
+      saveLocal('ft_contacts', state.contacts);
+    },
+
+    SET_NOTES_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.notes.map(n => n.id));
+        const newItems = list.filter(n => !existingIds.has(n.id));
+        state.notes = [...state.notes, ...newItems];
+      } else {
+        state.notes = list;
+      }
+      saveLocal('ft_notes', state.notes);
+    },
+
+    SET_CODE_NOTES_DATA(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.codeNotes.map(n => n.id));
+        const newItems = list.filter(n => !existingIds.has(n.id));
+        state.codeNotes = [...state.codeNotes, ...newItems];
+      } else {
+        state.codeNotes = list;
+      }
+      saveLocal('ft_codeNotes', state.codeNotes);
+    },
+
+    SET_SURAT_LIST(state, { list, merge = false }) {
+      if (merge) {
+        const existingIds = new Set(state.suratList.map(s => s.id));
+        const newItems = list.filter(s => !existingIds.has(s.id));
+        state.suratList = [...state.suratList, ...newItems];
+      } else {
+        state.suratList = list;
+      }
+      saveLocal('ft_suratList', state.suratList);
     }
   },
   actions: {
@@ -1273,6 +1537,47 @@ export default createStore({
 
     importFullData({ commit }, data) {
       commit('IMPORT_FULL_DATA', data);
+    },
+
+    importRabData({ commit }, payload) {
+      // payload can be { items, incomes, expenses, merge } or { rabItems, rabIncomes, rabExpenses }
+      const items = payload.items || payload.rabItems || payload.rab || [];
+      const incomes = payload.incomes || payload.rabIncomes || [];
+      const expenses = payload.expenses || payload.rabExpenses || [];
+      const merge = !!payload.merge;
+      commit('SET_RAB_DATA', { items, incomes, expenses, merge });
+    },
+
+    importInvoicesData({ commit }, { list, merge = false }) {
+      commit('SET_INVOICES_DATA', { list, merge });
+    },
+
+    importTasksData({ commit }, { list, merge = false }) {
+      commit('SET_TASKS_DATA', { list, merge });
+    },
+
+    importProjectsData({ commit }, { list, merge = false }) {
+      commit('SET_PROJECTS_DATA', { list, merge });
+    },
+
+    importTransactionsData({ commit }, { list, merge = false }) {
+      commit('SET_TRANSACTIONS_DATA', { list, merge });
+    },
+
+    importContactsData({ commit }, { list, merge = false }) {
+      commit('SET_CONTACTS_DATA', { list, merge });
+    },
+
+    importNotesData({ commit }, { list, merge = false }) {
+      commit('SET_NOTES_DATA', { list, merge });
+    },
+
+    importCodeNotesData({ commit }, { list, merge = false }) {
+      commit('SET_CODE_NOTES_DATA', { list, merge });
+    },
+
+    importSuratData({ commit }, { list, merge = false }) {
+      commit('SET_SURAT_LIST', { list, merge });
     }
   }
 });

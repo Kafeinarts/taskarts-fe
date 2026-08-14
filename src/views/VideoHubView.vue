@@ -19,6 +19,14 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-light fw-semibold rounded-3 px-3 py-2" @click="exportVideosJson" title="Backup Video Hub ke JSON">
+            <i class="bi bi-filetype-json text-warning me-1"></i> Export JSON
+          </button>
+          <button class="btn btn-outline-light fw-semibold rounded-3 px-3 py-2" @click="triggerImportVideosJson" title="Import Video dari JSON">
+            <i class="bi bi-upload text-info me-1"></i> Import JSON
+          </button>
+          <input type="file" ref="videoJsonInput" accept=".json" class="d-none" @change="onVideosJsonSelected" />
+
           <button class="btn btn-light text-danger fw-bold rounded-3 px-3 py-2 shadow-sm d-flex align-items-center gap-2" @click="openAddModal">
             <i class="bi bi-plus-circle-fill fs-5"></i>
             <span>Tambah / Sync Video</span>
@@ -701,7 +709,7 @@ export default {
     // Load videos from localStorage
     const loadVideosFromStorage = () => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ft_saved_video_hub_list');
         if (saved) {
           videos.value = JSON.parse(saved);
         } else {
@@ -715,10 +723,115 @@ export default {
 
     const saveVideosToStorage = () => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(videos.value));
+        const raw = JSON.stringify(videos.value);
+        localStorage.setItem(STORAGE_KEY, raw);
+        localStorage.setItem('ft_saved_video_hub_list', raw);
       } catch (err) {
         console.error('Failed to save videos to localStorage', err);
       }
+    };
+
+    const videoJsonInput = ref(null);
+
+    const exportVideosJson = () => {
+      try {
+        const payload = {
+          app: 'RajinKerja',
+          type: 'videohub_backup',
+          version: '2.5',
+          exportDate: new Date().toISOString(),
+          videos: videos.value
+        };
+        const jsonStr = JSON.stringify(payload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `VideoHub_RajinKerja_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Export Video Selesai!',
+          text: `${videos.value.length} video berhasil diunduh sebagai JSON.`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Export JSON',
+          text: err.message
+        });
+      }
+    };
+
+    const triggerImportVideosJson = () => {
+      if (videoJsonInput.value) {
+        videoJsonInput.value.value = '';
+        videoJsonInput.value.click();
+      }
+    };
+
+    const onVideosJsonSelected = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incomingVideos = parsed.videos || (Array.isArray(parsed) ? parsed : (parsed.videoList || parsed.rk_video_hub_videos || []));
+
+          if (!incomingVideos || incomingVideos.length === 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Format Video Tidak Ditemukan',
+              text: 'Berkas JSON ini tidak memiliki daftar video yang valid.'
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: 'Pulihkan Koleksi Video?',
+            html: `
+              <div class="text-start p-2 bg-light rounded border mb-2 small">
+                <p class="mb-1"><strong>Jumlah Video:</strong> ${incomingVideos.length} video</p>
+                <p class="mb-0"><strong>Contoh:</strong> ${incomingVideos[0]?.title || '-'}</p>
+              </div>
+              <p class="small text-muted mb-0">Apakah Anda ingin memulihkan atau menambahkan video dari berkas JSON ini?</p>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Pulihkan Koleksi',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              videos.value = incomingVideos;
+              saveVideosToStorage();
+              Swal.fire({
+                icon: 'success',
+                title: 'Koleksi Video Berhasil Dipulihkan!',
+                text: `${incomingVideos.length} video tersimpan dan siap ditonton.`,
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Berkas Tidak Valid',
+            text: 'Gagal membaca berkas JSON: ' + err.message
+          });
+        }
+      };
+      reader.readAsText(file);
     };
 
     const loadSampleVideos = () => {
@@ -1088,7 +1201,11 @@ export default {
       getYouTubeEmbedUrl,
       loadSampleVideos,
       onThumbnailError,
-      formatDate
+      formatDate,
+      videoJsonInput,
+      exportVideosJson,
+      triggerImportVideosJson,
+      onVideosJsonSelected
     };
   }
 };

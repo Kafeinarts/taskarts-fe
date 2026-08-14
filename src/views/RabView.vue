@@ -19,6 +19,13 @@
         <button class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold" @click="triggerLoadSampleData">
           <i class="bi bi-magic me-1"></i> Load Contoh Data
         </button>
+        <button class="btn btn-outline-warning text-dark px-3 py-2 rounded-3 fw-semibold shadow-xs" @click="exportRabJson" title="Backup data RAB ke berkas JSON">
+          <i class="bi bi-filetype-json text-warning me-1"></i> Backup JSON
+        </button>
+        <button class="btn btn-outline-info text-dark px-3 py-2 rounded-3 fw-semibold shadow-xs" @click="triggerRabJsonImport" title="Pulihkan data RAB dari berkas JSON">
+          <i class="bi bi-cloud-arrow-up-fill text-info me-1"></i> Recovery / Import JSON
+        </button>
+        <input type="file" ref="rabJsonFileInput" accept=".json,application/json" class="d-none" @change="onRabJsonFileSelected" />
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
           <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel (.xlsx)
         </button>
@@ -1207,6 +1214,166 @@ export default {
       }, 300);
     };
 
+    // DEDICATED JSON BACKUP & RECOVERY FOR RAB
+    const rabJsonFileInput = ref(null);
+
+    const exportRabJson = () => {
+      try {
+        const rabBackupData = {
+          app: 'RajinKerja',
+          type: 'rab_backup',
+          version: '2.5',
+          exportDate: new Date().toISOString(),
+          formattedDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+          exporterMeta: exporterMeta,
+          rabItems: rabItems.value || [],
+          rabIncomes: rabIncomes.value || [],
+          rabExpenses: rabExpenses.value || [],
+          summary: {
+            totalTargetRab: totalRabAmount.value,
+            totalIncome: totalRabIncome.value,
+            totalExpense: totalRabExpense.value,
+            sisaSaldo: sisaRabAktual.value
+          }
+        };
+
+        const jsonStr = JSON.stringify(rabBackupData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        link.download = `Backup_RAB_RajinKerja_${dateStr}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Backup RAB Berhasil Diunduh!',
+          html: `<div class="text-start small">
+            <p class="mb-1"><strong>File:</strong> Backup_RAB_RajinKerja_${dateStr}.json</p>
+            <p class="mb-1"><strong>Total Item RAB:</strong> ${rabItems.value.length} item</p>
+            <p class="mb-1"><strong>Total Kas Masuk:</strong> ${rabIncomes.value.length} catatan</p>
+            <p class="mb-0"><strong>Total Realisasi:</strong> ${rabExpenses.value.length} transaksi</p>
+          </div>`,
+          timer: 3000,
+          showConfirmButton: true
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Export JSON',
+          text: err.message
+        });
+      }
+    };
+
+    const triggerRabJsonImport = () => {
+      if (rabJsonFileInput.value) {
+        rabJsonFileInput.value.value = '';
+        rabJsonFileInput.value.click();
+      }
+    };
+
+    const onRabJsonFileSelected = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          
+          // Detect RAB data from standalone RAB backup or full app backup
+          const detectedItems = parsed.rabItems || parsed.rab || parsed.rabs || parsed.rab_items || parsed.daftar_rab || [];
+          const detectedIncomes = parsed.rabIncomes || parsed.incomes || parsed.rab_incomes || parsed.penerimaan || [];
+          const detectedExpenses = parsed.rabExpenses || parsed.expenses || parsed.rab_expenses || parsed.pengeluaran || [];
+
+          if (!Array.isArray(detectedItems) && !Array.isArray(detectedIncomes) && !Array.isArray(detectedExpenses)) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Format Data RAB Tidak Ditemukan',
+              text: 'File JSON ini tidak memuat struktur data RAB (rabItems / rabIncomes / rabExpenses).'
+            });
+            return;
+          }
+
+          const itemCount = detectedItems.length;
+          const incomeCount = detectedIncomes.length;
+          const expenseCount = detectedExpenses.length;
+
+          Swal.fire({
+            title: 'Pulihkan / Recovery Data RAB?',
+            html: `
+              <div class="text-start p-2 bg-light rounded border mb-3 small">
+                <p class="mb-1 text-primary fw-bold">📄 Ringkasan Berkas Backup yang Terdeteksi:</p>
+                <ul class="mb-1 ps-3">
+                  <li><strong>Item Rencana Anggaran (RAB):</strong> ${itemCount} item</li>
+                  <li><strong>Dana Masuk / Income:</strong> ${incomeCount} catatan</li>
+                  <li><strong>Realisasi Pengeluaran / Belanja:</strong> ${expenseCount} transaksi</li>
+                </ul>
+                <div class="alert alert-info py-2 px-3 mb-0 small">
+                  Pilih metode pemulihan data yang Anda inginkan di bawah ini:
+                </div>
+              </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: '🔄 Pulihkan Total (Timpa)',
+            denyButtonText: '➕ Gabungkan (Merge)',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd',
+            denyButtonColor: '#198754',
+            cancelButtonColor: '#6c757d'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Overwrite Recovery
+              store.dispatch('importRabData', {
+                items: detectedItems,
+                incomes: detectedIncomes,
+                expenses: detectedExpenses,
+                merge: false
+              });
+              if (parsed.exporterMeta) {
+                Object.assign(exporterMeta, parsed.exporterMeta);
+                localStorage.setItem('ft_rab_exporter_meta', JSON.stringify(exporterMeta));
+              }
+              Swal.fire({
+                icon: 'success',
+                title: 'Data RAB Berhasil Dipulihkan!',
+                text: `Seluruh data RAB (${itemCount} item) telah berhasil dipulihkan secara utuh.`,
+                timer: 2500
+              });
+            } else if (result.isDenied) {
+              // Merge Recovery
+              store.dispatch('importRabData', {
+                items: detectedItems,
+                incomes: detectedIncomes,
+                expenses: detectedExpenses,
+                merge: true
+              });
+              Swal.fire({
+                icon: 'success',
+                title: 'Data RAB Berhasil Digabungkan!',
+                text: 'Item baru dari berkas backup berhasil ditambahkan ke daftar RAB Anda.',
+                timer: 2500
+              });
+            }
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Berkas JSON Rusak / Tidak Valid',
+            text: 'Terjadi kesalahan saat membaca file JSON: ' + err.message
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+
     return {
       activeTab,
       isPrinting,
@@ -1259,7 +1426,11 @@ export default {
       deleteExpenseConfirm,
       triggerLoadSampleData,
       exportToExcel,
-      exportToPdf
+      exportToPdf,
+      rabJsonFileInput,
+      exportRabJson,
+      triggerRabJsonImport,
+      onRabJsonFileSelected
     };
   }
 };

@@ -195,27 +195,62 @@ export default {
     };
 
     const exportJSONBackup = () => {
+      let videos = [];
+      let customFolders = [];
+      try {
+        videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || '[]');
+      } catch (e) {}
+      try {
+        customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+      } catch (e) {}
+
       const fullState = {
-        contacts: store.getters.getContacts,
-        projects: store.getters.getProjects,
-        tasks: store.getters.getTasks,
-        transactions: store.getters.getTransactions,
-        invoices: store.getters.getInvoices,
-        habits: store.getters.getHabits,
-        notes: store.getters.getNotes,
+        app: 'RajinKerja',
+        version: '2.5',
+        exportDate: new Date().toISOString(),
+        formattedDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+        rabItems: store.getters.getRabItems || [],
+        rabIncomes: store.getters.getRabIncomes || [],
+        rabExpenses: store.getters.getRabExpenses || [],
+        contacts: store.getters.getContacts || [],
+        projects: store.getters.getProjects || [],
+        tasks: store.getters.getTasks || [],
+        transactions: store.getters.getTransactions || [],
+        invoices: store.getters.getInvoices || [],
+        habits: store.getters.getHabits || [],
+        notes: store.getters.getNotes || [],
+        events: store.getters.getEvents || [],
+        codeNotes: store.getters.getCodeNotes || [],
+        suratList: store.getters.getSuratList || [],
+        cvData: store.getters.getCvData || {},
+        userProfile: store.getters.getUserProfile || {},
+        myBusiness: store.getters.getMyBusiness || {},
+        moodLogs: store.getters.getMoodLogs || [],
+        workAlarms: store.getters.getWorkAlarms || [],
+        selfieGallery: store.getters.getSelfieGallery || [],
+        videos,
+        customFolders,
+        themeMode: store.getters.getThemeMode,
+        accentColor: store.getters.getAccentColor,
         budgetThreshold: store.getters.getBudgetThreshold,
-        myBusiness: store.getters.getMyBusiness,
-        exportDate: new Date().toISOString()
+        welcomeBanner: store.getters.getWelcomeBanner,
+        geminiApiKey: store.getters.getGeminiApiKey,
+        aiProvider: store.getters.getAiProvider,
+        aiModel: store.getters.getAiModel
       };
 
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullState, null, 2));
+      const jsonStr = JSON.stringify(fullState, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `freelancer_toolkit_backup_${new Date().toISOString().split('T')[0]}.json`);
+      downloadAnchor.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.download = `rajinkerja_full_backup_${dateStr}.json`;
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      showToastMsg('Backup JSON berhasil diunduh!');
+      URL.revokeObjectURL(url);
+      showToastMsg('Backup Full JSON (termasuk RAB & semua data) berhasil diunduh!');
     };
 
     const handleJSONImport = (event) => {
@@ -226,24 +261,63 @@ export default {
       reader.onload = (e) => {
         try {
           const parsed = JSON.parse(e.target.result);
+          
+          const rabCount = (parsed.rabItems || parsed.rab || []).length;
+          const rabIncomesCount = (parsed.rabIncomes || parsed.incomes || []).length;
+          const rabExpensesCount = (parsed.rabExpenses || parsed.expenses || []).length;
+          const tasksCount = (parsed.tasks || parsed.todos || []).length;
+          const projectsCount = (parsed.projects || []).length;
+          const transactionsCount = (parsed.transactions || parsed.finances || []).length;
+          const invoicesCount = (parsed.invoices || []).length;
+          const contactsCount = (parsed.contacts || []).length;
+          const notesCount = (parsed.notes || []).length;
+
           Swal.fire({
-            title: 'Import Data?',
-            text: 'Import data ini dan timpa data lokal Anda saat ini?',
+            title: 'Pulihkan / Import Data Lengkap?',
+            html: `
+              <div class="text-start p-3 bg-light rounded border mb-2 small">
+                <p class="fw-bold text-primary mb-2">📋 Rincian Data yang Ditemukan di Berkas Backup:</p>
+                <div class="row g-1">
+                  <div class="col-6">• <strong>Item RAB:</strong> ${rabCount} item</div>
+                  <div class="col-6">• <strong>Kas Masuk RAB:</strong> ${rabIncomesCount}</div>
+                  <div class="col-6">• <strong>Realisasi RAB:</strong> ${rabExpensesCount}</div>
+                  <div class="col-6">• <strong>Daftar Tugas:</strong> ${tasksCount}</div>
+                  <div class="col-6">• <strong>Proyek:</strong> ${projectsCount}</div>
+                  <div class="col-6">• <strong>Transaksi Kas:</strong> ${transactionsCount}</div>
+                  <div class="col-6">• <strong>Invoice:</strong> ${invoicesCount}</div>
+                  <div class="col-6">• <strong>Kontak Klien:</strong> ${contactsCount}</div>
+                  <div class="col-6">• <strong>Catatan & Memo:</strong> ${notesCount}</div>
+                </div>
+                <hr class="my-2" />
+                <p class="text-muted mb-0" style="font-size: 0.82rem;">Data yang ada akan dipulihkan secara aman dan sinkron ke seluruh halaman aplikasi.</p>
+              </div>
+            `,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#0d6efd',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Import',
+            confirmButtonText: 'Ya, Pulihkan Sekarang',
             cancelButtonText: 'Batal'
           }).then((result) => {
             if (result.isConfirmed) {
               store.dispatch('importFullData', parsed);
-              showToastMsg('Data JSON berhasil dimuat dari file!');
+              showToastMsg('Seluruh data berhasil dipulihkan dari berkas backup!');
               importError.value = '';
+              Swal.fire({
+                icon: 'success',
+                title: 'Pemulihan Berhasil!',
+                text: 'Seluruh data (RAB, Tugas, Keuangan, Proyek, dll) telah aktif dan tersimpan.',
+                timer: 2500
+              });
             }
           });
         } catch (err) {
           importError.value = 'Format file JSON tidak valid. Pastikan memilih berkas yang benar.';
+          Swal.fire({
+            icon: 'error',
+            title: 'Format Tidak Valid',
+            text: 'Berkas JSON tidak dapat dibaca: ' + err.message
+          });
         }
       };
       reader.readAsText(file);

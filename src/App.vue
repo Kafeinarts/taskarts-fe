@@ -392,16 +392,47 @@ export default {
         const lastBackup = localStorage.getItem('ft_last_nightly_backup_date');
         const today = new Date().toISOString().split('T')[0];
         if (lastBackup !== today) {
+          let videos = [];
+          let customFolders = [];
+          try {
+            videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || '[]');
+          } catch (e) {}
+          try {
+            customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+          } catch (e) {}
+
           const fullState = {
-            todos: store.state.todos,
-            projects: store.state.projects,
-            finances: store.state.finances,
-            notes: store.state.notes,
-            contacts: store.state.contacts,
-            events: store.state.events,
-            moodLogs: store.state.moodLogs,
-            myBusiness: store.state.myBusiness,
-            exportDate: new Date().toISOString()
+            app: 'RajinKerja',
+            version: '2.5',
+            exportDate: new Date().toISOString(),
+            rabItems: store.getters.getRabItems || [],
+            rabIncomes: store.getters.getRabIncomes || [],
+            rabExpenses: store.getters.getRabExpenses || [],
+            tasks: store.getters.getTasks || [],
+            projects: store.getters.getProjects || [],
+            transactions: store.getters.getTransactions || [],
+            invoices: store.getters.getInvoices || [],
+            contacts: store.getters.getContacts || [],
+            habits: store.getters.getHabits || [],
+            notes: store.getters.getNotes || [],
+            events: store.getters.getEvents || [],
+            codeNotes: store.getters.getCodeNotes || [],
+            suratList: store.getters.getSuratList || [],
+            cvData: store.getters.getCvData || {},
+            userProfile: store.getters.getUserProfile || {},
+            myBusiness: store.getters.getMyBusiness || {},
+            moodLogs: store.getters.getMoodLogs || [],
+            workAlarms: store.getters.getWorkAlarms || [],
+            selfieGallery: store.getters.getSelfieGallery || [],
+            videos,
+            customFolders,
+            themeMode: store.getters.getThemeMode,
+            accentColor: store.getters.getAccentColor,
+            budgetThreshold: store.getters.getBudgetThreshold,
+            welcomeBanner: store.getters.getWelcomeBanner,
+            geminiApiKey: store.getters.getGeminiApiKey,
+            aiProvider: store.getters.getAiProvider,
+            aiModel: store.getters.getAiModel
           };
           localStorage.setItem('ft_nightly_backup_snapshot', JSON.stringify(fullState));
           localStorage.setItem('ft_last_nightly_backup_date', today);

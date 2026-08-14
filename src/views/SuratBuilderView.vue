@@ -11,7 +11,14 @@
         <p class="text-muted mb-0">Buat surat kedinasan, izin, lamaran, penawaran, dan perjanjian kerja dengan Kop Surat otomatis & cetak standar instansi.</p>
       </div>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <button class="btn btn-outline-warning text-dark rounded-pill px-3 fw-semibold" @click="exportSuratJson" title="Download data Surat sebagai JSON">
+          <i class="bi bi-filetype-json text-warning me-1"></i> Export JSON
+        </button>
+        <button class="btn btn-outline-info text-dark rounded-pill px-3 fw-semibold" @click="triggerImportSuratJson" title="Import data Surat dari JSON">
+          <i class="bi bi-upload text-info me-1"></i> Import JSON
+        </button>
+        <input type="file" ref="suratJsonInput" accept=".json" class="d-none" @change="onSuratJsonSelected" />
         <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter">
           <i class="bi bi-floppy me-1"></i> Simpan Surat
         </button>
@@ -286,6 +293,7 @@
 
 <script>
 import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
 
@@ -526,6 +534,121 @@ export default {
       }
     };
 
+    const suratJsonInput = ref(null);
+
+    const exportSuratJson = () => {
+      try {
+        const payload = {
+          app: 'RajinKerja',
+          type: 'surat_backup',
+          version: '2.5',
+          exportDate: new Date().toISOString(),
+          letter: letter.value,
+          selectedTemplateId: selectedTemplateId.value,
+          suratList: store.getters.getSuratList || []
+        };
+        const jsonStr = JSON.stringify(payload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const subjectSlug = (letter.value.subject || 'Surat').replace(/[^a-zA-Z0-9]/g, '_');
+        link.download = `Surat_${subjectSlug}_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Export Surat Berhasil!',
+          text: 'Data Surat resmi berhasil diunduh dalam format JSON.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Export JSON',
+          text: err.message
+        });
+      }
+    };
+
+    const triggerImportSuratJson = () => {
+      if (suratJsonInput.value) {
+        suratJsonInput.value.value = '';
+        suratJsonInput.value.click();
+      }
+    };
+
+    const onSuratJsonSelected = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incomingLetter = parsed.letter || (parsed.subject ? parsed : null);
+
+          if (!incomingLetter && !(parsed.suratList && parsed.suratList.length)) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Format Surat Tidak Ditemukan',
+              text: 'Berkas JSON ini tidak memiliki struktur data surat yang valid.'
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: 'Pulihkan Data Surat?',
+            html: `
+              <div class="text-start p-2 bg-light rounded border mb-2 small">
+                <p class="mb-1"><strong>Perihal:</strong> ${incomingLetter?.subject || 'Koleksi Surat'}</p>
+                <p class="mb-1"><strong>Penerima:</strong> ${incomingLetter?.recipientName || '-'}</p>
+                <p class="mb-0"><strong>Pengirim:</strong> ${incomingLetter?.senderName || '-'}</p>
+              </div>
+              <p class="small text-muted mb-0">Apakah Anda ingin memuat data surat ini ke editor?</p>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Muat Data Surat',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              if (incomingLetter) {
+                letter.value = { ...letter.value, ...incomingLetter };
+                if (parsed.selectedTemplateId) {
+                  selectedTemplateId.value = parsed.selectedTemplateId;
+                }
+              }
+              if (parsed.suratList && Array.isArray(parsed.suratList)) {
+                store.dispatch('importSuratData', parsed.suratList);
+              }
+              saveLetter();
+              Swal.fire({
+                icon: 'success',
+                title: 'Data Surat Berhasil Dimuat!',
+                text: 'Formulir surat telah diperbarui sesuai berkas JSON.',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Berkas Tidak Valid',
+            text: 'Gagal membaca berkas JSON: ' + err.message
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+
     return {
       selectedTemplateId,
       letterTemplates,
@@ -552,7 +675,11 @@ export default {
       onSelectContact,
       loadSampleContacts,
       sendWhatsApp,
-      copyWaMessage
+      copyWaMessage,
+      suratJsonInput,
+      exportSuratJson,
+      triggerImportSuratJson,
+      onSuratJsonSelected
     };
   }
 };
