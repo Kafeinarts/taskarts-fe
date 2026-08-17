@@ -1014,12 +1014,105 @@ body {
 }
 
 @media print {
-  .sidebar-nav, .top-header, .mobile-bottom-bar {
+  /* 1. Completely hide all navigation, headers, footers, notifications, buttons, and form panels */
+  .sidebar-nav,
+  .top-header,
+  .mobile-bottom-bar,
+  .no-print,
+  .print-hide,
+  .app-notifications,
+  .offcanvas-overlay,
+  .mobile-drawer,
+  .modal,
+  .toast,
+  .swal2-container,
+  .btn,
+  .nav-pills,
+  .nav-tabs,
+  .form-switch,
+  .alert,
+  header,
+  aside,
+  footer {
     display: none !important;
   }
+
+  /* 2. Reset html, body, and top-level containers for full page printing */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .app-container,
+  #app,
   .main-content {
-    margin-left: 0 !important;
-    padding-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .container-fluid,
+  .container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .row {
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  .col-12, .col-lg-5, .col-lg-6, .col-lg-7, .col-md-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 3. Page break and formatting utilities */
+  .page-break-always {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .print-page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    display: block !important;
+  }
+
+  .print-page-break:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .no-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* 4. Remove shadows and borders from cards during print */
+  .card, .shadow, .shadow-sm {
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
   }
 }
 </style>

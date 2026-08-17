@@ -258,6 +258,70 @@
               </p>
             </div>
           </div>
+
+          <!-- Hidden Feature 7: Multi-Candidate Batch CV Generator -->
+          <div class="col-md-6">
+            <div class="p-3.5 bg-light rounded-4 border h-100">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary text-white fw-bold">👥 Bulk CV Engine</span>
+                <h5 class="fw-bold text-dark mb-0">Generator CV Multi-Kandidat (Batch Mode)</h5>
+              </div>
+              <p class="small text-secondary lh-base mb-2">
+                Pada menu CV Builder, aktifkan <strong>Mode Multi-Kandidat</strong> untuk mengelola puluhan resume pelamar kerja dalam satu workspace. Anda dapat mengimpor data teks berformat pipa <code>|</code>, menduplikasi profil pelamar, menyinkronkan 15 layout struktur, dan mencetak seluruh CV sekaligus dengan pemisah halaman cetak (<code>@media print page-break</code>).
+              </p>
+              <div class="small bg-white p-2 rounded border font-monospace text-primary">
+                Bulk Profil Array ➔ 15 Layout Renderer ➔ CSS Print Page-Break
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden Feature 8: Mail Merge Dynamic Replacement -->
+          <div class="col-md-6">
+            <div class="p-3.5 bg-light rounded-4 border h-100">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-success text-white fw-bold">✉️ Mail Merge</span>
+                <h5 class="fw-bold text-dark mb-0">Engine Pengganti Variabel Surat Massal</h5>
+              </div>
+              <p class="small text-secondary lh-base mb-2">
+                Gunakan placeholder dinamis seperti <code>{{nama}}</code>, <code>{{posisi}}</code>, <code>{{perusahaan}}</code>, dan <code>{{nomor_surat}}</code> di dalam naskah surat. Sistem secara otomatis menyuntikkan data masing-masing penerima saat mencetak massal atau melakukan broadcast WhatsApp.
+              </p>
+              <div class="small bg-white p-2 rounded border font-monospace text-success">
+                Regex Tokenizer ➔ Dynamic Scope Injection ➔ Batch PDF Synthesis
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden Feature 9: 5-in-1 Task Management Views -->
+          <div class="col-md-6">
+            <div class="p-3.5 bg-light rounded-4 border h-100">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-info text-white fw-bold">📋 5 View Modes</span>
+                <h5 class="fw-bold text-dark mb-0">5 Sudut Pandang Manajemen Tugas Terintegrasi</h5>
+              </div>
+              <p class="small text-secondary lh-base mb-2">
+                Satu basis data tugas (To-Do) dapat dilihat dan dikelola melalui 5 sudut pandang tanpa kehilangan status: <strong>1. Board Kanban</strong> (Drag & Drop), <strong>2. List Prioritas</strong>, <strong>3. Matriks Eisenhower</strong> (Mendesak vs Penting), <strong>4. Kalender Bulanan</strong>, dan <strong>5. Tabel Spreadsheet Data</strong>.
+              </p>
+              <div class="small bg-white p-2 rounded border font-monospace text-info">
+                Vuex Single Source of Truth ➔ Reactive Filter Transformers
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden Feature 10: Web Audio API & Notification System -->
+          <div class="col-md-6">
+            <div class="p-3.5 bg-light rounded-4 border h-100">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-warning text-dark fw-bold">🔔 Audio & Alarms</span>
+                <h5 class="fw-bold text-dark mb-0">Audio Bell Sintesis & Notifikasi On-Device</h5>
+              </div>
+              <p class="small text-secondary lh-base mb-2">
+                Suara alarm kerja dan lonceng selesai Pomodoro disintesis langsung menggunakan <strong>Web Audio API Oscillator</strong> tanpa perlu mendownload file audio eksternal. Notifikasi on-device juga terpasang otomatis dengan dukungan browser Notification API.
+              </p>
+              <div class="small bg-white p-2 rounded border font-monospace text-warning">
+                AudioContext ➔ Sine/Triangle Oscillator ➔ Notification Permission API
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -483,33 +547,35 @@ export default {
     const moduleDocs = ref([
       {
         id: 'cv',
-        title: 'CV & Resume Builder',
+        title: 'ATS CV & 15 Layout Resume Generator',
         icon: '📄',
-        badge: 'Karir & ATS Parser',
+        badge: 'Karir & Multi-Kandidat',
         route: '/cv',
-        purpose: 'Membuat CV standar ATS (Applicant Tracking System) internasional dengan 15 jenis layout struktur, kustomisasi palet warna, tipografi, dan ekspor PDF resmi.',
+        purpose: 'Menyusun Curriculum Vitae (CV) terstandarisasi Applicant Tracking System (ATS) internasional untuk 1 profil maupun banyak kandidat sekaligus (Bulk Batch CV) dengan 15 jenis arsitektur layout dan cetak PDF instan.',
         highlights: [
-          '15 Varian Layout Struktur: Single Column Classic, Split Sidebar Left/Right, Harvard Serif, Nordic Slate, Timeline Flow, Dual Balanced 50:50, dll.',
-          'ATS Score Checker otomatis menghitung kelengkapan profil Anda (0-100) dan memberikan saran kata kunci.',
-          'Ekspor & Impor JSON cadangan data resume untuk dipulihkan kapan saja.',
-          'Dukungan upload foto profil/avatar untuk template modern.'
+          '15 Varian Layout Struktur: ATS Single Column Classic, Executive Horizon, Split Sidebar Left (32:68), Split Sidebar Right (68:32), Nordic Slate, Tech Developer Emerald, Compact One-Page Fit, Harvard Academic Serif, Creative Accent Banner, Swiss High-Contrast Grid, Timeline Flow, Dual Balanced 50:50, Functional Skills-First, Boxed Framed Executive, dan Startup Sleek.',
+          'Mode Multi-Kandidat (Bulk CV Generator): Kelola banyak profil pelamar kerja/karyawan sekaligus, duplikasi profil, impor teks multi-baris otomatis, dan cetak semua CV dalam 1 batch PDF dengan auto page-break.',
+          'Real-time ATS Score Engine: Algoritma cerdas yang mengevaluasi kelengkapan kontak, ringkasan profil, bobot pengalaman kerja, metrik pencapaian, dan rasio kata kunci (Skor 0-100 & Grade A/B/C).',
+          'Kustomisasi Desain Penuh: Pemilih warna aksen kustom (HEX), palet warna korporat, 3 pilihan tipografi (Modern Sans, Classic Serif, Technical Mono), serta unggah avatar foto profil.',
+          'Portabilitas JSON: Ekspor dan impor file `.json` untuk mencadangkan seluruh profil kandidat.'
         ],
-        tip: 'Gunakan kata kerja aksi (Action Verbs) dan angka metrik pada deskripsi pengalaman kerja agar lolos filter bot HRD.'
+        tip: 'Gunakan fitur "Samakan Layout Semua" pada Mode Multi-Kandidat untuk menerapkan desain yang seragam ke seluruh profil dalam satu kali klik.'
       },
       {
         id: 'surat',
-        title: 'Generator Surat & Kop Surat',
+        title: 'Generator Surat Resmi & Kop Surat Custom',
         icon: '✉️',
-        badge: 'Administrasi Instansi',
+        badge: 'Administrasi & Bulk Mail Merge',
         route: '/surat',
-        purpose: 'Menyusun naskah dinas, lamaran kerja, izin, penawaran harga, dan perjanjian kerja dengan Kop Surat instansi resmi dan tanda tangan digital.',
+        purpose: 'Membuat naskah dinas, surat lamaran kerja, izin, penawaran harga, dan perjanjian kerja untuk 1 penerima maupun massal (Bulk Mail Merge) dengan Kop Surat otomatis dan tanda tangan digital.',
         highlights: [
-          '12 Template Surat Terstruktur: Lamaran Kerja, Resign, Pakelaring, Penawaran Proyek, SPTD, Kuasa, SP-1, MoU, dll.',
-          'Custom Logo Kop Surat: Unggah gambar logo instansi Anda sendiri atau pilih preset logo nasional.',
-          'Format Kop Ganda Standar Kantor: Garis ganda tebal-tipis, alamat lengkap, kontak telepon, dan website.',
-          'Kirim Pesan WhatsApp Langsung: Terintegrasi dengan nomor tim/klien dengan konversi otomatis 08 ke 628.'
+          '12 Template Naskah Dinas Siap Pakai: Surat Lamaran Kerja, Pengunduran Diri (Resign), Pengalaman Kerja (Pakelaring), Penawaran Harga Proyek, Tugas Kedinasan (SPTD), Surat Kuasa, Peringatan Karyawan (SP-1), Perjanjian Kerja (MoU/PKWT), Keterangan Aktif Bekerja, Permohonan Magang, Undangan Resmi, dan Rekomendasi Karir.',
+          'Custom Logo & Kop Surat Instansi: Unggah logo perusahaan/instansi (PNG/JPG), atur tinggi logo (pixel slider), posisi tata letak (kiri, tengah, kanan), serta garis ganda tebal-tipis khas surat dinas.',
+          'Bulk Mail Merge (Multi-Penerima): Masukkan puluhan daftar penerima via tabel atau impor teks berformat, gunakan placeholder dinamis {{nama}}, {{posisi}}, {{perusahaan}}, dan {{nomor_surat}} untuk menghasilkan surat massal otomatis.',
+          'Broadcast WhatsApp Massal: Kirim pesan konfirmasi surat ke seluruh penerima dengan konversi otomatis nomor 08 ke format internasional 628.',
+          'Tanda Tangan Digital: Unggah gambar tanda tangan transparan atau gunakan placeholder tanda tangan resmi.'
         ],
-        tip: 'Gunakan tab "Kop & Logo" untuk menyesuaikan ukuran dan posisi logo kop surat sebelum mencetak ke PDF.'
+        tip: 'Gunakan tombol "Nomor Otomatis" di tab Mode Massal untuk menomori seluruh surat penerima secara berurutan dalam hitungan detik.'
       },
       {
         id: 'rab',
@@ -517,14 +583,14 @@ export default {
         icon: '📊',
         badge: 'Budgeting & Event',
         route: '/rab',
-        purpose: 'Menyusun Rencana Anggaran Biaya (RAB) kegiatan, mencatat realisasi kas pemasukan dan pengeluaran, serta menghitung surplus/defisit otomatis.',
+        purpose: 'Menyusun Rencana Anggaran Biaya (RAB) proyek/kepanitiaan, mencatat realisasi kas masuk dan kas keluar, serta menghitung surplus/defisit anggaran secara otomatis.',
         highlights: [
-          'Ringkasan Finansial Real-time: Total Rencana Anggaran, Kas Masuk, Kas Keluar, dan Sisa Saldo Kas.',
-          'Status Item Anggaran: Rencana, Disetujui, Proses Belanja, Lunas, dan Selesai.',
-          'Ekspor Laporan ke Spreadsheet Excel (XLSX), CSV, dan file JSON cadangan.',
-          'Integrasi otomatis perhitungan qty * harga satuan.'
+          'Ringkasan Finansial Real-time: Total Rencana Anggaran, Total Kas Masuk, Total Kas Keluar, dan Sisa Saldo Kas Aktual.',
+          'Indikator Status Anggaran Otomatis: Menampilkan label "Hemat", "Sesuai Target RAB", atau "Over Budget" beserta nominal selisihnya.',
+          'Pencatatan Realisasi Transaksi Kas: Catat setiap pengeluaran riil per nota dengan tanggal, divisi penanggung jawab, dan nomor bukti belanja.',
+          'Ekspor Lengkap: Unduh laporan pembukuan ke format Spreadsheet Excel (XLSX), CSV, dan file JSON backup.'
         ],
-        tip: 'Catat setiap transaksi belanja di tab "Catat Pengeluaran Kas" agar realisasi dana terkontrol rapi.'
+        tip: 'Catat setiap transaksi belanja di tab "Catat Pengeluaran Kas" agar realisasi dana terkontrol rapi dan tidak melebihi alokasi anggaran.'
       },
       {
         id: 'finance',

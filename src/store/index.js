@@ -392,6 +392,110 @@ export default createStore({
         certifications: ['Google Certified Associate Cloud Engineer', 'Meta Front-End Developer Specialization'],
         selectedTemplate: 'ats_clean_1'
       }),
+      bulkCvList: loadLocal('ft_bulkCvList', [
+        {
+          id: 'cv_cand_1',
+          fullName: 'Budi Pratama, S.Kom',
+          jobTitle: 'Senior Frontend Engineer',
+          email: 'budi.pratama@email.com',
+          phone: '081234567890',
+          address: 'Jakarta, Indonesia',
+          linkedin: 'linkedin.com/in/budipratama',
+          github: 'github.com/budipratama',
+          summary: 'Software Engineer berpengalaman 4+ tahun dalam pengembangan arsitektur Single Page Application (SPA) dan Progressive Web Apps (PWA) berbasis Vue 3 dan TypeScript.',
+          experience: [
+            {
+              company: 'PT Solusi Teknologi Nusantara',
+              position: 'Lead Frontend Developer',
+              period: '2022 - Sekarang',
+              location: 'Jakarta Selatan',
+              description: '• Memimpin pengembangan 8+ modul web enterprise berbasis Vue 3, Pinia, dan Tailwind CSS.\n• Mengoptimalkan performa loading aplikasi hingga 45% dan meningkatkan retensi pengguna.'
+            }
+          ],
+          education: [
+            {
+              institution: 'Universitas Indonesia',
+              degree: 'S1 Ilmu Komputer / Teknik Informatika',
+              period: '2017 - 2021',
+              gpa: '3.82 / 4.00'
+            }
+          ],
+          skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Vite', 'Node.js', 'REST API', 'Git', 'Docker'],
+          languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
+          certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
+          selectedTemplate: 'single_column',
+          customColor: '#0d6efd',
+          cvFont: 'font-sans'
+        },
+        {
+          id: 'cv_cand_2',
+          fullName: 'Siti Rahmadani, S.Ds',
+          jobTitle: 'Lead UI/UX & Product Designer',
+          email: 'siti.rahmadani@design.io',
+          phone: '081398765432',
+          address: 'Bandung, Jawa Barat',
+          linkedin: 'linkedin.com/in/sitirahma',
+          github: 'dribbble.com/sitirahma',
+          summary: 'Product Designer dengan pengalaman 5+ tahun merancang design system enterprise, user research, wireframing, dan interactive prototyping high-fidelity di Figma.',
+          experience: [
+            {
+              company: 'PT Kreatif Visual Studio',
+              position: 'Lead UI/UX Designer',
+              period: '2021 - Sekarang',
+              location: 'Bandung',
+              description: '• Merancang comprehensive Design System terstandarisasi dengan 200+ komponen reusable di Figma.\n• Melakukan usability testing berkala yang meningkatkan task success rate hingga 32%.'
+            }
+          ],
+          education: [
+            {
+              institution: 'Institut Teknologi Bandung',
+              degree: 'S1 Desain Komunikasi Visual',
+              period: '2016 - 2020',
+              gpa: '3.78 / 4.00'
+            }
+          ],
+          skills: ['Figma Master', 'Design System', 'User Research', 'Wireframing', 'Prototyping', 'Usability Testing', 'HTML/CSS Basics'],
+          languages: ['Bahasa Indonesia (Native)', 'English (Fluent)'],
+          certifications: ['Google UX Design Professional Certificate', 'Nielsen Norman Group UX Master'],
+          selectedTemplate: 'sidebar_left',
+          customColor: '#10b981',
+          cvFont: 'font-sans'
+        },
+        {
+          id: 'cv_cand_3',
+          fullName: 'Ahmad Fauzi, M.Kom',
+          jobTitle: 'Senior Backend & Cloud Architect',
+          email: 'ahmad.fauzi@backend.dev',
+          phone: '085712345678',
+          address: 'Surabaya, Jawa Timur',
+          linkedin: 'linkedin.com/in/ahmadfauzi',
+          github: 'github.com/ahmadfauzi',
+          summary: 'Backend Engineer spesialis arsitektur Microservices, REST & GraphQL API, PostgreSQL, Redis, dan Containerization (Docker/Kubernetes) dengan throughput tinggi.',
+          experience: [
+            {
+              company: 'PT Cloud Nusantara Solusindo',
+              position: 'Senior Backend Engineer',
+              period: '2020 - Sekarang',
+              location: 'Surabaya',
+              description: '• Mengembangkan microservices Go & Node.js yang menangani 2+ juta request per hari dengan latency < 80ms.\n• Mengelola database PostgreSQL berukuran TB dengan partitioning dan query indexing optimal.'
+            }
+          ],
+          education: [
+            {
+              institution: 'Institut Teknologi Sepuluh Nopember',
+              degree: 'S2 Teknik Informatika',
+              period: '2019 - 2021',
+              gpa: '3.90 / 4.00'
+            }
+          ],
+          skills: ['Golang', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'CI/CD Pipeline', 'Microservices'],
+          languages: ['Bahasa Indonesia (Native)', 'English (Professional)'],
+          certifications: ['AWS Certified Solutions Architect Associate', 'CKA Certified Kubernetes Administrator'],
+          selectedTemplate: 'technical_grid',
+          customColor: '#6366f1',
+          cvFont: 'font-mono'
+        }
+      ]),
       codeNotes: loadLocal('ft_codeNotes', []),
       suratList: loadLocal('ft_suratList', []),
       selfieGallery: loadLocal('ft_selfieGallery', [])
@@ -418,6 +522,7 @@ export default createStore({
     getWelcomeBanner: (state) => state.welcomeBanner || { title: 'Selamat Datang, Rekan Kerja!', subtitle: 'Pusat kendali produktivitas & organizer karir karyawan Anda: kelola tugas (5 view modes), proyek kantor, arus kas, dan invoice.' },
     getUserProfile: (state) => state.userProfile,
     getCvData: (state) => state.cvData,
+    getBulkCvList: (state) => state.bulkCvList || [],
     getCodeNotes: (state) => state.codeNotes,
     getSuratList: (state) => state.suratList,
     getSelfieGallery: (state) => state.selfieGallery,
@@ -769,6 +874,11 @@ export default createStore({
     SAVE_CV_DATA(state, cvData) {
       state.cvData = { ...state.cvData, ...cvData };
       saveLocal('ft_cvData', state.cvData);
+    },
+
+    SAVE_BULK_CV_LIST(state, list) {
+      state.bulkCvList = [...list];
+      saveLocal('ft_bulkCvList', state.bulkCvList);
     },
 
     ADD_CODE_NOTE(state, note) {
@@ -1463,6 +1573,10 @@ export default createStore({
 
     saveCvData({ commit }, cvData) {
       commit('SAVE_CV_DATA', cvData);
+    },
+
+    saveBulkCvList({ commit }, list) {
+      commit('SAVE_BULK_CV_LIST', list);
     },
 
     addCodeNote({ commit }, note) {

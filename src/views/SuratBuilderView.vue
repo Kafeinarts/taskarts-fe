@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid p-0" data-aos="fade-up">
-    <!-- Header Banner -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border">
+    <!-- Header Banner (no-print) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border no-print">
       <div>
         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
           <span class="badge bg-danger text-white fw-bold px-3 py-1.5 rounded-pill">
@@ -11,11 +11,11 @@
             <i class="bi bi-image me-1"></i> Custom Logo Kop Surat
           </span>
           <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill">
-            <i class="bi bi-collection-fill me-1"></i> 12 Template Siap Pakai
+            <i class="bi bi-people-fill me-1"></i> Bulk Mail Merge (Multi-Penerima)
           </span>
         </div>
         <h2 class="fw-bold mb-1 text-dark">✉️ Generator Surat Resmi & Desain Kop Surat Custom</h2>
-        <p class="text-muted mb-0">Buat surat kedinasan, lamaran, izin, penawaran, dan perjanjian kerja dengan Kop Surat otomatis, logo instansi kustom, dan cetak PDF standar instansi.</p>
+        <p class="text-muted mb-0">Buat surat kedinasan, lamaran, izin, dan perjanjian kerja untuk 1 orang maupun <strong>massal / banyak penerima sekaligus</strong> dengan Kop Surat otomatis dan cetak PDF standar instansi.</p>
       </div>
 
       <div class="d-flex flex-wrap align-items-center gap-2">
@@ -29,19 +29,55 @@
         <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter">
           <i class="bi bi-floppy me-1"></i> Simpan Surat
         </button>
-        <button class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
-          <i class="bi bi-whatsapp me-1"></i> Kirim Text via WA
+        <button v-if="suratMode === 'single'" class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
+          <i class="bi bi-whatsapp me-1"></i> Kirim via WA
         </button>
-        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" @click="printLetter">
-          <i class="bi bi-printer me-1"></i> Cetak / Save PDF
+        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" @click="printCurrentMode">
+          <i class="bi bi-printer me-1"></i> {{ suratMode === 'bulk' ? 'Cetak Semua Surat (Bulk PDF)' : 'Cetak / Save PDF' }}
         </button>
       </div>
     </div>
 
-    <!-- Letter Templates Gallery Carousel / Grid -->
-    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
+    <!-- Mode Selector: Single Letter vs Bulk Multi-Penerima (no-print) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-2 mb-4 no-print">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-2 py-1">
+        <div class="btn-group p-1 bg-light rounded-pill border" role="group">
+          <button
+            type="button"
+            class="btn rounded-pill px-4 py-1.5 fw-bold small transition-all"
+            :class="suratMode === 'single' ? 'btn-primary text-white shadow-sm' : 'btn-light text-muted'"
+            @click="suratMode = 'single'"
+          >
+            <i class="bi bi-file-earmark-text me-1.5"></i> Mode Tunggal (1 Surat)
+          </button>
+          <button
+            type="button"
+            class="btn rounded-pill px-4 py-1.5 fw-bold small transition-all"
+            :class="suratMode === 'bulk' ? 'btn-success text-white shadow-sm' : 'btn-light text-muted'"
+            @click="suratMode = 'bulk'"
+          >
+            <i class="bi bi-people-fill me-1.5"></i> Mode Massal / Bulk Multi-Penerima ({{ bulkRecipients.length }} Orang)
+          </button>
+        </div>
+
+        <div v-if="suratMode === 'bulk'" class="d-flex align-items-center gap-2">
+          <span class="badge bg-success-subtle text-success fw-bold px-3 py-1.5 rounded-pill">
+            <i class="bi bi-layers-fill me-1"></i> {{ bulkRecipients.length }} Penerima Terdaftar
+          </span>
+          <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" @click="openBulkBroadcastModal">
+            <i class="bi bi-whatsapp me-1"></i> Broadcast WA Massal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Letter Templates Gallery Carousel / Grid (no-print) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4 no-print">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-collection text-primary me-2"></i>Pilih 12 Template Surat Siap Pakai</h5>
+        <div>
+          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-collection text-primary me-2"></i>Pilih 12 Template Surat Siap Pakai</h5>
+          <small class="text-muted">Template akan mengisi struktur Kop, perihal, dan draf isi surat secara otomatis.</small>
+        </div>
         <div class="d-flex gap-1">
           <button
             v-for="cat in templateCategories"
@@ -73,14 +109,127 @@
       </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- BULK RECIPIENTS MANAGEMENT PANEL (Shown only in Bulk Mode)-->
+    <!-- ======================================================== -->
+    <div v-if="suratMode === 'bulk'" class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4 no-print border-start border-success border-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2 border-bottom pb-3">
+        <div>
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-people-fill text-success me-2"></i>Daftar Penerima Surat Massal (Bulk Mail Merge)
+          </h5>
+          <small class="text-muted">
+            Gunakan variabel berikut di Master Surat:
+            <code class="text-primary fw-bold mx-1">\{\{nama\}\}</code>,
+            <code class="text-primary fw-bold mx-1">\{\{jabatan\}\}</code>,
+            <code class="text-primary fw-bold mx-1">\{\{instansi\}\}</code>,
+            <code class="text-primary fw-bold mx-1">\{\{nomor_surat\}\}</code>,
+            <code class="text-primary fw-bold mx-1">\{\{alamat\}\}</code>,
+            <code class="text-primary fw-bold mx-1">\{\{catatan\}\}</code>
+          </small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" @click="showBulkImportModal = true">
+            <i class="bi bi-clipboard-plus me-1"></i> Paste CSV / Format Teks
+          </button>
+          <button class="btn btn-sm btn-outline-success rounded-pill px-3" @click="importFromContacts">
+            <i class="bi bi-person-lines-fill me-1"></i> Ambil dari Kontak Tim
+          </button>
+          <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="autoGenerateLetterNumbers">
+            <i class="bi bi-123 me-1"></i> Auto Nomor Urut
+          </button>
+          <button class="btn btn-sm btn-success rounded-pill px-3" @click="addRecipientRow">
+            <i class="bi bi-plus-lg me-1"></i> Tambah Penerima
+          </button>
+        </div>
+      </div>
+
+      <!-- Recipients Table -->
+      <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+        <table class="table table-hover table-bordered align-middle small mb-0">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th style="width: 45px;" class="text-center">No</th>
+              <th style="width: 180px;">Nama Penerima <span class="text-danger">*</span></th>
+              <th style="width: 160px;">Jabatan</th>
+              <th style="width: 180px;">Instansi / Alamat</th>
+              <th style="width: 140px;">No. WhatsApp</th>
+              <th style="width: 170px;">Nomor Surat Spesifik</th>
+              <th style="width: 150px;">Catatan Tambahan</th>
+              <th style="width: 90px;" class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(rec, idx) in bulkRecipients" :key="rec.id" :class="{ 'table-primary bg-opacity-10': activeBulkIndex === idx }">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.name" placeholder="Nama Lengkap" />
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.title" placeholder="Jabatan / Posisi" />
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.company" placeholder="Instansi / PT / Di Tempat" />
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.phone" placeholder="081234567890" />
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.number" placeholder="001/SK/RK/VIII/2026" />
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" v-model="rec.notes" placeholder="Opsional" />
+              </td>
+              <td class="text-center">
+                <div class="btn-group btn-group-sm">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :class="{ 'btn-primary text-white': activeBulkIndex === idx }"
+                    @click="activeBulkIndex = idx"
+                    title="Pratinjau Surat Ini"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="removeRecipientRow(idx)"
+                    :disabled="bulkRecipients.length <= 1"
+                    title="Hapus Penerima"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+        <span class="small text-muted">
+          Total <strong>{{ bulkRecipients.length }}</strong> penerima siap dicetak secara massal dengan pemisah halaman otomatis.
+        </span>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-danger rounded-pill px-3" @click="clearBulkRecipients" :disabled="bulkRecipients.length <= 1">
+            <i class="bi bi-x-circle me-1"></i> Reset Daftar Penerima
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Editor & Preview Grid -->
     <div class="row g-4">
-      <!-- Form Controls -->
-      <div class="col-lg-5">
+      <!-- Left Form Controls (no-print) -->
+      <div class="col-lg-5 no-print">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
-          <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
-            <i class="bi bi-pencil-square text-primary me-2"></i>Pengaturan & Isi Surat
-          </h5>
+          <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <h5 class="fw-bold text-dark mb-0">
+              <i class="bi bi-pencil-square text-primary me-2"></i>{{ suratMode === 'bulk' ? 'Master Pengaturan Surat' : 'Pengaturan & Isi Surat' }}
+            </h5>
+            <span v-if="suratMode === 'bulk'" class="badge bg-success rounded-pill small">Master Mail Merge</span>
+          </div>
 
           <!-- Nav Tabs for Form: Kop Surat, Metadata, Isi & Tanda Tangan -->
           <ul class="nav nav-pills nav-fill mb-3 bg-light p-1 rounded-3">
@@ -106,9 +255,7 @@
             </li>
           </ul>
 
-          <!-- ===================================== -->
           <!-- TAB 1: KOP SURAT & LOGO CUSTOMIZATION -->
-          <!-- ===================================== -->
           <div v-show="formTab === 'kop'">
             <div class="form-check form-switch mb-3 bg-light p-3 rounded-3 border">
               <input class="form-check-input" type="checkbox" id="enableKop" v-model="letter.showKop" />
@@ -148,61 +295,60 @@
                 </div>
               </div>
 
-              <!-- Logo Placement & Size -->
+              <!-- Posisi Logo & Ukuran Slider -->
               <div class="row g-2 mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-semibold text-muted small mb-1">Posisi Logo:</label>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark small">Posisi Logo</label>
                   <select class="form-select form-select-sm" v-model="letter.kopLogoPosition">
-                    <option value="left">Kiri (Standar)</option>
+                    <option value="left">Kiri (Standar Instansi)</option>
                     <option value="center">Tengah Atas</option>
                     <option value="right">Kanan</option>
                   </select>
                 </div>
-                <div class="col-6">
-                  <label class="form-label fw-semibold text-muted small mb-1">Ukuran Logo (px): {{ letter.kopLogoHeight }}px</label>
-                  <input type="range" class="form-range" min="35" max="95" step="5" v-model="letter.kopLogoHeight" />
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark small">Ukuran Tinggi Logo: {{ letter.kopLogoHeight || 60 }}px</label>
+                  <input type="range" class="form-range" min="30" max="110" step="5" v-model.number="letter.kopLogoHeight" />
                 </div>
               </div>
 
-              <!-- Kop Text Details -->
+              <!-- Data Teks Kop Surat -->
               <div class="mb-2">
-                <label class="form-label fw-bold text-dark small">Nama Lembaga / Perusahaan (Huruf Besar)</label>
-                <input type="text" class="form-control form-control-sm" v-model="letter.kopName" placeholder="PT RAJINKERJA GLOBAL INDONESIA" />
+                <label class="form-label fw-bold text-dark small">Nama Instansi / Perusahaan Utama</label>
+                <input type="text" class="form-control form-control-sm fw-bold" v-model="letter.kopName" placeholder="PEMERINTAH KOTA / PT RAJINKERJA INDONESIA" />
               </div>
               <div class="mb-2">
-                <label class="form-label fw-bold text-dark small">Sub-Nama / Unit Kerja / Departemen</label>
-                <input type="text" class="form-control form-control-sm" v-model="letter.kopSubname" placeholder="DIVISI PENGEMBANGAN TEKNOLOGI & INOVASI" />
+                <label class="form-label fw-bold text-dark small">Sub-Instansi / Divisi / Tagline</label>
+                <input type="text" class="form-control form-control-sm" v-model="letter.kopSubname" placeholder="DINAS KOMUNIKASI & INFORMATIKA / DIVISI TEKNOLOGI" />
               </div>
               <div class="mb-2">
-                <label class="form-label fw-bold text-dark small">Alamat Lengkap & Kontak</label>
-                <input type="text" class="form-control form-control-sm" v-model="letter.kopAddress" placeholder="Gedung Menara RajinKerja Lt. 12, Jl. Jend. Sudirman No. 88 Jakarta | Telp: (021) 555-1234" />
+                <label class="form-label fw-bold text-dark small">Alamat Lengkap & Kode Pos</label>
+                <input type="text" class="form-control form-control-sm" v-model="letter.kopAddress" placeholder="Jl. Jend. Sudirman No. 88, Jakarta Selatan 12190" />
               </div>
-              <div class="mb-2">
-                <label class="form-label fw-bold text-dark small">Email & Website</label>
-                <input type="text" class="form-control form-control-sm" v-model="letter.kopContact" placeholder="Email: info@rajinkerja.id | Website: www.rajinkerja.id | Kode Pos 12190" />
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark small">Kontak (Telepon, Email, Website)</label>
+                <input type="text" class="form-control form-control-sm" v-model="letter.kopContact" placeholder="Telp: (021) 555-1234 | Email: sekretariat@instansi.go.id" />
               </div>
 
-              <!-- Kop Divider Style -->
-              <div class="mb-2">
-                <label class="form-label fw-semibold text-muted small mb-1">Garis Pembatas Kop:</label>
+              <!-- Model Garis Pembatas Kop -->
+              <div>
+                <label class="form-label fw-bold text-dark small">Model Garis Pembatas Kop</label>
                 <select class="form-select form-select-sm" v-model="letter.kopStyle">
-                  <option value="double">Garis Ganda Resmi (Tebal & Tipis - Standar Instansi)</option>
+                  <option value="double">Garis Ganda Resmi (Tebal-Tipis Standar)</option>
                   <option value="single">Garis Tunggal Modern</option>
                   <option value="thick">Garis Tunggal Tebal</option>
-                  <option value="none">Tanpa Garis</option>
+                  <option value="none">Tanpa Garis Pembatas</option>
                 </select>
               </div>
             </div>
           </div>
 
-          <!-- ===================================== -->
-          <!-- TAB 2: METADATA SURAT                 -->
-          <!-- ===================================== -->
+          <!-- TAB 2: METADATA & PENERIMA -->
           <div v-show="formTab === 'meta'">
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label fw-bold text-dark small">Nomor Surat</label>
+                <label class="form-label fw-bold text-dark small">Nomor Surat Master</label>
                 <input type="text" class="form-control form-control-sm" v-model="letter.number" placeholder="001/SK/RK/VIII/2026" />
+                <small v-if="suratMode === 'bulk'" class="text-muted" style="font-size: 11px;">Akan ditimpa jika penerima memiliki nomor spesifik.</small>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark small">Kota & Tanggal Surat</label>
@@ -224,11 +370,14 @@
               </div>
             </div>
 
-            <div class="mb-3">
+            <div v-if="suratMode === 'single'" class="mb-3">
               <label class="form-label fw-bold text-dark small">Penerima / Kepada Yth.</label>
               <input type="text" class="form-control form-control-sm mb-1" v-model="letter.recipientName" placeholder="Bapak / Ibu Pimpinan PT Mitra Utama" />
               <input type="text" class="form-control form-control-sm mb-1" v-model="letter.recipientTitle" placeholder="Direktur Operasional / HRD Manager" />
-              <input type="text" class="form-control form-control-sm" v-model="letter.recipientAddress" placeholder="Di Tempat / Jakarta Selatan" />
+              <input type="text" class="form-control form-control-sm mb-1" v-model="letter.recipientAddress" placeholder="Di Tempat / Jakarta Selatan" />
+            </div>
+            <div v-else class="alert alert-success py-2 px-3 small mb-3">
+              <i class="bi bi-info-circle-fill me-1"></i> Data penerima diatur secara dinamis pada <strong>Daftar Penerima Surat Massal</strong> di atas.
             </div>
 
             <div class="mb-3">
@@ -237,9 +386,7 @@
             </div>
           </div>
 
-          <!-- ===================================== -->
-          <!-- TAB 3: ISI & NARASI SURAT             -->
-          <!-- ===================================== -->
+          <!-- TAB 3: ISI & NARASI SURAT -->
           <div v-show="formTab === 'body'">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <label class="form-label fw-bold text-dark small mb-0">Isi Surat / Narasi Utama</label>
@@ -252,7 +399,15 @@
                 </button>
               </div>
             </div>
-            <textarea class="form-control form-control-sm border-2 rounded-3" rows="11" v-model="letter.bodyContent" placeholder="Tuliskan isi surat lengkap di sini..."></textarea>
+
+            <div v-if="suratMode === 'bulk'" class="d-flex flex-wrap gap-1 mb-2">
+              <span class="badge bg-light text-dark border cursor-pointer" @click="insertPlaceholder('\{\{nama\}\}')" title="Klik untuk sisipkan">+ \{\{nama\}\}</span>
+              <span class="badge bg-light text-dark border cursor-pointer" @click="insertPlaceholder('\{\{jabatan\}\}')" title="Klik untuk sisipkan">+ \{\{jabatan\}\}</span>
+              <span class="badge bg-light text-dark border cursor-pointer" @click="insertPlaceholder('\{\{instansi\}\}')" title="Klik untuk sisipkan">+ \{\{instansi\}\}</span>
+              <span class="badge bg-light text-dark border cursor-pointer" @click="insertPlaceholder('\{\{nomor_surat\}\}')" title="Klik untuk sisipkan">+ \{\{nomor_surat\}\}</span>
+            </div>
+
+            <textarea class="form-control form-control-sm border-2 rounded-3 font-sans" rows="11" v-model="letter.bodyContent" placeholder="Tuliskan isi surat lengkap di sini..."></textarea>
             <div class="form-text small text-muted mt-1" style="font-size: 0.78rem;">
               <i class="bi bi-info-circle text-primary me-1"></i>Tekan <code>Enter</code> 2x untuk membuat alinea baru yang menjorok otomatis.
             </div>
@@ -263,9 +418,7 @@
             </div>
           </div>
 
-          <!-- ===================================== -->
-          <!-- TAB 4: TANDA TANGAN & STEMPEL CAP     -->
-          <!-- ===================================== -->
+          <!-- TAB 4: TANDA TANGAN & STEMPEL CAP -->
           <div v-show="formTab === 'sign'">
             <div class="row g-3 mb-3">
               <div class="col-md-6">
@@ -314,37 +467,52 @@
         </div>
       </div>
 
-      <!-- Live Printable Preview -->
+      <!-- Right Column: Live Printable Preview -->
       <div class="col-lg-7">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
-          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 print-hide">
+          <!-- Preview Header Bar (no-print) -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2 mb-3 no-print gap-2">
             <div class="d-flex align-items-center gap-2">
               <span class="fw-bold text-dark"><i class="bi bi-eye text-primary me-1"></i> Live Letter Preview</span>
               <span class="badge bg-light text-dark border small">{{ activeTemplateTitle }}</span>
+              <span v-if="suratMode === 'bulk'" class="badge bg-success text-white small">
+                Penerima #{{ activeBulkIndex + 1 }} dari {{ bulkRecipients.length }}
+              </span>
             </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" @click="openWaModal">
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <!-- Bulk Recipient Selector Controls -->
+              <div v-if="suratMode === 'bulk' && bulkRecipients.length > 1" class="btn-group btn-group-sm me-1">
+                <button class="btn btn-outline-secondary" :disabled="activeBulkIndex <= 0" @click="activeBulkIndex--">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-light border px-2 fw-semibold" style="font-size: 12px;">
+                  {{ activeBulkRecipient ? (activeBulkRecipient.name || 'Penerima ' + (activeBulkIndex + 1)) : '-' }}
+                </button>
+                <button class="btn btn-outline-secondary" :disabled="activeBulkIndex >= bulkRecipients.length - 1" @click="activeBulkIndex++">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+
+              <button v-if="suratMode === 'single'" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" @click="openWaModal">
                 <i class="bi bi-whatsapp me-1"></i> Kirim WA
               </button>
-              <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" @click="printLetter">
-                <i class="bi bi-printer me-1"></i> Cetak / PDF
+              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm" @click="printCurrentMode">
+                <i class="bi bi-printer me-1"></i> {{ suratMode === 'bulk' ? 'Cetak Semua (' + bulkRecipients.length + ' Surat)' : 'Cetak / Save PDF' }}
               </button>
             </div>
           </div>
 
-          <!-- Printable Letter Container -->
-          <div id="letterPrintArea" class="letter-paper border shadow-sm p-4 p-md-5 bg-white text-dark mx-auto">
-            <!-- ===================================== -->
-            <!-- KOP SURAT HEADER (CUSTOMIZABLE)       -->
-            <!-- ===================================== -->
+          <!-- ======================================================== -->
+          <!-- 1. SINGLE MODE PRINTABLE LETTER PAPER                    -->
+          <!-- ======================================================== -->
+          <div v-if="suratMode === 'single'" id="letterPrintArea" class="letter-paper border shadow-sm p-4 p-md-5 bg-white text-dark mx-auto">
+            <!-- KOP SURAT HEADER -->
             <div v-if="letter.showKop" class="kop-header-container mb-4" :class="'kop-align-' + (letter.kopLogoPosition || 'left')">
               <div class="d-flex align-items-center justify-content-between gap-3 mb-2" :class="{ 'flex-column text-center': letter.kopLogoPosition === 'center', 'flex-row-reverse': letter.kopLogoPosition === 'right' }">
-                <!-- Logo Slot -->
                 <div v-if="currentLogoSrc" class="kop-logo-wrapper flex-shrink-0">
                   <img :src="currentLogoSrc" :style="{ height: (letter.kopLogoHeight || 60) + 'px', maxWidth: '140px', objectFit: 'contain' }" alt="Logo Kop" />
                 </div>
-
-                <!-- Text Header -->
                 <div class="kop-text-wrapper flex-grow-1 text-center">
                   <h3 class="fw-extrabold mb-0 tracking-wide text-uppercase" style="letter-spacing: 1px; font-size: 1.25rem;">
                     {{ letter.kopName || 'PT RAJINKERJA GLOBAL INDONESIA' }}
@@ -359,8 +527,6 @@
                     {{ letter.kopContact }}
                   </p>
                 </div>
-
-                <!-- Right placeholder for symmetrical balance if logo on left -->
                 <div v-if="currentLogoSrc && letter.kopLogoPosition === 'left'" style="width: 60px;" class="d-none d-md-block"></div>
               </div>
 
@@ -396,7 +562,6 @@
             <!-- Salutation & Body -->
             <div class="mb-4">
               <p class="mb-3">{{ letter.salutation || 'Dengan hormat,' }}</p>
-
               <div v-if="bodyParagraphs.length > 0" class="d-flex flex-column gap-2">
                 <div
                   v-for="(para, idx) in bodyParagraphs"
@@ -412,23 +577,19 @@
                   {{ para }}
                 </div>
               </div>
-
               <div v-else class="lh-base text-muted fst-italic">
                 (Isi surat masih kosong...)
               </div>
             </div>
 
             <!-- Closing & Signatures -->
-            <div class="d-flex mt-5 pt-3" :class="{ 'justify-content-end': letter.signaturePosition === 'right', 'justify-content-start': letter.signaturePosition === 'left', 'justify-content-center': letter.signaturePosition === 'center' }">
+            <div class="d-flex mt-5 pt-3 no-break" :class="{ 'justify-content-end': letter.signaturePosition === 'right', 'justify-content-start': letter.signaturePosition === 'left', 'justify-content-center': letter.signaturePosition === 'center' }">
               <div class="text-center" style="min-width: 220px;">
                 <p class="mb-2">{{ letter.closing || 'Hormat Kami,' }}</p>
-
-                <!-- Signature Image if uploaded, otherwise generous spacing for wet sign -->
                 <div v-if="letter.signatureImage" class="my-1">
                   <img :src="letter.signatureImage" style="max-height: 65px; object-fit: contain;" alt="Tanda Tangan" />
                 </div>
                 <div v-else style="height: 60px;"></div>
-
                 <strong class="d-block border-bottom border-dark pb-1 text-uppercase">{{ letter.signerName || 'Arif Permana, S.Kom' }}</strong>
                 <span class="small text-muted d-block mt-1">{{ letter.signerTitle || 'Direktur Utama' }}</span>
                 <span v-if="letter.signerNip" class="small text-muted d-block" style="font-size: 11px;">{{ letter.signerNip }}</span>
@@ -436,17 +597,215 @@
             </div>
 
             <!-- Tembusan / CC (Optional) -->
-            <div v-if="letter.ccText && letter.ccText.trim()" class="mt-4 pt-3 border-top small text-muted">
+            <div v-if="letter.ccText && letter.ccText.trim()" class="mt-4 pt-3 border-top small text-muted no-break">
               <strong>Tembusan:</strong>
               <div class="white-space-pre-line">{{ letter.ccText }}</div>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- 2. BULK MODE PRINTABLE AREA (Multi-Letter Pages)          -->
+          <!-- ======================================================== -->
+          <div v-else id="letterBulkPrintArea" class="bulk-print-container">
+            <!-- In Web UI: Shows active recipient or all -->
+            <div
+              v-for="(rec, recIdx) in (isPrintingAll ? bulkRecipients : [activeBulkRecipient || bulkRecipients[0]])"
+              :key="rec ? rec.id : recIdx"
+              class="letter-paper border shadow-sm p-4 p-md-5 bg-white text-dark mx-auto mb-4 print-page-break"
+            >
+              <!-- KOP SURAT HEADER -->
+              <div v-if="letter.showKop" class="kop-header-container mb-4" :class="'kop-align-' + (letter.kopLogoPosition || 'left')">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-2" :class="{ 'flex-column text-center': letter.kopLogoPosition === 'center', 'flex-row-reverse': letter.kopLogoPosition === 'right' }">
+                  <div v-if="currentLogoSrc" class="kop-logo-wrapper flex-shrink-0">
+                    <img :src="currentLogoSrc" :style="{ height: (letter.kopLogoHeight || 60) + 'px', maxWidth: '140px', objectFit: 'contain' }" alt="Logo Kop" />
+                  </div>
+                  <div class="kop-text-wrapper flex-grow-1 text-center">
+                    <h3 class="fw-extrabold mb-0 tracking-wide text-uppercase" style="letter-spacing: 1px; font-size: 1.25rem;">
+                      {{ letter.kopName || 'PT RAJINKERJA GLOBAL INDONESIA' }}
+                    </h3>
+                    <div v-if="letter.kopSubname" class="fw-bold text-secondary small text-uppercase mb-0.5" style="letter-spacing: 0.5px;">
+                      {{ letter.kopSubname }}
+                    </div>
+                    <p class="small text-muted mb-0 lh-sm" style="font-size: 0.78rem;">
+                      {{ letter.kopAddress || 'Jl. Jend. Sudirman No. 88, Jakarta Selatan | Telp: (021) 555-1234' }}
+                    </p>
+                    <p v-if="letter.kopContact" class="small text-muted mb-0 lh-sm" style="font-size: 0.78rem;">
+                      {{ letter.kopContact }}
+                    </p>
+                  </div>
+                  <div v-if="currentLogoSrc && letter.kopLogoPosition === 'left'" style="width: 60px;" class="d-none d-md-block"></div>
+                </div>
+
+                <!-- Kop Divider Lines -->
+                <div v-if="letter.kopStyle === 'double'" class="kop-divider-double mt-2">
+                  <div class="border-top border-dark border-3 mb-0.5"></div>
+                  <div class="border-top border-dark border-1"></div>
+                </div>
+                <div v-else-if="letter.kopStyle === 'thick'" class="border-top border-dark border-3 mt-2"></div>
+                <div v-else-if="letter.kopStyle === 'single'" class="border-top border-secondary border-1 mt-2"></div>
+              </div>
+
+              <!-- Letter Metadata (Tanggal & Nomor) -->
+              <div class="d-flex justify-content-between align-items-baseline mb-4">
+                <div>
+                  <div><strong>Nomor:</strong> {{ (rec && rec.number) ? rec.number : (letter.number || '001/SK/RK/VIII/2026') }}</div>
+                  <div v-if="letter.attachment"><strong>Lampiran:</strong> {{ letter.attachment }}</div>
+                  <div><strong>Perihal:</strong> {{ letter.subject || 'Surat Penawaran Kerjasama' }}</div>
+                </div>
+                <div class="text-end">
+                  <div>{{ letter.city || 'Jakarta' }}, {{ formattedDate }}</div>
+                </div>
+              </div>
+
+              <!-- Recipient Block -->
+              <div class="mb-4">
+                <div>Kepada Yth.</div>
+                <strong>{{ (rec && rec.name) ? rec.name : 'Bapak / Ibu Pimpinan' }}</strong>
+                <div v-if="rec && rec.title">{{ rec.title }}</div>
+                <div>{{ (rec && rec.company) ? rec.company : 'Di Tempat' }}</div>
+              </div>
+
+              <!-- Salutation & Body with Dynamic Variable Replacements -->
+              <div class="mb-4">
+                <p class="mb-3">{{ renderDynamicText(letter.salutation, rec) || 'Dengan hormat,' }}</p>
+                <div v-if="getRenderedBodyParagraphs(rec).length > 0" class="d-flex flex-column gap-2">
+                  <div
+                    v-for="(para, pIdx) in getRenderedBodyParagraphs(rec)"
+                    :key="pIdx"
+                    class="lh-base text-dark"
+                    :style="{
+                      textAlign: 'justify',
+                      textIndent: isListParagraph(para) ? '0' : '2rem',
+                      whiteSpace: 'pre-line',
+                      marginBottom: '0.75rem'
+                    }"
+                  >
+                    {{ para }}
+                  </div>
+                </div>
+                <div v-else class="lh-base text-muted fst-italic">
+                  (Isi surat masih kosong...)
+                </div>
+              </div>
+
+              <!-- Closing & Signatures -->
+              <div class="d-flex mt-5 pt-3 no-break" :class="{ 'justify-content-end': letter.signaturePosition === 'right', 'justify-content-start': letter.signaturePosition === 'left', 'justify-content-center': letter.signaturePosition === 'center' }">
+                <div class="text-center" style="min-width: 220px;">
+                  <p class="mb-2">{{ letter.closing || 'Hormat Kami,' }}</p>
+                  <div v-if="letter.signatureImage" class="my-1">
+                    <img :src="letter.signatureImage" style="max-height: 65px; object-fit: contain;" alt="Tanda Tangan" />
+                  </div>
+                  <div v-else style="height: 60px;"></div>
+                  <strong class="d-block border-bottom border-dark pb-1 text-uppercase">{{ letter.signerName || 'Arif Permana, S.Kom' }}</strong>
+                  <span class="small text-muted d-block mt-1">{{ letter.signerTitle || 'Direktur Utama' }}</span>
+                  <span v-if="letter.signerNip" class="small text-muted d-block" style="font-size: 11px;">{{ letter.signerNip }}</span>
+                </div>
+              </div>
+
+              <!-- Tembusan / CC (Optional) -->
+              <div v-if="letter.ccText && letter.ccText.trim()" class="mt-4 pt-3 border-top small text-muted no-break">
+                <strong>Tembusan:</strong>
+                <div class="white-space-pre-line">{{ renderDynamicText(letter.ccText, rec) }}</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- In-Page WhatsApp Panel -->
-    <div v-if="showWaModal" class="card border-0 shadow rounded-4 p-4 my-4 bg-white border-top border-success border-4 print-hide">
+    <!-- ======================================================== -->
+    <!-- MODAL 1: BULK CSV / TEXT IMPORTER (no-print)             -->
+    <!-- ======================================================== -->
+    <div v-if="showBulkImportModal" class="card border-0 shadow-lg rounded-4 p-4 my-4 bg-white border-top border-primary border-4 no-print">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-clipboard-plus text-primary me-2"></i> Paste Banyak Penerima Sekaligus (Bulk CSV Importer)
+        </h5>
+        <button type="button" class="btn-close" @click="showBulkImportModal = false"></button>
+      </div>
+
+      <div class="alert alert-info py-2 px-3 small mb-3">
+        <div class="fw-bold mb-1"><i class="bi bi-info-circle-fill me-1"></i> Format Baris (Pisahkan dengan koma atau tab):</div>
+        <code>Nama Penerima, Jabatan, Instansi/Alamat, Nomor WhatsApp, Nomor Surat (Opsional)</code>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold text-dark small">Tempel Data Teks di Bawah:</label>
+        <textarea
+          class="form-control font-monospace border-2 rounded-3 small"
+          rows="6"
+          v-model="bulkImportRawText"
+          placeholder="Budi Santoso, Direktur Keuangan, PT Reksa Finance, 081234567890, 001/SK/RK/VIII/2026&#10;Rian Prasetyo, Project Lead, Studio Digital, 081398765432, 002/SK/RK/VIII/2026&#10;Dinda Kirana, Head of Design, Kreatif Nusantara, 085712345678, 003/SK/RK/VIII/2026"
+        ></textarea>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center border-top pt-3">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @click="showBulkImportModal = false">Batal</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" @click="processBulkImport">
+          <i class="bi bi-check2-circle me-1"></i> Tambahkan ke Daftar Penerima
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 2: BULK WHATSAPP BROADCAST (no-print)              -->
+    <!-- ======================================================== -->
+    <div v-if="showBulkBroadcastModal" class="card border-0 shadow-lg rounded-4 p-4 my-4 bg-white border-top border-success border-4 no-print">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-whatsapp text-success me-2"></i> Broadcast WhatsApp Massal ({{ bulkRecipients.length }} Penerima)
+        </h5>
+        <button type="button" class="btn-close" @click="showBulkBroadcastModal = false"></button>
+      </div>
+
+      <p class="small text-muted mb-3">
+        Kirimkan naskah surat resmi ini secara langsung ke nomor WhatsApp masing-masing penerima dengan variabel nama yang disesuaikan secara otomatis:
+      </p>
+
+      <div class="table-responsive mb-3" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-hover table-bordered align-middle small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 40px;" class="text-center">No</th>
+              <th>Nama Penerima</th>
+              <th>Instansi / Jabatan</th>
+              <th>Nomor WhatsApp</th>
+              <th style="width: 140px;" class="text-center">Kirim Surat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(rec, idx) in bulkRecipients" :key="rec.id">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td class="fw-semibold text-dark">{{ rec.name || 'Penerima ' + (idx + 1) }}</td>
+              <td>{{ rec.company || rec.title || '-' }}</td>
+              <td>
+                <span v-if="rec.phone" class="badge bg-light text-dark border">{{ rec.phone }}</span>
+                <span v-else class="text-danger small fst-italic">Belum ada no HP</span>
+              </td>
+              <td class="text-center">
+                <button
+                  type="button"
+                  class="btn btn-xs btn-success rounded-pill px-3 fw-bold"
+                  :disabled="!rec.phone"
+                  @click="sendWaToRecipient(rec)"
+                >
+                  <i class="bi bi-whatsapp me-1"></i> Kirim WA
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-end border-top pt-3">
+        <button type="button" class="btn btn-light rounded-pill px-4" @click="showBulkBroadcastModal = false">Tutup</button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 3: SINGLE WHATSAPP SENDER (no-print)               -->
+    <!-- ======================================================== -->
+    <div v-if="showWaModal" class="card border-0 shadow-lg rounded-4 p-4 my-4 bg-white border-top border-success border-4 no-print">
       <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
         <h5 class="fw-bold mb-0 text-dark">
           <i class="bi bi-whatsapp text-success me-2"></i> Kirim Surat via WhatsApp
@@ -479,22 +838,16 @@
                 {{ c.name }} - {{ c.company || 'Umum' }} ({{ c.phone || 'Tanpa no hp' }})
               </option>
             </select>
-            <div v-if="selectedContactPhone" class="form-text text-success mt-1 small">
-              <i class="bi bi-check-circle-fill me-1"></i> Nomor Terpilih: <strong>{{ selectedContactPhone }}</strong>
-            </div>
           </div>
-          <div v-else class="text-center py-2">
-            <p class="text-muted small mb-2">Belum ada data kontak di penyimpanan.</p>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" @click="loadSampleContacts">
-              <i class="bi bi-download me-1"></i> Load Contoh Kontak Tim
-            </button>
+          <div v-else class="text-muted small">
+            Belum ada kontak tersimpan. Silakan pilih opsi input manual atau tambah kontak di menu Kontak Tim.
           </div>
         </div>
 
-        <div v-if="waRecipientMode === 'manual'" class="mb-3 bg-light p-3 rounded-3 border">
-          <label class="form-label fw-bold text-dark small">Nomor WhatsApp Tujuan</label>
+        <div v-else class="mb-3 bg-light p-3 rounded-3 border">
+          <label class="form-label fw-bold text-dark small">Nomor Telepon / WhatsApp Tujuan</label>
           <input
-            type="tel"
+            type="text"
             class="form-control form-control-sm border-2"
             v-model="manualPhone"
             placeholder="Contoh: 081234567890 / 6281234567890"
@@ -528,7 +881,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
@@ -538,9 +891,55 @@ export default {
   setup() {
     const store = useStore();
 
+    const suratMode = ref('single'); // 'single' | 'bulk'
+    const isPrintingAll = ref(false);
     const formTab = ref('kop');
     const selectedTemplateId = ref('lamaran');
     const activeTemplateCat = ref('all');
+
+    // Bulk Mail Merge State
+    const activeBulkIndex = ref(0);
+    const showBulkImportModal = ref(false);
+    const showBulkBroadcastModal = ref(false);
+    const bulkImportRawText = ref('');
+
+    const bulkRecipients = ref([
+      {
+        id: 'rec_1',
+        name: 'Budi Santoso, S.E.',
+        title: 'Direktur Keuangan',
+        company: 'PT Reksa Finance Indonesia',
+        phone: '081234567890',
+        number: '001/SK/RK/VIII/2026',
+        notes: ''
+      },
+      {
+        id: 'rec_2',
+        name: 'Rian Prasetyo, S.Kom',
+        title: 'Lead Project Manager',
+        company: 'Studio Kreatif Nusantara',
+        phone: '081398765432',
+        number: '002/SK/RK/VIII/2026',
+        notes: ''
+      },
+      {
+        id: 'rec_3',
+        name: 'Dinda Kirana, M.Ds.',
+        title: 'Head of Product Design',
+        company: 'PT Cipta Visual Kreasi',
+        phone: '085712345678',
+        number: '003/SK/RK/VIII/2026',
+        notes: ''
+      }
+    ]);
+
+    const activeBulkRecipient = computed(() => {
+      if (!bulkRecipients.value.length) return null;
+      if (activeBulkIndex.value >= bulkRecipients.value.length) {
+        return bulkRecipients.value[0];
+      }
+      return bulkRecipients.value[activeBulkIndex.value];
+    });
 
     const templateCategories = [
       { id: 'all', name: 'Semua (12)' },
@@ -551,7 +950,7 @@ export default {
 
     const logoPresets = [
       { id: 'logo_app', name: 'Logo RajinKerja', url: '/logo.svg' },
-      { id: 'logo_garuda', name: 'Lambang Resmi Garuda', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg/200px-Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg.png' },
+      { id: 'logo_garuda', name: 'Lambang Garuda RI', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg/200px-Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg.png' },
       { id: 'logo_corp', name: 'Gedung Korporat', url: 'https://cdn-icons-png.flaticon.com/512/2942/2942821.png' },
       { id: 'logo_tech', name: 'Startup Tech Node', url: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png' },
       { id: 'logo_edu', name: 'Institusi Pendidikan', url: 'https://cdn-icons-png.flaticon.com/512/2997/2997295.png' }
@@ -596,111 +995,111 @@ export default {
         recipientName: 'Pihak yang Berkepentingan',
         recipientTitle: 'Instansi / Perusahaan Terkait',
         recipientAddress: 'Di Tempat',
-        bodyContent: 'Menerangkan dengan sebenarnya bahwa:\n\nNama : Budi Pratama, S.Kom\nJabatan : Lead Frontend Architect\nMasa Kerja : 15 Januari 2023 s.d 30 Juli 2026\n\nAdalah benar pernah bekerja di perusahaan kami dan telah menyelesaikan masa tugasnya dengan predikat sangat baik.\n\nSelama bertugas, yang bersangkutan senantiasa menunjukkan dedikasi, loyalitas, integritas, dan profesionalisme yang tinggi. Kami mengucapkan terima kasih atas segala kontribusi positif yang telah diberikan dan mendoakan kesuksesan dalam karir selanjutnya.'
+        bodyContent: 'Menerangkan dengan sebenarnya bahwa:\n\nNama : {{nama}}\nJabatan : {{jabatan}}\nMasa Kerja : 15 Januari 2023 s.d 30 Juli 2026\n\nAdalah benar pernah bekerja di perusahaan kami dan telah menyelesaikan masa tugasnya dengan predikat sangat baik.\n\nSelama bertugas, yang bersangkutan senantiasa menunjukkan dedikasi, loyalitas, integritas, dan profesionalisme yang tinggi. Kami mengucapkan terima kasih atas segala kontribusi positif yang telah diberikan dan mendoakan kesuksesan dalam karir selanjutnya.'
       },
       {
         id: 'penawaran',
-        title: 'Surat Penawaran Kerjasama Bisnis',
+        title: 'Surat Penawaran Bisnis (Quotation)',
         category: 'bisnis',
         categoryLabel: 'Bisnis',
-        icon: 'bi-journal-check',
-        desc: 'Penawaran proposal & jasa proyek',
-        subject: 'Penawaran Kerjasama Pengembangan Web & E-Commerce',
-        recipientName: 'Bapak Direktur Operasional',
-        recipientTitle: 'PT Mitra Sukses Bersama',
-        recipientAddress: 'Gedung Wisma Niaga Lt. 8, Jakarta',
-        bodyContent: 'Merujuk pada pembicaraan sebelumnya mengenai rencana digitalisasi proses bisnis dan sistem kasir perusahaan Bapak/Ibu, dengan ini kami mengajukan penawaran jasa pengembangan sistem aplikasi web dan mobile.\n\nAdapun lingkup kerja sama yang kami tawarkan meliputi:\n1. Desain UI/UX Modern & Responsif\n2. Modul Inventori, POS, & Pembayaran Digital\n3. Pemeliharaan dan Garansi Sistem selama 6 Bulan\n\nDetail rincian anggaran biaya (RAB) dan jadwal implementasi telah kami lampirkan dalam dokumen proposal terpisah. Kami berharap dapat menjalin kemitraan yang produktif dan saling menguntungkan.'
+        icon: 'bi-tags-fill',
+        desc: 'Penawaran jasa, produk & harga',
+        subject: 'Penawaran Jasa Pembuatan Aplikasi & Sistem Dashboard OS',
+        recipientName: 'Bapak / Ibu Direktur Utama',
+        recipientTitle: 'Direksi Manajemen',
+        recipientAddress: 'PT Solusi Bisnis Abadi\nJakarta',
+        bodyContent: 'Sehubungan dengan kebutuhan peningkatan efisiensi digital operasional perusahaan Bapak/Ibu, bersama surat ini kami dari RajinKerja Studio bermaksud mengajukan proposal penawaran jasa pembuatan Web Application & Management Task OS.\n\nAdapun rincian paket layanan yang kami tawarkan meliputi:\n1. Desain Antarmuka UI/UX Modern & Responsif\n2. Modul Manajemen Proyek, Kanban & Pelacakan Arus Kas\n3. Integrasi Single Page Application & Local Offline Persistence\n4. Garansi Pemeliharaan & Pelatihan Tim selama 3 Bulan\n\nTotal investasi yang kami tawarkan adalah sebesar Rp 25.000.000 (Dua Puluh Lima Juta Rupiah). Kami sangat terbuka untuk berdiskusi lebih lanjut guna menyesuaikan spesifikasi kebutuhan Bapak/Ibu.'
       },
       {
         id: 'izin',
-        title: 'Surat Izin Tidak Masuk Kerja',
+        title: 'Surat Permohonan Izin / Cuti',
         category: 'karir',
-        categoryLabel: 'Pribadi',
-        icon: 'bi-calendar-x-fill',
-        desc: 'Izin sakit / keperluan mendesak',
-        subject: 'Permohonan Izin Tidak Masuk Kerja',
-        recipientName: 'Bapak / Ibu Supervisor',
+        categoryLabel: 'Karier',
+        icon: 'bi-calendar-check-fill',
+        desc: 'Izin tidak masuk kerja / sakit',
+        subject: 'Permohonan Izin Tidak Masuk Kerja (Cuti Tahunan)',
+        recipientName: 'Bapak / Ibu Manager Operasional',
         recipientTitle: 'Head of Division',
-        recipientAddress: 'Di Tempat',
-        bodyContent: 'Dengan ini saya bermaksud memberitahukan bahwa saya tidak dapat hadir untuk bekerja pada hari ini dikarenakan kondisi kesehatan yang kurang baik dan membutuhkan istirahat sesuai dengan anjuran dokter (surat keterangan dokter terlampir).\n\nTerkait tugas dan koordinasi proyek yang sedang berjalan, saya telah mendelegasikan beberapa penanganan mendesak kepada rekan tim sehingga operasional harian tetap dapat berjalan lancar.\n\nDemikian permohonan izin ini saya sampaikan. Atas perhatian dan pengertian Bapak/Ibu, saya ucapkan terima kasih.'
+        recipientAddress: 'PT RajinKerja Studio\nDi Tempat',
+        bodyContent: 'Melalui surat ini, saya yang bertanda tangan di bawah ini mengajukan permohonan izin cuti kerja selama 3 (tiga) hari kerja, terhitung mulai tanggal 20 Agustus 2026 sampai dengan 22 Agustus 2026 karena adanya keperluan keluarga di luar kota.\n\nSelama masa cuti tersebut, tugas harian darurat telah saya koordinasikan dengan rekan satu tim. Saya akan kembali masuk bekerja seperti biasa pada hari Senin, 25 Agustus 2026.\n\nDemikian surat permohonan izin ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.'
       },
       {
         id: 'undangan',
-        title: 'Surat Undangan Rapat Resmi',
+        title: 'Surat Undangan Rapat / Dinas',
         category: 'dinas',
         categoryLabel: 'Kedinasan',
-        icon: 'bi-people-fill',
-        desc: 'Undangan rapat koordinasi & evaluasi',
-        subject: 'Undangan Rapat Koordinasi Kuartal III Tahun 2026',
-        recipientName: 'Bapak / Ibu Seluruh Kepala Divisi',
-        recipientTitle: 'Internal Team Leaders',
-        recipientAddress: 'Di Lingkungan Perusahaan',
-        bodyContent: 'Mengharap dengan hormat kehadiran Bapak/Ibu dalam Rapat Koordinasi dan Evaluasi Target Kerja Kuartal III yang akan diselenggarakan pada:\n\nHari / Tanggal : Senin, 17 Agustus 2026\nWaktu : Pukul 09.00 WIB s.d Selesai\nTempat : Ruang Rapat Utama & Daring via Google Meet\nAgenda : 1. Evaluasi Capaian Semester I\n         2. Rencana Strategis & Roadmap Produk Baru\n\nMengingat pentingnya agenda pembahasan ini, dimohon kehadiran Bapak/Ibu tepat waktu.'
+        icon: 'bi-envelope-paper-fill',
+        desc: 'Undangan rapat formal kedinasan',
+        subject: 'Undangan Rapat Koordinasi Evaluasi Kinerja Triwulan III',
+        recipientName: 'Bapak / Ibu Kepala Divisi & Unit Kerja',
+        recipientTitle: 'Pimpinan Bagian',
+        recipientAddress: 'Di Tempat',
+        bodyContent: 'Dalam rangka meninjau pencapaian target kinerja serta penyusunan Rencana Anggaran Biaya (RAB) kuartal mendatang, bersama surat ini kami mengundang Bapak/Ibu untuk hadir pada rapat koordinasi yang akan diselenggarakan pada:\n\nHari / Tanggal : Kamis, 27 Agustus 2026\nWaktu : 09.00 WIB - 12.00 WIB\nTempat : Ruang Rapat Utama Lt. 3 / Zoom Meeting Room\nAgenda : Evaluasi Proyek & Finalisasi Anggaran Kerja\n\nMengingat pentingnya agenda pembahasan tersebut, dimohon kehadiran Bapak/Ibu tepat pada waktunya dengan membawa berkas laporan divisi masing-masing.'
       },
       {
         id: 'tugas',
-        title: 'Surat Perintah Tugas Dinas (SPTD)',
+        title: 'Surat Perintah Tugas (SPTD)',
         category: 'dinas',
         categoryLabel: 'Kedinasan',
         icon: 'bi-card-checklist',
-        desc: 'Penugasan dinas luar kota & audit',
-        subject: 'Surat Perintah Tugas Pelaksanaan Audit Lapangan',
+        desc: 'Surat penugasan resmi dinas',
+        subject: 'Surat Perintah Tugas Dinas Lapangan (SPTD)',
         recipientName: 'Pegawai yang Ditugaskan',
-        recipientTitle: 'Tim Teknis & IT Auditor',
+        recipientTitle: 'Tim Implementasi Lapangan',
         recipientAddress: 'Di Tempat',
-        bodyContent: 'Pimpinan PT RajinKerja Global Indonesia memberikan perintah kerja dinas kepada pegawai berikut untuk melaksanakan tugas audit infrastruktur server dan pelatihan pengguna di Kantor Cabang Surabaya:\n\n1. Arif Permana, S.Kom (Ketua Tim Teknis)\n2. Budi Santoso (System Administrator)\n\nWaktu Pelaksanaan: 20 Agustus 2026 s.d 24 Agustus 2026.\n\nSegala biaya akomodasi dan perjalanan dinas dibebankan pada anggaran operasional perusahaan. Setelah selesai melaksanakan tugas, tim diwajibkan menyusun laporan pertanggungjawaban tertulis.'
+        bodyContent: 'Berdasarkan agenda implementasi sistem teknologi terpadu, Direksi memberikan perintah penugasan kepada:\n\nNama : {{nama}}\nJabatan : {{jabatan}}\nInstansi : {{instansi}}\n\nUntuk melaksanakan tugas peninjauan infrastruktur dan sosialisasi modul digital di lokasi proyek per tanggal 1 s.d 5 September 2026. Biaya akomodasi dan transportasi ditanggung oleh anggaran operasional dinas sesuai ketentuan yang berlaku.\n\nSetelah melaksanakan tugas ini, yang bersangkutan diwajibkan menyusun dan menyerahkan laporan pertanggungjawaban kegiatan tertulis paling lambat 3 (tiga) hari kerja setelah masa penugasan berakhir.'
       },
       {
         id: 'kuasa',
-        title: 'Surat Kuasa Resmi',
+        title: 'Surat Kuasa Kedinasan / Khusus',
         category: 'dinas',
-        categoryLabel: 'Legal',
+        categoryLabel: 'Kedinasan',
         icon: 'bi-shield-shaded',
         desc: 'Pemberian kuasa perwakilan resmi',
-        subject: 'Surat Kuasa Pengambilan Dokumen & Legalitas',
-        recipientName: 'Pihak Berwenang / Instansi Terkait',
-        recipientTitle: 'Bagian Legalitas & Perizinan',
+        subject: 'Surat Kuasa Khusus Pengambilan Dokumen & Legalitas',
+        recipientName: 'Pihak yang Berwenang / Terkait',
+        recipientTitle: 'Instansi Pelayanan Publik',
         recipientAddress: 'Di Tempat',
-        bodyContent: 'Saya yang bertanda tangan di bawah ini:\nNama : Arif Permana\nNIK : 3175000000000001\nJabatan : Direktur Utama\n\nDengan ini memberikan kuasa penuh kepada:\nNama : Rian Prasetyo\nNIK : 3276000000000002\nJabatan : Manager Operasional\n\nUntuk melakukan pengurusan, penandatanganan berkas, serta pengambilan dokumen perizinan resmi perusahaan di instansi terkait.\n\nDemikian surat kuasa ini dibuat dengan sebenarnya tanpa ada paksaan dari pihak manapun untuk dipergunakan sebagaimana mestinya.'
+        bodyContent: 'Saya yang bertanda tangan di bawah ini memberikan kuasa penuh kepada:\n\nNama Penerima Kuasa : {{nama}}\nJabatan : {{jabatan}}\nAlamat : {{instansi}}\n\nUntuk mewakili, mengurus, menandatangani, dan mengambil seluruh berkas dokumen legalitas perusahaan di hadapan notaris / instansi berwenang terkait perpanjangan izin usaha operasional.\n\nSurat kuasa ini dibuat dengan sebenarnya tanpa ada paksaan dari pihak manapun untuk dipergunakan sebagaimana mestinya.'
       },
       {
         id: 'rekomendasi',
-        title: 'Surat Rekomendasi Kerja / Beasiswa',
+        title: 'Surat Rekomendasi Kerja / Studi',
         category: 'karir',
         categoryLabel: 'Karier',
         icon: 'bi-star-fill',
-        desc: 'Rekomendasi kinerja staf berprestasi',
-        subject: 'Surat Rekomendasi Profesional & Akademik',
-        recipientName: 'Komite Seleksi / Recruitment Team',
-        recipientTitle: 'Selection Committee',
+        desc: 'Rekomendasi beasiswa / karir',
+        subject: 'Surat Rekomendasi Profesional & Prestasi',
+        recipientName: 'Komite Seleksi / HRD Recruiter',
+        recipientTitle: 'Admission & Selection Committee',
         recipientAddress: 'Di Tempat',
-        bodyContent: 'Saya memberikan rekomendasi setinggi-tingginya kepada Saudara Budi Pratama untuk posisi pekerjaan atau program beasiswa yang sedang diajukan.\n\nSelama 3 tahun bekerja di bawah supervisi saya, beliau membuktikan diri sebagai individu yang sangat kompeten, memiliki pemikiran analitis tajam, serta integritas kerja yang patut diteladani. Beliau selalu menyelesaikan setiap target proyek sebelum tenggat waktu dengan kualitas luar biasa.\n\nSaya meyakini beliau akan memberikan kontribusi signifikan di institusi Bapak/Ibu.'
+        bodyContent: 'Dengan ini saya memberikan rekomendasi penuh kepada {{nama}} (Jabatan: {{jabatan}}) atas kinerjanya yang luar biasa selama bertugas di bawah supervisi saya di {{instansi}}.\n\nYang bersangkutan memiliki keahlian teknis yang sangat solid, integritas kerja tinggi, serta kemampuan problem-solving yang cepat dan inovatif. Saya meyakini bahwa {{nama}} akan mampu memberikan kontribusi unggul bagi institusi / program yang Bapak/Ibu pimpin.'
       },
       {
         id: 'pernyataan',
-        title: 'Surat Pernyataan Resmi Bermaterai',
+        title: 'Surat Pernyataan Bermaterai',
         category: 'dinas',
-        categoryLabel: 'Resmi',
-        icon: 'bi-patch-check-fill',
-        desc: 'Pernyataan kebenaran data & fakta',
-        subject: 'Surat Pernyataan Kebenaran Dokumen',
-        recipientName: 'Pihak Penyelenggara',
-        recipientTitle: 'Panitia Seleksi',
-        recipientAddress: 'Di Tempat',
-        bodyContent: 'Menyatakan dengan sesungguhnya bahwa seluruh data, berkas identitas, riwayat pekerjaan, dan sertifikat kompetensi yang saya lampirkan adalah benar adanya dan dapat dipertanggungjawabkan keabsahannya secara hukum.\n\nApabila di kemudian hari ditemukan ketidaksesuaian atau pemalsuan data, saya bersedia menerima sanksi hukum sesuai ketentuan peraturan perundang-undangan yang berlaku.'
+        categoryLabel: 'Kedinasan',
+        icon: 'bi-journal-check',
+        desc: 'Pernyataan kesanggupan / resmi',
+        subject: 'Surat Pernyataan Kesanggupan Mematuhi Ketentuan Perusahaan',
+        recipientName: 'Manajemen Perusahaan',
+        recipientTitle: 'Dewan Direksi',
+        recipientAddress: 'PT RajinKerja Global Indonesia\nDi Tempat',
+        bodyContent: 'Saya yang bertanda tangan di bawah ini menyatakan dengan sesungguhnya bahwa:\n\n1. Sanggup mematuhi seluruh peraturan perusahaan dan menjaga kerahasiaan data (Non-Disclosure Agreement).\n2. Tidak akan menyalahgunakan fasilitas dan akses sistem kantor untuk kepentingan pribadi.\n3. Bersedia menerima sanksi sesuai hukum yang berlaku apabila terbukti melanggar pernyataan ini.\n\nDemikian surat pernyataan ini saya buat dengan sadar dan penuh rasa tanggung jawab.'
       },
       {
-        id: 'sp',
-        title: 'Surat Peringatan Karyawan (SP)',
-        category: 'dinas',
+        id: 'peringatan',
+        title: 'Surat Peringatan (SP-1)',
+        category: 'karir',
         categoryLabel: 'HRD',
         icon: 'bi-exclamation-triangle-fill',
-        desc: 'Peringatan disiplin & evaluasi kinerja',
-        subject: 'Surat Peringatan Pertama (SP-1)',
-        recipientName: 'Saudara Karyawan Terkait',
+        desc: 'Surat teguran kedisiplinan kerja',
+        subject: 'Surat Peringatan Pertama (SP-1) - Kedisiplinan Kerja',
+        recipientName: 'Karyawan yang Bersangkutan',
         recipientTitle: 'Staff Operasional',
         recipientAddress: 'Di Tempat',
-        bodyContent: 'Berdasarkan catatan kehadiran dan evaluasi kedisiplinan kerja bulan Juli 2026, dengan ini manajemen mengeluarkan Surat Peringatan Pertama (SP-1) sehubungan dengan ketidakhadiran tanpa keterangan sebanyak 3 kali berturut-turut.\n\nSurat peringatan ini berlaku selama 6 (enam) bulan ke depan. Kami berharap Saudara dapat memperbaiki kedisiplinan serta menunjukkan peningkatan komitmen kerja.'
+        bodyContent: 'Surat Peringatan Pertama (SP-1) ini diterbitkan kepada {{nama}} (Jabatan: {{jabatan}}) sehubungan dengan adanya pelanggaran disiplin kerja berupa ketidakhadiran tanpa keterangan sah selama 3 hari berturut-turut.\n\nKami berharap saudara dapat segera melakukan perbaikan kinerja dan disiplin kerja. Apabila dalam masa 6 (enam) bulan ke depan terulang pelanggaran serupa, maka perusahaan akan menerbitkan sanksi Surat Peringatan tingkat selanjutnya sesuai SOP ketenagakerjaan.'
       },
       {
         id: 'mou',
@@ -708,43 +1107,52 @@ export default {
         category: 'bisnis',
         categoryLabel: 'Bisnis',
         icon: 'bi-handshake-fill',
-        desc: 'Nota kesepahaman kemitraan usaha',
-        subject: 'Nota Kesepahaman Kerjasama Kemitraan Strategis',
-        recipientName: 'Pimpinan Pihak Kedua',
+        desc: 'Memorandum of Understanding',
+        subject: 'Nota Kesepahaman (MoU) Kemitraan Strategis Digital',
+        recipientName: 'Pimpinan Mitra Kerjasama',
         recipientTitle: 'Managing Partner',
-        recipientAddress: 'Di Tempat',
-        bodyContent: 'Kedua belah pihak telah bersepakat untuk mengadakan perjanjian kemitraan strategis dalam rangka pengembangan dan pemasaran produk bersama dengan ketentuan umum sebagai berikut:\n\n1. Pihak Pertama bertindak sebagai penyedia infrastruktur teknologi dan aplikasi.\n2. Pihak Kedua bertindak sebagai penyedia jaringan distribusi dan hubungan masyarakat.\n3. Pembagian hasil operasional akan diatur dalam perjanjian teknis tersendiri.\n\nPerjanjian ini dibuat dalam rangkap 2 (dua) bermaterai cukup dan memiliki kekuatan hukum yang sama.'
+        recipientAddress: 'PT Mitra Sinergi Bersama\nJakarta',
+        bodyContent: 'Pada hari ini sepakat mengadakan nota kesepahaman (MoU) mengenai kolaborasi integrasi sistem aplikasi produktivitas dan penyediaan solusi workflow cerdas.\n\nKedua belah pihak sepakat untuk saling mendukung sumber daya, pertukaran keahlian teknis, dan promosi bersama guna menciptakan ekosistem kerja digital yang lebih produktif dan efisien di Indonesia.'
       }
     ];
 
     const letter = ref({
       showKop: true,
-      kopName: 'PT RAJINKERJA GLOBAL INDONESIA',
-      kopSubname: 'PUSAT SISTEM OPERASI PRODUKTIVITAS KERJA',
-      kopAddress: 'Gedung Menara RajinKerja Lt. 12, Jl. Jend. Sudirman No. 88 Jakarta | Telp: (021) 555-1234',
-      kopContact: 'Email: corporate@rajinkerja.id | Website: www.rajinkerja.id',
       kopLogo: '',
       kopLogoPreset: 'logo_app',
       kopLogoPosition: 'left',
       kopLogoHeight: 60,
       kopStyle: 'double',
+      kopName: 'PT RAJINKERJA GLOBAL INDONESIA',
+      kopSubname: 'DIGITAL TASK OS & WORKFLOW PLATFORM',
+      kopAddress: 'Gedung Menara Rajin Lt. 15, Jl. Jend. Sudirman Kav. 88, Jakarta Selatan 12190',
+      kopContact: 'Telp: (021) 555-8899 | Email: halo@rajinkerja.id | Website: www.rajinkerja.id',
       number: '001/SK/RK/VIII/2026',
       city: 'Jakarta',
       date: new Date().toISOString().split('T')[0],
-      attachment: '1 (Satu) Berkas',
-      subject: letterTemplates[0].subject,
+      attachment: '1 (Satu) Berkas Lampiran',
+      subject: 'Surat Penawaran Kerjasama Pengembangan Sistem',
+      recipientName: 'Bapak Budi Santoso, S.E.',
+      recipientTitle: 'Direktur Utama',
+      recipientAddress: 'PT Solusi Mandiri Nusantara\nJakarta Selatan',
       salutation: 'Dengan hormat,',
-      recipientName: letterTemplates[0].recipientName,
-      recipientTitle: letterTemplates[0].recipientTitle,
-      recipientAddress: letterTemplates[0].recipientAddress,
-      bodyContent: letterTemplates[0].bodyContent,
+      bodyContent: 'Sehubungan dengan rencana peningkatan efisiensi kerja tim dan operasional perusahaan Bapak/Ibu, bersama surat ini kami bermaksud mengajukan penawaran kerjasama implementasi RajinKerja Task OS.\n\nSistem kami telah dirancang dengan standar performa modern yang mencakup modul To-Do Kanban, Rencana Anggaran Biaya (RAB), Pelacak Arus Kas, dan Pembuat Surat & CV ATS otomatis.\n\nBesar harapan kami untuk dapat mempresentasikan keunggulan sistem ini di hadapan tim manajemen Bapak/Ibu. Atas perhatian dan kerjasamanya, kami sampaikan terima kasih.',
       closing: 'Hormat kami,',
       signerName: 'Arif Permana, S.Kom',
       signerTitle: 'Direktur Utama',
-      signerNip: 'NIK. 2026-RK-001',
+      signerNip: 'NIK: RK-2026-001',
       signaturePosition: 'right',
       signatureImage: '',
-      ccText: ''
+      ccText: '1. Direktur Operasional\n2. Arsip Bagian Sekretariat'
+    });
+
+    const currentLogoSrc = computed(() => {
+      if (letter.value.kopLogo) return letter.value.kopLogo;
+      if (letter.value.kopLogoPreset) {
+        const found = logoPresets.find(p => p.id === letter.value.kopLogoPreset);
+        return found ? found.url : '';
+      }
+      return '';
     });
 
     const filteredTemplates = computed(() => {
@@ -753,75 +1161,74 @@ export default {
     });
 
     const activeTemplateTitle = computed(() => {
-      const tmpl = letterTemplates.find(t => t.id === selectedTemplateId.value);
-      return tmpl ? tmpl.title : 'Surat Resmi';
-    });
-
-    const currentLogoSrc = computed(() => {
-      if (letter.value.kopLogo) return letter.value.kopLogo;
-      if (letter.value.kopLogoPreset) {
-        const found = logoPresets.find(p => p.id === letter.value.kopLogoPreset);
-        return found ? found.url : '/logo.svg';
-      }
-      return '/logo.svg';
+      const found = letterTemplates.find(t => t.id === selectedTemplateId.value);
+      return found ? found.title : 'Kustom Surat';
     });
 
     const formattedDate = computed(() => {
-      if (!letter.value.date) return '6 Agustus 2026';
-      const d = new Date(letter.value.date);
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      if (!letter.value.date) return '';
+      try {
+        const d = new Date(letter.value.date);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch {
+        return letter.value.date;
+      }
     });
 
     const bodyParagraphs = computed(() => {
       if (!letter.value.bodyContent) return [];
-      return letter.value.bodyContent
-        .split(/\n\s*\n/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
+      return letter.value.bodyContent.split(/\n\n+/).filter(p => p.trim().length > 0);
     });
 
-    const isListParagraph = (p) => {
-      if (!p) return false;
-      const trimmed = p.trim();
-      return (
-        trimmed.startsWith('-') ||
-        trimmed.startsWith('•') ||
-        trimmed.startsWith('*') ||
-        /^\d+[\.\)]/.test(trimmed) ||
-        trimmed.includes('Hari / Tanggal') ||
-        trimmed.startsWith('Nama :') ||
-        trimmed.startsWith('Waktu') ||
-        trimmed.startsWith('Tempat')
-      );
+    const isListParagraph = (para) => {
+      const trimmed = para.trim();
+      return trimmed.startsWith('1.') || trimmed.startsWith('2.') || trimmed.startsWith('3.') ||
+             trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('Nama :') || trimmed.startsWith('Hari /');
     };
 
-    const insertNewParagraph = () => {
-      if (!letter.value.bodyContent) {
-        letter.value.bodyContent = 'Paragraf baru...';
-      } else {
-        letter.value.bodyContent += '\n\nParagraf baru...';
-      }
+    // Dynamic Variable Replacer for Bulk Mail Merge
+    const renderDynamicText = (text, recipient) => {
+      if (!text) return '';
+      if (!recipient) return text;
+      let res = text;
+      res = res.replace(/\{\{\s*nama\s*\}\}/gi, recipient.name || letter.value.recipientName || 'Bapak/Ibu');
+      res = res.replace(/\{\{\s*jabatan\s*\}\}/gi, recipient.title || letter.value.recipientTitle || 'Pimpinan');
+      res = res.replace(/\{\{\s*instansi\s*\}\}/gi, recipient.company || letter.value.recipientAddress || 'Di Tempat');
+      res = res.replace(/\{\{\s*perusahaan\s*\}\}/gi, recipient.company || 'Di Tempat');
+      res = res.replace(/\{\{\s*alamat\s*\}\}/gi, recipient.company || letter.value.recipientAddress || 'Di Tempat');
+      res = res.replace(/\{\{\s*nomor_surat\s*\}\}/gi, recipient.number || letter.value.number || '');
+      res = res.replace(/\{\{\s*tanggal\s*\}\}/gi, formattedDate.value || '');
+      res = res.replace(/\{\{\s*catatan\s*\}\}/gi, recipient.notes || '');
+      return res;
     };
 
-    const insertBulletList = () => {
-      if (!letter.value.bodyContent) {
-        letter.value.bodyContent = '1. Poin pertama\n2. Poin kedua';
-      } else {
-        letter.value.bodyContent += '\n\n1. Poin pertama\n2. Poin kedua';
-      }
+    const getRenderedBodyParagraphs = (recipient) => {
+      if (!letter.value.bodyContent) return [];
+      const rendered = renderDynamicText(letter.value.bodyContent, recipient);
+      return rendered.split(/\n\n+/).filter(p => p.trim().length > 0);
+    };
+
+    const insertPlaceholder = (tag) => {
+      letter.value.bodyContent += ' ' + tag;
     };
 
     const selectTemplate = (tmpl) => {
       selectedTemplateId.value = tmpl.id;
       letter.value.subject = tmpl.subject;
-      letter.value.recipientName = tmpl.recipientName;
-      letter.value.recipientTitle = tmpl.recipientTitle;
-      letter.value.recipientAddress = tmpl.recipientAddress;
+      if (suratMode.value === 'single') {
+        letter.value.recipientName = tmpl.recipientName;
+        letter.value.recipientTitle = tmpl.recipientTitle;
+        letter.value.recipientAddress = tmpl.recipientAddress;
+      }
       letter.value.bodyContent = tmpl.bodyContent;
 
-      sendOnDeviceNotification('📄 Template Surat Dimuat', {
-        body: `Template "${tmpl.title}" siap diedit.`,
-        type: 'info'
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Template "${tmpl.title}" Dimuat!`,
+        showConfirmButton: false,
+        timer: 1800
       });
     };
 
@@ -829,50 +1236,246 @@ export default {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (evt) => {
-        letter.value.kopLogo = evt.target.result;
+      reader.onload = (ev) => {
+        letter.value.kopLogo = ev.target.result;
         letter.value.kopLogoPreset = '';
-        sendOnDeviceNotification('🖼️ Logo Kop Terpasang', {
-          body: 'Logo custom berhasil dimuat ke Kop Surat.',
-          type: 'success'
-        });
       };
       reader.readAsDataURL(file);
     };
 
     const applyLogoPreset = (preset) => {
-      letter.value.kopLogo = '';
       letter.value.kopLogoPreset = preset.id;
+      letter.value.kopLogo = '';
     };
 
     const onSignSelected = (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (evt) => {
-        letter.value.signatureImage = evt.target.result;
-        sendOnDeviceNotification('✍️ Tanda Tangan Terpasang', {
-          body: 'Gambar tanda tangan digital berhasil dimuat.',
-          type: 'success'
-        });
+      reader.onload = (ev) => {
+        letter.value.signatureImage = ev.target.result;
       };
       reader.readAsDataURL(file);
     };
 
-    const saveLetter = () => {
-      store.dispatch('addSurat', { ...letter.value });
-      sendOnDeviceNotification('✉️ Surat Tersimpan', {
-        body: `Surat "${letter.value.subject}" berhasil disimpan di memori lokal.`,
-        type: 'success'
+    const insertNewParagraph = () => {
+      letter.value.bodyContent += '\n\nParagraf baru telah ditambahkan di sini...';
+    };
+
+    const insertBulletList = () => {
+      letter.value.bodyContent += '\n\n1. Poin rincian pertama\n2. Poin rincian kedua\n3. Poin rincian ketiga';
+    };
+
+    // Bulk Management Functions
+    const addRecipientRow = () => {
+      const nextNum = bulkRecipients.value.length + 1;
+      const padded = String(nextNum).padStart(3, '0');
+      bulkRecipients.value.push({
+        id: 'rec_' + Date.now() + Math.random().toString(36).substr(2, 4),
+        name: 'Penerima Baru ' + nextNum,
+        title: 'Jabatan / Posisi',
+        company: 'Instansi / Perusahaan',
+        phone: '',
+        number: `${padded}/SK/RK/VIII/2026`,
+        notes: ''
+      });
+      activeBulkIndex.value = bulkRecipients.value.length - 1;
+    };
+
+    const removeRecipientRow = (idx) => {
+      if (bulkRecipients.value.length <= 1) return;
+      bulkRecipients.value.splice(idx, 1);
+      if (activeBulkIndex.value >= bulkRecipients.value.length) {
+        activeBulkIndex.value = bulkRecipients.value.length - 1;
+      }
+    };
+
+    const clearBulkRecipients = () => {
+      Swal.fire({
+        title: 'Reset Daftar Penerima?',
+        text: 'Semua baris penerima akan dikosongkan kembali menjadi 1 penerima default.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Reset',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          bulkRecipients.value = [
+            {
+              id: 'rec_1',
+              name: 'Bapak / Ibu Pimpinan',
+              title: 'Direktur Utama',
+              company: 'PT Mitra Utama',
+              phone: '',
+              number: '001/SK/RK/VIII/2026',
+              notes: ''
+            }
+          ];
+          activeBulkIndex.value = 0;
+        }
       });
     };
 
-    const printLetter = () => {
-      saveLetter();
-      window.print();
+    const autoGenerateLetterNumbers = () => {
+      const basePrefix = prompt('Masukkan Format Awalan Nomor Surat (Contoh: SK/RK/VIII/2026):', 'SK/RK/VIII/2026');
+      if (!basePrefix) return;
+      bulkRecipients.value.forEach((rec, idx) => {
+        const num = String(idx + 1).padStart(3, '0');
+        rec.number = `${num}/${basePrefix}`;
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Nomor Surat Terbentuk!',
+        text: `Berhasil membuat ${bulkRecipients.value.length} nomor surat urut otomatis.`,
+        timer: 1500,
+        showConfirmButton: false
+      });
     };
 
-    // WhatsApp Export Feature
+    const importFromContacts = () => {
+      const contacts = store.getters.getContacts || [];
+      if (!contacts.length) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Kontak Tim Masih Kosong',
+          text: 'Belum ada kontak tersimpan di menu Kontak Tim & WA. Anda bisa menambahkannya di sana atau gunakan fitur Paste CSV.'
+        });
+        return;
+      }
+
+      let count = 0;
+      contacts.forEach(c => {
+        const nextNum = bulkRecipients.value.length + 1;
+        const padded = String(nextNum).padStart(3, '0');
+        bulkRecipients.value.push({
+          id: 'rec_' + Date.now() + Math.random().toString(36).substr(2, 4),
+          name: c.name || 'Penerima',
+          title: c.category || 'Client / Mitra',
+          company: c.company || c.address || 'Di Tempat',
+          phone: c.phone || '',
+          number: `${padded}/SK/RK/VIII/2026`,
+          notes: c.notes || ''
+        });
+        count++;
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Kontak Diimpor!',
+        text: `Berhasil memasukkan ${count} kontak ke daftar penerima surat massal.`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    };
+
+    const processBulkImport = () => {
+      if (!bulkImportRawText.value.trim()) {
+        Swal.fire('Data Kosong', 'Silakan tempel teks daftar penerima terlebih dahulu.', 'warning');
+        return;
+      }
+
+      const lines = bulkImportRawText.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let added = 0;
+
+      lines.forEach((line, idx) => {
+        // split by comma or tab or pipe
+        const parts = line.split(/[,|\t]+/).map(p => p.trim());
+        if (parts.length > 0 && parts[0]) {
+          const nextNum = bulkRecipients.value.length + 1;
+          const padded = String(nextNum).padStart(3, '0');
+          bulkRecipients.value.push({
+            id: 'rec_' + (Date.now() + idx) + Math.random().toString(36).substr(2, 4),
+            name: parts[0] || 'Penerima ' + nextNum,
+            title: parts[1] || 'Jabatan',
+            company: parts[2] || 'Instansi / PT',
+            phone: parts[3] || '',
+            number: parts[4] || `${padded}/SK/RK/VIII/2026`,
+            notes: parts[5] || ''
+          });
+          added++;
+        }
+      });
+
+      showBulkImportModal.value = false;
+      bulkImportRawText.value = '';
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil Menambahkan!',
+        text: `${added} penerima telah ditambahkan ke daftar bulk mail merge.`
+      });
+    };
+
+    const openBulkBroadcastModal = () => {
+      showBulkBroadcastModal.value = true;
+    };
+
+    const sendWaToRecipient = (rec) => {
+      if (!rec.phone) return;
+      let cleanPhone = rec.phone.replace(/[^0-9]/g, '');
+      if (cleanPhone.startsWith('08')) {
+        cleanPhone = '628' + cleanPhone.slice(2);
+      }
+      const renderedBody = renderDynamicText(letter.value.bodyContent, rec);
+      const text = `*${letter.value.subject || 'Surat Resmi'}*\n` +
+        `Nomor: ${rec.number || letter.value.number}\n` +
+        `Kepada Yth. *${rec.name}* (${rec.title || ''})\n` +
+        `${rec.company || ''}\n\n` +
+        `${letter.value.salutation || 'Dengan hormat,'}\n\n` +
+        `${renderedBody}\n\n` +
+        `${letter.value.closing || 'Hormat kami,'}\n` +
+        `*${letter.value.signerName}*\n${letter.value.signerTitle}`;
+
+      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    };
+
+    // Print Logic (Single vs Bulk)
+    const printCurrentMode = () => {
+      if (suratMode.value === 'bulk') {
+        isPrintingAll.value = true;
+        nextTick(() => {
+          window.print();
+          setTimeout(() => {
+            isPrintingAll.value = false;
+          }, 1500);
+        });
+      } else {
+        window.print();
+      }
+    };
+
+    const printLetter = () => {
+      printCurrentMode();
+    };
+
+    const saveLetter = () => {
+      const suratObj = {
+        id: 'surat_' + Date.now(),
+        title: letter.value.subject || 'Surat Resmi',
+        recipient: suratMode.value === 'bulk' ? `Massal (${bulkRecipients.value.length} Penerima)` : letter.value.recipientName,
+        date: letter.value.date,
+        number: letter.value.number,
+        mode: suratMode.value,
+        data: JSON.parse(JSON.stringify(letter.value)),
+        bulkRecipients: JSON.parse(JSON.stringify(bulkRecipients.value))
+      };
+
+      store.dispatch('addSurat', suratObj);
+      sendOnDeviceNotification('Surat Berhasil Disimpan', {
+        body: `Dokumen "${letter.value.subject}" berhasil disimpan ke sistem arsip persuratan.`
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Surat Tersimpan!',
+        text: 'Naskah surat dan pengaturan kop telah disimpan ke dalam arsip.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    };
+
+    // WhatsApp Single Modal
     const showWaModal = ref(false);
     const waRecipientMode = ref('contact');
     const selectedContactId = ref('');
@@ -882,20 +1485,27 @@ export default {
 
     const contactsList = computed(() => store.getters.getContacts || []);
 
-    const generatedWaText = computed(() => {
-      const kopText = letter.value.showKop
-        ? `*${letter.value.kopName || 'PT RAJINKERJA GLOBAL INDONESIA'}*\n${letter.value.kopAddress || ''}\n------------------------------------------\n`
-        : '';
-      return `${kopText}*SURAT RESMI: ${letter.value.subject || 'Surat Menyurat'}*\nNomor: ${letter.value.number || '-'}\nTanggal: ${letter.value.city || 'Jakarta'}, ${formattedDate.value}\n\nKepada Yth.\n*${letter.value.recipientName || 'Bapak / Ibu Pimpinan'}*\n${letter.value.recipientAddress || 'Di Tempat'}\n\n${letter.value.salutation || 'Dengan hormat,'}\n\n${letter.value.bodyContent || ''}\n\n${letter.value.closing || 'Hormat Kami,'}\n*${letter.value.signerName || ''}*\n_${letter.value.signerTitle || ''}_`;
-    });
+    const buildDefaultWaMessage = () => {
+      const body = letter.value.bodyContent || '';
+      return `*${letter.value.subject || 'Surat Resmi'}*\n` +
+        `Nomor: ${letter.value.number || '-'}\n` +
+        `Kepada Yth. *${letter.value.recipientName || 'Bapak/Ibu'}*\n` +
+        `${letter.value.recipientTitle ? letter.value.recipientTitle + '\n' : ''}` +
+        `${letter.value.recipientAddress ? letter.value.recipientAddress + '\n' : ''}\n` +
+        `${letter.value.salutation || 'Dengan hormat,'}\n\n` +
+        `${body}\n\n` +
+        `${letter.value.closing || 'Hormat Kami,'}\n` +
+        `*${letter.value.signerName || 'Pimpinan'}*\n` +
+        `${letter.value.signerTitle || ''}`;
+    };
 
     const openWaModal = () => {
-      showWaModal.value = true;
-      waCustomMessage.value = generatedWaText.value;
-      if (contactsList.value.length > 0 && !selectedContactId.value) {
+      waCustomMessage.value = buildDefaultWaMessage();
+      if (contactsList.value.length > 0) {
         selectedContactId.value = contactsList.value[0].id;
-        onSelectContact();
+        selectedContactPhone.value = contactsList.value[0].phone || '';
       }
+      showWaModal.value = true;
     };
 
     const closeWaModal = () => {
@@ -903,188 +1513,146 @@ export default {
     };
 
     const resetWaMessage = () => {
-      waCustomMessage.value = generatedWaText.value;
+      waCustomMessage.value = buildDefaultWaMessage();
     };
 
     const onSelectContact = () => {
-      const contact = contactsList.value.find(c => c.id === selectedContactId.value);
-      if (contact) {
-        selectedContactPhone.value = contact.phone || '';
-        if (contact.name && (!letter.value.recipientName || letter.value.recipientName === 'Bapak / Ibu Pimpinan HRD')) {
-          letter.value.recipientName = contact.name;
-        }
-      } else {
-        selectedContactPhone.value = '';
-      }
-    };
-
-    const loadSampleContacts = () => {
-      store.dispatch('loadSampleData');
-      sendOnDeviceNotification('👥 Kontak Dimuat', {
-        body: 'Sampel Kontak Tim & Clients berhasil dimuat.',
-        type: 'success'
-      });
-      if (contactsList.value.length > 0) {
-        selectedContactId.value = contactsList.value[0].id;
-        onSelectContact();
+      const found = contactsList.value.find(c => c.id === selectedContactId.value);
+      if (found) {
+        selectedContactPhone.value = found.phone || '';
       }
     };
 
     const sendWhatsApp = () => {
       let targetPhone = waRecipientMode.value === 'contact' ? selectedContactPhone.value : manualPhone.value;
-
       if (!targetPhone) {
-        sendOnDeviceNotification('⚠️ Nomor WA Kosong', {
-          body: 'Silakan masukan atau pilih nomor WhatsApp tujuan terlebih dahulu.',
-          type: 'warning'
+        Swal.fire({
+          icon: 'warning',
+          title: 'Nomor WhatsApp Kosong',
+          text: 'Silakan pilih kontak yang memiliki nomor HP atau masukkan nomor secara manual.'
         });
         return;
       }
 
-      let clean = targetPhone.replace(/\D/g, '');
-      if (clean.startsWith('0')) {
-        clean = '62' + clean.slice(1);
+      let clean = targetPhone.replace(/[^0-9]/g, '');
+      if (clean.startsWith('08')) {
+        clean = '628' + clean.slice(2);
+      } else if (clean.startsWith('+62')) {
+        clean = clean.slice(1);
       }
 
-      const encodedText = encodeURIComponent(waCustomMessage.value);
-      const url = `https://wa.me/${clean}?text=${encodedText}`;
-
-      saveLetter();
+      const text = encodeURIComponent(waCustomMessage.value);
+      const url = `https://wa.me/${clean}?text=${text}`;
       window.open(url, '_blank');
       showWaModal.value = false;
-
-      sendOnDeviceNotification('💬 Mengirim ke WhatsApp', {
-        body: `Membuka WhatsApp untuk mengirim surat ke nomor ${clean}`,
-        type: 'success'
-      });
     };
 
     const copyWaMessage = () => {
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(waCustomMessage.value);
-        sendOnDeviceNotification('📋 Teks Disalin', {
-          body: 'Pesan surat berhasil disalin ke clipboard.',
-          type: 'info'
+        navigator.clipboard.writeText(waCustomMessage.value).then(() => {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Teks Surat Disalin!',
+            showConfirmButton: false,
+            timer: 1500
+          });
         });
       }
     };
 
+    // JSON Export / Import
     const suratJsonInput = ref(null);
 
     const exportSuratJson = () => {
-      try {
-        const payload = {
-          app: 'RajinKerja',
-          type: 'surat_backup',
-          version: '2.5',
-          exportDate: new Date().toISOString(),
-          letter: letter.value,
-          selectedTemplateId: selectedTemplateId.value,
-          suratList: store.getters.getSuratList || []
-        };
-        const jsonStr = JSON.stringify(payload, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const subjectSlug = (letter.value.subject || 'Surat').replace(/[^a-zA-Z0-9]/g, '_');
-        link.download = `Surat_${subjectSlug}_${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      const payload = {
+        app: 'RajinKerja.id',
+        module: 'SuratBuilder',
+        suratMode: suratMode.value,
+        exportedAt: new Date().toISOString(),
+        letter: letter.value,
+        bulkRecipients: bulkRecipients.value,
+        selectedTemplateId: selectedTemplateId.value
+      };
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Export Surat Berhasil!',
-          text: 'Data Surat resmi & logo kop berhasil diunduh dalam format JSON.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Gagal Export JSON',
-          text: err.message
-        });
-      }
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `surat-rajinkerja-${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'JSON Berhasil Diunduh!',
+        text: 'Berkas cadangan data surat & kop berhasil diekspor.',
+        timer: 1800,
+        showConfirmButton: false
+      });
     };
 
     const triggerImportSuratJson = () => {
       if (suratJsonInput.value) {
-        suratJsonInput.value.value = '';
         suratJsonInput.value.click();
       }
     };
 
-    const onSuratJsonSelected = (event) => {
-      const file = event.target.files[0];
+    const onSuratJsonSelected = (e) => {
+      const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (ev) => {
         try {
-          const parsed = JSON.parse(e.target.result);
-          const incomingLetter = parsed.letter || (parsed.subject ? parsed : null);
-
-          if (!incomingLetter && !(parsed.suratList && parsed.suratList.length)) {
-            Swal.fire({
-              icon: 'warning',
-              title: 'Format Surat Tidak Ditemukan',
-              text: 'Berkas JSON ini tidak memiliki struktur data surat yang valid.'
-            });
-            return;
-          }
+          const parsed = JSON.parse(ev.target.result);
+          const incomingLetter = parsed.letter || parsed;
 
           Swal.fire({
-            title: 'Pulihkan Data Surat & Kop?',
+            title: 'Muat Data Surat?',
             html: `
               <div class="text-start p-2 bg-light rounded border mb-2 small">
-                <p class="mb-1"><strong>Perihal:</strong> ${incomingLetter?.subject || 'Koleksi Surat'}</p>
-                <p class="mb-1"><strong>Penerima:</strong> ${incomingLetter?.recipientName || '-'}</p>
-                <p class="mb-0"><strong>Kop:</strong> ${incomingLetter?.kopName || '-'}</p>
+                <p class="mb-1"><strong>Perihal:</strong> ${incomingLetter.subject || '-'}</p>
+                <p class="mb-1"><strong>Instansi:</strong> ${incomingLetter.kopName || '-'}</p>
+                <p class="mb-0"><strong>Penerima:</strong> ${parsed.bulkRecipients ? parsed.bulkRecipients.length + ' Orang (Bulk)' : (incomingLetter.recipientName || '-')}</p>
               </div>
-              <p class="small text-muted mb-0">Apakah Anda ingin memuat data surat dan kop ini ke editor?</p>
+              <p class="small text-muted mb-0">Apakah Anda ingin memuat data surat ini ke editor?</p>
             `,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Ya, Muat Data Surat',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#0d6efd',
-            cancelButtonColor: '#6c757d'
+            confirmButtonColor: '#0d6efd'
           }).then((result) => {
             if (result.isConfirmed) {
               if (incomingLetter) {
                 letter.value = { ...letter.value, ...incomingLetter };
-                if (parsed.selectedTemplateId) {
-                  selectedTemplateId.value = parsed.selectedTemplateId;
-                }
+                if (parsed.selectedTemplateId) selectedTemplateId.value = parsed.selectedTemplateId;
+                if (parsed.suratMode) suratMode.value = parsed.suratMode;
               }
-              if (parsed.suratList && Array.isArray(parsed.suratList)) {
-                store.dispatch('importSuratData', parsed.suratList);
+              if (parsed.bulkRecipients && Array.isArray(parsed.bulkRecipients)) {
+                bulkRecipients.value = parsed.bulkRecipients;
               }
               saveLetter();
               Swal.fire({
                 icon: 'success',
                 title: 'Data Surat Berhasil Dimuat!',
-                text: 'Formulir surat & kop telah diperbarui sesuai berkas JSON.',
                 timer: 2000,
                 showConfirmButton: false
               });
             }
           });
         } catch (err) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Berkas Tidak Valid',
-            text: 'Gagal membaca berkas JSON: ' + err.message
-          });
+          Swal.fire('Berkas Tidak Valid', 'Gagal membaca berkas JSON: ' + err.message, 'error');
         }
       };
       reader.readAsText(file);
     };
 
     return {
+      suratMode,
+      isPrintingAll,
       formTab,
       selectedTemplateId,
       activeTemplateCat,
@@ -1098,6 +1666,9 @@ export default {
       formattedDate,
       bodyParagraphs,
       isListParagraph,
+      renderDynamicText,
+      getRenderedBodyParagraphs,
+      insertPlaceholder,
       insertNewParagraph,
       insertBulletList,
       selectTemplate,
@@ -1105,8 +1676,24 @@ export default {
       applyLogoPreset,
       onSignSelected,
       saveLetter,
+      printCurrentMode,
       printLetter,
-      // WA Export
+      // Bulk State & Methods
+      activeBulkIndex,
+      activeBulkRecipient,
+      bulkRecipients,
+      showBulkImportModal,
+      showBulkBroadcastModal,
+      bulkImportRawText,
+      addRecipientRow,
+      removeRecipientRow,
+      clearBulkRecipients,
+      autoGenerateLetterNumbers,
+      importFromContacts,
+      processBulkImport,
+      openBulkBroadcastModal,
+      sendWaToRecipient,
+      // WA Single
       showWaModal,
       waRecipientMode,
       selectedContactId,
@@ -1118,7 +1705,6 @@ export default {
       closeWaModal,
       resetWaMessage,
       onSelectContact,
-      loadSampleContacts,
       sendWhatsApp,
       copyWaMessage,
       suratJsonInput,
@@ -1158,26 +1744,42 @@ export default {
   font-size: 11.5px;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 @media print {
-  body * {
-    visibility: hidden;
-  }
+  .no-print,
   .print-hide {
     display: none !important;
   }
-  #letterPrintArea, #letterPrintArea * {
-    visibility: visible;
-  }
-  #letterPrintArea {
-    position: absolute;
-    left: 0;
-    top: 0;
+
+  .letter-paper {
     width: 100% !important;
     max-width: 100% !important;
+    min-height: auto !important;
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
+  }
+
+  .print-page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-page-break:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .no-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
 </style>
