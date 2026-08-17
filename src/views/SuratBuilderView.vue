@@ -32,8 +32,10 @@
         <button v-if="suratMode === 'single'" class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
           <i class="bi bi-whatsapp me-1"></i> Kirim via WA
         </button>
-        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" @click="printCurrentMode">
-          <i class="bi bi-printer me-1"></i> {{ suratMode === 'bulk' ? 'Cetak Semua Surat (Bulk PDF)' : 'Cetak / Save PDF' }}
+        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+          <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
+          <i v-else class="bi bi-printer"></i>
+          <span>{{ isPdfLoading ? 'Menyiapkan Surat...' : (suratMode === 'bulk' ? 'Buka Semua Surat di Tab Baru (Bulk PDF)' : 'Buka / Cetak Surat di Tab Baru') }}</span>
         </button>
       </div>
     </div>
@@ -497,8 +499,10 @@
               <button v-if="suratMode === 'single'" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" @click="openWaModal">
                 <i class="bi bi-whatsapp me-1"></i> Kirim WA
               </button>
-              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm" @click="printCurrentMode">
-                <i class="bi bi-printer me-1"></i> {{ suratMode === 'bulk' ? 'Cetak Semua (' + bulkRecipients.length + ' Surat)' : 'Cetak / Save PDF' }}
+              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+                <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
+                <i v-else class="bi bi-printer"></i>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : (suratMode === 'bulk' ? 'Buka Semua (' + bulkRecipients.length + ' Surat)' : 'Buka / Cetak Surat') }}</span>
               </button>
             </div>
           </div>
@@ -885,6 +889,7 @@ import { ref, computed, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
+import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
 
 export default {
   name: 'SuratBuilderView',
@@ -1431,18 +1436,41 @@ export default {
     };
 
     // Print Logic (Single vs Bulk)
+    const isPdfLoading = ref(false);
+
     const printCurrentMode = () => {
-      if (suratMode.value === 'bulk') {
-        isPrintingAll.value = true;
-        nextTick(() => {
-          window.print();
-          setTimeout(() => {
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
+
+      setTimeout(() => {
+        if (suratMode.value === 'bulk') {
+          isPrintingAll.value = true;
+          nextTick(() => {
+            const title = `Surat_Massal_${bulkRecipients.value.length}_Penerima`;
+            openPrintableDocumentInNewTab({
+              title,
+              elementId: 'letterBulkPrintArea',
+              customStyles: `
+                .bulk-print-container > .letter-paper { page-break-after: always; break-after: page; margin-bottom: 30px; box-shadow: none !important; }
+              `,
+              autoPrint: true
+            });
             isPrintingAll.value = false;
-          }, 1500);
-        });
-      } else {
-        window.print();
-      }
+            isPdfLoading.value = false;
+          });
+        } else {
+          const title = `Surat_${letter.value.subject || 'Resmi'}_${letter.value.recipientName || 'Penerima'}`;
+          openPrintableDocumentInNewTab({
+            title,
+            elementId: 'letterPrintArea',
+            customStyles: `
+              .letter-paper { box-shadow: none !important; border: none !important; }
+            `,
+            autoPrint: true
+          });
+          isPdfLoading.value = false;
+        }
+      }, 400);
     };
 
     const printLetter = () => {
@@ -1676,6 +1704,7 @@ export default {
       applyLogoPreset,
       onSignSelected,
       saveLetter,
+      isPdfLoading,
       printCurrentMode,
       printLetter,
       // Bulk State & Methods

@@ -20,12 +20,15 @@
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
           <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel
         </button>
-        <button class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold" @click="triggerPrint">
-          <i class="bi bi-printer me-1"></i> Cetak / Print
+        <button class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="triggerPrint">
+          <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-primary" role="status"></span>
+          <i v-else class="bi bi-printer"></i>
+          <span>Cetak Dokumen</span>
         </button>
-        <button class="btn btn-primary px-4 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2 shadow-sm" @click="downloadPDF">
-          <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
-          <span>Unduh PDF (.pdf)</span>
+        <button class="btn btn-primary px-4 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2 shadow-sm" :disabled="isPdfLoading" @click="downloadPDF">
+          <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
+          <i v-else class="bi bi-file-earmark-pdf-fill fs-5"></i>
+          <span>{{ isPdfLoading ? 'Menyiapkan PDF...' : 'Buka PDF di Tab Baru' }}</span>
         </button>
       </div>
     </div>
@@ -346,6 +349,7 @@ import { useRoute } from 'vue-router';
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { openPdfBlobInNewTab, openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
 
 export default {
   name: 'InvoiceView',
@@ -537,117 +541,136 @@ export default {
       }
     };
 
+    const isPdfLoading = ref(false);
+
     const triggerPrint = () => {
-      window.print();
+      isPdfLoading.value = true;
+      setTimeout(() => {
+        openPrintableDocumentInNewTab({
+          title: `Invoice - ${invoice.value.invoiceNumber || 'Inv'}`,
+          elementId: 'invoice-printable-area',
+          autoPrint: true
+        });
+        isPdfLoading.value = false;
+      }, 400);
     };
 
     const downloadPDF = () => {
-      try {
-        const doc = new jsPDF();
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
 
-        // Header
-        doc.setFontSize(20);
-        doc.setTextColor(37, 99, 235);
-        doc.setFont('helvetica', 'bold');
-        doc.text(myBusiness.value.name, 14, 20);
+      setTimeout(() => {
+        try {
+          const doc = new jsPDF();
 
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.setFont('helvetica', 'normal');
-        doc.text(myBusiness.value.tagline, 14, 26);
-        doc.text(`${myBusiness.value.email} | ${myBusiness.value.phone}`, 14, 31);
+          // Header
+          doc.setFontSize(20);
+          doc.setTextColor(37, 99, 235);
+          doc.setFont('helvetica', 'bold');
+          doc.text(myBusiness.value.name, 14, 20);
 
-        // Invoice Badge
-        doc.setFontSize(18);
-        doc.setTextColor(15, 23, 42);
-        doc.setFont('helvetica', 'bold');
-        doc.text('INVOICE', 196, 20, { align: 'right' });
-        doc.setFontSize(12);
-        doc.text(invoice.value.invoiceNumber, 196, 27, { align: 'right' });
+          doc.setFontSize(10);
+          doc.setTextColor(100);
+          doc.setFont('helvetica', 'normal');
+          doc.text(myBusiness.value.tagline, 14, 26);
+          doc.text(`${myBusiness.value.email} | ${myBusiness.value.phone}`, 14, 31);
 
-        doc.line(14, 36, 196, 36);
+          // Invoice Badge
+          doc.setFontSize(18);
+          doc.setTextColor(15, 23, 42);
+          doc.setFont('helvetica', 'bold');
+          doc.text('INVOICE', 196, 20, { align: 'right' });
+          doc.setFontSize(12);
+          doc.text(invoice.value.invoiceNumber, 196, 27, { align: 'right' });
 
-        // Dates & Client info
-        let yPos = 46;
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Diterbitkan Untuk:', 14, yPos);
-        doc.text('Tanggal Terbit:', 130, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formatDate(invoice.value.issueDate), 196, yPos, { align: 'right' });
+          doc.line(14, 36, 196, 36);
 
-        yPos += 6;
-        doc.setFont('helvetica', 'bold');
-        doc.text(invoice.value.clientName || 'Klien Umum', 14, yPos);
-        doc.text('Jatuh Tempo:', 130, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formatDate(invoice.value.dueDate), 196, yPos, { align: 'right' });
+          // Dates & Client info
+          let yPos = 46;
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Diterbitkan Untuk:', 14, yPos);
+          doc.text('Tanggal Terbit:', 130, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(formatDate(invoice.value.issueDate), 196, yPos, { align: 'right' });
 
-        if (invoice.value.clientEmail) {
-          yPos += 5;
-          doc.text(invoice.value.clientEmail, 14, yPos);
-        }
-
-        yPos += 12;
-        // Table Headers
-        doc.setFillColor(241, 245, 249);
-        doc.rect(14, yPos, 182, 8, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.text('#', 16, yPos + 6);
-        doc.text('Deskripsi Layanan', 26, yPos + 6);
-        doc.text('Qty', 130, yPos + 6, { align: 'center' });
-        doc.text('Harga Unit', 160, yPos + 6, { align: 'right' });
-        doc.text('Total', 192, yPos + 6, { align: 'right' });
-
-        yPos += 12;
-        doc.setFont('helvetica', 'normal');
-        invoice.value.items.forEach((item, idx) => {
-          doc.text(String(idx + 1), 16, yPos);
-          doc.text(item.nama || 'Layanan Freelance', 26, yPos);
-          doc.text(String(item.quantity || 1), 130, yPos, { align: 'center' });
-          doc.text(formatCurrency(item.biaya), 160, yPos, { align: 'right' });
-          doc.text(formatCurrency(item.quantity * item.biaya), 192, yPos, { align: 'right' });
-          yPos += 8;
-        });
-
-        doc.line(14, yPos, 196, yPos);
-        yPos += 10;
-
-        // Totals
-        doc.setFont('helvetica', 'bold');
-        doc.text('Subtotal:', 140, yPos);
-        doc.text(formatCurrency(subtotal.value), 192, yPos, { align: 'right' });
-        yPos += 6;
-
-        if (taxAmount.value > 0) {
-          doc.text(`PPN (${invoice.value.taxPercent}%):`, 140, yPos);
-          doc.text(formatCurrency(taxAmount.value), 192, yPos, { align: 'right' });
           yPos += 6;
+          doc.setFont('helvetica', 'bold');
+          doc.text(invoice.value.clientName || 'Klien Umum', 14, yPos);
+          doc.text('Jatuh Tempo:', 130, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(formatDate(invoice.value.dueDate), 196, yPos, { align: 'right' });
+
+          if (invoice.value.clientEmail) {
+            yPos += 5;
+            doc.text(invoice.value.clientEmail, 14, yPos);
+          }
+
+          yPos += 12;
+          // Table Headers
+          doc.setFillColor(241, 245, 249);
+          doc.rect(14, yPos, 182, 8, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.text('#', 16, yPos + 6);
+          doc.text('Deskripsi Layanan', 26, yPos + 6);
+          doc.text('Qty', 130, yPos + 6, { align: 'center' });
+          doc.text('Harga Unit', 160, yPos + 6, { align: 'right' });
+          doc.text('Total', 192, yPos + 6, { align: 'right' });
+
+          yPos += 12;
+          doc.setFont('helvetica', 'normal');
+          invoice.value.items.forEach((item, idx) => {
+            doc.text(String(idx + 1), 16, yPos);
+            doc.text(item.nama || 'Layanan Freelance', 26, yPos);
+            doc.text(String(item.quantity || 1), 130, yPos, { align: 'center' });
+            doc.text(formatCurrency(item.biaya), 160, yPos, { align: 'right' });
+            doc.text(formatCurrency(item.quantity * item.biaya), 192, yPos, { align: 'right' });
+            yPos += 8;
+          });
+
+          doc.line(14, yPos, 196, yPos);
+          yPos += 10;
+
+          // Totals
+          doc.setFont('helvetica', 'bold');
+          doc.text('Subtotal:', 140, yPos);
+          doc.text(formatCurrency(subtotal.value), 192, yPos, { align: 'right' });
+          yPos += 6;
+
+          if (taxAmount.value > 0) {
+            doc.text(`PPN (${invoice.value.taxPercent}%):`, 140, yPos);
+            doc.text(formatCurrency(taxAmount.value), 192, yPos, { align: 'right' });
+            yPos += 6;
+          }
+
+          doc.setFontSize(12);
+          doc.setTextColor(37, 99, 235);
+          doc.text('TOTAL TAGIHAN:', 140, yPos + 2);
+          doc.text(formatCurrency(totalAmount.value), 192, yPos + 2, { align: 'right' });
+
+          yPos += 16;
+          doc.setFontSize(10);
+          doc.setTextColor(15, 23, 42);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Instruksi Pembayaran:', 14, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+
+          const notesLines = doc.splitTextToSize(invoice.value.notes || 'Terima kasih!', 180);
+          doc.text(notesLines, 14, yPos + 6);
+
+          // Open in clean new tab without popup
+          const pdfBlob = doc.output('blob');
+          openPdfBlobInNewTab(pdfBlob, `Invoice_${invoice.value.invoiceNumber}`);
+          showToastMsg('Dokumen PDF berhasil dibuka di tab baru!');
+        } catch (err) {
+          console.error(err);
+          showToastMsg('Gagal memproses PDF, membuka tampilan cetak...');
+          triggerPrint();
+        } finally {
+          isPdfLoading.value = false;
         }
-
-        doc.setFontSize(12);
-        doc.setTextColor(37, 99, 235);
-        doc.text('TOTAL TAGIHAN:', 140, yPos + 2);
-        doc.text(formatCurrency(totalAmount.value), 192, yPos + 2, { align: 'right' });
-
-        yPos += 16;
-        doc.setFontSize(10);
-        doc.setTextColor(15, 23, 42);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Instruksi Pembayaran:', 14, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
-
-        const notesLines = doc.splitTextToSize(invoice.value.notes || 'Terima kasih!', 180);
-        doc.text(notesLines, 14, yPos + 6);
-
-        // Save PDF File
-        doc.save(`${invoice.value.invoiceNumber}_${invoice.value.clientName || 'Klien'}.pdf`);
-        showToastMsg('File PDF Invoice berhasil diunduh!');
-      } catch (err) {
-        console.error(err);
-        showToastMsg('Gagal mengunduh PDF, silakan coba cetak halaman.');
-      }
+      }, 500);
     };
 
     const exportToExcel = () => {
@@ -808,6 +831,7 @@ export default {
       saveInvoiceToStore,
       formatCurrency,
       formatDate,
+      isPdfLoading,
       triggerPrint,
       downloadPDF,
       exportToExcel,

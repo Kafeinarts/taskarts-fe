@@ -29,8 +29,10 @@
         <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveDraft">
           <i class="bi bi-floppy me-1"></i> {{ isSaving ? 'Tersimpan!' : 'Simpan Draft' }}
         </button>
-        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" @click="printCurrentMode">
-          <i class="bi bi-printer me-1"></i> {{ cvMode === 'bulk' ? 'Cetak Semua CV (' + bulkCandidates.length + ' Profil)' : 'Cetak / Save PDF' }}
+        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+          <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
+          <i v-else class="bi bi-printer"></i>
+          <span>{{ isPdfLoading ? 'Menyiapkan CV...' : (cvMode === 'bulk' ? 'Buka Semua CV di Tab Baru (' + bulkCandidates.length + ' Profil)' : 'Buka / Cetak CV di Tab Baru') }}</span>
         </button>
       </div>
     </div>
@@ -435,8 +437,10 @@
               <button v-if="currentStep > 5" class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="currentStep = 1">
                 <i class="bi bi-pencil me-1"></i> Edit Form
               </button>
-              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm" @click="printCurrentMode">
-                <i class="bi bi-printer me-1"></i> {{ cvMode === 'bulk' ? 'Cetak Semua (' + bulkCandidates.length + ' CV)' : 'Cetak / Save PDF' }}
+              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+                <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
+                <i v-else class="bi bi-printer"></i>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : (cvMode === 'bulk' ? 'Buka Semua (' + bulkCandidates.length + ' CV)' : 'Buka / Cetak CV') }}</span>
               </button>
             </div>
           </div>
@@ -515,6 +519,7 @@ import { ref, computed, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
+import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
 import CvLayoutRenderer from '../components/CvLayoutRenderer.vue';
 
 export default {
@@ -1144,18 +1149,38 @@ export default {
     };
 
     // Print Logic
+    const isPdfLoading = ref(false);
+
     const printCurrentMode = () => {
-      if (cvMode.value === 'bulk') {
-        isPrintingAll.value = true;
-        nextTick(() => {
-          window.print();
-          setTimeout(() => {
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
+
+      setTimeout(() => {
+        if (cvMode.value === 'bulk') {
+          isPrintingAll.value = true;
+          nextTick(() => {
+            const title = `Batch_CV_ATS_${bulkCandidates.value.length}_Kandidat`;
+            openPrintableDocumentInNewTab({
+              title,
+              elementId: 'cvBulkPrintArea',
+              customStyles: `
+                .bulk-cv-container > div { page-break-after: always; break-after: page; margin-bottom: 28px; }
+              `,
+              autoPrint: true
+            });
             isPrintingAll.value = false;
-          }, 1500);
-        });
-      } else {
-        window.print();
-      }
+            isPdfLoading.value = false;
+          });
+        } else {
+          const title = `CV_ATS_${singleCv.value.fullName || 'Kandidat'}`;
+          openPrintableDocumentInNewTab({
+            title,
+            elementId: 'cvPrintArea',
+            autoPrint: true
+          });
+          isPdfLoading.value = false;
+        }
+      }, 400);
     };
 
     const printCv = () => {
@@ -1326,6 +1351,7 @@ export default {
       duplicateActiveCandidate,
       removeCandidate,
       processBulkImport,
+      isPdfLoading,
       printCurrentMode,
       printCv,
       saveDraft,

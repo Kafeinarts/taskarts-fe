@@ -161,8 +161,10 @@
               <button @click="downloadImage" class="btn btn-outline-secondary rounded-pill fw-semibold flex-fill py-2 d-flex align-items-center justify-content-center gap-1 small">
                 <i class="bi bi-download"></i> Unduh Foto (PNG)
               </button>
-              <button @click="downloadPdf" class="btn btn-outline-dark rounded-pill fw-semibold flex-fill py-2 d-flex align-items-center justify-content-center gap-1 small">
-                <i class="bi bi-file-earmark-pdf text-danger"></i> Export PDF
+              <button @click="downloadPdf" :disabled="isPdfLoading" class="btn btn-outline-dark rounded-pill fw-semibold flex-fill py-2 d-flex align-items-center justify-content-center gap-1.5 small">
+                <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-danger" role="status"></span>
+                <i v-else class="bi bi-file-earmark-pdf text-danger"></i>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : 'Buka PDF di Tab Baru' }}</span>
               </button>
             </div>
           </div>
@@ -207,6 +209,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
+import { openPdfBlobInNewTab } from '../utils/pdfTabOpener';
 import jsPDF from 'jspdf';
 
 export default {
@@ -366,36 +369,44 @@ export default {
       a.click();
     };
 
+    const isPdfLoading = ref(false);
+
     const downloadPdf = () => {
-      if (!capturedImage.value) return;
+      if (!capturedImage.value || isPdfLoading.value) return;
+      isPdfLoading.value = true;
 
-      try {
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgProps = pdf.getImageProperties(capturedImage.value);
-        const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      setTimeout(() => {
+        try {
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const imgProps = pdf.getImageProperties(capturedImage.value);
+          const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-        pdf.setFontSize(16);
-        pdf.text(docTitle.value, 10, 15);
-        pdf.setFontSize(10);
-        pdf.text(`Dipindai via RajinKerja Camera Scanner - ${new Date().toLocaleString('id-ID')}`, 10, 22);
-
-        pdf.addImage(capturedImage.value, 'PNG', 10, 28, pdfWidth, Math.min(pdfHeight, 240));
-
-        if (docNotes.value) {
+          pdf.setFontSize(16);
+          pdf.text(docTitle.value, 10, 15);
           pdf.setFontSize(10);
-          pdf.text(`Catatan: ${docNotes.value}`, 10, 28 + Math.min(pdfHeight, 240) + 10);
+          pdf.text(`Dipindai via RajinKerja Camera Scanner - ${new Date().toLocaleString('id-ID')}`, 10, 22);
+
+          pdf.addImage(capturedImage.value, 'PNG', 10, 28, pdfWidth, Math.min(pdfHeight, 240));
+
+          if (docNotes.value) {
+            pdf.setFontSize(10);
+            pdf.text(`Catatan: ${docNotes.value}`, 10, 28 + Math.min(pdfHeight, 240) + 10);
+          }
+
+          const pdfBlob = pdf.output('blob');
+          openPdfBlobInNewTab(pdfBlob, docTitle.value || 'Dokumen_Pindaian');
+
+          sendOnDeviceNotification('📄 Dokumen PDF Terbuka', {
+            body: 'Berkas PDF pindaian berhasil dibuka pada tab baru.',
+            type: 'success'
+          });
+        } catch (e) {
+          console.error('PDF export error:', e);
+        } finally {
+          isPdfLoading.value = false;
         }
-
-        pdf.save(`${docTitle.value.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
-
-        sendOnDeviceNotification('📄 Export PDF Berhasil', {
-          body: 'Berkas PDF pindaian dokumen telah terunduh.',
-          type: 'success'
-        });
-      } catch (e) {
-        console.error('PDF export error:', e);
-      }
+      }, 400);
     };
 
     onMounted(() => {
@@ -425,6 +436,7 @@ export default {
       handleFileUpload,
       saveToNotes,
       downloadImage,
+      isPdfLoading,
       downloadPdf
     };
   }

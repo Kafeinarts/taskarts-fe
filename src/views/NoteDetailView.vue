@@ -189,9 +189,10 @@
             <i class="bi bi-clipboard"></i>
             <span>Salin Teks</span>
           </button>
-          <button class="btn btn-action-btn border rounded-3 px-3 py-2 fw-semibold d-flex align-items-center gap-2" @click="printNote">
-            <i class="bi bi-printer"></i>
-            <span>Cetak / PDF</span>
+          <button class="btn btn-action-btn border rounded-3 px-3 py-2 fw-semibold d-flex align-items-center gap-2" :disabled="isPdfLoading" @click="printNote">
+            <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-primary" role="status"></span>
+            <i v-else class="bi bi-printer"></i>
+            <span>{{ isPdfLoading ? 'Menyiapkan...' : 'Buka / Cetak PDF' }}</span>
           </button>
           <button class="btn btn-warning rounded-3 px-3 py-2 fw-semibold d-flex align-items-center gap-2 text-dark shadow-sm" @click="openEditor">
             <i class="bi bi-pencil-square"></i>
@@ -205,7 +206,7 @@
       </div>
 
       <!-- MAIN NOTE DETAIL CARD -->
-      <div v-if="note" class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 main-note-card">
+      <div v-if="note" id="notePrintableCard" class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 main-note-card">
         <!-- Top Colored Accent Bar matching Note Theme -->
         <div class="note-top-color-bar" :style="{ backgroundColor: note.color || '#2563eb' }"></div>
 
@@ -412,6 +413,7 @@ import { useStore } from 'vuex';
 import Swal from 'sweetalert2';
 import MarkdownViewer from '../components/MarkdownViewer.vue';
 import { MERMAID_PRESETS, initMermaid } from '../utils/markdownRenderer';
+import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
 
 export default {
   name: 'NoteDetailView',
@@ -491,8 +493,19 @@ export default {
       showToast('Isi catatan berhasil disalin ke clipboard!');
     };
 
+    const isPdfLoading = ref(false);
+
     const printNote = () => {
-      window.print();
+      if (!note.value || isPdfLoading.value) return;
+      isPdfLoading.value = true;
+      setTimeout(() => {
+        openPrintableDocumentInNewTab({
+          title: `Catatan - ${note.value.title || 'Untitled'}`,
+          elementId: 'notePrintableCard',
+          autoPrint: true
+        });
+        isPdfLoading.value = false;
+      }, 400);
     };
 
     const openEditor = () => {
@@ -673,6 +686,7 @@ export default {
       getWordCount,
       formatDate,
       copyContent,
+      isPdfLoading,
       printNote,
       isEditing,
       editForm,

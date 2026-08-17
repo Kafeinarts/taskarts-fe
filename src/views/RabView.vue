@@ -29,8 +29,10 @@
         <button class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold" @click="exportToExcel">
           <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i> Export Excel (.xlsx)
         </button>
-        <button class="btn btn-outline-dark px-3 py-2 rounded-3 fw-semibold" @click="exportToPdf">
-          <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> Export PDF / Cetak Laporan
+        <button class="btn btn-outline-dark px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="exportToPdf">
+          <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-danger" role="status"></span>
+          <i v-else class="bi bi-file-earmark-pdf-fill text-danger"></i>
+          <span>{{ isPdfLoading ? 'Menyiapkan Laporan...' : 'Buka PDF di Tab Baru' }}</span>
         </button>
         <button class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm" @click="openForm('rab')">
           <i class="bi bi-plus-circle-fill me-1"></i> + Tambah Item RAB
@@ -403,7 +405,7 @@
 
       <!-- MAIN GROUPED RAB TABLE -->
       <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle mb-0">
+        <table id="rabMainTablePrint" class="table table-bordered table-hover align-middle mb-0">
           <thead class="table-dark text-white text-center align-middle">
             <tr>
               <th rowspan="2" style="width: 45px;">No</th>
@@ -713,6 +715,7 @@ import { ref, reactive, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
 
 export default {
   name: 'RabView',
@@ -1205,13 +1208,90 @@ export default {
     };
 
     // EXPORT TO PDF / PRINT PDF WITH EXPORTER META & SIGNATURE SLOTS
+    const isPdfLoading = ref(false);
+
     const exportToPdf = () => {
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
       activeTab.value = 'rab_items';
-      isPrinting.value = true;
+
       setTimeout(() => {
-        window.print();
-        isPrinting.value = false;
-      }, 300);
+        const printHeaderHtml = `
+          <div class="text-center mb-4">
+            <h2 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">LAPORAN RENCANA ANGGARAN BIAYA & KAS KEGIATAN</h2>
+            <p class="mb-0 text-secondary fw-semibold">Dokumen Anggaran Resmi • Tanggal Cetak: ${exporterMeta.tanggalCetak || formattedToday.value}</p>
+            <hr class="my-3 border-2 border-dark" />
+          </div>
+          <div class="row g-2 mb-4 p-3 bg-light rounded border text-dark small">
+            <div class="col-6">
+              <div><strong>Exported By (Diajukan Oleh):</strong> ${exporterMeta.namaExporter || 'Arip (Bendahara)'}</div>
+              <div><strong>Jabatan Exporter:</strong> ${exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB'}</div>
+            </div>
+            <div class="col-6 text-end">
+              <div><strong>Disetujui Oleh:</strong> ${exporterMeta.namaPenyetuju || 'Ketua Panitia / Manajer Proyek'}</div>
+              <div><strong>Lokasi & Tanggal:</strong> ${exporterMeta.lokasiTanggal || 'Jakarta, ' + formattedToday.value}</div>
+            </div>
+          </div>
+        `;
+
+        const summaryCardsHtml = `
+          <div class="row g-3 mb-4 text-dark">
+            <div class="col-3">
+              <div class="p-3 border rounded bg-light text-center">
+                <div class="small text-muted fw-bold">TOTAL TARGET RAB</div>
+                <div class="fs-6 fw-bold text-primary">Rp ${formatRupiah(totalRabAmount.value)}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-3 border rounded bg-light text-center">
+                <div class="small text-muted fw-bold">TOTAL PEMASUKAN</div>
+                <div class="fs-6 fw-bold text-success">Rp ${formatRupiah(totalRabIncome.value)}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-3 border rounded bg-light text-center">
+                <div class="small text-muted fw-bold">TOTAL PENGELUARAN</div>
+                <div class="fs-6 fw-bold text-danger">Rp ${formatRupiah(totalRabExpense.value)}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-3 border rounded bg-light text-center">
+                <div class="small text-muted fw-bold">SISA KAS AKTUAL</div>
+                <div class="fs-6 fw-bold text-dark">Rp ${formatRupiah(sisaRabAktual.value)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const tableEl = document.getElementById('rabMainTablePrint');
+        const tableHtml = tableEl ? tableEl.outerHTML : '';
+
+        const signatureHtml = `
+          <div class="mt-5 pt-4">
+            <div class="d-flex justify-content-between align-items-start px-4 text-dark">
+              <div class="text-center" style="width: 260px;">
+                <p class="mb-1 text-muted fw-bold">Disiapkan & Diajukan oleh,</p>
+                <p class="fw-bold mb-5 text-dark">${exporterMeta.jabatanExporter || 'Bendahara / Pengelola RAB'}</p>
+                <div class="border-bottom border-dark my-2 mx-auto" style="width: 200px;"></div>
+                <p class="fw-bold mb-0 text-dark">${exporterMeta.namaExporter || '( Nama Exporter / Bendahara )'}</p>
+              </div>
+              <div class="text-center" style="width: 260px;">
+                <p class="mb-1 text-muted fw-bold">Mengetahui & Disetujui oleh,</p>
+                <p class="fw-bold mb-5 text-dark">Ketua / Manajer Proyek</p>
+                <div class="border-bottom border-dark my-2 mx-auto" style="width: 200px;"></div>
+                <p class="fw-bold mb-0 text-dark">${exporterMeta.namaPenyetuju || '( Nama Penyetuju / Ketua )'}</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        openPrintableDocumentInNewTab({
+          title: `Laporan_RAB_${exporterMeta.lokasiTanggal || 'RajinKerja'}`,
+          rawHtml: printHeaderHtml + summaryCardsHtml + tableHtml + signatureHtml,
+          autoPrint: true
+        });
+        isPdfLoading.value = false;
+      }, 400);
     };
 
     // DEDICATED JSON BACKUP & RECOVERY FOR RAB
@@ -1426,6 +1506,7 @@ export default {
       deleteExpenseConfirm,
       triggerLoadSampleData,
       exportToExcel,
+      isPdfLoading,
       exportToPdf,
       rabJsonFileInput,
       exportRabJson,
