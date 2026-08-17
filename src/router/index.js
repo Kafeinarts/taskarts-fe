@@ -203,4 +203,12 @@ const router = createRouter({
   }
 });
 
+router.onError((error) => {
+  const pattern = /Loading chunk (\d)+ failed/g;
+  const isChunkLoadFailed = error.name === 'ChunkLoadError' || error.message.includes('Loading chunk') || error.message.includes('Failed to fetch');
+  if (isChunkLoadFailed) {
+    window.location.reload();
+  }
+});
+
 export default router;

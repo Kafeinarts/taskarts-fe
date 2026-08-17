@@ -10,6 +10,64 @@ const DEFAULT_HABITS = [];
 const DEFAULT_NOTES = [];
 const DEFAULT_EVENTS = [];
 
+const SAMPLE_NOTES = [
+  {
+    id: 'n_sample_1',
+    title: '🚀 Alur Kerja Deployment & CI/CD Pipeline',
+    content: `# Dokumentasi Deployment Sistem
+
+Berikut alur otomatisasi proses deployment dari commit repository hingga server production:
+
+\`\`\`mermaid
+flowchart TD
+    Dev([💻 Developer Commit]) --> Git[Push ke GitHub Branch Main]
+    Git --> CI{Trigger GitHub Actions}
+    CI -- Unit Test Pass --> Build[📦 Build Vite Production Assets]
+    CI -- Test Fail --> Alert[❌ Kirim Notifikasi Slack/WA]
+    Build --> TestQA[🧪 Automated E2E Testing]
+    TestQA --> Docker[🐳 Build & Push Docker Image]
+    Docker --> Deploy([🚀 Deploy ke Server Production])
+\`\`\`
+
+### 📌 Checklist Rilis:
+- [x] Verifikasi environment variable di production
+- [x] Migrasi skema database aman
+- [ ] Pantau error logging selama 1 jam pertama`,
+    color: '#bae6fd',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'n_sample_2',
+    title: '💡 Rancangan Arsitektur Aplikasi & Data Flow',
+    content: `# Arsitektur Frontend & State Management
+
+Diagram interaksi komponen sistem, Vuex Store, dan LocalStorage:
+
+\`\`\`mermaid
+sequenceDiagram
+    autonumber
+    actor User as 👤 Pengguna
+    participant View as 🖥️ StickyNotesView
+    participant Store as 🏬 Vuex Store
+    participant DB as 💾 LocalStorage
+
+    User->>View: Buka Halaman Notes & Scratchpad
+    View->>Store: Dispatch getNotes()
+    Store->>DB: Read JSON from ft_notes
+    DB-->>Store: Return notes array
+    Store-->>View: Render List & Mermaid SVGs
+    User->>View: Tulis Note Baru & Sisipkan Gambar
+    View->>Store: Dispatch addNote(payload)
+    Store->>DB: Save to ft_notes (Local-First)
+    DB-->>View: Realtime Sync & Tampilkan Toast
+\`\`\`
+
+> Catatan: Semua data disimpan secara privat di browser tanpa ketergantungan server eksternal.`,
+    color: '#fef08a',
+    updatedAt: new Date().toISOString()
+  }
+];
+
 // Sample data generator for users who click "Load Sample Data"
 const SAMPLE_CONTACTS = [
   {
@@ -1083,7 +1141,7 @@ export default createStore({
       state.tasks = [...SAMPLE_TASKS];
       state.transactions = [...SAMPLE_TRANSACTIONS];
       state.habits = [...SAMPLE_HABITS];
-      state.notes = [...DEFAULT_NOTES];
+      state.notes = [...SAMPLE_NOTES];
       state.events = [...DEFAULT_EVENTS];
       state.rabItems = [...SAMPLE_RAB_ITEMS];
       state.rabIncomes = [...SAMPLE_RAB_INCOMES];

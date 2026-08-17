@@ -3,34 +3,39 @@
     <!-- MODE 1: MAIN LIST VIEW PAGE -->
     <div v-if="activeMode === 'list'">
       <!-- Header Banner -->
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border header-gradient-banner">
         <div>
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill">RajinKerja Notes & Docs</span>
-            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill d-flex align-items-center gap-1">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1.5 rounded-pill">
+              <i class="bi bi-journal-bookmark-fill me-1"></i> RajinKerja Notes & Docs
+            </span>
+            <span class="badge bg-purple-subtle text-purple fw-bold px-3 py-1.5 rounded-pill">
+              <i class="bi bi-diagram-3-fill me-1"></i> Mermaid Supported
+            </span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill d-flex align-items-center gap-1">
               <span class="pulse-dot bg-success"></span> Auto-Save Active
             </span>
           </div>
-          <h2 class="fw-bold mb-1 text-dark">📝 Notes, Scratchpad & Bulk Documenter</h2>
-          <p class="text-muted mb-0">Kelola catatan harian, dokumentasi proyek, dan coretan ide karyawan dengan auto-save interval otomatis.</p>
+          <h2 class="fw-extrabold mb-1 text-dark">📝 Notes, Scratchpad & Flowchart Docs</h2>
+          <p class="text-muted mb-0">Catat ide, sisipkan gambar visual, rancang flowchart Mermaid, dan kelola dokumentasi proyek dengan tersimpan rapi.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
           <button
-            class="btn btn-warning text-dark px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2 border shadow-sm"
+            class="btn btn-warning text-dark px-3 py-2.5 rounded-3 fw-bold d-flex align-items-center gap-2 border shadow-sm"
             @click="toggleMode('scratchpad')"
           >
             <i class="bi bi-sticky-fill fs-5"></i>
             <span>Quick Scratchpad</span>
           </button>
           <button
-            class="btn btn-primary text-white px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2 border shadow-sm"
+            class="btn btn-primary text-white px-3 py-2.5 rounded-3 fw-bold d-flex align-items-center gap-2 border shadow-sm"
             @click="toggleMode('editor')"
           >
             <i class="bi bi-pencil-square fs-5"></i>
             <span>Buat Note Baru</span>
           </button>
           <button
-            class="btn btn-success text-white px-3 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2 border shadow-sm"
+            class="btn btn-success text-white px-3 py-2.5 rounded-3 fw-bold d-flex align-items-center gap-2 border shadow-sm"
             @click="toggleMode('bulk')"
           >
             <i class="bi bi-ui-checks-grid fs-5"></i>
@@ -48,7 +53,7 @@
               <input
                 type="text"
                 class="form-control bg-light border-start-0 ps-0"
-                placeholder="Cari judul atau kata kunci catatan..."
+                placeholder="Cari judul, kata kunci, gambar, atau diagram..."
                 v-model="searchQuery"
               />
               <button v-if="searchQuery" class="btn btn-light border" @click="searchQuery = ''">
@@ -58,7 +63,7 @@
           </div>
 
           <div class="col-md-7 d-flex align-items-center justify-content-md-end gap-2 overflow-auto">
-            <span class="small fw-semibold text-muted d-none d-sm-inline">Filter:</span>
+            <span class="small fw-semibold text-muted d-none d-sm-inline">Filter Warna:</span>
             <button
               class="btn btn-sm rounded-pill px-3"
               :class="selectedColor === 'all' ? 'btn-dark' : 'btn-light border'"
@@ -94,19 +99,20 @@
       </div>
 
       <!-- NOTES GRID -->
-      <div class="row g-3" v-if="filteredNotes.length > 0">
+      <div class="row g-4" v-if="filteredNotes.length > 0">
         <div v-for="note in filteredNotes" :key="note.id" class="col-md-6 col-lg-4">
           <div class="card border-0 shadow-sm rounded-4 h-100 p-4 hover-card position-relative sticky-note-card" :style="{ '--note-accent': note.color || '#fef08a' }">
             <div class="note-color-stripe" :style="{ backgroundColor: note.color || '#fef08a' }"></div>
+            
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
                 <input type="checkbox" class="form-check-input mt-0 cursor-pointer" :value="note.id" v-model="selectedIds" />
-                <router-link :to="'/notes/' + note.id" class="text-decoration-none">
-                  <h5 class="fw-bold mb-0 text-break hover-title note-card-title">{{ note.title || 'Untitled Note' }}</h5>
+                <router-link :to="'/notes/' + note.id" class="text-decoration-none text-truncate">
+                  <h5 class="fw-bold mb-0 text-truncate hover-title note-card-title">{{ note.title || 'Untitled Note' }}</h5>
                 </router-link>
               </div>
-              <div class="d-flex gap-1">
-                <router-link :to="'/notes/' + note.id" class="btn btn-xs btn-action-icon rounded-circle shadow-sm" title="Buka Detail Preview Halaman Baru">
+              <div class="d-flex gap-1 flex-shrink-0">
+                <router-link :to="'/notes/' + note.id" class="btn btn-xs btn-action-icon rounded-circle shadow-sm" title="Buka Detail Full Preview">
                   <i class="bi bi-arrows-angle-expand"></i>
                 </router-link>
                 <button class="btn btn-xs btn-action-icon rounded-circle shadow-sm" @click="copyNoteContent(note.content)" title="Salin Isi Catatan">
@@ -121,15 +127,27 @@
               </div>
             </div>
 
-            <!-- Live Rendered Markdown Content -->
+            <!-- Badges for special content (Mermaid / Images) -->
+            <div class="d-flex gap-1.5 mb-2 flex-wrap" v-if="hasMermaid(note.content) || hasImages(note.content)">
+              <span v-if="hasMermaid(note.content)" class="badge bg-indigo-subtle text-indigo px-2 py-0.5 rounded-pill font-monospace" style="font-size: 10px;">
+                <i class="bi bi-diagram-3 me-1"></i> Flowchart
+              </span>
+              <span v-if="hasImages(note.content)" class="badge bg-info-subtle text-info-emphasis px-2 py-0.5 rounded-pill font-monospace" style="font-size: 10px;">
+                <i class="bi bi-image me-1"></i> Image
+              </span>
+            </div>
+
+            <!-- Live Rendered Markdown Content with Rich Viewer -->
             <router-link :to="'/notes/' + note.id" class="text-decoration-none d-block">
-              <div class="markdown-preview note-card-preview small flex-grow-1 my-2 border-top border-bottom py-2 overflow-hidden" style="max-height: 200px;" v-html="renderMarkdown(note.content)"></div>
+              <div class="note-card-preview-wrapper flex-grow-1 my-2 border-top border-bottom py-2 overflow-hidden" style="max-height: 220px;">
+                <MarkdownViewer :content="getExcerpt(note.content)" />
+              </div>
             </router-link>
 
             <div class="d-flex justify-content-between align-items-center mt-2 pt-2 note-card-footer">
               <span><i class="bi bi-clock me-1"></i>{{ formatDate(note.updatedAt) }}</span>
-              <router-link :to="'/notes/' + note.id" class="btn btn-xs btn-preview-badge rounded-pill px-2.5 py-1 fw-semibold text-decoration-none">
-                <i class="bi bi-eye me-1"></i> Detail Preview
+              <router-link :to="'/notes/' + note.id" class="btn btn-xs btn-preview-badge rounded-pill px-3 py-1 fw-semibold text-decoration-none">
+                <i class="bi bi-eye me-1"></i> Buka Detail
               </router-link>
             </div>
           </div>
@@ -138,73 +156,94 @@
 
       <!-- Empty State -->
       <div v-else class="text-center py-5 bg-white rounded-4 shadow-sm border my-4">
-        <i class="bi bi-journal-text display-1 text-muted opacity-50"></i>
-        <h4 class="fw-bold mt-3 text-dark">Belum Ada Catatan</h4>
-        <p class="text-muted">Buat note pertama Anda atau gunakan fitur Bulk Multi-Form untuk menambah banyak catatan sekaligus.</p>
+        <div class="empty-state-icon mb-3">📝</div>
+        <h4 class="fw-bold mt-2 text-dark">Belum Ada Catatan</h4>
+        <p class="text-muted max-w-md mx-auto">Buat note pertama Anda, sisipkan gambar dokumentasi, rancang diagram alur Mermaid, atau gunakan Bulk Form untuk menambah banyak catatan sekaligus.</p>
         <div class="d-flex justify-content-center gap-2 mt-3">
           <button class="btn btn-primary rounded-3 px-4 py-2 fw-semibold" @click="toggleMode('editor')">
             <i class="bi bi-plus-lg me-1"></i> Buat Note Baru
           </button>
-          <button class="btn btn-success rounded-3 px-4 py-2 fw-semibold" @click="toggleMode('bulk')">
-            <i class="bi bi-ui-checks-grid me-1"></i> Bulk Form Input
+          <button class="btn btn-warning rounded-3 px-4 py-2 fw-semibold text-dark" @click="toggleMode('scratchpad')">
+            <i class="bi bi-sticky-fill me-1"></i> Quick Scratchpad
           </button>
         </div>
       </div>
     </div>
 
-    <!-- MODE 2: QUICK SCRATCHPAD FULL NEW PAGE VIEW (HALAMAN BARU) -->
+    <!-- MODE 2: QUICK SCRATCHPAD FULL PAGE VIEW (HALAMAN BARU) -->
     <div v-else-if="activeMode === 'scratchpad'">
       <div class="bg-white p-4 rounded-4 shadow-sm border mb-4">
-        <div class="d-flex align-items-center gap-3">
-          <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="activeMode = 'list'">
-            <i class="bi bi-arrow-left fs-5"></i>
-            <span>Kembali ke Daftar Catatan</span>
-          </button>
-          <div class="border-start ps-3">
-            <span class="badge bg-warning-subtle text-warning-emphasis fw-bold px-3 py-1 rounded-pill mb-1">
-              <i class="bi bi-sticky-fill me-1"></i> Halaman Coretan Cepat
-            </span>
-            <h3 class="fw-extrabold text-dark mb-0">Quick Scratchpad (Auto-Save 2 Detik)</h3>
-          </div>
-        </div>
-      </div>
-
-      <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5 border-start border-4 border-warning">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-2">
-          <div>
-            <h5 class="fw-bold text-dark mb-1">Coretan Serbaguna & Auto-Save</h5>
-            <p class="text-muted small mb-0">Tulis ide cepat, nomor kontak, atau snippet. Otomatis tersimpan ke browser (localStorage) setiap 2 detik.</p>
-          </div>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="activeMode = 'list'">
+              <i class="bi bi-arrow-left fs-5"></i>
+              <span>Kembali ke Catatan</span>
+            </button>
+            <div class="border-start ps-3">
+              <span class="badge bg-warning-subtle text-warning-emphasis fw-bold px-3 py-1 rounded-pill mb-1">
+                <i class="bi bi-sticky-fill me-1"></i> Halaman Coretan Cepat
+              </span>
+              <h3 class="fw-extrabold text-dark mb-0">Quick Scratchpad (Auto-Save & Mermaid)</h3>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
             <div class="d-flex align-items-center gap-2 px-3 py-1.5 bg-light rounded-pill border small">
               <i class="bi bi-floppy-fill text-success" :class="{ 'spin-icon': isAutoSavingScratchpad }"></i>
               <span class="fw-bold text-dark">{{ scratchpadSaveStatus }}</span>
             </div>
             <button type="button" class="btn btn-outline-danger rounded-pill px-3 py-1.5 fw-bold" @click="clearScratchpad" v-if="scratchpadContent">
-              <i class="bi bi-eraser me-1"></i> Bersihkan Coretan
+              <i class="bi bi-eraser me-1"></i> Bersihkan
             </button>
           </div>
         </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5 border-start border-4 border-warning">
+        <!-- Scratchpad Toolbar -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 bg-light rounded-3 border mb-3">
+          <div class="d-flex flex-wrap align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2.5 py-1 fw-bold text-primary" @click="openImageModalFor('scratchpad')">
+              <i class="bi bi-image me-1"></i> Sisipkan Gambar
+            </button>
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2.5 py-1 fw-bold text-purple" @click="openMermaidModalFor('scratchpad')">
+              <i class="bi bi-diagram-3-fill me-1"></i> Flowchart / Mermaid
+            </button>
+            <div class="vr mx-1"></div>
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToScratchpad('**', '**')" title="Tebal"><i class="bi bi-type-bold"></i></button>
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToScratchpad('*', '*')" title="Miring"><i class="bi bi-type-italic"></i></button>
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToScratchpad('# ')" title="Heading">H1</button>
+            <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToScratchpad('- [ ] ')" title="Checklist"><i class="bi bi-check2-square"></i></button>
+          </div>
+
+          <span class="small text-muted font-monospace">{{ (scratchpadContent || '').length }} Karakter | {{ getWordCount(scratchpadContent) }} Kata</span>
+        </div>
 
         <div class="row g-4">
-          <div class="col-lg-7">
-            <label class="form-label fw-bold text-dark small">Tulis Teks Coretan di Sini</label>
+          <div class="col-lg-6">
+            <label class="form-label fw-bold text-dark small d-flex justify-content-between align-items-center">
+              <span>Tulis Coretan & Markdown (Support Paste Gambar <kbd>Ctrl+V</kbd>)</span>
+            </label>
             <textarea
+              ref="scratchpadTextarea"
               class="form-control font-monospace border-2 p-3 rounded-3"
-              rows="14"
+              rows="16"
               v-model="scratchpadContent"
               @input="handleScratchpadInput"
-              placeholder="Tulis coretan sementara di sini...&#10;- Ide produk baru&#10;- No WA Klien: 0812-3456-xxxx&#10;- Script SQL / Command terminal&#10;&#10;Isi ini tersimpan otomatis tanpa perlu tombol simpan!"
+              @paste="handlePasteImage($event, 'scratchpad')"
+              placeholder="Tulis coretan sementara di sini...&#10;- Ide produk baru&#10;- Screenshot atau gambar (Bisa Ctrl+V langsung di sini!)&#10;- Diagram flowchart Mermaid&#10;&#10;Isi ini tersimpan otomatis tanpa perlu tombol simpan!"
             ></textarea>
           </div>
-          <div class="col-lg-5">
-            <label class="form-label fw-bold text-dark small">Live Markdown Preview</label>
-            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column">
-              <div class="markdown-preview small text-dark overflow-auto flex-grow-1" style="max-height: 280px;" v-html="renderMarkdown(scratchpadContent)"></div>
-              <div class="border-top pt-3 mt-3 d-flex justify-content-between align-items-center">
-                <span class="small text-muted font-monospace">{{ scratchpadContent.length }} karakter</span>
-                <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold" @click="convertScratchpadToNote" v-if="scratchpadContent.trim()">
-                  <i class="bi bi-arrow-right-circle me-1"></i> Ubah Jadi Note Permanen
+
+          <div class="col-lg-6">
+            <label class="form-label fw-bold text-dark small">Live Rendered Preview (Markdown, Gambar & Mermaid)</label>
+            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column overflow-hidden">
+              <div class="overflow-auto flex-grow-1 p-2 bg-white rounded-3 border" style="max-height: 380px;">
+                <MarkdownViewer :content="scratchpadContent" />
+              </div>
+              <div class="border-top pt-3 mt-3 d-flex justify-content-end align-items-center">
+                <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" @click="convertScratchpadToNote" v-if="scratchpadContent.trim()">
+                  <i class="bi bi-arrow-right-circle me-1"></i> Simpan Jadi Note Permanen
                 </button>
               </div>
             </div>
@@ -213,19 +252,29 @@
       </div>
     </div>
 
-    <!-- MODE 3: EDITOR FULL NEW PAGE VIEW (HALAMAN BARU) -->
+    <!-- MODE 3: EDITOR FULL PAGE VIEW (HALAMAN BARU) -->
     <div v-else-if="activeMode === 'editor'">
       <div class="bg-white p-4 rounded-4 shadow-sm border mb-4">
-        <div class="d-flex align-items-center gap-3">
-          <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="activeMode = 'list'">
-            <i class="bi bi-arrow-left fs-5"></i>
-            <span>Kembali ke Daftar Catatan</span>
-          </button>
-          <div class="border-start ps-3">
-            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-1">
-              <i class="bi bi-pencil-square me-1"></i> Form Halaman Baru
-            </span>
-            <h3 class="fw-extrabold text-dark mb-0">{{ isEditing ? 'Edit Note Catatan' : 'Tulis Note Baru' }}</h3>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="activeMode = 'list'">
+              <i class="bi bi-arrow-left fs-5"></i>
+              <span>Kembali ke Catatan</span>
+            </button>
+            <div class="border-start ps-3">
+              <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-1">
+                <i class="bi bi-pencil-square me-1"></i> Form Halaman Baru
+              </span>
+              <h3 class="fw-extrabold text-dark mb-0">{{ isEditing ? 'Edit Note & Diagram' : 'Tulis Note Baru' }}</h3>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-light border rounded-3 px-3 py-2 fw-semibold" @click="activeMode = 'list'">Batal</button>
+            <button type="button" class="btn btn-primary rounded-3 px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2" @click="saveNote">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>{{ isEditing ? 'Update Catatan' : 'Simpan Catatan' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -239,7 +288,7 @@
               class="form-control form-control-lg border-2 fs-5 rounded-3 fw-bold"
               v-model="form.title"
               @input="onFormInput"
-              placeholder="Contoh: Checklist Meeting Proyek & KPI Q3"
+              placeholder="Contoh: Arsitektur Sistem, Flowchart Alur & Checklist KPI"
               required
             />
           </div>
@@ -262,25 +311,52 @@
             </div>
           </div>
 
-          <!-- Markdown Editor Side-by-Side Live Preview -->
-          <div class="col-md-6">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <label class="form-label fw-bold text-dark small mb-0"><i class="bi bi-code-slash text-primary me-1"></i>Teks Markdown Editor</label>
+          <!-- Rich Formatting Toolbar -->
+          <div class="col-12">
+            <div class="p-2 rounded-3 border bg-light d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div class="d-flex flex-wrap align-items-center gap-1.5">
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2.5 py-1 fw-bold text-primary shadow-xs" @click="openImageModalFor('editor')">
+                  <i class="bi bi-image me-1"></i> Sisipkan Gambar
+                </button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2.5 py-1 fw-bold text-purple shadow-xs" @click="openMermaidModalFor('editor')">
+                  <i class="bi bi-diagram-3-fill me-1"></i> Flowchart / Diagram
+                </button>
+                <div class="vr mx-1"></div>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('**', '**')" title="Tebal"><i class="bi bi-type-bold"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('*', '*')" title="Miring"><i class="bi bi-type-italic"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('# ')" title="Heading 1">H1</button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('## ')" title="Heading 2">H2</button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('> ')" title="Quote"><i class="bi bi-quote"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('```\n', '\n```')" title="Code Block"><i class="bi bi-code-slash"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('- ')" title="List"><i class="bi bi-list-ul"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('- [ ] ')" title="Checklist"><i class="bi bi-check2-square"></i></button>
+                <button type="button" class="btn btn-sm btn-white border rounded-2 px-2 py-1" @click="insertTextToEditor('\n| Kolom 1 | Kolom 2 |\n| --- | --- |\n| Data A | Data B |\n')" title="Tabel"><i class="bi bi-table"></i></button>
+              </div>
+
               <span class="small text-muted font-monospace">{{ form.content.length }} Karakter | {{ getWordCount(form.content) }} Kata</span>
             </div>
+          </div>
+
+          <!-- Markdown Editor Side-by-Side Live Preview -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small mb-1">
+              <i class="bi bi-code-slash text-primary me-1"></i> Editor Markdown (Bisa Paste Gambar <kbd>Ctrl+V</kbd>)
+            </label>
             <textarea
+              ref="editorTextarea"
               class="form-control font-monospace border-2 p-3 rounded-3"
-              rows="12"
+              rows="16"
               v-model="form.content"
               @input="onFormInput"
-              placeholder="Ketik dengan format Markdown...&#10;# Judul Sesi&#10;- [x] Tugas 1&#10;- [ ] Tugas 2&#10;**Penting:** Target selesai hari ini."
+              @paste="handlePasteImage($event, 'editor')"
+              placeholder="Ketik dengan format Markdown...&#10;# Judul Sesi&#10;- [x] Tugas 1&#10;- [ ] Tugas 2&#10;&#10;Sisipkan gambar atau diagram Mermaid dengan tombol di atas."
             ></textarea>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-bold text-dark small mb-2"><i class="bi bi-eye-fill text-success me-1"></i>Live Preview Markdown</label>
-            <div class="card p-4 rounded-3 border-2 bg-light h-100 overflow-auto preview-box" style="max-height: 320px;">
-              <div class="markdown-preview small" v-html="renderMarkdown(form.content)"></div>
+            <label class="form-label fw-bold text-dark small mb-1"><i class="bi bi-eye-fill text-success me-1"></i> Live Real-time Preview</label>
+            <div class="card p-4 rounded-3 border-2 bg-light h-100 overflow-auto preview-box" style="max-height: 420px;">
+              <MarkdownViewer :content="form.content" />
             </div>
           </div>
 
@@ -295,13 +371,13 @@
       </div>
     </div>
 
-    <!-- MODE 4: BULK MULTI-FORM FULL NEW PAGE VIEW (HALAMAN BARU) -->
+    <!-- MODE 4: BULK MULTI-FORM FULL PAGE VIEW (HALAMAN BARU) -->
     <div v-else-if="activeMode === 'bulk'">
       <div class="bg-white p-4 rounded-4 shadow-sm border mb-4">
         <div class="d-flex align-items-center gap-3">
           <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="activeMode = 'list'">
             <i class="bi bi-arrow-left fs-5"></i>
-            <span>Kembali ke Daftar Catatan</span>
+            <span>Kembali ke Catatan</span>
           </button>
           <div class="border-start ps-3">
             <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill mb-1">
@@ -313,7 +389,6 @@
       </div>
 
       <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
-        <!-- Bulk Form Mode Switcher -->
         <div class="d-flex gap-2 mb-4 border-bottom pb-3">
           <button
             class="btn rounded-pill px-4 py-2 fw-bold"
@@ -331,7 +406,6 @@
           </button>
         </div>
 
-        <!-- Tab 1: Multi-Form Builder Cards -->
         <div v-if="bulkTab === 'rows'">
           <div class="row g-4">
             <div v-for="(row, idx) in bulkRows" :key="idx" class="col-md-6 col-lg-4">
@@ -360,7 +434,7 @@
                   class="form-control mb-3 font-monospace border-2"
                   rows="5"
                   v-model="row.content"
-                  placeholder="Isi catatan (Markdown supported)..."
+                  placeholder="Isi catatan (Markdown, gambar, diagram supported)..."
                 ></textarea>
 
                 <div class="d-flex align-items-center justify-content-between pt-2 border-top">
@@ -396,7 +470,6 @@
           </div>
         </div>
 
-        <!-- Tab 2: Quick Delimited Paste -->
         <div v-else>
           <div class="alert alert-info py-3 px-4 rounded-3 mb-3">
             <i class="bi bi-info-circle-fill me-2"></i><strong>Format paste:</strong> Pisahkan antar catatan menggunakan tanda <code>---</code> pada baris tersendiri. Baris pertama dari setiap blok akan dijadikan Judul.
@@ -417,8 +490,144 @@
       </div>
     </div>
 
+    <!-- MODAL: INSERT IMAGE -->
+    <div v-if="imageModal.show" class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3">
+      <div class="card border-0 shadow-lg rounded-4 bg-white p-4 p-md-5" style="max-width: 600px; width: 100%;" @click.stop>
+        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary-subtle text-primary p-2 rounded-circle"><i class="bi bi-image fs-5"></i></span>
+            <h5 class="fw-bold text-dark mb-0">Sisipkan Gambar ke Catatan</h5>
+          </div>
+          <button class="btn-close" @click="imageModal.show = false"></button>
+        </div>
+
+        <div class="d-flex gap-2 mb-3 border-bottom pb-2">
+          <button
+            class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold"
+            :class="imageModal.tab === 'upload' ? 'btn-primary' : 'btn-light border'"
+            @click="imageModal.tab = 'upload'"
+          >
+            <i class="bi bi-upload me-1"></i> Upload File
+          </button>
+          <button
+            class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold"
+            :class="imageModal.tab === 'url' ? 'btn-primary' : 'btn-light border'"
+            @click="imageModal.tab = 'url'"
+          >
+            <i class="bi bi-link-45deg me-1"></i> Link URL
+          </button>
+        </div>
+
+        <!-- Tab Upload -->
+        <div v-if="imageModal.tab === 'upload'">
+          <div
+            class="image-dropzone p-4 text-center rounded-4 border-2 border-dashed bg-light mb-3 cursor-pointer"
+            @click="$refs.fileInput.click()"
+            @dragover.prevent
+            @drop.prevent="handleFileDrop"
+          >
+            <input type="file" ref="fileInput" class="d-none" accept="image/*" @change="handleFileSelect" />
+            <div v-if="imageModal.preview">
+              <img :src="imageModal.preview" class="img-fluid rounded-3 shadow-sm mb-2" style="max-height: 180px; object-fit: contain;" />
+              <div class="small text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Gambar siap disisipkan ({{ imageModal.fileSize }})</div>
+            </div>
+            <div v-else>
+              <i class="bi bi-cloud-arrow-up display-5 text-primary opacity-75 d-block mb-2"></i>
+              <div class="fw-bold text-dark mb-1">Klik untuk pilih gambar atau tarik file ke sini</div>
+              <div class="small text-muted">Format PNG, JPG, WebP, GIF, SVG (Tersimpan rapi secara lokal)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab URL -->
+        <div v-else>
+          <div class="mb-3">
+            <label class="form-label fw-bold small text-dark">URL Gambar Web</label>
+            <input type="url" class="form-control" placeholder="https://images.unsplash.com/photo-..." v-model="imageModal.url" />
+          </div>
+        </div>
+
+        <!-- Caption Input -->
+        <div class="mb-4">
+          <label class="form-label fw-bold small text-dark">Deskripsi / Keterangan Gambar (Alt Text)</label>
+          <input type="text" class="form-control" placeholder="Contoh: Diagram Alur Database Proyek" v-model="imageModal.caption" />
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+          <button type="button" class="btn btn-light rounded-3 px-4 py-2 border fw-semibold" @click="imageModal.show = false">Batal</button>
+          <button type="button" class="btn btn-primary rounded-3 px-4 py-2 fw-bold d-flex align-items-center gap-2" @click="insertImageToActiveTarget">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Sisipkan Gambar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: INSERT MERMAID DIAGRAM -->
+    <div v-if="mermaidModal.show" class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3">
+      <div class="card border-0 shadow-lg rounded-4 bg-white p-4 p-md-5" style="max-width: 850px; width: 100%; max-height: 90vh; overflow-y: auto;" @click.stop>
+        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-purple-subtle text-purple p-2 rounded-circle"><i class="bi bi-diagram-3-fill fs-5"></i></span>
+            <div>
+              <h5 class="fw-bold text-dark mb-0">Sisipkan Mermaid Flowchart & Diagram</h5>
+              <small class="text-muted">Pilih template siap pakai atau sesuaikan sintaks diagram Mermaid Anda.</small>
+            </div>
+          </div>
+          <button class="btn-close" @click="mermaidModal.show = false"></button>
+        </div>
+
+        <!-- Template Selector Chips -->
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark mb-1">Pilih Template Diagram:</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              v-for="preset in mermaidPresets"
+              :key="preset.id"
+              class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-1.5"
+              :class="mermaidModal.selectedPreset === preset.id ? 'btn-dark' : 'btn-light border'"
+              @click="applyMermaidPreset(preset)"
+            >
+              <i class="bi" :class="preset.icon"></i>
+              <span>{{ preset.title }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <!-- Editor Code -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark"><i class="bi bi-code-square text-primary me-1"></i>Kode Mermaid</label>
+            <textarea
+              class="form-control font-monospace border-2 p-3 rounded-3"
+              rows="12"
+              v-model="mermaidModal.code"
+              placeholder="```mermaid&#10;flowchart TD&#10;    A --> B&#10;```"
+            ></textarea>
+          </div>
+
+          <!-- Live Preview -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark"><i class="bi bi-eye-fill text-success me-1"></i>Pratinjau Diagram</label>
+            <div class="card p-3 rounded-3 border-2 bg-light h-100 overflow-auto" style="max-height: 320px;">
+              <MarkdownViewer :content="mermaidModal.code" />
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+          <button type="button" class="btn btn-light rounded-3 px-4 py-2 border fw-semibold" @click="mermaidModal.show = false">Batal</button>
+          <button type="button" class="btn btn-primary rounded-3 px-4 py-2 fw-bold d-flex align-items-center gap-2" @click="insertMermaidToActiveTarget">
+            <i class="bi bi-check2-circle"></i>
+            <span>Sisipkan ke Catatan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Sleek Toast Notification -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2200;">
       <div v-if="toast.show" class="toast align-items-center text-white bg-dark border-0 show shadow-lg rounded-3" role="alert">
         <div class="d-flex">
           <div class="toast-body d-flex align-items-center gap-2">
@@ -433,15 +642,19 @@
 </template>
 
 <script>
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
-import { marked } from 'marked';
+import MarkdownViewer from '../components/MarkdownViewer.vue';
+import { MERMAID_PRESETS, initMermaid } from '../utils/markdownRenderer';
 
 const DRAFT_KEY = 'rk_note_draft';
 const SCRATCHPAD_KEY = 'rk_quick_scratchpad';
 
 export default {
   name: 'StickyNotesView',
+  components: {
+    MarkdownViewer
+  },
   setup() {
     const store = useStore();
 
@@ -459,20 +672,42 @@ export default {
     let scratchpadTimer = null;
     let noteDraftTimer = null;
 
+    const editorTextarea = ref(null);
+    const scratchpadTextarea = ref(null);
+
     const toast = ref({ show: false, message: '' });
 
     const colorOptions = [
-      { name: 'Kuning', code: '#fef08a' },
-      { name: 'Biru', code: '#bae6fd' },
-      { name: 'Hijau', code: '#bbf7d0' },
+      { name: 'Kuning Pastel', code: '#fef08a' },
+      { name: 'Biru Langit', code: '#bae6fd' },
+      { name: 'Hijau Mint', code: '#bbf7d0' },
       { name: 'Merah Muda', code: '#fbcfe8' },
-      { name: 'Ungu', code: '#e9d5ff' }
+      { name: 'Ungu Lavender', code: '#e9d5ff' }
     ];
 
     const form = ref({
       title: '',
       content: '',
       color: '#fef08a'
+    });
+
+    // Modals for Image & Mermaid
+    const activeTarget = ref('editor'); // 'editor' or 'scratchpad'
+
+    const imageModal = ref({
+      show: false,
+      tab: 'upload',
+      preview: '',
+      fileSize: '',
+      url: '',
+      caption: ''
+    });
+
+    const mermaidPresets = MERMAID_PRESETS;
+    const mermaidModal = ref({
+      show: false,
+      selectedPreset: 'flowchart_td',
+      code: MERMAID_PRESETS[0].code
     });
 
     // Bulk rows builder
@@ -487,7 +722,7 @@ export default {
     const searchQuery = ref('');
     const selectedColor = ref('all');
 
-    const notes = computed(() => store.getters.getNotes);
+    const notes = computed(() => store.getters.getNotes || []);
 
     const filteredNotes = computed(() => {
       return notes.value.filter(n => {
@@ -509,8 +744,8 @@ export default {
       }, 3000);
     };
 
-    // Auto-load draft & scratchpad from localStorage on mount
     onMounted(() => {
+      initMermaid();
       try {
         const savedDraft = localStorage.getItem(DRAFT_KEY);
         if (savedDraft) {
@@ -538,7 +773,6 @@ export default {
       if (noteDraftTimer) clearTimeout(noteDraftTimer);
     });
 
-    // Auto-save scratchpad logic with debounced timer
     const handleScratchpadInput = () => {
       scratchpadSaveStatus.value = 'Menyimpan...';
       isAutoSavingScratchpad.value = true;
@@ -555,7 +789,7 @@ export default {
           scratchpadSaveStatus.value = 'Gagal menyimpan';
           isAutoSavingScratchpad.value = false;
         }
-      }, 1500); // 1.5 seconds auto-save interval
+      }, 1200);
     };
 
     const clearScratchpad = () => {
@@ -581,7 +815,6 @@ export default {
       showToast('Scratchpad dipindahkan ke Editor Note!');
     };
 
-    // Auto-save note form on input
     const onFormInput = () => {
       if (!isEditing.value) {
         if (noteDraftTimer) clearTimeout(noteDraftTimer);
@@ -589,7 +822,7 @@ export default {
           localStorage.setItem(DRAFT_KEY, JSON.stringify(form.value));
           draftSaved.value = true;
           lastSavedTime.value = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        }, 1200);
+        }, 1000);
       }
     };
 
@@ -601,7 +834,7 @@ export default {
         if (mode === 'editor' && !isEditing.value && !form.value.title && !form.value.content) {
           form.value = {
             title: '',
-            content: '# Catatan Baru\n\n- [ ] Checklist tugas 1\n- [ ] Checklist tugas 2',
+            content: '# Catatan Proyek & Alur Kerja\n\n- [ ] Checklist tugas 1\n- [ ] Checklist tugas 2\n\n```mermaid\nflowchart TD\n    A[Ide Proyek] --> B[Implementasi]\n    B --> C[Selesai]\n```',
             color: '#fef08a'
           };
         }
@@ -611,19 +844,6 @@ export default {
     const selectColor = (code) => {
       form.value.color = code;
       onFormInput();
-    };
-
-    const resetEditorForm = () => {
-      form.value = {
-        title: '',
-        content: '',
-        color: '#fef08a'
-      };
-      isEditing.value = false;
-      editingId.value = null;
-      localStorage.removeItem(DRAFT_KEY);
-      draftSaved.value = false;
-      showToast('Draft dibersihkan.');
     };
 
     const editNoteInline = (note) => {
@@ -641,10 +861,10 @@ export default {
       }
 
       if (isEditing.value) {
-        store.dispatch('updateNote', { ...form.value, id: editingId.value });
+        store.dispatch('updateNote', { ...form.value, id: editingId.value, updatedAt: new Date().toISOString() });
         showToast('Note berhasil diperbarui!');
       } else {
-        store.dispatch('addNote', form.value);
+        store.dispatch('addNote', { ...form.value, id: 'note_' + Date.now(), updatedAt: new Date().toISOString() });
         showToast('Note baru berhasil disimpan!');
       }
 
@@ -668,7 +888,7 @@ export default {
       selectedIds.value = [];
     };
 
-    // Bulk Rows Logic
+    // Bulk Rows
     const addBulkRow = () => {
       const colors = ['#fef08a', '#bae6fd', '#bbf7d0', '#fbcfe8', '#e9d5ff'];
       const nextColor = colors[bulkRows.value.length % colors.length];
@@ -696,10 +916,16 @@ export default {
         return;
       }
 
-      store.dispatch('addNotesBulk', validRows);
+      const now = new Date().toISOString();
+      const rowsWithMetadata = validRows.map((r, i) => ({
+        ...r,
+        id: 'note_' + (Date.now() + i),
+        updatedAt: now
+      }));
+
+      store.dispatch('addNotesBulk', rowsWithMetadata);
       showToast(`${validRows.length} catatan baru berhasil ditambahkan!`);
 
-      // Reset bulk rows
       bulkRows.value = [
         { title: '', content: '', color: '#fef08a' },
         { title: '', content: '', color: '#bae6fd' },
@@ -721,14 +947,17 @@ export default {
       }
 
       const colors = ['#fef08a', '#bae6fd', '#bbf7d0', '#fbcfe8', '#e9d5ff'];
+      const now = new Date().toISOString();
       const notesToInsert = blocks.map((block, idx) => {
         const lines = block.split('\n');
         const title = lines[0].replace(/^#+\s*/, '').trim() || `Catatan Import #${idx + 1}`;
         const content = lines.slice(1).join('\n').trim() || lines[0];
         return {
+          id: 'note_' + (Date.now() + idx),
           title,
           content,
-          color: colors[idx % colors.length]
+          color: colors[idx % colors.length],
+          updatedAt: now
         };
       });
 
@@ -747,13 +976,171 @@ export default {
       });
     };
 
-    const renderMarkdown = (text) => {
-      if (!text) return '<em class="text-muted">Preview teks markdown...</em>';
-      try {
-        return marked.parse(text);
-      } catch (e) {
-        return text;
+    // Image Handlers
+    const openImageModalFor = (target) => {
+      activeTarget.value = target;
+      imageModal.value = {
+        show: true,
+        tab: 'upload',
+        preview: '',
+        fileSize: '',
+        url: '',
+        caption: ''
+      };
+    };
+
+    const processImageFile = (file) => {
+      if (!file || !file.type.startsWith('image/')) {
+        showToast('Harap pilih file gambar valid (PNG, JPG, SVG, WebP).');
+        return;
       }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imageModal.value.preview = e.target.result;
+        imageModal.value.fileSize = `${(file.size / 1024).toFixed(1)} KB`;
+        if (!imageModal.value.caption) {
+          imageModal.value.caption = file.name.replace(/\.[^/.]+$/, '');
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const handleFileSelect = (e) => {
+      const file = e.target.files[0];
+      if (file) processImageFile(file);
+    };
+
+    const handleFileDrop = (e) => {
+      const file = e.dataTransfer.files[0];
+      if (file) processImageFile(file);
+    };
+
+    // Direct Clipboard Paste image listener (Ctrl+V with screenshot)
+    const handlePasteImage = (e, target) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let index = 0; index < items.length; index++) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.includes('image/')) {
+          e.preventDefault();
+          const blob = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            const caption = `Tangkapan Layar ${new Date().toLocaleDateString('id-ID')}`;
+            const mdSnippet = `\n![${caption}](${dataUrl})\n`;
+            insertSnippetToTarget(target, mdSnippet);
+            showToast('📸 Gambar dari clipboard berhasil disisipkan!');
+          };
+          reader.readAsDataURL(blob);
+          break;
+        }
+      }
+    };
+
+    const insertImageToActiveTarget = () => {
+      let imageSrc = '';
+      if (imageModal.value.tab === 'upload') {
+        imageSrc = imageModal.value.preview;
+      } else {
+        imageSrc = imageModal.value.url;
+      }
+
+      if (!imageSrc) {
+        showToast('Pilih gambar atau masukkan link gambar terlebih dahulu.');
+        return;
+      }
+
+      const caption = imageModal.value.caption || 'Gambar Catatan';
+      const mdSnippet = `\n![${caption}](${imageSrc})\n`;
+      insertSnippetToTarget(activeTarget.value, mdSnippet);
+      imageModal.value.show = false;
+      showToast('Gambar berhasil disisipkan!');
+    };
+
+    // Mermaid Handlers
+    const openMermaidModalFor = (target) => {
+      activeTarget.value = target;
+      mermaidModal.value.show = true;
+    };
+
+    const applyMermaidPreset = (preset) => {
+      mermaidModal.value.selectedPreset = preset.id;
+      mermaidModal.value.code = preset.code;
+    };
+
+    const insertMermaidToActiveTarget = () => {
+      if (!mermaidModal.value.code) return;
+      const snippet = `\n${mermaidModal.value.code.trim()}\n`;
+      insertSnippetToTarget(activeTarget.value, snippet);
+      mermaidModal.value.show = false;
+      showToast('Diagram Mermaid berhasil disisipkan!');
+    };
+
+    // Text & Snippet Insert Helpers
+    const insertSnippetToTarget = (target, snippet) => {
+      if (target === 'editor') {
+        form.value.content = (form.value.content || '') + snippet;
+        onFormInput();
+      } else {
+        scratchpadContent.value = (scratchpadContent.value || '') + snippet;
+        handleScratchpadInput();
+      }
+    };
+
+    const insertTextToEditor = (prefix, suffix = '') => {
+      const el = editorTextarea.value;
+      if (!el) {
+        form.value.content = (form.value.content || '') + prefix + suffix;
+        return;
+      }
+      const start = el.selectionStart || 0;
+      const end = el.selectionEnd || 0;
+      const text = form.value.content || '';
+      const selected = text.substring(start, end);
+      form.value.content = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+      onFormInput();
+      nextTick(() => {
+        el.focus();
+        const pos = start + prefix.length + selected.length;
+        el.setSelectionRange(pos, pos);
+      });
+    };
+
+    const insertTextToScratchpad = (prefix, suffix = '') => {
+      const el = scratchpadTextarea.value;
+      if (!el) {
+        scratchpadContent.value = (scratchpadContent.value || '') + prefix + suffix;
+        return;
+      }
+      const start = el.selectionStart || 0;
+      const end = el.selectionEnd || 0;
+      const text = scratchpadContent.value || '';
+      const selected = text.substring(start, end);
+      scratchpadContent.value = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+      handleScratchpadInput();
+      nextTick(() => {
+        el.focus();
+        const pos = start + prefix.length + selected.length;
+        el.setSelectionRange(pos, pos);
+      });
+    };
+
+    // Helpers
+    const getExcerpt = (str) => {
+      if (!str) return '';
+      if (str.length > 350) {
+        return str.substring(0, 350) + '\n\n*... Klik untuk membaca selengkapnya ...*';
+      }
+      return str;
+    };
+
+    const hasMermaid = (content) => {
+      return content && /```mermaid|flowchart|sequenceDiagram|graph\s+[T|L|B|R]/i.test(content);
+    };
+
+    const hasImages = (content) => {
+      return content && /!\[.*?\]\(.*?\)/i.test(content);
     };
 
     const getWordCount = (str) => {
@@ -795,13 +1182,17 @@ export default {
       scratchpadContent,
       scratchpadSaveStatus,
       isAutoSavingScratchpad,
+      editorTextarea,
+      scratchpadTextarea,
+      imageModal,
+      mermaidPresets,
+      mermaidModal,
       handleScratchpadInput,
       clearScratchpad,
       convertScratchpadToNote,
       toggleMode,
       selectColor,
       onFormInput,
-      resetEditorForm,
       editNoteInline,
       saveNote,
       deleteNoteDirect,
@@ -812,7 +1203,19 @@ export default {
       saveBulkRows,
       processBulkPaste,
       copyNoteContent,
-      renderMarkdown,
+      openImageModalFor,
+      handleFileSelect,
+      handleFileDrop,
+      handlePasteImage,
+      insertImageToActiveTarget,
+      openMermaidModalFor,
+      applyMermaidPreset,
+      insertMermaidToActiveTarget,
+      insertTextToEditor,
+      insertTextToScratchpad,
+      getExcerpt,
+      hasMermaid,
+      hasImages,
       getWordCount,
       getNotesCountByColor,
       formatDate
@@ -868,18 +1271,17 @@ export default {
 }
 
 .hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.09) !important;
 }
 
-/* STICKY NOTE CARD STYLING */
 .sticky-note-card {
   background-color: var(--note-accent, #fef08a);
   color: #0f172a;
 }
 
 .note-color-stripe {
-  height: 5px;
+  height: 6px;
   width: 100%;
   position: absolute;
   top: 0;
@@ -891,7 +1293,7 @@ export default {
   color: #0f172a;
 }
 
-.note-card-preview {
+.note-card-preview-wrapper {
   color: #1e293b;
   border-color: rgba(15, 23, 42, 0.15) !important;
 }
@@ -929,19 +1331,52 @@ export default {
   cursor: pointer;
 }
 
-.markdown-preview :deep(h1), .markdown-preview :deep(h2), .markdown-preview :deep(h3) {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-top: 0.4rem;
-  margin-bottom: 0.4rem;
+.bg-purple-subtle {
+  background-color: #f3e8ff;
 }
 
-.markdown-preview :deep(ul), .markdown-preview :deep(ol) {
-  padding-left: 1.2rem;
-  margin-bottom: 0.4rem;
+.text-purple {
+  color: #7e22ce;
 }
 
-/* DARK MODE SPECIFIC OVERRIDES FOR STICKY NOTES */
+.bg-indigo-subtle {
+  background-color: #e0e7ff;
+}
+
+.text-indigo {
+  color: #4338ca;
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2050;
+}
+
+.image-dropzone {
+  border-color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.image-dropzone:hover {
+  background-color: #f1f5f9;
+  border-color: #3b82f6;
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+}
+
+/* Dark theme overrides */
 :global(.dark-theme) .sticky-note-card {
   background-color: #1e293b !important;
   color: #f8fafc !important;
@@ -952,7 +1387,7 @@ export default {
   color: #f8fafc !important;
 }
 
-:global(.dark-theme) .note-card-preview {
+:global(.dark-theme) .note-card-preview-wrapper {
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
@@ -967,52 +1402,15 @@ export default {
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .btn-action-icon:hover {
-  background-color: #334155 !important;
-  color: #60a5fa !important;
-}
-
 :global(.dark-theme) .btn-preview-badge {
   background-color: #131b2e !important;
   color: #60a5fa !important;
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .btn-preview-badge:hover {
-  background-color: #2563eb !important;
-  color: #ffffff !important;
-}
-
-:global(.dark-theme) .preview-box {
-  background-color: #060911 !important;
-  border-color: #1e293b !important;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-:global(.dark-theme) .preview-box .markdown-preview,
-:global(.dark-theme) .markdown-preview {
-  font-family: 'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Cascadia Code', Menlo, Monaco, Consolas, monospace !important;
+:global(.dark-theme) .modal-backdrop-custom .card {
+  background-color: #0f172a !important;
   color: #f8fafc !important;
-}
-
-:global(.dark-theme) .preview-box .markdown-preview *,
-:global(.dark-theme) .markdown-preview * {
-  font-family: 'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Cascadia Code', Menlo, Monaco, Consolas, monospace !important;
-  color: #f1f5f9 !important;
-}
-
-:global(.dark-theme) .markdown-preview :deep(h1),
-:global(.dark-theme) .markdown-preview :deep(h2),
-:global(.dark-theme) .markdown-preview :deep(h3),
-:global(.dark-theme) .markdown-preview :deep(h4),
-:global(.dark-theme) .markdown-preview :deep(h5),
-:global(.dark-theme) .markdown-preview :deep(h6) {
-  color: #38bdf8 !important;
-}
-
-:global(.dark-theme) .markdown-preview :deep(code) {
-  background-color: #111827 !important;
-  color: #f472b6 !important;
-  border: 1px solid #374151 !important;
+  border: 1px solid #334155 !important;
 }
 </style>
