@@ -559,6 +559,28 @@
       </div>
     </section>
 
+    <!-- Bank Address & Dukung Dev Section -->
+    <section id="dukung-dev" class="section-padding bg-soft-blue position-relative border-top border-4 border-dark">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="text-center mb-4">
+              <span class="badge bg-main-blue text-white px-3 py-1.5 fs-6 fw-bold border border-2 border-dark mb-2 shadow-xs">
+                ☕ SUPPORT THE CREATOR
+              </span>
+              <h2 class="skew-title brutal-box bg-white text-dark fs-1 d-table mx-auto">
+                DUKUNG PENGEMBANG
+              </h2>
+              <p class="fs-6 fw-bold text-muted max-w-600 mx-auto">
+                Dukung terus inovasi dan riset pengembangan software open-ecosystem & Local-First melalui donasi Bank atau E-Wallet langsung.
+              </p>
+            </div>
+            <BankAddressCards />
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Contact WhatsApp Section -->
     <section id="contact" class="section-padding bg-cyan position-relative border-top border-4 border-dark">
       <div class="container">
@@ -618,9 +640,13 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import Swal from 'sweetalert2';
+import BankAddressCards from '../components/BankAddressCards.vue';
 
 export default {
   name: 'DeveloperPortfolioView',
+  components: {
+    BankAddressCards
+  },
   setup() {
     const canvasContainer = ref(null);
     const currentLang = ref('id');

@@ -196,9 +196,9 @@
         <router-link to="/preferences" class="btn btn-sm btn-outline-theme w-100 rounded-pill text-start mb-2 d-flex align-items-center gap-2">
           <i class="bi bi-palette"></i> Theme & Color Settings
         </router-link>
-        <a href="https://trakteer.id/itsmebroarif/tip?open=true" target="_blank" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center">
-          ☕ Dukung Dev
-        </a>
+        <button @click="showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs">
+          <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev
+        </button>
       </div>
     </aside>
 
@@ -300,8 +300,17 @@
             <router-link to="/faq" class="material-nav-link"><i class="bi bi-question-circle-fill me-3 text-info"></i>FAQ & About App</router-link>
             <router-link to="/developer" class="material-nav-link"><i class="bi bi-person-badge-fill me-3 text-primary"></i>View Developer</router-link>
           </nav>
+
+          <div class="p-2 border-top mt-3">
+            <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs">
+              <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Bank & E-Wallet)
+            </button>
+          </div>
         </div>
       </transition>
+
+      <!-- Dukung Dev Modal Popup (Bank & E-Wallet) -->
+      <DukungDevModal v-model="showDukungModal" />
 
       <!-- Main Router View Container with Fade-Slide Animation -->
       <div class="p-3 p-md-4">
@@ -343,16 +352,19 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import AppNotifications from './components/AppNotifications.vue';
+import DukungDevModal from './components/DukungDevModal.vue';
 
 export default {
   name: 'App',
   components: {
-    AppNotifications
+    AppNotifications,
+    DukungDevModal
   },
   setup() {
     const store = useStore();
     const isCollapsed = ref(false);
     const mobileDrawer = ref(false);
+    const showDukungModal = ref(false);
 
     const pendingTasksCount = computed(() => store.getters.pendingTasksCount);
     const activeProjectsCount = computed(() => store.getters.activeProjectsCount);
@@ -446,6 +458,11 @@ export default {
         window.deferredPwaPrompt = e;
         window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
       });
+
+      // Global Listener to open Dukung Dev Modal
+      window.addEventListener('open-dukung-dev', () => {
+        showDukungModal.value = true;
+      });
     });
 
     const toggleThemeMode = () => {
@@ -459,6 +476,7 @@ export default {
     return {
       isCollapsed,
       mobileDrawer,
+      showDukungModal,
       pendingTasksCount,
       activeProjectsCount,
       totalClientsCount,

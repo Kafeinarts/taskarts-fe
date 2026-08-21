@@ -48,12 +48,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Dukung Dev Bank Address Section -->
+    <div class="mt-5" data-aos="fade-up">
+      <BankAddressCards />
+    </div>
   </div>
 </template>
 
 <script>
+import BankAddressCards from './BankAddressCards.vue';
+
 export default {
-  name: 'aboutDev'
+  name: 'aboutDev',
+  components: {
+    BankAddressCards
+  }
 }
 </script>
 

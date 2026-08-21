@@ -625,6 +625,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Support Developer / Bank Address Section -->
+      <div class="col-lg-12">
+        <BankAddressCards />
+      </div>
     </div>
   </div>
 </template>
@@ -634,6 +639,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import BankAddressCards from '../components/BankAddressCards.vue';
 import { 
   getNotificationPermission, 
   requestNotificationPermission, 
@@ -642,6 +648,9 @@ import {
 
 export default {
   name: 'PreferencesView',
+  components: {
+    BankAddressCards
+  },
   setup() {
     const store = useStore();
     const jsonFileInput = ref(null);

@@ -492,6 +492,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Support Developer & Bank Address in Docs -->
+      <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <BankAddressCards />
+      </div>
     </div>
 
     <!-- ========================================================= -->
@@ -534,9 +539,13 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { sendOnDeviceNotification } from '../utils/notification';
+import BankAddressCards from '../components/BankAddressCards.vue';
 
 export default {
   name: 'FaqAboutView',
+  components: {
+    BankAddressCards
+  },
   setup() {
     const activeTab = ref('modules');
     const moduleDocSearch = ref('');
