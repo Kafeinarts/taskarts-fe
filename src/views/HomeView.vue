@@ -105,7 +105,10 @@
     <!-- 30-Day Productivity & Habit Streaks Analytics Dashboard -->
     <ProductivityDashboard />
 
-    <!-- Main Dashboard Section: 2 Column Layout -->
+    <!-- 3D Motivational Booster Image & Adaptive Frame (Three.js & GSAP) -->
+    <MotivationalFrame3D />
+
+    <!-- Main Dashboard Section: 2 Column Layout (To-Do & Kanban) -->
     <div class="row g-4 mb-4">
       <!-- Quick Tasks & Kanban Summary (Left) -->
       <div class="col-lg-7">
@@ -212,11 +215,13 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import ProductivityDashboard from '@/components/ProductivityDashboard.vue';
 import Workspace3DSimulator from '@/components/Workspace3DSimulator.vue';
+import MotivationalFrame3D from '@/components/MotivationalFrame3D.vue';
 
 export default {
   name: 'HomeView',
   components: {
     ProductivityDashboard,
+    MotivationalFrame3D,
     Workspace3DSimulator
   },
   setup() {
