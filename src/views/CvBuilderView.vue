@@ -837,43 +837,121 @@
           </div>
 
           <!-- ======================================================== -->
+          <!-- RESPONSIVE ZOOM & SCALING TOOLBAR (no-print)             -->
+          <!-- ======================================================== -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center bg-white p-2 px-2.5 rounded-3 border mb-3 no-print gap-2 shadow-xs">
+            <div class="d-flex align-items-center gap-1.5 small text-muted">
+              <i class="bi bi-display text-primary"></i>
+              <span class="fw-semibold">Skala Pratinjau:</span>
+              <span class="badge bg-primary text-white fw-bold px-2 py-0.5" style="font-size: 11px;">
+                {{ previewZoom === 'auto' ? '📱 Pas Layar (' + Math.round(activePreviewScale * 100) + '%)' : previewZoom + '%' }}
+              </span>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-1.5">
+              <div class="btn-group btn-group-sm" role="group">
+                <button
+                  type="button"
+                  class="btn btn-xs fw-semibold d-flex align-items-center gap-1"
+                  :class="previewZoom === 'auto' ? 'btn-primary' : 'btn-light border'"
+                  @click="previewZoom = 'auto'"
+                  title="Otomatis sesuaikan skala CV agar pas di layar perangkat Anda (Sangat Cocok untuk HP/Mobile 720x1280)"
+                >
+                  <i class="bi bi-phone"></i> Pas Layar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs fw-semibold"
+                  :class="previewZoom === '100' ? 'btn-primary' : 'btn-light border'"
+                  @click="previewZoom = '100'"
+                  title="Ukuran Asli 100%"
+                >
+                  100%
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs fw-semibold"
+                  :class="previewZoom === '80' ? 'btn-primary' : 'btn-light border'"
+                  @click="previewZoom = '80'"
+                >
+                  80%
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs fw-semibold"
+                  :class="previewZoom === '65' ? 'btn-primary' : 'btn-light border'"
+                  @click="previewZoom = '65'"
+                >
+                  65%
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs fw-semibold"
+                  :class="previewZoom === '50' ? 'btn-primary' : 'btn-light border'"
+                  @click="previewZoom = '50'"
+                >
+                  50%
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
           <!-- 1. SINGLE MODE PRINTABLE AREA                            -->
           <!-- ======================================================== -->
-          <div v-if="cvMode === 'single'" id="cvPrintArea" class="cv-preview-container-scroll">
-            <CvLayoutRenderer
-              ref="singleRendererEl"
-              :cv="cv"
-              :layout-type="isCustomModeActive ? 'custom' : (cv.selectedTemplate || 'single_column')"
-              :active-color="activeCvColor"
-              :cv-font="activeCvFont"
-              :density-mode="activeDensityMode"
-              :heading-style="activeHeadingStyle"
-              :lock-single-page="lockSinglePage"
-              :show-page-guide="showPageGuide"
-              :custom-layout-config="activeCustomConfig"
-            />
+          <div
+            v-if="cvMode === 'single'"
+            id="cvPrintArea"
+            ref="previewScrollContainerEl"
+            class="cv-preview-container-scroll position-relative"
+          >
+            <div class="cv-preview-scaler-stage" :style="previewScalerStageStyle">
+              <div class="cv-preview-scaler-inner" :style="previewScalerInnerStyle">
+                <CvLayoutRenderer
+                  ref="singleRendererEl"
+                  :cv="cv"
+                  :layout-type="isCustomModeActive ? 'custom' : (cv.selectedTemplate || 'single_column')"
+                  :active-color="activeCvColor"
+                  :cv-font="activeCvFont"
+                  :density-mode="activeDensityMode"
+                  :heading-style="activeHeadingStyle"
+                  :lock-single-page="lockSinglePage"
+                  :show-page-guide="showPageGuide"
+                  :custom-layout-config="activeCustomConfig"
+                />
+              </div>
+            </div>
           </div>
 
           <!-- ======================================================== -->
           <!-- 2. BULK MULTI-CANDIDATE PRINTABLE AREA                   -->
           <!-- ======================================================== -->
-          <div v-else id="cvBulkPrintArea" class="bulk-cv-container cv-preview-container-scroll">
-            <div
-              v-for="(cand, cIdx) in (isPrintingAll ? bulkCandidates : [activeCv])"
-              :key="cand.id || cIdx"
-              class="print-page-break mb-4"
-            >
-              <CvLayoutRenderer
-                :cv="cand"
-                :layout-type="cand.customLayoutActive ? 'custom' : (cand.selectedTemplate || 'single_column')"
-                :active-color="cand.customColor || '#1e293b'"
-                :cv-font="cand.cvFont || 'font-sans'"
-                :density-mode="cand.densityMode || activeDensityMode"
-                :heading-style="cand.headingStyle || activeHeadingStyle"
-                :lock-single-page="lockSinglePage"
-                :show-page-guide="showPageGuide"
-                :custom-layout-config="cand.customLayoutConfig || activeCustomConfig"
-              />
+          <div
+            v-else
+            id="cvBulkPrintArea"
+            ref="previewScrollContainerEl"
+            class="bulk-cv-container cv-preview-container-scroll position-relative"
+          >
+            <div class="cv-preview-scaler-stage" :style="previewScalerStageStyle">
+              <div class="cv-preview-scaler-inner" :style="previewScalerInnerStyle">
+                <div
+                  v-for="(cand, cIdx) in (isPrintingAll ? bulkCandidates : [activeCv])"
+                  :key="cand.id || cIdx"
+                  class="print-page-break mb-4"
+                >
+                  <CvLayoutRenderer
+                    :cv="cand"
+                    :layout-type="cand.customLayoutActive ? 'custom' : (cand.selectedTemplate || 'single_column')"
+                    :active-color="cand.customColor || '#1e293b'"
+                    :cv-font="cand.cvFont || 'font-sans'"
+                    :density-mode="cand.densityMode || activeDensityMode"
+                    :heading-style="cand.headingStyle || activeHeadingStyle"
+                    :lock-single-page="lockSinglePage"
+                    :show-page-guide="showPageGuide"
+                    :custom-layout-config="cand.customLayoutConfig || activeCustomConfig"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -917,7 +995,7 @@
 </template>
 
 <script>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
@@ -932,6 +1010,7 @@ export default {
   setup() {
     const store = useStore();
     const singleRendererEl = ref(null);
+    const previewScrollContainerEl = ref(null);
 
     const cvMode = ref('single'); // 'single' | 'bulk'
     const isPrintingAll = ref(false);
@@ -946,6 +1025,94 @@ export default {
     const activeHeadingStyle = ref('underline'); // 'underline' | 'boxed' | 'left_bar' | 'pill' | 'minimal'
     const lockSinglePage = ref(false);
     const showPageGuide = ref(true);
+
+    // Mobile & Cross-Device Preview Zoom / Scale Controller
+    const previewZoom = ref('auto'); // 'auto' | '100' | '80' | '65' | '50'
+    const previewContainerWidth = ref(800);
+
+    const updateContainerWidth = () => {
+      if (previewScrollContainerEl.value) {
+        previewContainerWidth.value = previewScrollContainerEl.value.clientWidth || 800;
+      } else if (typeof window !== 'undefined') {
+        previewContainerWidth.value = window.innerWidth < 768 ? (window.innerWidth - 36) : 800;
+      }
+    };
+
+    let resizeObserver = null;
+    onMounted(() => {
+      nextTick(() => {
+        updateContainerWidth();
+      });
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', updateContainerWidth, { passive: true });
+      }
+      if (typeof ResizeObserver !== 'undefined' && previewScrollContainerEl.value) {
+        resizeObserver = new ResizeObserver(() => {
+          updateContainerWidth();
+        });
+        resizeObserver.observe(previewScrollContainerEl.value);
+      }
+    });
+
+    onUnmounted(() => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', updateContainerWidth);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    });
+
+    const activePreviewScale = computed(() => {
+      if (previewZoom.value === '100') return 1;
+      if (previewZoom.value === '80') return 0.80;
+      if (previewZoom.value === '65') return 0.65;
+      if (previewZoom.value === '50') return 0.50;
+
+      // 'auto' mode for perfect responsive fit on mobile (720x1280, 360-720px)
+      const containerW = previewContainerWidth.value || 800;
+      const paddingOffset = (typeof window !== 'undefined' && window.innerWidth < 768) ? 16 : 24;
+      const availableW = containerW - paddingOffset;
+      if (availableW >= 794) return 1;
+      return Math.min(1, Math.max(0.35, availableW / 794));
+    });
+
+    const previewScalerInnerStyle = computed(() => {
+      const scale = activePreviewScale.value;
+      if (scale >= 0.999) {
+        return {
+          width: '100%',
+          maxWidth: '794px',
+          margin: '0 auto'
+        };
+      }
+      return {
+        width: '794px',
+        transform: `scale(${scale})`,
+        transformOrigin: 'top center',
+        margin: '0 auto'
+      };
+    });
+
+    const previewScalerStageStyle = computed(() => {
+      const scale = activePreviewScale.value;
+      if (scale >= 0.999) {
+        return {
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center'
+        };
+      }
+      const approxHeight = 1120;
+      return {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        minHeight: `${Math.round(approxHeight * scale)}px`,
+        marginBottom: `-${Math.round(approxHeight * (1 - scale))}px`
+      };
+    });
 
     // Custom Layout Studio State
     const isCustomModeActive = ref(false);
@@ -2389,6 +2556,12 @@ export default {
       pageFitStatus,
       autoFitToOnePage,
       singleRendererEl,
+      // Preview Scaler & Zoom State
+      previewScrollContainerEl,
+      previewZoom,
+      activePreviewScale,
+      previewScalerStageStyle,
+      previewScalerInnerStyle,
       // Bulk State & Methods
       activeCandidateIndex,
       bulkCandidates,
@@ -2433,13 +2606,41 @@ export default {
 .cv-preview-container-scroll {
   max-height: 86vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   padding: 8px;
   background-color: #f1f5f9;
   border-radius: 12px;
 }
 
+.cv-preview-scaler-stage {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cv-preview-scaler-inner {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media screen and (max-width: 768px) {
+  .cv-preview-container-scroll {
+    padding: 4px;
+    max-height: 75vh;
+  }
+}
+
 @media print {
+  .cv-preview-scaler-stage,
+  .cv-preview-scaler-inner {
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    margin-bottom: 0 !important;
+  }
+
   .no-print,
   .print-hide {
     display: none !important;

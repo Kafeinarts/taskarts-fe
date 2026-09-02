@@ -1371,6 +1371,18 @@ export default {
   white-space: pre-line;
 }
 
+.contact-item {
+  display: inline-flex;
+  align-items: center;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cv-name, .cv-title {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
 .cv-item, .cv-section, .cv-sub-section {
   page-break-inside: avoid !important;
   break-inside: avoid !important;
@@ -1379,6 +1391,29 @@ export default {
 .section-heading {
   page-break-after: avoid !important;
   break-after: avoid !important;
+}
+
+/* Responsive Rules for Small/Mobile Screen Direct Rendering (e.g. 720x1280) */
+@media screen and (max-width: 768px) {
+  .cv-paper {
+    padding: 20px 18px;
+    font-size: 12px;
+  }
+  .density-comfortable {
+    padding: 24px 22px;
+  }
+  .density-standard {
+    padding: 18px 16px;
+  }
+  .density-compact {
+    padding: 14px 12px;
+  }
+  .density-ultra_compact {
+    padding: 10px 10px;
+  }
+  .custom-header-banner {
+    padding: 16px 14px !important;
+  }
 }
 
 /* Print Specific Rules for True A4 Fix */
