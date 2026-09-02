@@ -884,7 +884,7 @@
           class="form-control font-monospace border-2 rounded-3 small"
           rows="6"
           v-model="bulkImportRawText"
-          placeholder="Budi Santoso, S.Kom | Senior Frontend Dev | budi@email.com | 081234567890 | Jakarta | Vue 3, TypeScript, Tailwind CSS&#10;Siti Rahmadani, S.Ds | Lead UI/UX Designer | siti@design.io | 081398765432 | Bandung | Figma, UI/UX, Design System&#10;Ahmad Fauzi, M.Kom | Backend Cloud Architect | ahmad@cloud.dev | 085712345678 | Surabaya | Golang, PostgreSQL, Docker"
+          placeholder="Arif Permana, S.Kom | Software Engineer | arif.permana@email.com | 081234567890 | Jakarta | Vue 3, TypeScript, Node.js&#10;Dwi Retno.R, S.E. | Accountant & Admin | dwiretno.r@email.com | 081398765432 | Jakarta | Financial Reporting, Tax, Excel"
         ></textarea>
       </div>
 
@@ -943,38 +943,45 @@ export default {
     const bulkCandidates = ref([
       {
         id: 'cv_cand_1',
-        fullName: 'Budi Pratama, S.Kom',
-        jobTitle: 'Senior Frontend Engineer',
-        email: 'budi.pratama@email.com',
+        fullName: 'Arif Permana, S.Kom',
+        jobTitle: 'Software Engineer',
+        email: 'arif.permana@email.com',
         phone: '081234567890',
         address: 'Jakarta, Indonesia',
-        linkedin: 'linkedin.com/in/budipratama',
-        github: 'github.com/budipratama',
-        website: 'budipratama.dev',
+        linkedin: 'linkedin.com/in/arifpermana',
+        github: 'github.com/arifpermana',
+        website: 'arifpermana.dev',
         avatar: sampleAvatar,
         showAvatar: true,
         avatarShape: 'circle',
         avatarSize: 'md',
         avatarPos: 'left',
-        summary: 'Software Engineer berpengalaman 4+ tahun dalam pengembangan arsitektur Single Page Application (SPA) dan Progressive Web Apps (PWA) berbasis Vue 3 dan TypeScript.',
+        summary: 'Software Engineer berdedikasi tinggi dengan pengalaman 4+ tahun dalam merancang dan mengembangkan arsitektur web modern yang scalable, RESTful API, dan sistem full-stack yang andal menggunakan Vue 3, TypeScript, Node.js, dan cloud infrastructure.',
         experience: [
           {
             company: 'PT Solusi Teknologi Nusantara',
-            position: 'Lead Frontend Developer',
+            position: 'Senior Software Engineer',
             period: '2022 - Sekarang',
             location: 'Jakarta Selatan',
-            description: '• Memimpin pengembangan 8+ modul web enterprise berbasis Vue 3, Pinia, dan Tailwind CSS.\n• Mengoptimalkan performa loading aplikasi hingga 45% dan meningkatkan retensi pengguna.'
+            description: '• Memimpin perancangan dan implementasi 10+ layanan aplikasi berbasis web yang stabil dan terukur.\n• Mengembangkan REST API berkinerja tinggi serta mengoptimalkan query database hingga meningkatkan respons sistem sebesar 40%.\n• Mengelola arsitektur frontend modern menggunakan Vue 3, TypeScript, dan state management terintegrasi.'
+          },
+          {
+            company: 'PT Inovasi Kode Indonesia',
+            position: 'Software Engineer',
+            period: '2020 - 2022',
+            location: 'Jakarta',
+            description: '• Mengembangkan arsitektur backend REST API dan frontend SPA dengan tingkat reliabilitas 99.9%.\n• Berkolaborasi dengan tim produk dan desainer dalam menghadirkan antarmuka pengguna yang intuitif dan responsif.'
           }
         ],
         education: [
           {
             institution: 'Universitas Indonesia',
-            degree: 'S1 Ilmu Komputer / Teknik Informatika',
-            period: '2017 - 2021',
-            gpa: '3.82 / 4.00'
+            degree: 'S1 Teknik Informatika / Ilmu Komputer',
+            period: '2016 - 2020',
+            gpa: '3.84 / 4.00'
           }
         ],
-        skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Vite', 'Node.js', 'REST API', 'Git', 'Docker'],
+        skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'PostgreSQL', 'RESTful API', 'Docker', 'Git'],
         languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
         certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
         selectedTemplate: 'ats_clean_1',
@@ -995,124 +1002,108 @@ export default {
       },
       {
         id: 'cv_cand_2',
-        fullName: 'Siti Rahmadani, S.Ds',
-        jobTitle: 'Lead UI/UX & Product Designer',
-        email: 'siti.rahmadani@design.io',
+        fullName: 'Dwi Retno.R, S.E.',
+        jobTitle: 'Accountant & Admin',
+        email: 'dwiretno.r@accounting.id',
         phone: '081398765432',
-        address: 'Bandung, Jawa Barat',
-        linkedin: 'linkedin.com/in/sitirahma',
-        github: 'dribbble.com/sitirahma',
-        website: 'sitirahma.design',
+        address: 'Jakarta, Indonesia',
+        linkedin: 'linkedin.com/in/dwiretnor',
+        github: '',
+        website: '',
         avatar: sampleAvatar,
         showAvatar: true,
         avatarShape: 'rounded',
         avatarSize: 'md',
         avatarPos: 'sidebar',
-        summary: 'Product Designer dengan pengalaman 5+ tahun merancang design system enterprise, user research, wireframing, dan interactive prototyping high-fidelity di Figma.',
+        summary: 'Profesional Akuntan dan Administrasi berpengalaman 5+ tahun dalam pengelolaan pembukuan, penyusunan laporan keuangan komprehensif, rekonsiliasi bank, kepatuhan perpajakan (PPh & PPN), serta efisiensi manajemen operasional administrasi kantor.',
         experience: [
           {
-            company: 'PT Kreatif Visual Studio',
-            position: 'Lead UI/UX Designer',
+            company: 'PT Global Niaga Perkasa',
+            position: 'Senior Accountant & Finance Admin',
             period: '2021 - Sekarang',
-            location: 'Bandung',
-            description: '• Merancang comprehensive Design System terstandarisasi dengan 200+ komponen reusable di Figma.\n• Melakukan usability testing berkala yang meningkatkan task success rate hingga 32%.'
-          }
-        ],
-        education: [
+            location: 'Jakarta Pusat',
+            description: '• Menyusun laporan keuangan bulanan, kuartalan, dan tahunan (Neraca, Laba Rugi, Arus Kas) dengan akurasi 100%.\n• Mengelola rekonsiliasi kas/bank harian dan mengaudit bukti transaksi keuangan operasional perusahaan.\n• Mengurus pelaporan pajak perusahaan (e-Faktur, PPh 21/23, e-SPT) secara tertib dan tepat waktu.'
+          },
           {
-            institution: 'Institut Teknologi Bandung',
-            degree: 'S1 Desain Komunikasi Visual',
-            period: '2016 - 2020',
-            gpa: '3.78 / 4.00'
-          }
-        ],
-        skills: ['Figma Master', 'Design System', 'User Research', 'Wireframing', 'Prototyping', 'Usability Testing', 'HTML/CSS Basics'],
-        languages: ['Bahasa Indonesia (Native)', 'English (Fluent)'],
-        certifications: ['Google UX Design Professional Certificate', 'Nielsen Norman Group UX Master'],
-        selectedTemplate: 'ats_sidebar_left_3',
-        customColor: '#10b981',
-        cvFont: 'font-sans',
-        customLayoutActive: false
-      },
-      {
-        id: 'cv_cand_3',
-        fullName: 'Ahmad Fauzi, M.Kom',
-        jobTitle: 'Senior Backend & Cloud Architect',
-        email: 'ahmad.fauzi@backend.dev',
-        phone: '085712345678',
-        address: 'Surabaya, Jawa Timur',
-        linkedin: 'linkedin.com/in/ahmadfauzi',
-        github: 'github.com/ahmadfauzi',
-        website: 'ahmadfauzi.io',
-        avatar: sampleAvatar,
-        showAvatar: true,
-        avatarShape: 'circle',
-        avatarSize: 'md',
-        avatarPos: 'left',
-        summary: 'Backend Engineer spesialis arsitektur Microservices, REST & GraphQL API, PostgreSQL, Redis, dan Containerization (Docker/Kubernetes) dengan throughput tinggi.',
-        experience: [
-          {
-            company: 'PT Cloud Nusantara Solusindo',
-            position: 'Senior Backend Engineer',
-            period: '2020 - Sekarang',
-            location: 'Surabaya',
-            description: '• Mengembangkan microservices Go & Node.js yang menangani 2+ juta request per hari dengan latency < 80ms.\n• Mengelola database PostgreSQL berukuran TB dengan partitioning dan query indexing optimal.'
-          }
-        ],
-        education: [
-          {
-            institution: 'Institut Teknologi Sepuluh Nopember',
-            degree: 'S2 Teknik Informatika',
+            company: 'PT Mahakarya Mitra Usaha',
+            position: 'Accounting & Administrative Staff',
             period: '2019 - 2021',
-            gpa: '3.90 / 4.00'
+            location: 'Jakarta',
+            description: '• Memproses invoicing, faktur penjualan, purchase order (PO), dan verifikasi pembayaran tagihan vendor.\n• Mengarsipkan seluruh dokumen keuangan dan administrasi perusahaan secara rapi dan sistematis.'
           }
         ],
-        skills: ['Golang', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'CI/CD Pipeline', 'Microservices'],
-        languages: ['Bahasa Indonesia (Native)', 'English (Professional)'],
-        certifications: ['AWS Certified Solutions Architect Associate', 'CKA Certified Kubernetes Administrator'],
-        selectedTemplate: 'ats_timeline_11',
-        customColor: '#6366f1',
-        cvFont: 'font-mono',
-        customLayoutActive: false
+        education: [
+          {
+            institution: 'Universitas Gadjah Mada',
+            degree: 'S1 Akuntansi',
+            period: '2015 - 2019',
+            gpa: '3.80 / 4.00'
+          }
+        ],
+        skills: ['Financial Reporting', 'General Ledger & Journaling', 'Tax Compliance (PPh & PPN)', 'Bank Reconciliation', 'Accurate & SAP', 'Microsoft Excel (Advanced)', 'Office Administration', 'Budgeting'],
+        languages: ['Bahasa Indonesia (Native)', 'English (Intermediate / Professional)'],
+        certifications: ['Brevet Pajak A & B Terakreditasi', 'Certified Junior Accountant (CJA)'],
+        selectedTemplate: 'ats_sidebar_left_3',
+        customColor: '#0f766e',
+        cvFont: 'font-sans',
+        customLayoutActive: false,
+        customLayoutConfig: {
+          columnMode: 'two_column',
+          sidebarPosition: 'left',
+          sidebarRatio: '35',
+          headerAlign: 'left',
+          headerBanner: false,
+          avatarPos: 'sidebar',
+          mainSections: ['summary', 'experience', 'education'],
+          sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
+          sectionVisibility: {}
+        }
       }
     ]);
 
     // Single mode primary CV
     const singleCv = ref({
-      fullName: 'Budi Pratama, S.Kom',
-      jobTitle: 'Senior Frontend Developer',
-      email: 'budi.pratama@email.com',
+      fullName: 'Arif Permana, S.Kom',
+      jobTitle: 'Software Engineer',
+      email: 'arif.permana@email.com',
       phone: '081234567890',
       address: 'Jakarta, Indonesia',
-      linkedin: 'linkedin.com/in/budipratama',
-      github: 'github.com/budipratama',
-      website: 'budipratama.dev',
+      linkedin: 'linkedin.com/in/arifpermana',
+      github: 'github.com/arifpermana',
+      website: 'arifpermana.dev',
       avatar: sampleAvatar,
       showAvatar: true,
       avatarShape: 'circle',
       avatarSize: 'md',
       avatarPos: 'left',
-      summary: 'Experienced Senior Frontend Engineer with 5+ years of building scalable web applications using Vue 3, TypeScript, and modern web standards. Proven track record of boosting app load performance by 40%.',
+      summary: 'Software Engineer berdedikasi tinggi dengan pengalaman 4+ tahun dalam merancang dan mengembangkan arsitektur web modern yang scalable, RESTful API, dan sistem full-stack yang andal menggunakan Vue 3, TypeScript, Node.js, dan cloud infrastructure.',
       experience: [
         {
-          company: 'PT Teknologi Inovasi',
-          position: 'Senior Frontend Developer',
-          period: 'Jan 2022 - Sekarang',
-          location: 'Jakarta (Hybrid)',
-          description: '• Memimpin pengembangan 10+ modul aplikasi web Vue 3 enterprise.\n• Mengoptimalkan performa web hingga 40% dan user retention 25%.'
+          company: 'PT Solusi Teknologi Nusantara',
+          position: 'Senior Software Engineer',
+          period: '2022 - Sekarang',
+          location: 'Jakarta Selatan',
+          description: '• Memimpin perancangan dan implementasi 10+ layanan aplikasi berbasis web yang stabil dan terukur.\n• Mengembangkan REST API berkinerja tinggi serta mengoptimalkan query database hingga meningkatkan respons sistem sebesar 40%.\n• Mengelola arsitektur frontend modern menggunakan Vue 3, TypeScript, dan state management terintegrasi.'
+        },
+        {
+          company: 'PT Inovasi Kode Indonesia',
+          position: 'Software Engineer',
+          period: '2020 - 2022',
+          location: 'Jakarta',
+          description: '• Mengembangkan arsitektur backend REST API dan frontend SPA dengan tingkat reliabilitas 99.9%.\n• Berkolaborasi dengan tim produk dan desainer dalam menghadirkan antarmuka pengguna yang intuitif dan responsif.'
         }
       ],
       education: [
         {
           institution: 'Universitas Indonesia',
-          degree: 'S1 Teknik Informatika',
-          period: '2017 - 2021',
-          gpa: '3.82 / 4.00'
+          degree: 'S1 Teknik Informatika / Ilmu Komputer',
+          period: '2016 - 2020',
+          gpa: '3.84 / 4.00'
         }
       ],
-      skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'REST API', 'Git', 'Docker'],
+      skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'PostgreSQL', 'RESTful API', 'Docker', 'Git'],
       languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
-      certifications: ['Google Certified Associate Cloud Engineer', 'Meta Front-End Developer Specialization'],
+      certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
       selectedTemplate: 'ats_clean_1',
       customLayoutActive: false,
       customLayoutConfig: {
