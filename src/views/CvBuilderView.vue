@@ -8,14 +8,17 @@
             <i class="bi bi-shield-check me-1"></i> 100% ATS-Friendly Standard
           </span>
           <span class="badge bg-primary text-white fw-bold px-3 py-1.5 rounded-pill">
-            <i class="bi bi-grid-fill me-1"></i> 15 Varian Layout Struktur
+            <i class="bi bi-grid-fill me-1"></i> 20 Varian Layout + Custom Builder
           </span>
           <span class="badge bg-info-subtle text-info fw-bold px-3 py-1.5 rounded-pill">
+            <i class="bi bi-file-earmark-check me-1"></i> Auto-Fit 1 Halaman A4
+          </span>
+          <span class="badge bg-warning-subtle text-dark fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-stars me-1"></i> ATS Score: {{ currentAtsScore.score }}/100 ({{ currentAtsScore.grade }})
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">📄 ATS CV Builder & 15 Layout Resume Generator</h2>
-        <p class="text-muted mb-0">Rancang CV standar ATS internasional untuk 1 profil maupun <strong>banyak kandidat sekaligus (Bulk Batch CV)</strong> dengan 15 layout struktur dan ekspor PDF cetak instan.</p>
+        <h2 class="fw-bold mb-1 text-dark">📄 ATS CV Builder, Custom Layout Studio & A4 Fixer</h2>
+        <p class="text-muted mb-0">Rancang CV profesional dengan <strong>foto profil terpadu</strong>, <strong>20 pilihan template siap pakai</strong>, <strong>studio custom layout mandiri</strong>, dan <strong>penguncian pas rapi di 1 lembar A4</strong>.</p>
       </div>
 
       <div class="d-flex flex-wrap align-items-center gap-2">
@@ -32,7 +35,7 @@
         <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
           <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
           <i v-else class="bi bi-printer"></i>
-          <span>{{ isPdfLoading ? 'Menyiapkan CV...' : (cvMode === 'bulk' ? 'Buka Semua CV di Tab Baru (' + bulkCandidates.length + ' Profil)' : 'Buka / Cetak CV di Tab Baru') }}</span>
+          <span>{{ isPdfLoading ? 'Menyiapkan CV...' : (cvMode === 'bulk' ? 'Cetak Semua CV (' + bulkCandidates.length + ' Profil)' : 'Cetak / Buka CV (A4)') }}</span>
         </button>
       </div>
     </div>
@@ -70,9 +73,7 @@
       </div>
     </div>
 
-    <!-- ======================================================== -->
-    <!-- CANDIDATES BAR & MANAGER (Shown only in Bulk Mode)       -->
-    <!-- ======================================================== -->
+    <!-- CANDIDATES BAR (Bulk Mode Only) -->
     <div v-if="cvMode === 'bulk'" class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4 no-print border-start border-success border-4">
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2 border-bottom pb-3">
         <div>
@@ -151,7 +152,7 @@
 
     <!-- Main Content Area -->
     <div class="row g-4">
-      <!-- Left Column: Wizard Form Steps (no-print) -->
+      <!-- Left Column: Wizard Form & Layout Studio (no-print) -->
       <div class="col-lg-6 no-print" v-if="currentStep <= 5">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
           <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
@@ -162,8 +163,114 @@
             <span class="badge bg-light text-dark border small">ATS: {{ currentAtsScore.score }}/100</span>
           </div>
 
-          <!-- Step 1: Informasi Kontak & Profil -->
+          <!-- ======================================================== -->
+          <!-- STEP 1: INFORMASI KONTAK & FOTO PROFIL                   -->
+          <!-- ======================================================== -->
           <div v-if="currentStep === 1">
+            <!-- PHOTO PROFILE UPLOADER & CUSTOMIZER BOX -->
+            <div class="p-3 bg-light rounded-4 border mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="fw-bold text-dark small mb-0">
+                  <i class="bi bi-camera-fill text-primary me-1.5"></i> Foto Profil CV (Opsional)
+                </label>
+                <div class="form-check form-switch m-0">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="showPhotoSwitch"
+                    :checked="activeCv.showAvatar !== false"
+                    @change="activeCv.showAvatar = $event.target.checked"
+                  />
+                  <label class="form-check-label small fw-semibold" for="showPhotoSwitch">Tampilkan Foto di CV</label>
+                </div>
+              </div>
+
+              <div class="row g-3 align-items-center">
+                <!-- Avatar Preview & Actions -->
+                <div class="col-sm-auto text-center">
+                  <div class="position-relative d-inline-block">
+                    <img
+                      v-if="activeCv.avatar"
+                      :src="activeCv.avatar"
+                      :class="activeAvatarPreviewShapeClass"
+                      class="border border-2 border-primary shadow-sm"
+                      style="width: 84px; height: 84px; object-fit: cover;"
+                      alt="Foto Profil"
+                    />
+                    <div
+                      v-else
+                      class="rounded-circle bg-white border border-2 border-dashed d-flex flex-column align-items-center justify-content-center text-muted"
+                      style="width: 84px; height: 84px;"
+                    >
+                      <i class="bi bi-person-fill fs-2 text-secondary opacity-50"></i>
+                      <span style="font-size: 9px;">Belum Ada</span>
+                    </div>
+
+                    <button
+                      v-if="activeCv.avatar"
+                      type="button"
+                      class="btn btn-danger btn-xs position-absolute top-0 end-0 rounded-circle p-1"
+                      style="width: 22px; height: 22px; line-height: 1;"
+                      @click="activeCv.avatar = ''"
+                      title="Hapus Foto"
+                    >
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Upload Controls & Camera -->
+                <div class="col-sm">
+                  <div class="d-flex flex-wrap gap-2 mb-2">
+                    <input type="file" ref="avatarInput" accept="image/*" class="d-none" @change="onAvatarSelected" />
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold shadow-sm" @click="$refs.avatarInput.click()">
+                      <i class="bi bi-upload me-1"></i> Upload Foto
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="triggerSamplePhoto">
+                      <i class="bi bi-magic me-1"></i> Foto Contoh
+                    </button>
+                  </div>
+                  <div class="text-muted" style="font-size: 11px;">
+                    Format JPG, PNG atau WEBP. Rekomendasi foto formal latar belakang polos / netral.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Extra Photo Controls (if photo is uploaded) -->
+              <div v-if="activeCv.avatar" class="mt-3 pt-3 border-top row g-2">
+                <div class="col-6 col-md-4">
+                  <label class="form-label text-muted small mb-1" style="font-size: 11px;">Bentuk Foto:</label>
+                  <select class="form-select form-select-sm" :value="activeCv.avatarShape || 'circle'" @change="activeCv.avatarShape = $event.target.value">
+                    <option value="circle">Bulat Sempurna (Circle)</option>
+                    <option value="rounded">Kotak Membulat (Rounded)</option>
+                    <option value="square">Persegi Tegas (Square)</option>
+                    <option value="framed">Bingkai Aksen (Framed)</option>
+                  </select>
+                </div>
+
+                <div class="col-6 col-md-4">
+                  <label class="form-label text-muted small mb-1" style="font-size: 11px;">Ukuran Foto:</label>
+                  <select class="form-select form-select-sm" :value="activeCv.avatarSize || 'md'" @change="activeCv.avatarSize = $event.target.value">
+                    <option value="sm">Kecil (64px)</option>
+                    <option value="md">Sedang (82px - Standar)</option>
+                    <option value="lg">Besar (100px)</option>
+                    <option value="xl">Ekstra Besar (118px)</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label text-muted small mb-1" style="font-size: 11px;">Posisi di Header:</label>
+                  <select class="form-select form-select-sm" :value="activeCv.avatarPos || 'left'" @change="activeCv.avatarPos = $event.target.value">
+                    <option value="left">Kiri Header</option>
+                    <option value="center">Tengah Header</option>
+                    <option value="right">Kanan Header</option>
+                    <option value="sidebar">Di Dalam Sidebar</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Info Fields -->
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark small">Nama Lengkap <span class="text-danger">*</span></label>
@@ -186,25 +293,16 @@
                 <input type="text" class="form-control" v-model="activeCv.address" placeholder="Jakarta, Indonesia" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-dark small">LinkedIn / Portfolio URL</label>
+                <label class="form-label fw-bold text-dark small">LinkedIn URL</label>
                 <input type="text" class="form-control" v-model="activeCv.linkedin" placeholder="linkedin.com/in/budipratama" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-dark small">GitHub / Website</label>
+                <label class="form-label fw-bold text-dark small">GitHub / Portofolio</label>
                 <input type="text" class="form-control" v-model="activeCv.github" placeholder="github.com/budipratama" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-dark small">Foto Profil / Avatar (Opsional)</label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="file" ref="avatarInput" accept="image/*" class="d-none" @change="onAvatarSelected" />
-                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="$refs.avatarInput.click()">
-                    <i class="bi bi-image me-1"></i> Upload Foto
-                  </button>
-                  <button v-if="activeCv.avatar" type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" @click="activeCv.avatar = ''" title="Hapus foto">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                  <span v-if="activeCv.avatar" class="badge bg-success-subtle text-success small">Foto Terpasang</span>
-                </div>
+                <label class="form-label fw-bold text-dark small">Website Pribadi</label>
+                <input type="text" class="form-control" v-model="activeCv.website" placeholder="budipratama.dev" />
               </div>
               <div class="col-12">
                 <label class="form-label fw-bold text-dark small">Ringkasan Profil / Summary ATS (3-4 Kalimat)</label>
@@ -214,7 +312,9 @@
             </div>
           </div>
 
-          <!-- Step 2: Pengalaman Kerja -->
+          <!-- ======================================================== -->
+          <!-- STEP 2: PENGALAMAN KERJA                                 -->
+          <!-- ======================================================== -->
           <div v-else-if="currentStep === 2">
             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
               <h6 class="fw-bold text-dark mb-0">Daftar Pengalaman Kerja</h6>
@@ -257,7 +357,9 @@
             </div>
           </div>
 
-          <!-- Step 3: Pendidikan -->
+          <!-- ======================================================== -->
+          <!-- STEP 3: RIWAYAT PENDIDIKAN                               -->
+          <!-- ======================================================== -->
           <div v-else-if="currentStep === 3">
             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
               <h6 class="fw-bold text-dark mb-0">Daftar Riwayat Pendidikan</h6>
@@ -296,7 +398,9 @@
             </div>
           </div>
 
-          <!-- Step 4: Skills, Bahasa & Sertifikasi -->
+          <!-- ======================================================== -->
+          <!-- STEP 4: SKILLS, BAHASA & SERTIFIKASI                     -->
+          <!-- ======================================================== -->
           <div v-else-if="currentStep === 4">
             <div class="mb-3">
               <label class="form-label fw-bold text-dark small">Technical Skills & Keahlian Utama (Pisahkan dengan Koma)</label>
@@ -315,54 +419,242 @@
             </div>
           </div>
 
-          <!-- Step 5: 15 Jenis Layout CV & Pengaturan Desain -->
+          <!-- ======================================================== -->
+          <!-- STEP 5: 20 TEMPLATES + CUSTOM LAYOUT BUILDER             -->
+          <!-- ======================================================== -->
           <div v-else-if="currentStep === 5">
+            <!-- Layout Mode Switch: Presets vs Custom Studio -->
             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-              <div>
-                <h6 class="fw-bold text-dark mb-0">Pilih 15 Jenis Layout Struktur CV</h6>
-                <small class="text-muted">Layout aktif: <strong>{{ activeTemplateInfo.name }}</strong></small>
-              </div>
-            </div>
-
-            <!-- Filter Kategori Layout -->
-            <div class="d-flex flex-wrap gap-1 mb-3">
-              <button
-                v-for="cat in layoutCategories"
-                :key="cat.id"
-                class="btn btn-xs rounded-pill px-2.5 py-1"
-                :class="selectedCategory === cat.id ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
-                @click="selectedCategory = cat.id"
-              >
-                {{ cat.name }}
-              </button>
-            </div>
-
-            <!-- Grid 15 Layout Options -->
-            <div class="row g-2.5 mb-4" style="max-height: 360px; overflow-y: auto;">
-              <div v-for="tmpl in filteredLayouts" :key="tmpl.id" class="col-6 col-md-4">
-                <div
-                  class="card h-100 border-2 rounded-3 text-center p-2.5 cursor-pointer transition-all hover-shadow"
-                  :class="activeCv.selectedTemplate === tmpl.id ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-light-subtle bg-light'"
-                  @click="selectLayoutForActiveCv(tmpl)"
+              <div class="btn-group p-1 bg-light rounded-pill border" role="group">
+                <button
+                  type="button"
+                  class="btn rounded-pill px-3 py-1 fw-bold small"
+                  :class="!isCustomModeActive ? 'btn-primary text-white shadow-sm' : 'btn-light text-muted'"
+                  @click="setTemplateMode(false)"
                 >
-                  <div class="p-2 rounded mb-2 border bg-white position-relative" :style="{ borderColor: tmpl.color }">
-                    <span class="badge rounded-pill position-absolute top-0 end-0 m-1" :style="{ backgroundColor: tmpl.color, color: '#fff', fontSize: '9px' }">
-                      {{ tmpl.type }}
+                  <i class="bi bi-grid-fill me-1"></i> 20 Template Preset
+                </button>
+                <button
+                  type="button"
+                  class="btn rounded-pill px-3 py-1 fw-bold small"
+                  :class="isCustomModeActive ? 'btn-success text-white shadow-sm' : 'btn-light text-muted'"
+                  @click="setTemplateMode(true)"
+                >
+                  <i class="bi bi-sliders2-vertical me-1"></i> 🛠️ Custom Layout Studio
+                </button>
+              </div>
+
+              <span class="badge bg-light text-dark border small">
+                {{ isCustomModeActive ? 'Mode: Kustom Mandiri' : 'Preset: ' + activeTemplateInfo.name }}
+              </span>
+            </div>
+
+            <!-- ---------------------------------------------------- -->
+            <!-- SUB-VIEW A: 20 PRESET TEMPLATES                      -->
+            <!-- ---------------------------------------------------- -->
+            <div v-if="!isCustomModeActive">
+              <!-- Filter Categories -->
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <button
+                  v-for="cat in layoutCategories"
+                  :key="cat.id"
+                  class="btn btn-xs rounded-pill px-2.5 py-1"
+                  :class="selectedCategory === cat.id ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
+                  @click="selectedCategory = cat.id"
+                >
+                  {{ cat.name }}
+                </button>
+              </div>
+
+              <!-- Grid of 20 Layouts -->
+              <div class="row g-2.5 mb-4" style="max-height: 380px; overflow-y: auto;">
+                <div v-for="tmpl in filteredLayouts" :key="tmpl.id" class="col-6 col-md-4">
+                  <div
+                    class="card h-100 border-2 rounded-3 text-center p-2.5 cursor-pointer transition-all hover-shadow"
+                    :class="activeCv.selectedTemplate === tmpl.id ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-light-subtle bg-light'"
+                    @click="selectLayoutForActiveCv(tmpl)"
+                  >
+                    <div class="p-2 rounded mb-2 border bg-white position-relative" :style="{ borderColor: tmpl.color }">
+                      <span class="badge rounded-pill position-absolute top-0 end-0 m-1" :style="{ backgroundColor: tmpl.color, color: '#fff', fontSize: '9px' }">
+                        {{ tmpl.type }}
+                      </span>
+                      <i :class="tmpl.icon" class="fs-4 d-block mb-1" :style="{ color: tmpl.color }"></i>
+                      <div class="fw-bold text-truncate small" :style="{ color: tmpl.color }">{{ tmpl.name }}</div>
+                    </div>
+                    <small class="text-muted d-block lh-sm mb-1" style="font-size: 0.72rem;">{{ tmpl.description }}</small>
+                    <span class="badge bg-dark rounded-pill small mt-auto" v-if="activeCv.selectedTemplate === tmpl.id">
+                      <i class="bi bi-check2 me-0.5"></i> Aktif
                     </span>
-                    <i :class="tmpl.icon" class="fs-4 d-block mb-1" :style="{ color: tmpl.color }"></i>
-                    <div class="fw-bold text-truncate small" :style="{ color: tmpl.color }">{{ tmpl.name }}</div>
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill small mt-auto" v-else>Pilih</span>
                   </div>
-                  <small class="text-muted d-block lh-sm mb-1" style="font-size: 0.72rem;">{{ tmpl.description }}</small>
-                  <span class="badge bg-dark rounded-pill small mt-auto" v-if="activeCv.selectedTemplate === tmpl.id">
-                    <i class="bi bi-check2 me-0.5"></i> Aktif
-                  </span>
-                  <span class="badge bg-secondary-subtle text-secondary rounded-pill small mt-auto" v-else>Pilih</span>
                 </div>
               </div>
             </div>
 
-            <!-- Custom Accent Color & Styling Controls -->
-            <div class="p-3 bg-light rounded-3 border">
+            <!-- ---------------------------------------------------- -->
+            <!-- SUB-VIEW B: CUSTOM LAYOUT BUILDER STUDIO             -->
+            <!-- ---------------------------------------------------- -->
+            <div v-else class="custom-layout-studio p-3 bg-light rounded-4 border mb-4">
+              <div class="alert alert-info py-2 px-3 small mb-3">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                <strong>Custom Layout Studio:</strong> Atur kolom, urutan bagian, dan posisi elemen CV sesuai preferensi Anda.
+              </div>
+
+              <!-- 1. Struktur Kolom -->
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark small mb-1.5"><i class="bi bi-columns-gap me-1 text-primary"></i>1. Struktur Kolom CV:</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <button
+                      type="button"
+                      class="btn btn-sm w-100 rounded-3 border text-start p-2"
+                      :class="activeCustomConfig.columnMode === 'single' ? 'btn-primary text-white shadow-sm' : 'btn-light text-dark'"
+                      @click="activeCustomConfig.columnMode = 'single'"
+                    >
+                      <i class="bi bi-square-fill me-1"></i> 1 Kolom Penuh (Single)
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button
+                      type="button"
+                      class="btn btn-sm w-100 rounded-3 border text-start p-2"
+                      :class="activeCustomConfig.columnMode === 'two_column' ? 'btn-primary text-white shadow-sm' : 'btn-light text-dark'"
+                      @click="activeCustomConfig.columnMode = 'two_column'"
+                    >
+                      <i class="bi bi-layout-split me-1"></i> 2 Kolom (Split Grid)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Pengaturan 2 Kolom (Jika aktif) -->
+              <div v-if="activeCustomConfig.columnMode === 'two_column'" class="p-2.5 bg-white rounded-3 border mb-3">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label text-muted small mb-1" style="font-size: 11px;">Posisi Sidebar:</label>
+                    <select class="form-select form-select-sm" v-model="activeCustomConfig.sidebarPosition">
+                      <option value="left">Sidebar di Kiri</option>
+                      <option value="right">Sidebar di Kanan</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-muted small mb-1" style="font-size: 11px;">Rasio Lebar Kolom:</label>
+                    <select class="form-select form-select-sm" v-model="activeCustomConfig.sidebarRatio">
+                      <option value="30">30% Sidebar : 70% Utama</option>
+                      <option value="35">35% Sidebar : 65% Utama</option>
+                      <option value="40">40% Sidebar : 60% Utama</option>
+                      <option value="50">50% : 50% Simetris</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Header Styling -->
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark small mb-1.5"><i class="bi bi-card-heading me-1 text-primary"></i>2. Gaya Header & Nama:</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <select class="form-select form-select-sm" v-model="activeCustomConfig.headerAlign">
+                      <option value="left">Rata Kiri (Standar)</option>
+                      <option value="center">Rata Tengah (Center)</option>
+                      <option value="right">Rata Kanan</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-check form-switch pt-1">
+                      <input class="form-check-input" type="checkbox" id="bannerSwitch" v-model="activeCustomConfig.headerBanner" />
+                      <label class="form-check-label small fw-semibold" for="bannerSwitch">Banner Warna Penuh</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Reorder & Toggle Sections -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1.5">
+                  <label class="form-label fw-bold text-dark small mb-0"><i class="bi bi-arrows-vertical me-1 text-primary"></i>3. Urutan & Visibilitas Bagian (Sections):</label>
+                  <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2" @click="resetSectionOrder">Reset Urutan</button>
+                </div>
+
+                <div class="d-flex flex-column gap-1.5">
+                  <div
+                    v-for="(secKey, idx) in activeCustomConfig.mainSections"
+                    :key="secKey"
+                    class="d-flex align-items-center justify-content-between p-2 rounded-3 bg-white border"
+                  >
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-light text-dark border font-monospace" style="font-size: 10px;">#{{ idx + 1 }}</span>
+                      <strong class="small text-dark">{{ getSectionNameLabel(secKey) }}</strong>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-1">
+                      <!-- Column assignment if 2-col mode -->
+                      <select
+                        v-if="activeCustomConfig.columnMode === 'two_column'"
+                        class="form-select form-select-xs border-0 bg-light py-0 px-1 text-muted"
+                        style="font-size: 10px; width: 85px;"
+                        :value="isSectionInSidebar(secKey) ? 'sidebar' : 'main'"
+                        @change="toggleSectionColumnPlacement(secKey, $event.target.value)"
+                      >
+                        <option value="main">Utama</option>
+                        <option value="sidebar">Sidebar</option>
+                      </select>
+
+                      <!-- Move Up -->
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-outline-secondary p-1"
+                        style="width: 24px; height: 24px; line-height: 1;"
+                        :disabled="idx === 0"
+                        @click="moveSectionUp(idx)"
+                        title="Geser ke Atas"
+                      >
+                        <i class="bi bi-chevron-up"></i>
+                      </button>
+
+                      <!-- Move Down -->
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-outline-secondary p-1"
+                        style="width: 24px; height: 24px; line-height: 1;"
+                        :disabled="idx === activeCustomConfig.mainSections.length - 1"
+                        @click="moveSectionDown(idx)"
+                        title="Geser ke Bawah"
+                      >
+                        <i class="bi bi-chevron-down"></i>
+                      </button>
+
+                      <!-- Visibility Toggle -->
+                      <button
+                        type="button"
+                        class="btn btn-xs p-1"
+                        :class="activeCustomConfig.sectionVisibility[secKey] !== false ? 'btn-outline-primary' : 'btn-outline-danger'"
+                        style="width: 24px; height: 24px; line-height: 1;"
+                        @click="toggleSectionVisibility(secKey)"
+                        :title="activeCustomConfig.sectionVisibility[secKey] !== false ? 'Sembunyikan' : 'Tampilkan'"
+                      >
+                        <i :class="activeCustomConfig.sectionVisibility[secKey] !== false ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Gaya Heading / Judul Bagian -->
+              <div>
+                <label class="form-label fw-bold text-dark small mb-1.5"><i class="bi bi-brush me-1 text-primary"></i>4. Gaya Garis / Bingkai Judul Bagian:</label>
+                <select class="form-select form-select-sm" v-model="activeHeadingStyle">
+                  <option value="underline">Garis Bawah Solid (Underline ATS)</option>
+                  <option value="left_bar">Garis Aksen di Kiri (Left Bar)</option>
+                  <option value="boxed">Bingkai Kotak Halus (Boxed Frame)</option>
+                  <option value="pill">Latar Kapsul Aksen (Pill Badge)</option>
+                  <option value="minimal">Minimalis Tanpa Garis (Minimal)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Custom Accent Color & Typography Bar -->
+            <div class="p-3 bg-light rounded-4 border">
               <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-sliders me-1 text-primary"></i>Kustomisasi Warna Aksen & Tipografi</h6>
               <div class="row g-2 align-items-center">
                 <div class="col-md-6">
@@ -383,9 +675,10 @@
                 <div class="col-md-6">
                   <label class="form-label text-muted small mb-1">Pilihan Tipografi Font:</label>
                   <select class="form-select form-select-sm" :value="activeCvFont" @change="e => setActiveCvFont(e.target.value)">
-                    <option value="font-sans">Modern Sans (Inter / Segoe UI)</option>
-                    <option value="font-serif">Classic Serif (Georgia / Times)</option>
-                    <option value="font-mono">Technical (Roboto Mono / Consolas)</option>
+                    <option value="font-sans">Modern Sans (Plus Jakarta / Inter)</option>
+                    <option value="font-serif">Classic Serif (Merriweather / Georgia)</option>
+                    <option value="font-mono">Technical (Fira Code / Roboto Mono)</option>
+                    <option value="font-modern">Creative Modern (Outfit / Poppins)</option>
                   </select>
                 </div>
               </div>
@@ -407,14 +700,16 @@
         </div>
       </div>
 
-      <!-- Right Column: Live ATS CV Preview -->
+      <!-- Right Column: Live ATS CV Preview + A4 1-Page Optimizer Controls -->
       <div :class="currentStep > 5 ? 'col-12' : 'col-lg-6'">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 overflow-hidden">
           <!-- Live Preview Header Controls (no-print) -->
-          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2 mb-3 no-print gap-2">
+          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2.5 mb-3 no-print gap-2">
             <div class="d-flex align-items-center gap-2">
               <span class="fw-bold text-dark"><i class="bi bi-eye me-1 text-primary"></i> Live ATS CV Preview</span>
-              <span class="badge bg-light text-dark border small fw-normal">{{ activeTemplateInfo.name }}</span>
+              <span class="badge bg-light text-dark border small fw-normal">
+                {{ isCustomModeActive ? '🛠️ Custom Studio' : activeTemplateInfo.name }}
+              </span>
               <span v-if="cvMode === 'bulk'" class="badge bg-success text-white small">
                 Kandidat #{{ activeCandidateIndex + 1 }} dari {{ bulkCandidates.length }}
               </span>
@@ -440,27 +735,111 @@
               <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
                 <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
                 <i v-else class="bi bi-printer"></i>
-                <span>{{ isPdfLoading ? 'Menyiapkan...' : (cvMode === 'bulk' ? 'Buka Semua (' + bulkCandidates.length + ' CV)' : 'Buka / Cetak CV') }}</span>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : (cvMode === 'bulk' ? 'Cetak Semua (' + bulkCandidates.length + ' CV)' : 'Cetak / Buka A4') }}</span>
               </button>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- A4 FIX & AUTO-FIT 1 PAGE OPTIMIZER TOOLBAR               -->
+          <!-- ======================================================== -->
+          <div class="p-2.5 bg-light rounded-3 border mb-3 no-print">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+              <!-- A4 Status & Meter -->
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill px-2.5 py-1" :class="pageFitStatus.badgeClass">
+                  <i :class="pageFitStatus.icon" class="me-1"></i> {{ pageFitStatus.label }}
+                </span>
+                <small class="text-muted fw-semibold">Tinggi: ~{{ pageFitStatus.percent }}% dari A4</small>
+              </div>
+
+              <!-- Quick Density & Auto-Fit Controls -->
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline-primary rounded-pill fw-bold px-2.5 py-1"
+                  @click="autoFitToOnePage"
+                  title="Otomatis sesuaikan skala agar pas 1 halaman A4"
+                >
+                  <i class="bi bi-magic me-1"></i> ⚡ Auto-Fit 1 Halaman A4
+                </button>
+
+                <!-- Density Selector -->
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="activeDensityMode === 'comfortable' ? 'btn-primary' : 'btn-light border'"
+                    @click="activeDensityMode = 'comfortable'"
+                    title="Jarak Lega"
+                  >
+                    Lega
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="activeDensityMode === 'standard' ? 'btn-primary' : 'btn-light border'"
+                    @click="activeDensityMode = 'standard'"
+                    title="Jarak Standar"
+                  >
+                    Standar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="activeDensityMode === 'compact' ? 'btn-primary' : 'btn-light border'"
+                    @click="activeDensityMode = 'compact'"
+                    title="Jarak Padat"
+                  >
+                    Padat
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="activeDensityMode === 'ultra_compact' ? 'btn-primary' : 'btn-light border'"
+                    @click="activeDensityMode = 'ultra_compact'"
+                    title="Jarak Ultra Padat"
+                  >
+                    Ultra Padat
+                  </button>
+                </div>
+
+                <!-- Page Guide Toggle -->
+                <button
+                  type="button"
+                  class="btn btn-xs rounded-pill px-2 py-1"
+                  :class="showPageGuide ? 'btn-secondary text-white' : 'btn-outline-secondary'"
+                  @click="showPageGuide = !showPageGuide"
+                  title="Tampilkan garis pembatas halaman A4"
+                >
+                  <i class="bi bi-rulers"></i> Panduan A4
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- ======================================================== -->
           <!-- 1. SINGLE MODE PRINTABLE AREA                            -->
           <!-- ======================================================== -->
-          <div v-if="cvMode === 'single'" id="cvPrintArea">
+          <div v-if="cvMode === 'single'" id="cvPrintArea" class="cv-preview-container-scroll">
             <CvLayoutRenderer
+              ref="singleRendererEl"
               :cv="cv"
-              :layout-type="cv.selectedTemplate || 'single_column'"
+              :layout-type="isCustomModeActive ? 'custom' : (cv.selectedTemplate || 'single_column')"
               :active-color="activeCvColor"
               :cv-font="activeCvFont"
+              :density-mode="activeDensityMode"
+              :heading-style="activeHeadingStyle"
+              :lock-single-page="lockSinglePage"
+              :show-page-guide="showPageGuide"
+              :custom-layout-config="activeCustomConfig"
             />
           </div>
 
           <!-- ======================================================== -->
           <!-- 2. BULK MULTI-CANDIDATE PRINTABLE AREA                   -->
           <!-- ======================================================== -->
-          <div v-else id="cvBulkPrintArea" class="bulk-cv-container">
+          <div v-else id="cvBulkPrintArea" class="bulk-cv-container cv-preview-container-scroll">
             <div
               v-for="(cand, cIdx) in (isPrintingAll ? bulkCandidates : [activeCv])"
               :key="cand.id || cIdx"
@@ -468,9 +847,14 @@
             >
               <CvLayoutRenderer
                 :cv="cand"
-                :layout-type="cand.selectedTemplate || 'single_column'"
+                :layout-type="cand.customLayoutActive ? 'custom' : (cand.selectedTemplate || 'single_column')"
                 :active-color="cand.customColor || '#1e293b'"
                 :cv-font="cand.cvFont || 'font-sans'"
+                :density-mode="cand.densityMode || activeDensityMode"
+                :heading-style="cand.headingStyle || activeHeadingStyle"
+                :lock-single-page="lockSinglePage"
+                :show-page-guide="showPageGuide"
+                :custom-layout-config="cand.customLayoutConfig || activeCustomConfig"
               />
             </div>
           </div>
@@ -529,6 +913,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const singleRendererEl = ref(null);
 
     const cvMode = ref('single'); // 'single' | 'bulk'
     const isPrintingAll = ref(false);
@@ -538,10 +923,22 @@ export default {
     const customColor = ref('#1e293b');
     const cvFont = ref('font-sans');
 
+    // A4 Single Page Fit & Density State
+    const activeDensityMode = ref('standard'); // 'comfortable' | 'standard' | 'compact' | 'ultra_compact'
+    const activeHeadingStyle = ref('underline'); // 'underline' | 'boxed' | 'left_bar' | 'pill' | 'minimal'
+    const lockSinglePage = ref(false);
+    const showPageGuide = ref(true);
+
+    // Custom Layout Studio State
+    const isCustomModeActive = ref(false);
+
     // Bulk Mode State
     const activeCandidateIndex = ref(0);
     const showBulkImportModal = ref(false);
     const bulkImportRawText = ref('');
+
+    // Sample Base64 avatar for instant test
+    const sampleAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23e2e8f0"/><circle cx="100" cy="80" r="40" fill="%23475569"/><path d="M40 180 C40 135, 160 135, 160 180" fill="%23334155"/></svg>';
 
     const bulkCandidates = ref([
       {
@@ -553,6 +950,12 @@ export default {
         address: 'Jakarta, Indonesia',
         linkedin: 'linkedin.com/in/budipratama',
         github: 'github.com/budipratama',
+        website: 'budipratama.dev',
+        avatar: sampleAvatar,
+        showAvatar: true,
+        avatarShape: 'circle',
+        avatarSize: 'md',
+        avatarPos: 'left',
         summary: 'Software Engineer berpengalaman 4+ tahun dalam pengembangan arsitektur Single Page Application (SPA) dan Progressive Web Apps (PWA) berbasis Vue 3 dan TypeScript.',
         experience: [
           {
@@ -574,9 +977,21 @@ export default {
         skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Vite', 'Node.js', 'REST API', 'Git', 'Docker'],
         languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
         certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
-        selectedTemplate: 'single_column',
+        selectedTemplate: 'ats_clean_1',
         customColor: '#0d6efd',
-        cvFont: 'font-sans'
+        cvFont: 'font-sans',
+        customLayoutActive: false,
+        customLayoutConfig: {
+          columnMode: 'single',
+          sidebarPosition: 'left',
+          sidebarRatio: '30',
+          headerAlign: 'left',
+          headerBanner: false,
+          avatarPos: 'left',
+          mainSections: ['summary', 'experience', 'education', 'skills', 'languages', 'certifications'],
+          sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
+          sectionVisibility: {}
+        }
       },
       {
         id: 'cv_cand_2',
@@ -587,6 +1002,12 @@ export default {
         address: 'Bandung, Jawa Barat',
         linkedin: 'linkedin.com/in/sitirahma',
         github: 'dribbble.com/sitirahma',
+        website: 'sitirahma.design',
+        avatar: sampleAvatar,
+        showAvatar: true,
+        avatarShape: 'rounded',
+        avatarSize: 'md',
+        avatarPos: 'sidebar',
         summary: 'Product Designer dengan pengalaman 5+ tahun merancang design system enterprise, user research, wireframing, dan interactive prototyping high-fidelity di Figma.',
         experience: [
           {
@@ -608,9 +1029,10 @@ export default {
         skills: ['Figma Master', 'Design System', 'User Research', 'Wireframing', 'Prototyping', 'Usability Testing', 'HTML/CSS Basics'],
         languages: ['Bahasa Indonesia (Native)', 'English (Fluent)'],
         certifications: ['Google UX Design Professional Certificate', 'Nielsen Norman Group UX Master'],
-        selectedTemplate: 'sidebar_left',
+        selectedTemplate: 'ats_sidebar_left_3',
         customColor: '#10b981',
-        cvFont: 'font-sans'
+        cvFont: 'font-sans',
+        customLayoutActive: false
       },
       {
         id: 'cv_cand_3',
@@ -621,6 +1043,12 @@ export default {
         address: 'Surabaya, Jawa Timur',
         linkedin: 'linkedin.com/in/ahmadfauzi',
         github: 'github.com/ahmadfauzi',
+        website: 'ahmadfauzi.io',
+        avatar: sampleAvatar,
+        showAvatar: true,
+        avatarShape: 'circle',
+        avatarSize: 'md',
+        avatarPos: 'left',
         summary: 'Backend Engineer spesialis arsitektur Microservices, REST & GraphQL API, PostgreSQL, Redis, dan Containerization (Docker/Kubernetes) dengan throughput tinggi.',
         experience: [
           {
@@ -642,9 +1070,10 @@ export default {
         skills: ['Golang', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'CI/CD Pipeline', 'Microservices'],
         languages: ['Bahasa Indonesia (Native)', 'English (Professional)'],
         certifications: ['AWS Certified Solutions Architect Associate', 'CKA Certified Kubernetes Administrator'],
-        selectedTemplate: 'timeline_flow',
+        selectedTemplate: 'ats_timeline_11',
         customColor: '#6366f1',
-        cvFont: 'font-mono'
+        cvFont: 'font-mono',
+        customLayoutActive: false
       }
     ]);
 
@@ -658,7 +1087,11 @@ export default {
       linkedin: 'linkedin.com/in/budipratama',
       github: 'github.com/budipratama',
       website: 'budipratama.dev',
-      avatar: '',
+      avatar: sampleAvatar,
+      showAvatar: true,
+      avatarShape: 'circle',
+      avatarSize: 'md',
+      avatarPos: 'left',
       summary: 'Experienced Senior Frontend Engineer with 5+ years of building scalable web applications using Vue 3, TypeScript, and modern web standards. Proven track record of boosting app load performance by 40%.',
       experience: [
         {
@@ -680,7 +1113,19 @@ export default {
       skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'REST API', 'Git', 'Docker'],
       languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
       certifications: ['Google Certified Associate Cloud Engineer', 'Meta Front-End Developer Specialization'],
-      selectedTemplate: 'single_column'
+      selectedTemplate: 'ats_clean_1',
+      customLayoutActive: false,
+      customLayoutConfig: {
+        columnMode: 'single',
+        sidebarPosition: 'left',
+        sidebarRatio: '30',
+        headerAlign: 'left',
+        headerBanner: false,
+        avatarPos: 'left',
+        mainSections: ['summary', 'experience', 'education', 'skills', 'languages', 'certifications'],
+        sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
+        sectionVisibility: {}
+      }
     });
 
     const activeCv = computed(() => {
@@ -704,6 +1149,31 @@ export default {
       return activeCv.value.cvFont || cvFont.value;
     });
 
+    const activeCustomConfig = computed(() => {
+      if (!activeCv.value.customLayoutConfig) {
+        activeCv.value.customLayoutConfig = {
+          columnMode: 'single',
+          sidebarPosition: 'left',
+          sidebarRatio: '30',
+          headerAlign: 'left',
+          headerBanner: false,
+          avatarPos: 'left',
+          mainSections: ['summary', 'experience', 'education', 'skills', 'languages', 'certifications'],
+          sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
+          sectionVisibility: {}
+        };
+      }
+      return activeCv.value.customLayoutConfig;
+    });
+
+    const activeAvatarPreviewShapeClass = computed(() => {
+      const shape = activeCv.value.avatarShape || 'circle';
+      if (shape === 'rounded') return 'rounded-4';
+      if (shape === 'square') return 'rounded-1';
+      if (shape === 'framed') return 'rounded-3 border border-3';
+      return 'rounded-circle';
+    });
+
     const setActiveCvColor = (color) => {
       if (cvMode.value === 'single') {
         customColor.value = color;
@@ -720,7 +1190,14 @@ export default {
       }
     };
 
+    const setTemplateMode = (customActive) => {
+      isCustomModeActive.value = customActive;
+      activeCv.value.customLayoutActive = customActive;
+    };
+
     const selectLayoutForActiveCv = (tmpl) => {
+      isCustomModeActive.value = false;
+      activeCv.value.customLayoutActive = false;
       activeCv.value.selectedTemplate = tmpl.layout || tmpl.id;
       if (tmpl.color) {
         setActiveCvColor(tmpl.color);
@@ -728,39 +1205,44 @@ export default {
     };
 
     const applyLayoutToAllCandidates = () => {
-      const activeTmpl = activeCv.value.selectedTemplate || 'single_column';
+      const activeTmpl = activeCv.value.selectedTemplate || 'ats_clean_1';
       const activeCol = activeCvColor.value;
       const activeFnt = activeCvFont.value;
+      const customAct = isCustomModeActive.value;
+      const customCfg = JSON.parse(JSON.stringify(activeCustomConfig.value));
 
       bulkCandidates.value.forEach(c => {
         c.selectedTemplate = activeTmpl;
         c.customColor = activeCol;
         c.cvFont = activeFnt;
+        c.customLayoutActive = customAct;
+        c.customLayoutConfig = JSON.parse(JSON.stringify(customCfg));
       });
 
       Swal.fire({
         icon: 'success',
         title: 'Layout Disinkronkan!',
-        text: `Semua ${bulkCandidates.value.length} profil kandidat kini menggunakan layout dan warna yang seragam.`,
+        text: `Semua ${bulkCandidates.value.length} profil kandidat kini menggunakan layout, warna, dan struktur yang seragam.`,
         timer: 1800,
         showConfirmButton: false
       });
     };
 
     const steps = [
-      { id: 1, name: 'Kontak', title: '1. Informasi Kontak & Profil' },
+      { id: 1, name: 'Kontak & Foto', title: '1. Informasi Kontak & Foto Profil' },
       { id: 2, name: 'Pengalaman', title: '2. Pengalaman Kerja' },
       { id: 3, name: 'Pendidikan', title: '3. Riwayat Pendidikan' },
       { id: 4, name: 'Skills & Sertif', title: '4. Keahlian, Bahasa & Sertifikasi' },
-      { id: 5, name: '15 Layout Desain', title: '5. Pilih 15 Jenis Layout Struktur CV' }
+      { id: 5, name: '20 Layout & Studio', title: '5. Pilih 20 Layout Struktur & Custom Studio' }
     ];
 
     const layoutCategories = [
-      { id: 'all', name: 'Semua (15)' },
-      { id: 'single', name: 'Single Column' },
-      { id: 'sidebar', name: 'Sidebar Grid' },
+      { id: 'all', name: 'Semua (20)' },
+      { id: 'single', name: 'Single Column ATS' },
+      { id: 'sidebar', name: 'Sidebar Split' },
       { id: 'executive', name: 'Executive & Creative' },
-      { id: 'minimalist', name: 'Minimalist & Academic' }
+      { id: 'minimalist', name: 'Minimalist & Academic' },
+      { id: 'tech', name: 'Tech & Modern' }
     ];
 
     const presetColors = [
@@ -771,10 +1253,12 @@ export default {
       '#b91c1c', // Crimson Red
       '#431407', // Warm Walnut
       '#0369a1', // Sky Corporate
+      '#059669', // Mint Green
+      '#4f46e5', // Indigo Electric
       '#374151'  // Charcoal
     ];
 
-    // 15 Distinct Layout Variations
+    // 20 Distinct Layout Variations
     const templates = [
       {
         id: 'ats_clean_1',
@@ -800,7 +1284,7 @@ export default {
         id: 'ats_sidebar_left_3',
         name: '3. Split Sidebar Left',
         category: 'sidebar',
-        type: 'Sidebar 32:68',
+        type: 'Sidebar 30:70',
         layout: 'sidebar_left',
         icon: 'bi-layout-sidebar-inset',
         color: '#0f766e',
@@ -810,7 +1294,7 @@ export default {
         id: 'ats_sidebar_right_4',
         name: '4. Split Sidebar Right',
         category: 'sidebar',
-        type: 'Sidebar 68:32',
+        type: 'Sidebar 70:30',
         layout: 'sidebar_right',
         icon: 'bi-layout-sidebar-inset-reverse',
         color: '#0369a1',
@@ -829,7 +1313,7 @@ export default {
       {
         id: 'ats_tech_6',
         name: '6. Tech Developer Emerald',
-        category: 'single',
+        category: 'tech',
         type: 'Tech Pro',
         layout: 'single_column',
         icon: 'bi-terminal',
@@ -919,12 +1403,62 @@ export default {
       {
         id: 'ats_startup_sleek_15',
         name: '15. Modern Startup Sleek',
-        category: 'executive',
+        category: 'tech',
         type: 'Startup',
         layout: 'sidebar_left',
         icon: 'bi-rocket-takeoff',
         color: '#4f46e5',
         description: 'Desain dinamis ala talenta tech startup dengan badge skill mencolok.'
+      },
+      {
+        id: 'ats_two_tone_16',
+        name: '16. Two-Tone Dark Sidebar',
+        category: 'sidebar',
+        type: 'Two-Tone',
+        layout: 'sidebar_left',
+        icon: 'bi-circle-half',
+        color: '#1e293b',
+        description: 'Sidebar kontras solid dengan panel teks bersih di sisi kanan.'
+      },
+      {
+        id: 'ats_emerald_17',
+        name: '17. Emerald Consultant Pro',
+        category: 'executive',
+        type: 'Consultant',
+        layout: 'single_column',
+        icon: 'bi-gem',
+        color: '#047857',
+        description: 'Garis aksen hijau emerald formal khusus konsultan & profesional korporat.'
+      },
+      {
+        id: 'ats_gradient_top_18',
+        name: '18. Modern Gradient Horizon',
+        category: 'creative',
+        type: 'Gradient',
+        layout: 'creative_banner',
+        icon: 'bi-rainbow',
+        color: '#6366f1',
+        description: 'Header bergradasi elegan dengan perataan teks kontak modern.'
+      },
+      {
+        id: 'ats_infographic_19',
+        name: '19. Infographic Metrics Pro',
+        category: 'tech',
+        type: 'Metrics',
+        layout: 'dual_balanced',
+        icon: 'bi-bar-chart-steps',
+        color: '#0284c7',
+        description: 'Pill badges dan indikator metrik rapi untuk menonjolkan keahlian teknis.'
+      },
+      {
+        id: 'ats_editorial_20',
+        name: '20. Editorial Modern Serif',
+        category: 'minimalist',
+        type: 'Editorial',
+        layout: 'single_column',
+        icon: 'bi-journal-richtext',
+        color: '#18181b',
+        description: 'Tata letak editorial majalah bisnis dengan hierarki tipografi tinggi.'
       }
     ];
 
@@ -934,7 +1468,7 @@ export default {
     });
 
     const activeTemplateInfo = computed(() => {
-      const tmplId = activeCv.value.selectedTemplate || 'single_column';
+      const tmplId = activeCv.value.selectedTemplate || 'ats_clean_1';
       const found = templates.find(t => t.id === tmplId || t.layout === tmplId);
       return found || templates[0];
     });
@@ -959,6 +1493,134 @@ export default {
 
       return { score, grade };
     });
+
+    // Real-Time Page Fit Meter Status
+    const pageFitStatus = computed(() => {
+      const expCount = (activeCv.value.experience || []).length;
+      const eduCount = (activeCv.value.education || []).length;
+      const skillCount = (activeCv.value.skills || []).length;
+      const hasSummary = !!activeCv.value.summary;
+      const hasPhoto = !!(activeCv.value.avatar && activeCv.value.showAvatar !== false);
+
+      // Estimate base height weight points
+      let weight = 240; // Base header
+      if (hasPhoto) weight += 50;
+      if (hasSummary) weight += 120;
+      weight += expCount * 145;
+      weight += eduCount * 75;
+      weight += Math.min(skillCount * 12, 100);
+
+      // Adjust for density
+      if (activeDensityMode.value === 'comfortable') weight *= 1.15;
+      else if (activeDensityMode.value === 'compact') weight *= 0.84;
+      else if (activeDensityMode.value === 'ultra_compact') weight *= 0.72;
+
+      // Target A4 height is ~1123px (usable area ~1020px)
+      const percent = Math.min(Math.round((weight / 1020) * 100), 160);
+
+      if (percent <= 95) {
+        return {
+          percent,
+          label: 'Sempurna Pas 1 Halaman A4',
+          badgeClass: 'bg-success text-white',
+          icon: 'bi-check-circle-fill'
+        };
+      } else if (percent <= 104) {
+        return {
+          percent,
+          label: 'Hampir Penuh (Optimal)',
+          badgeClass: 'bg-primary text-white',
+          icon: 'bi-info-circle-fill'
+        };
+      } else {
+        return {
+          percent,
+          label: `Melebihi 1 Halaman (+${percent - 100}%)`,
+          badgeClass: 'bg-warning text-dark',
+          icon: 'bi-exclamation-triangle-fill'
+        };
+      }
+    });
+
+    // Auto-Fit 1 Page Magic Function
+    const autoFitToOnePage = () => {
+      const p = pageFitStatus.value.percent;
+      if (p > 105) {
+        activeDensityMode.value = 'ultra_compact';
+      } else if (p > 95) {
+        activeDensityMode.value = 'compact';
+      } else {
+        activeDensityMode.value = 'standard';
+      }
+
+      lockSinglePage.value = true;
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '⚡ Auto-Fit 1 Halaman A4 Diterapkan!',
+        text: `Mode kerapatan disetel ke "${activeDensityMode.value.replace('_', ' ').toUpperCase()}" agar pas di 1 lembar.`,
+        showConfirmButton: false,
+        timer: 2000
+      });
+    };
+
+    // Custom Section Reordering & Management
+    const sectionNamesMap = {
+      summary: 'Ringkasan Profil (Summary)',
+      experience: 'Pengalaman Kerja (Experience)',
+      education: 'Riwayat Pendidikan (Education)',
+      skills: 'Keahlian Utama (Skills)',
+      languages: 'Kemampuan Bahasa (Languages)',
+      certifications: 'Sertifikasi & Lisensi (Certifications)',
+      contact: 'Informasi Kontak (Contact Info)'
+    };
+
+    const getSectionNameLabel = (key) => sectionNamesMap[key] || key;
+
+    const moveSectionUp = (idx) => {
+      if (idx <= 0) return;
+      const list = activeCustomConfig.value.mainSections;
+      const temp = list[idx];
+      list[idx] = list[idx - 1];
+      list[idx - 1] = temp;
+    };
+
+    const moveSectionDown = (idx) => {
+      const list = activeCustomConfig.value.mainSections;
+      if (idx >= list.length - 1) return;
+      const temp = list[idx];
+      list[idx] = list[idx + 1];
+      list[idx + 1] = temp;
+    };
+
+    const toggleSectionVisibility = (key) => {
+      const vis = activeCustomConfig.value.sectionVisibility;
+      vis[key] = vis[key] === false ? true : false;
+    };
+
+    const isSectionInSidebar = (key) => {
+      const s = activeCustomConfig.value.sidebarSections || [];
+      return s.includes(key);
+    };
+
+    const toggleSectionColumnPlacement = (key, targetCol) => {
+      const cfg = activeCustomConfig.value;
+      if (!cfg.sidebarSections) cfg.sidebarSections = [];
+
+      if (targetCol === 'sidebar') {
+        if (!cfg.sidebarSections.includes(key)) cfg.sidebarSections.push(key);
+      } else {
+        cfg.sidebarSections = cfg.sidebarSections.filter(k => k !== key);
+      }
+    };
+
+    const resetSectionOrder = () => {
+      activeCustomConfig.value.mainSections = ['summary', 'experience', 'education', 'skills', 'languages', 'certifications'];
+      activeCustomConfig.value.sidebarSections = ['contact', 'skills', 'languages', 'certifications'];
+      activeCustomConfig.value.sectionVisibility = {};
+    };
 
     // String Getters & Mutators for Active CV
     const currentSkillsString = computed(() => (activeCv.value.skills || []).join(', '));
@@ -1012,12 +1674,26 @@ export default {
       const reader = new FileReader();
       reader.onload = (evt) => {
         activeCv.value.avatar = evt.target.result;
+        activeCv.value.showAvatar = true;
         sendOnDeviceNotification('📸 Foto Profil Terpasang', {
           body: 'Foto berhasil diunggah ke formulir CV Anda.',
           type: 'success'
         });
       };
       reader.readAsDataURL(file);
+    };
+
+    const triggerSamplePhoto = () => {
+      activeCv.value.avatar = sampleAvatar;
+      activeCv.value.showAvatar = true;
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Foto Sampel Terpasang!',
+        showConfirmButton: false,
+        timer: 1500
+      });
     };
 
     // Bulk Management Functions
@@ -1032,6 +1708,11 @@ export default {
         address: 'Jakarta, Indonesia',
         linkedin: '',
         github: '',
+        website: '',
+        avatar: sampleAvatar,
+        showAvatar: true,
+        avatarShape: 'circle',
+        avatarSize: 'md',
         summary: 'Rangkuman profesional profil kandidat...',
         experience: [
           {
@@ -1053,7 +1734,7 @@ export default {
         skills: ['Manajemen Kerja', 'Komunikasi', 'Analisis Data', 'Problem Solving'],
         languages: ['Bahasa Indonesia (Native)', 'English (Conversational)'],
         certifications: [],
-        selectedTemplate: 'single_column',
+        selectedTemplate: 'ats_clean_1',
         customColor: '#1e293b',
         cvFont: 'font-sans'
       });
@@ -1109,6 +1790,11 @@ export default {
             address: parts[4] || 'Indonesia',
             linkedin: '',
             github: '',
+            website: '',
+            avatar: sampleAvatar,
+            showAvatar: true,
+            avatarShape: 'circle',
+            avatarSize: 'md',
             summary: `Profesional berdedikasi tinggi pada bidang ${parts[1] || 'industri'} dengan rekam jejak kerja yang solid.`,
             experience: [
               {
@@ -1130,7 +1816,7 @@ export default {
             skills: skillsList,
             languages: ['Bahasa Indonesia (Native)', 'English (Good)'],
             certifications: [],
-            selectedTemplate: 'single_column',
+            selectedTemplate: 'ats_clean_1',
             customColor: '#1e293b',
             cvFont: 'font-sans'
           });
@@ -1148,7 +1834,7 @@ export default {
       });
     };
 
-    // Print Logic
+    // Print & PDF New Tab Logic (True A4 Alignment)
     const isPdfLoading = ref(false);
 
     const printCurrentMode = () => {
@@ -1159,12 +1845,14 @@ export default {
         if (cvMode.value === 'bulk') {
           isPrintingAll.value = true;
           nextTick(() => {
-            const title = `Batch_CV_ATS_${bulkCandidates.value.length}_Kandidat`;
+            const title = `Batch_CV_ATS_${bulkCandidates.value.length}_Kandidat_A4`;
             openPrintableDocumentInNewTab({
               title,
               elementId: 'cvBulkPrintArea',
               customStyles: `
-                .bulk-cv-container > div { page-break-after: always; break-after: page; margin-bottom: 28px; }
+                @page { size: A4 portrait; margin: 8mm 10mm; }
+                .bulk-cv-container > div { page-break-after: always; break-after: page; margin-bottom: 24px; }
+                .print-container { max-width: 794px; padding: 0; background: transparent; box-shadow: none; margin: 0 auto; }
               `,
               autoPrint: true
             });
@@ -1172,19 +1860,19 @@ export default {
             isPdfLoading.value = false;
           });
         } else {
-          const title = `CV_ATS_${singleCv.value.fullName || 'Kandidat'}`;
+          const title = `CV_ATS_${singleCv.value.fullName || 'Kandidat'}_A4`;
           openPrintableDocumentInNewTab({
             title,
             elementId: 'cvPrintArea',
+            customStyles: `
+              @page { size: A4 portrait; margin: 8mm 10mm; }
+              .print-container { max-width: 794px; padding: 0; background: transparent; box-shadow: none; margin: 0 auto; }
+            `,
             autoPrint: true
           });
           isPdfLoading.value = false;
         }
       }, 400);
-    };
-
-    const printCv = () => {
-      printCurrentMode();
     };
 
     const saveDraft = () => {
@@ -1195,7 +1883,7 @@ export default {
       }
       isSaving.value = true;
       sendOnDeviceNotification('📄 Draft CV Berhasil Disimpan', {
-        body: 'Semua profil CV ATS dan pengaturan layout berhasil disimpan.',
+        body: 'Semua profil CV ATS, foto, dan pengaturan layout berhasil disimpan.',
         type: 'success'
       });
       setTimeout(() => {
@@ -1216,7 +1904,9 @@ export default {
           singleCv: singleCv.value,
           bulkCandidates: bulkCandidates.value,
           customColor: customColor.value,
-          cvFont: cvFont.value
+          cvFont: cvFont.value,
+          activeDensityMode: activeDensityMode.value,
+          activeHeadingStyle: activeHeadingStyle.value
         };
         const jsonStr = JSON.stringify(payload, null, 2);
         const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1287,6 +1977,8 @@ export default {
               if (parsed.cvMode) cvMode.value = parsed.cvMode;
               if (parsed.customColor) customColor.value = parsed.customColor;
               if (parsed.cvFont) cvFont.value = parsed.cvFont;
+              if (parsed.activeDensityMode) activeDensityMode.value = parsed.activeDensityMode;
+              if (parsed.activeHeadingStyle) activeHeadingStyle.value = parsed.activeHeadingStyle;
 
               saveDraft();
               Swal.fire({
@@ -1342,6 +2034,27 @@ export default {
       addEducation,
       removeEducation,
       onAvatarSelected,
+      triggerSamplePhoto,
+      activeAvatarPreviewShapeClass,
+      // Custom Layout Studio State & Methods
+      isCustomModeActive,
+      setTemplateMode,
+      activeCustomConfig,
+      activeHeadingStyle,
+      getSectionNameLabel,
+      moveSectionUp,
+      moveSectionDown,
+      toggleSectionVisibility,
+      isSectionInSidebar,
+      toggleSectionColumnPlacement,
+      resetSectionOrder,
+      // A4 Fit & Density
+      activeDensityMode,
+      lockSinglePage,
+      showPageGuide,
+      pageFitStatus,
+      autoFitToOnePage,
+      singleRendererEl,
       // Bulk State & Methods
       activeCandidateIndex,
       bulkCandidates,
@@ -1353,7 +2066,6 @@ export default {
       processBulkImport,
       isPdfLoading,
       printCurrentMode,
-      printCv,
       saveDraft,
       cvJsonInput,
       exportCvJson,
@@ -1380,6 +2092,15 @@ export default {
 
 .hover-bg-white-20:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+.cv-preview-container-scroll {
+  max-height: 86vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 8px;
+  background-color: #f1f5f9;
+  border-radius: 12px;
 }
 
 @media print {
