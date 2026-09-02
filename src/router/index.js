@@ -117,6 +117,19 @@ const routes = [
     component: () => import("../views/CodeNotesView.vue"),
   },
   {
+    path: "/code-notes/:id",
+    name: "code-note-detail",
+    component: () => import("../views/CodeNoteDetailView.vue"),
+  },
+  {
+    path: "/code-snippets/:id",
+    redirect: to => `/code-notes/${to.params.id}`,
+  },
+  {
+    path: "/code-snippet/:id",
+    redirect: to => `/code-notes/${to.params.id}`,
+  },
+  {
     path: "/surat",
     name: "surat",
     component: () => import("../views/SuratBuilderView.vue"),

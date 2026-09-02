@@ -25,12 +25,15 @@
           </p>
 
           <div class="d-flex flex-wrap gap-2">
-            <a href="#docModules" class="btn btn-primary px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
-              <i class="bi bi-grid-3x3-gap-fill"></i> Dokumentasi 20+ Modul
-            </a>
-            <a href="#hiddenFeatures" class="btn btn-warning text-dark px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
+            <button @click="activeTab = 'tutorials'" class="btn btn-primary px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
+              <i class="bi bi-mortarboard-fill"></i> 🎓 Tutorial Lengkap Semua Menu
+            </button>
+            <button @click="activeTab = 'modules'" class="btn btn-outline-light px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
+              <i class="bi bi-grid-3x3-gap-fill"></i> Ensiklopedia Modul
+            </button>
+            <button @click="activeTab = 'hidden'" class="btn btn-warning text-dark px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
               <i class="bi bi-stars"></i> Fitur & Shortcut Tersembunyi
-            </a>
+            </button>
             <a href="https://github.com/itsmebroarif/rajinkerja-id" target="_blank" class="btn btn-outline-light px-4 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2">
               <i class="bi bi-github fs-5"></i> GitHub Repo
             </a>
@@ -55,36 +58,49 @@
     <div class="card border-0 shadow-sm rounded-4 bg-white p-3 mb-4">
       <ul class="nav nav-pills nav-fill gap-2" role="tablist">
         <li class="nav-item">
+          <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'tutorials' }" @click="activeTab = 'tutorials'">
+            <i class="bi bi-mortarboard-fill text-warning"></i>
+            <span>1. 🎓 Tutorial Lengkap per Menu</span>
+          </button>
+        </li>
+        <li class="nav-item">
           <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'modules' }" @click="activeTab = 'modules'">
             <i class="bi bi-grid-3x3-gap-fill"></i>
-            <span>1. Dokumentasi Lengkap Modul</span>
+            <span>2. 📖 Ensiklopedia Modul</span>
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'hidden' }" @click="activeTab = 'hidden'">
             <i class="bi bi-stars text-warning"></i>
-            <span>2. Hidden Features & Shortcuts</span>
+            <span>3. ⚡ Hidden Features & Shortcuts</span>
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'pwa' }" @click="activeTab = 'pwa'">
             <i class="bi bi-phone-fill"></i>
-            <span>3. Panduan Instalasi PWA</span>
+            <span>4. 📱 Panduan Pasang PWA</span>
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'dev' }" @click="activeTab = 'dev'">
             <i class="bi bi-code-slash"></i>
-            <span>4. Arsitektur & Developer</span>
+            <span>5. 💻 Arsitektur & Developer</span>
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link py-2.5 px-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" :class="{ active: activeTab === 'faq' }" @click="activeTab = 'faq'">
             <i class="bi bi-question-circle-fill"></i>
-            <span>5. FAQ & Pencarian</span>
+            <span>6. ❓ FAQ & Pencarian</span>
           </button>
         </li>
       </ul>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: TUTORIAL LENGKAP SEMUA MENU (STEP-BY-STEP)          -->
+    <!-- ========================================================= -->
+    <div v-show="activeTab === 'tutorials'" id="docTutorials" class="mb-4">
+      <MenuTutorialsTab />
     </div>
 
     <!-- ========================================================= -->
@@ -540,14 +556,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { sendOnDeviceNotification } from '../utils/notification';
 import BankAddressCards from '../components/BankAddressCards.vue';
+import MenuTutorialsTab from '../components/MenuTutorialsTab.vue';
 
 export default {
   name: 'FaqAboutView',
   components: {
-    BankAddressCards
+    BankAddressCards,
+    MenuTutorialsTab
   },
   setup() {
-    const activeTab = ref('modules');
+    const activeTab = ref('tutorials');
     const moduleDocSearch = ref('');
     const faqSearch = ref('');
     const isOnline = ref(navigator.onLine);

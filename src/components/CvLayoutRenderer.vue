@@ -1092,33 +1092,62 @@ export default {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin: 0;
   }
 
-  body {
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .cv-paper {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: auto !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 296mm !important;
+    box-sizing: border-box !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    display: block !important;
+    background-color: #ffffff !important;
   }
 
-  .a4-cutoff-marker {
+  .cv-paper:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Specific padding preservation per density mode */
+  .density-comfortable {
+    padding: 14mm 16mm !important;
+  }
+  .density-standard {
+    padding: 11mm 14mm !important;
+  }
+  .density-compact {
+    padding: 8mm 10mm !important;
+  }
+  .density-ultra_compact {
+    padding: 6mm 8mm !important;
+  }
+
+  .a4-cutoff-marker,
+  .no-print,
+  .print-hide {
     display: none !important;
   }
 
   .a4-lock-single-page {
-    max-height: none !important;
-    overflow: visible !important;
+    max-height: 296.5mm !important;
+    overflow: hidden !important;
   }
 }
 </style>

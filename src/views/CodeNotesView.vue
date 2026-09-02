@@ -49,32 +49,65 @@
 
     <div v-else class="row g-4">
       <div v-for="snippet in filteredSnippets" :key="snippet.id" class="col-lg-6">
-        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden h-100">
+        <div
+          class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden h-100 snippet-card cursor-pointer transition-all hover-elevate"
+          @click="openSnippetDetail(snippet.id)"
+          :title="'Klik untuk melihat detail lengkap ' + snippet.title"
+        >
+          <!-- Card Header -->
           <div class="card-header bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 overflow-hidden me-2">
               <span class="badge bg-dark fw-mono text-uppercase px-2.5 py-1.5 rounded">{{ snippet.language }}</span>
-              <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 260px;">{{ snippet.title }}</h6>
+              <h6 class="fw-bold text-dark mb-0 text-truncate" :title="snippet.title">{{ snippet.title }}</h6>
             </div>
 
-            <div class="d-flex align-items-center gap-1">
-              <button class="btn btn-sm btn-outline-primary rounded-circle p-1.5" @click="copyCode(snippet.code)" title="Salin Kode">
+            <!-- Action Controls -->
+            <div class="d-flex align-items-center gap-1.5 flex-shrink-0" @click.stop>
+              <button
+                class="btn btn-sm btn-outline-primary rounded-circle p-1.5 action-btn"
+                @click.stop="copyCode(snippet.code)"
+                title="Salin Kode Cepat"
+              >
                 <i class="bi bi-clipboard"></i>
               </button>
-              <button class="btn btn-sm btn-outline-danger rounded-circle p-1.5" @click="deleteSnippet(snippet.id)" title="Hapus">
+              <button
+                class="btn btn-sm btn-outline-secondary rounded-circle p-1.5 action-btn"
+                @click.stop="openSnippetDetail(snippet.id)"
+                title="Lihat Detail Lengkap"
+              >
+                <i class="bi bi-arrows-angle-expand"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-outline-danger rounded-circle p-1.5 action-btn"
+                @click.stop="deleteSnippet(snippet.id)"
+                title="Hapus Snippet"
+              >
                 <i class="bi bi-trash"></i>
               </button>
             </div>
           </div>
 
-          <div class="card-body p-3 bg-dark">
-            <pre class="m-0 font-monospace text-light small overflow-x-auto p-2" style="max-height: 220px; font-family: 'Fira Code', monospace; line-height: 1.4;"><code>{{ snippet.code }}</code></pre>
+          <!-- Code Preview Box (clickable to full detail) -->
+          <div class="card-body p-3 bg-dark position-relative code-preview-wrapper">
+            <div class="code-preview-overlay">
+              <span class="badge bg-primary rounded-pill px-3 py-1.5 fw-semibold shadow-sm">
+                <i class="bi bi-eye-fill me-1"></i> Buka Full Detail & Editor
+              </span>
+            </div>
+            <pre class="m-0 font-monospace text-light small overflow-x-auto p-2" style="max-height: 200px; font-family: 'Fira Code', 'Consolas', monospace; line-height: 1.4;"><code>{{ snippet.code }}</code></pre>
           </div>
 
-          <div v-if="snippet.description || snippet.tags" class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
-            <small class="text-muted text-truncate me-2">{{ snippet.description }}</small>
-            <div class="d-flex gap-1">
-              <span v-for="(tag, i) in snippet.tags" :key="i" class="badge bg-secondary-subtle text-secondary small rounded-pill">
+          <!-- Card Footer -->
+          <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+            <small class="text-muted text-truncate me-2" style="max-width: 60%;">
+              {{ snippet.description || 'Klik untuk melihat detail atau menjalankan sandbox' }}
+            </small>
+            <div class="d-flex gap-1 flex-wrap justify-content-end">
+              <span v-for="(tag, i) in (snippet.tags || []).slice(0, 3)" :key="i" class="badge bg-secondary-subtle text-secondary small rounded-pill">
                 #{{ tag }}
+              </span>
+              <span v-if="snippet.tags && snippet.tags.length > 3" class="badge bg-light text-muted border small rounded-pill">
+                +{{ snippet.tags.length - 3 }}
               </span>
             </div>
           </div>
@@ -148,6 +181,7 @@
 
 <script>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
 import Swal from 'sweetalert2';
@@ -156,6 +190,7 @@ export default {
   name: 'CodeNotesView',
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     const searchQuery = ref('');
     const selectedLang = ref('Semua');
@@ -175,6 +210,12 @@ export default {
       });
     });
 
+    const openSnippetDetail = (id) => {
+      if (id) {
+        router.push(`/code-notes/${id}`);
+      }
+    };
+
     const form = ref({
       title: '',
       language: 'javascript',
@@ -191,7 +232,7 @@ export default {
 
     const detectLanguage = () => {
       const code = form.value.code;
-      if (code.includes('def ') || code.includes('import ') && code.includes('print(')) {
+      if (code.includes('def ') || (code.includes('import ') && code.includes('print('))) {
         form.value.language = 'python';
         detectedLangLabel.value = 'Python';
       } else if (code.includes('SELECT ') || code.includes('FROM ') || code.includes('CREATE TABLE')) {
@@ -257,6 +298,7 @@ export default {
       detectedLangLabel,
       availableLangs,
       filteredSnippets,
+      openSnippetDetail,
       form,
       openAddModal,
       detectLanguage,
@@ -269,6 +311,57 @@ export default {
 </script>
 
 <style scoped>
+.snippet-card {
+  border: 1px solid #e2e8f0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.snippet-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  border-color: #cbd5e1;
+}
+
+.code-preview-wrapper {
+  cursor: pointer;
+}
+
+.code-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.snippet-card:hover .code-preview-overlay {
+  opacity: 1;
+}
+
+.action-btn {
+  transition: transform 0.15s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  transition: all 0.2s ease;
+}
+
 .modal-backdrop-custom {
   position: fixed;
   top: 0;

@@ -442,6 +442,147 @@ const SAMPLE_RAB_EXPENSES = [
   }
 ];
 
+const SAMPLE_CODE_NOTES = [
+  {
+    id: 'cn_1',
+    title: 'Vue 3 Composition API & Fetch with AbortController',
+    language: 'javascript',
+    code: `import { ref, onMounted, onUnmounted } from 'vue';
+
+export function useFetchData(url) {
+  const data = ref(null);
+  const loading = ref(true);
+  const error = ref(null);
+  const controller = new AbortController();
+
+  const fetchData = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      if (!res.ok) throw new Error(\`HTTP error! Status: \${res.status}\`);
+      data.value = await res.json();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        error.value = err.message || 'Terjadi kesalahan saat memuat data';
+      }
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  onMounted(() => fetchData());
+  onUnmounted(() => controller.abort());
+
+  return { data, loading, error, refetch: fetchData };
+}`,
+    description: 'Custom composable Vue 3 yang aman dari memory leak dengan AbortController untuk auto-cancel request saat komponen unmount.',
+    tags: ['vue3', 'composition-api', 'fetch', 'async'],
+    createdAt: '2026-08-10T09:30:00.000Z'
+  },
+  {
+    id: 'cn_2',
+    title: 'PostgreSQL Window Function & Running Total Calculation',
+    language: 'sql',
+    code: `SELECT 
+    t.id,
+    t.transaction_date,
+    t.category,
+    t.amount,
+    SUM(t.amount) OVER (
+        PARTITION BY t.category 
+        ORDER BY t.transaction_date 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS running_total_category,
+    RANK() OVER (
+        PARTITION BY t.category 
+        ORDER BY t.amount DESC
+    ) AS spending_rank
+FROM transactions t
+WHERE t.status = 'COMPLETED'
+ORDER BY t.transaction_date DESC;`,
+    description: 'Query analitik SQL menggunakan Window Function (SUM OVER dan RANK) untuk menghitung akumulasi kas dan peringkat transaksi.',
+    tags: ['postgresql', 'sql', 'window-function', 'analytics'],
+    createdAt: '2026-08-15T14:15:00.000Z'
+  },
+  {
+    id: 'cn_3',
+    title: 'Python Fast Async Web Scraper & Parallel API Gatherer',
+    language: 'python',
+    code: `import asyncio
+import aiohttp
+from typing import List, Dict
+
+async def fetch_item(session: aiohttp.ClientSession, url: str) -> Dict:
+    async with session.get(url, timeout=10) as response:
+        response.raise_for_status()
+        data = await response.json()
+        return {"url": url, "data": data, "status": response.status}
+
+async def fetch_all_endpoints(urls: List[str]) -> List[Dict]:
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_item(session, u) for u in urls]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        return [r for r in results if not isinstance(r, Exception)]
+
+if __name__ == "__main__":
+    test_urls = ["https://api.github.com", "https://httpbin.org/get"]
+    data = asyncio.run(fetch_all_endpoints(test_urls))
+    print(f"Berhasil mengunduh {len(data)} endpoint secara paralel.")`,
+    description: 'Pola asinkronus performa tinggi Python aiohttp untuk scraping dan integrasi API paralel.',
+    tags: ['python', 'asyncio', 'aiohttp', 'crawler'],
+    createdAt: '2026-08-20T11:00:00.000Z'
+  },
+  {
+    id: 'cn_4',
+    title: 'Modern Tailwind CSS Glassmorphism & Mesh Background',
+    language: 'css',
+    code: `.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.mesh-gradient-bg {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+}`,
+    description: 'Preset styling CSS murni untuk efek kartu frosted glass modern dan mesh background gradien halus.',
+    tags: ['css', 'tailwind', 'glassmorphism', 'ui'],
+    createdAt: '2026-08-22T16:00:00.000Z'
+  },
+  {
+    id: 'cn_5',
+    title: 'Bash Linux Automation Backup & Clean Retention Script',
+    language: 'shell',
+    code: `#!/usr/bin/env bash
+set -euo pipefail
+
+BACKUP_DIR="/var/backups/rajinkerja"
+TARGET_DIR="/opt/rajinkerja/data"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="\${BACKUP_DIR}/backup_\${TIMESTAMP}.tar.gz"
+
+mkdir -p "\${BACKUP_DIR}"
+
+echo "📦 Memulai proses pengarsipan data..."
+tar -czf "\${BACKUP_FILE}" -C "\${TARGET_DIR}" .
+
+echo "🧹 Menghapus cadangan yang lebih dari 7 hari..."
+find "\${BACKUP_DIR}" -name "backup_*.tar.gz" -type f -mtime +7 -delete
+
+echo "✅ Backup selesai: \${BACKUP_FILE}"`,
+    description: 'Script shell otomatis untuk kompresi tar.gz dan pembersihan arsip lama di server Linux.',
+    tags: ['bash', 'linux', 'backup', 'devops'],
+    createdAt: '2026-08-25T08:00:00.000Z'
+  }
+];
+
 function loadLocal(key, defaultData) {
   try {
     const saved = localStorage.getItem(key);
@@ -641,7 +782,7 @@ export default createStore({
           cvFont: 'font-mono'
         }
       ]),
-      codeNotes: loadLocal('ft_codeNotes', []),
+      codeNotes: loadLocal('ft_codeNotes', SAMPLE_CODE_NOTES),
       suratList: loadLocal('ft_suratList', []),
       selfieGallery: loadLocal('ft_selfieGallery', [])
     };
@@ -668,7 +809,11 @@ export default createStore({
     getUserProfile: (state) => state.userProfile,
     getCvData: (state) => state.cvData,
     getBulkCvList: (state) => state.bulkCvList || [],
-    getCodeNotes: (state) => state.codeNotes,
+    getCodeNotes: (state) => (state.codeNotes && state.codeNotes.length ? state.codeNotes : SAMPLE_CODE_NOTES),
+    getCodeNoteById: (state) => (id) => {
+      const list = (state.codeNotes && state.codeNotes.length) ? state.codeNotes : SAMPLE_CODE_NOTES;
+      return list.find(c => String(c.id) === String(id));
+    },
     getSuratList: (state) => state.suratList,
     getSelfieGallery: (state) => state.selfieGallery,
 

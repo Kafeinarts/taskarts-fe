@@ -78,19 +78,42 @@ export function openPrintableDocumentInNewTab({
       .no-print, .no-print * {
         display: none !important;
       }
-      body {
+      html, body {
         background: #ffffff !important;
         color: #000000 !important;
         margin: 0 !important;
         padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       @page {
-        margin: 10mm;
-        size: auto;
+        size: A4 portrait;
+        margin: 0;
       }
-      .page-break {
+      .print-toolbar {
+        display: none !important;
+      }
+      .print-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+      .page-break, .print-page-break {
         page-break-after: always !important;
         break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .page-break:last-child, .print-page-break:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
       .no-break {
         page-break-inside: avoid !important;
@@ -98,7 +121,7 @@ export function openPrintableDocumentInNewTab({
       }
     }
     body {
-      background-color: #f8fafc;
+      background-color: #f1f5f9;
       color: #1e293b;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       padding: 0;
@@ -117,16 +140,14 @@ export function openPrintableDocumentInNewTab({
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .print-container {
-      max-width: 900px;
+      max-width: 860px;
       margin: 24px auto 48px auto;
-      background: #ffffff;
-      padding: 32px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      background: transparent;
+      padding: 0;
     }
     @media (max-width: 768px) {
       .print-container {
-        padding: 16px;
+        padding: 8px;
         margin: 12px auto;
       }
     }

@@ -732,10 +732,28 @@
               <button v-if="currentStep > 5" class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="currentStep = 1">
                 <i class="bi bi-pencil me-1"></i> Edit Form
               </button>
-              <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+
+              <!-- Single Candidate Print in Bulk Mode -->
+              <button
+                v-if="cvMode === 'bulk'"
+                class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                :disabled="isPdfLoading"
+                @click="printSingleCandidate"
+                title="Cetak hanya lembar profil kandidat yang sedang aktif"
+              >
+                <i class="bi bi-person-badge"></i>
+                <span class="d-none d-md-inline">Cetak Kandidat Ini</span>
+              </button>
+
+              <!-- Main Print Button -->
+              <button
+                class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5"
+                :disabled="isPdfLoading"
+                @click="cvMode === 'bulk' ? printAllCandidates() : printCurrentMode()"
+              >
                 <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
                 <i v-else class="bi bi-printer"></i>
-                <span>{{ isPdfLoading ? 'Menyiapkan...' : (cvMode === 'bulk' ? 'Cetak Semua (' + bulkCandidates.length + ' CV)' : 'Cetak / Buka A4') }}</span>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : (cvMode === 'bulk' ? 'Cetak Semua (' + bulkCandidates.length + ' Lembar A4)' : 'Cetak / Buka A4') }}</span>
               </button>
             </div>
           </div>
@@ -1833,36 +1851,119 @@ export default {
       isPdfLoading.value = true;
 
       setTimeout(() => {
-        if (cvMode.value === 'bulk') {
-          isPrintingAll.value = true;
-          nextTick(() => {
-            const title = `Batch_CV_ATS_${bulkCandidates.value.length}_Kandidat_A4`;
-            openPrintableDocumentInNewTab({
-              title,
-              elementId: 'cvBulkPrintArea',
-              customStyles: `
-                @page { size: A4 portrait; margin: 8mm 10mm; }
-                .bulk-cv-container > div { page-break-after: always; break-after: page; margin-bottom: 24px; }
-                .print-container { max-width: 794px; padding: 0; background: transparent; box-shadow: none; margin: 0 auto; }
-              `,
-              autoPrint: true
-            });
-            isPrintingAll.value = false;
-            isPdfLoading.value = false;
-          });
-        } else {
-          const title = `CV_ATS_${singleCv.value.fullName || 'Kandidat'}_A4`;
+        const title = `CV_ATS_${singleCv.value.fullName ? singleCv.value.fullName.replace(/\s+/g, '_') : 'Kandidat'}_A4`;
+        openPrintableDocumentInNewTab({
+          title,
+          elementId: 'cvPrintArea',
+          customStyles: `
+            @page { size: A4 portrait; margin: 0; }
+            body { background-color: #f1f5f9; }
+            .print-container { max-width: 800px; padding: 0; background: transparent; margin: 24px auto; }
+            .cv-paper {
+              width: 210mm !important;
+              max-width: 210mm !important;
+              min-height: 296mm !important;
+              box-sizing: border-box !important;
+              margin: 0 auto !important;
+              box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+              background: #fff !important;
+            }
+            @media print {
+              body { background: #ffffff !important; }
+              .print-container { max-width: 100% !important; margin: 0 !important; }
+              .cv-paper { box-shadow: none !important; }
+            }
+          `,
+          autoPrint: true
+        });
+        isPdfLoading.value = false;
+      }, 350);
+    };
+
+    const printSingleCandidate = () => {
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
+      isPrintingAll.value = false;
+
+      setTimeout(() => {
+        const name = activeCv.value.fullName ? activeCv.value.fullName.replace(/\s+/g, '_') : `Kandidat_${activeCandidateIndex.value + 1}`;
+        const title = `CV_ATS_${name}_A4`;
+        openPrintableDocumentInNewTab({
+          title,
+          elementId: 'cvBulkPrintArea',
+          customStyles: `
+            @page { size: A4 portrait; margin: 0; }
+            body { background-color: #f1f5f9; }
+            .print-container { max-width: 800px; padding: 0; background: transparent; margin: 24px auto; }
+            .cv-paper {
+              width: 210mm !important;
+              max-width: 210mm !important;
+              min-height: 296mm !important;
+              box-sizing: border-box !important;
+              margin: 0 auto !important;
+              box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+              background: #fff !important;
+            }
+            @media print {
+              body { background: #ffffff !important; }
+              .print-container { max-width: 100% !important; margin: 0 !important; }
+              .cv-paper { box-shadow: none !important; }
+            }
+          `,
+          autoPrint: true
+        });
+        isPdfLoading.value = false;
+      }, 350);
+    };
+
+    const printAllCandidates = () => {
+      if (isPdfLoading.value) return;
+      isPdfLoading.value = true;
+      isPrintingAll.value = true;
+
+      setTimeout(() => {
+        nextTick(() => {
+          const title = `Batch_CV_ATS_${bulkCandidates.value.length}_Kandidat_A4`;
           openPrintableDocumentInNewTab({
             title,
-            elementId: 'cvPrintArea',
+            elementId: 'cvBulkPrintArea',
             customStyles: `
-              @page { size: A4 portrait; margin: 8mm 10mm; }
-              .print-container { max-width: 794px; padding: 0; background: transparent; box-shadow: none; margin: 0 auto; }
+              @page { size: A4 portrait; margin: 0; }
+              body { background-color: #f1f5f9; }
+              .print-container { max-width: 800px; padding: 0; background: transparent; margin: 20px auto; }
+              .print-page-break {
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 28px;
+              }
+              .print-page-break:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+                margin-bottom: 0;
+              }
+              .cv-paper {
+                width: 210mm !important;
+                max-width: 210mm !important;
+                min-height: 296mm !important;
+                box-sizing: border-box !important;
+                margin: 0 auto !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+                background: #fff !important;
+              }
+              @media print {
+                body { background: #ffffff !important; }
+                .print-container { max-width: 100% !important; margin: 0 !important; }
+                .print-page-break { margin-bottom: 0 !important; }
+                .cv-paper { box-shadow: none !important; }
+              }
             `,
             autoPrint: true
           });
+          isPrintingAll.value = false;
           isPdfLoading.value = false;
-        }
+        });
       }, 400);
     };
 
@@ -2057,6 +2158,8 @@ export default {
       processBulkImport,
       isPdfLoading,
       printCurrentMode,
+      printSingleCandidate,
+      printAllCandidates,
       saveDraft,
       cvJsonInput,
       exportCvJson,
