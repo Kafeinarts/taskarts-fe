@@ -420,7 +420,7 @@
           </div>
 
           <!-- ======================================================== -->
-          <!-- STEP 5: 20 TEMPLATES + CUSTOM LAYOUT BUILDER             -->
+          <!-- STEP 5: 36 TEMPLATES + CUSTOM LAYOUT BUILDER             -->
           <!-- ======================================================== -->
           <div v-else-if="currentStep === 5">
             <!-- Layout Mode Switch: Presets vs Custom Studio -->
@@ -432,7 +432,7 @@
                   :class="!isCustomModeActive ? 'btn-primary text-white shadow-sm' : 'btn-light text-muted'"
                   @click="setTemplateMode(false)"
                 >
-                  <i class="bi bi-grid-fill me-1"></i> 20 Template Preset
+                  <i class="bi bi-grid-fill me-1"></i> 36 Template Desain
                 </button>
                 <button
                   type="button"
@@ -450,7 +450,7 @@
             </div>
 
             <!-- ---------------------------------------------------- -->
-            <!-- SUB-VIEW A: 20 PRESET TEMPLATES                      -->
+            <!-- SUB-VIEW A: 36 PRESET TEMPLATES                      -->
             <!-- ---------------------------------------------------- -->
             <div v-if="!isCustomModeActive">
               <!-- Filter Categories -->
@@ -1242,16 +1242,16 @@ export default {
       { id: 2, name: 'Pengalaman', title: '2. Pengalaman Kerja' },
       { id: 3, name: 'Pendidikan', title: '3. Riwayat Pendidikan' },
       { id: 4, name: 'Skills & Sertif', title: '4. Keahlian, Bahasa & Sertifikasi' },
-      { id: 5, name: '20 Layout & Studio', title: '5. Pilih 20 Layout Struktur & Custom Studio' }
+      { id: 5, name: '36 Layout & Studio', title: '5. Pilih 36 Layout Desain & Custom Studio' }
     ];
 
     const layoutCategories = [
-      { id: 'all', name: 'Semua (20)' },
+      { id: 'all', name: 'Semua (36)' },
       { id: 'single', name: 'Single Column ATS' },
-      { id: 'sidebar', name: 'Sidebar Split' },
-      { id: 'executive', name: 'Executive & Creative' },
+      { id: 'sidebar', name: 'Sidebar & Split' },
+      { id: 'executive', name: 'Executive & Finance' },
       { id: 'minimalist', name: 'Minimalist & Academic' },
-      { id: 'tech', name: 'Tech & Modern' }
+      { id: 'tech', name: 'Tech, Modern & Creative' }
     ];
 
     const presetColors = [
@@ -1264,11 +1264,14 @@ export default {
       '#0369a1', // Sky Corporate
       '#059669', // Mint Green
       '#4f46e5', // Indigo Electric
-      '#374151'  // Charcoal
+      '#374151', // Charcoal
+      '#b45309', // Amber Gold
+      '#0d9488'  // Ocean Cyan
     ];
 
-    // 20 Distinct Layout Variations
+    // 36 Distinct Layout Variations
     const templates = [
+      // CATEGORY: Single Column ATS
       {
         id: 'ats_clean_1',
         name: '1. Modern ATS Classic',
@@ -1280,18 +1283,70 @@ export default {
         description: 'Single column standar ATS global. Sangat mudah dibaca parser recruitment.'
       },
       {
-        id: 'ats_executive_2',
-        name: '2. Executive Navy Horizon',
-        category: 'executive',
-        type: 'Executive',
+        id: 'ats_slate_5',
+        name: '2. Nordic Minimalist Slate',
+        category: 'single',
+        type: 'Nordic Slate',
         layout: 'single_column',
-        icon: 'bi-award',
-        color: '#1e3a8a',
-        description: 'Header navy mewah dengan border tebal formal untuk posisi manajerial.'
+        icon: 'bi-distribute-vertical',
+        color: '#334155',
+        description: 'Desain skandinavia bersih dengan pembatas garis halus & spacing rapi.'
       },
       {
+        id: 'ats_compact_7',
+        name: '3. Compact One-Page Fit',
+        category: 'single',
+        type: 'Compact 1-Page',
+        layout: 'single_column',
+        icon: 'bi-arrows-angle-contract',
+        color: '#0f172a',
+        description: 'Jarak padat teroptimasi khusus CV ringkas 1 lembar tanpa terpotong.'
+      },
+      {
+        id: 'ats_tokyo_clean',
+        name: '4. Tokyo Clean Minimal',
+        category: 'single',
+        type: 'Tokyo Clean',
+        layout: 'single_column',
+        icon: 'bi-record-circle',
+        color: '#27272a',
+        description: 'Aksen minimalis Jepang dengan ruang negatif lapang dan bullet bundar halus.'
+      },
+      {
+        id: 'ats_stanford_tech',
+        name: '5. Silicon Valley Tech ATS',
+        category: 'single',
+        type: 'Silicon ATS',
+        layout: 'single_column',
+        icon: 'bi-cpu',
+        color: '#0284c7',
+        description: 'Format tech company terverifikasi dengan penekanan pada dampak kuantitatif.'
+      },
+      {
+        id: 'ats_skills_first_13',
+        name: '6. Functional Skills-First',
+        category: 'single',
+        type: 'Functional',
+        layout: 'skills_first',
+        icon: 'bi-stars',
+        color: '#d97706',
+        description: 'Menampilkan kompetensi utama dan keahlian di atas sebelum riwayat karir.'
+      },
+      {
+        id: 'ats_timeline_11',
+        name: '7. Chronological Timeline Flow',
+        category: 'single',
+        type: 'Timeline',
+        layout: 'timeline_flow',
+        icon: 'bi-clock-history',
+        color: '#2563eb',
+        description: 'Alur kronologis vertikal dengan bullet titik sambung pada pengalaman kerja.'
+      },
+
+      // CATEGORY: Sidebar & Split
+      {
         id: 'ats_sidebar_left_3',
-        name: '3. Split Sidebar Left',
+        name: '8. Split Sidebar Left (30:70)',
         category: 'sidebar',
         type: 'Sidebar 30:70',
         layout: 'sidebar_left',
@@ -1301,7 +1356,7 @@ export default {
       },
       {
         id: 'ats_sidebar_right_4',
-        name: '4. Split Sidebar Right',
+        name: '9. Split Sidebar Right (70:30)',
         category: 'sidebar',
         type: 'Sidebar 70:30',
         layout: 'sidebar_right',
@@ -1310,74 +1365,24 @@ export default {
         description: 'Pengalaman kerja di sisi kiri utama, ringkasan skill di sidebar kanan.'
       },
       {
-        id: 'ats_slate_5',
-        name: '5. Nordic Minimalist Slate',
-        category: 'minimalist',
-        type: 'Minimalist',
-        layout: 'single_column',
-        icon: 'bi-distribute-vertical',
-        color: '#334155',
-        description: 'Desain skandinavia bersih dengan pembatas garis halus & spacing rapi.'
+        id: 'ats_two_tone_16',
+        name: '10. Two-Tone Charcoal Sidebar',
+        category: 'sidebar',
+        type: 'Two-Tone Dark',
+        layout: 'two_tone',
+        icon: 'bi-circle-half',
+        color: '#1e293b',
+        description: 'Sidebar kontras solid bernuansa charcoal dengan panel konten putih bersih.'
       },
       {
-        id: 'ats_tech_6',
-        name: '6. Tech Developer Emerald',
-        category: 'tech',
-        type: 'Tech Pro',
-        layout: 'single_column',
-        icon: 'bi-terminal',
-        color: '#059669',
-        description: 'Gaya emerald dengan badge keahlian coding & highlight kontribusi proyek.'
-      },
-      {
-        id: 'ats_compact_7',
-        name: '7. Compact One-Page Fit',
-        category: 'minimalist',
-        type: 'Compact',
-        layout: 'single_column',
-        icon: 'bi-arrows-angle-contract',
-        color: '#0f172a',
-        description: 'Jarak padat teroptimasi khusus CV ringkas 1 lembar tanpa terpotong.'
-      },
-      {
-        id: 'ats_serif_8',
-        name: '8. Academic Harvard Serif',
-        category: 'minimalist',
-        type: 'Academic',
-        layout: 'single_column',
-        icon: 'bi-mortarboard',
-        color: '#431407',
-        description: 'Tipografi Serif formal tradisional ala universitas ternama & riset.'
-      },
-      {
-        id: 'ats_creative_banner_9',
-        name: '9. Creative Accent Banner',
-        category: 'executive',
-        type: 'Creative',
-        layout: 'creative_banner',
-        icon: 'bi-palette',
-        color: '#7c3aed',
-        description: 'Header blok warna modern berlatar kontras dengan isi kartu rapi.'
-      },
-      {
-        id: 'ats_swiss_10',
-        name: '10. Swiss High-Contrast',
-        category: 'minimalist',
-        type: 'Swiss Grid',
-        layout: 'single_column',
-        icon: 'bi-grid-1x2',
-        color: '#000000',
-        description: 'Arsitektur tipografi Swiss dengan kontras kuat dan keterbacaan tinggi.'
-      },
-      {
-        id: 'ats_timeline_11',
-        name: '11. Chronological Timeline Flow',
-        category: 'single',
-        type: 'Timeline',
-        layout: 'timeline_flow',
-        icon: 'bi-clock-history',
-        color: '#2563eb',
-        description: 'Alur kronologis vertikal dengan bullet titik sambung pada pengalaman kerja.'
+        id: 'ats_startup_sleek_15',
+        name: '11. Startup Indigo Split',
+        category: 'sidebar',
+        type: 'Startup Split',
+        layout: 'sidebar_left',
+        icon: 'bi-rocket-takeoff',
+        color: '#4f46e5',
+        description: 'Desain dinamis ala talenta tech startup dengan badge skill mencolok.'
       },
       {
         id: 'ats_dual_balanced_12',
@@ -1390,44 +1395,46 @@ export default {
         description: 'Keseimbangan simetris dua kolom untuk riwayat kerja dan keahlian seimbang.'
       },
       {
-        id: 'ats_skills_first_13',
-        name: '13. Functional / Skills-First',
-        category: 'single',
-        type: 'Functional',
-        layout: 'single_column',
-        icon: 'bi-stars',
-        color: '#d97706',
-        description: 'Menampilkan kompetensi utama dan keahlian di bagian atas sebelum riwayat karir.'
-      },
-      {
-        id: 'ats_boxed_executive_14',
-        name: '14. Boxed Framed Executive',
-        category: 'executive',
-        type: 'Framed',
-        layout: 'single_column',
-        icon: 'bi-bounding-box-circles',
-        color: '#475569',
-        description: 'Border halus membingkai setiap sub-bagian CV secara terstruktur dan formal.'
-      },
-      {
-        id: 'ats_startup_sleek_15',
-        name: '15. Modern Startup Sleek',
-        category: 'tech',
-        type: 'Startup',
-        layout: 'sidebar_left',
-        icon: 'bi-rocket-takeoff',
-        color: '#4f46e5',
-        description: 'Desain dinamis ala talenta tech startup dengan badge skill mencolok.'
-      },
-      {
-        id: 'ats_two_tone_16',
-        name: '16. Two-Tone Dark Sidebar',
+        id: 'ats_scandi_split',
+        name: '13. Scandinavian Ash Split',
         category: 'sidebar',
-        type: 'Two-Tone',
+        type: 'Scandi Split',
         layout: 'sidebar_left',
-        icon: 'bi-circle-half',
-        color: '#1e293b',
-        description: 'Sidebar kontras solid dengan panel teks bersih di sisi kanan.'
+        icon: 'bi-symmetry-vertical',
+        color: '#475569',
+        description: 'Panel sidebar berabu-abu lembut dengan tipografi rapi dan tenang.'
+      },
+      {
+        id: 'ats_teal_corporate_split',
+        name: '14. Ocean Teal Corporate Split',
+        category: 'sidebar',
+        type: 'Teal Corporate',
+        layout: 'sidebar_left',
+        icon: 'bi-water',
+        color: '#0e7490',
+        description: 'Sidebar bernuansa samudra teal formal dengan susunan keahlian terstruktur.'
+      },
+      {
+        id: 'ats_engineering_split',
+        name: '15. Engineering Frameworks Split',
+        category: 'sidebar',
+        type: 'Engineering',
+        layout: 'sidebar_left',
+        icon: 'bi-code-square',
+        color: '#15803d',
+        description: 'Sidebar khusus pengelompokan stack teknologi, tools, dan metodologi kerja.'
+      },
+
+      // CATEGORY: Executive & Finance
+      {
+        id: 'ats_executive_2',
+        name: '16. Executive Navy Horizon',
+        category: 'executive',
+        type: 'Executive Navy',
+        layout: 'single_column',
+        icon: 'bi-award',
+        color: '#1e3a8a',
+        description: 'Header navy mewah dengan border tebal formal untuk posisi manajerial.'
       },
       {
         id: 'ats_emerald_17',
@@ -1437,37 +1444,201 @@ export default {
         layout: 'single_column',
         icon: 'bi-gem',
         color: '#047857',
-        description: 'Garis aksen hijau emerald formal khusus konsultan & profesional korporat.'
+        description: 'Garis aksen hijau emerald formal khusus konsultan & penasihat korporat.'
+      },
+      {
+        id: 'ats_boxed_executive_14',
+        name: '18. Boxed Framed Executive',
+        category: 'executive',
+        type: 'Framed Boxed',
+        layout: 'boxed',
+        icon: 'bi-bounding-box-circles',
+        color: '#334155',
+        description: 'Border halus membingkai setiap sub-bagian CV secara terstruktur dan formal.'
+      },
+      {
+        id: 'ats_crimson_director',
+        name: '19. Royal Crimson Director',
+        category: 'executive',
+        type: 'Director Crimson',
+        layout: 'single_column',
+        icon: 'bi-shield-check',
+        color: '#991b1b',
+        description: 'Tata letak otoritatif crimson dengan penekanan kepemimpinan divisi.'
+      },
+      {
+        id: 'ats_gold_finance',
+        name: '20. Chartered Finance Gold',
+        category: 'executive',
+        type: 'Finance Gold',
+        layout: 'single_column',
+        icon: 'bi-cash-coin',
+        color: '#b45309',
+        description: 'Aksen emas hangat untuk profesional perbankan, akuntansi & investasi.'
+      },
+      {
+        id: 'ats_consulting_mckinsey',
+        name: '21. Strategy Advisory McKinsey',
+        category: 'executive',
+        type: 'Management Pro',
+        layout: 'single_column',
+        icon: 'bi-briefcase-fill',
+        color: '#1e293b',
+        description: 'Format konsultasi strategi level atas dengan poin dampak berbasis angka.'
+      },
+      {
+        id: 'ats_healthcare_pro',
+        name: '22. Healthcare & Clinical Pro',
+        category: 'executive',
+        type: 'Clinical / Medical',
+        layout: 'single_column',
+        icon: 'bi-heart-pulse',
+        color: '#0891b2',
+        description: 'Struktur medis profesional dengan penempatan STR, lisensi klinis & sertifikasi.'
+      },
+      {
+        id: 'ats_legal_formal',
+        name: '23. Legal & Compliance Formal',
+        category: 'executive',
+        type: 'Legal & Audit',
+        layout: 'single_column',
+        icon: 'bi-bank',
+        color: '#3f3f46',
+        description: 'Format formal untuk praktisi hukum, audit, compliance, dan regulasi korporat.'
+      },
+
+      // CATEGORY: Minimalist & Academic
+      {
+        id: 'ats_serif_8',
+        name: '24. Harvard Academic Serif',
+        category: 'minimalist',
+        type: 'Academic Harvard',
+        layout: 'single_column',
+        icon: 'bi-mortarboard',
+        color: '#431407',
+        description: 'Tipografi Serif formal tradisional ala universitas ternama & publikasi riset.'
+      },
+      {
+        id: 'ats_editorial_20',
+        name: '25. Editorial Modern Serif',
+        category: 'minimalist',
+        type: 'Editorial Serif',
+        layout: 'single_column',
+        icon: 'bi-journal-richtext',
+        color: '#18181b',
+        description: 'Tata letak editorial majalah bisnis dengan hierarki tipografi tinggi.'
+      },
+      {
+        id: 'ats_swiss_10',
+        name: '26. Swiss High-Contrast',
+        category: 'minimalist',
+        type: 'Swiss Grid',
+        layout: 'single_column',
+        icon: 'bi-grid-1x2',
+        color: '#000000',
+        description: 'Arsitektur tipografi Swiss dengan kontras kuat dan keterbacaan tinggi.'
+      },
+      {
+        id: 'ats_oxford_research',
+        name: '27. Oxford Research Fellow',
+        category: 'minimalist',
+        type: 'Oxford Academic',
+        layout: 'single_column',
+        icon: 'bi-book-half',
+        color: '#1e1b4b',
+        description: 'Penekanan pada publikasi ilmiah, riset akademik, dan gelar formal.'
+      },
+      {
+        id: 'ats_nordic_frost',
+        name: '28. Nordic Frost Clean',
+        category: 'minimalist',
+        type: 'Nordic Frost',
+        layout: 'single_column',
+        icon: 'bi-snow',
+        color: '#3b82f6',
+        description: 'Desain sejuk dengan palet slate-blue minimalis bergaris batas halus.'
+      },
+      {
+        id: 'ats_zenith_pure',
+        name: '29. Zenith Pure Minimal',
+        category: 'minimalist',
+        type: 'Zenith Pure',
+        layout: 'single_column',
+        icon: 'bi-slash-circle',
+        color: '#52525b',
+        description: 'Tata letak paling murni tanpa ornamen berlebih untuk keterbacaan maksimal.'
+      },
+
+      // CATEGORY: Tech, Modern & Creative
+      {
+        id: 'ats_tech_6',
+        name: '30. Tech Developer Emerald',
+        category: 'tech',
+        type: 'Tech Pro',
+        layout: 'single_column',
+        icon: 'bi-terminal',
+        color: '#059669',
+        description: 'Gaya emerald dengan badge keahlian coding & highlight kontribusi proyek.'
+      },
+      {
+        id: 'ats_creative_banner_9',
+        name: '31. Creative Accent Banner',
+        category: 'tech',
+        type: 'Accent Banner',
+        layout: 'creative_banner',
+        icon: 'bi-palette',
+        color: '#7c3aed',
+        description: 'Header blok warna modern berlatar kontras dengan isi kartu rapi.'
       },
       {
         id: 'ats_gradient_top_18',
-        name: '18. Modern Gradient Horizon',
-        category: 'creative',
-        type: 'Gradient',
+        name: '32. Modern Gradient Horizon',
+        category: 'tech',
+        type: 'Gradient Horizon',
         layout: 'creative_banner',
         icon: 'bi-rainbow',
         color: '#6366f1',
         description: 'Header bergradasi elegan dengan perataan teks kontak modern.'
       },
       {
-        id: 'ats_infographic_19',
-        name: '19. Infographic Metrics Pro',
+        id: 'ats_product_manager',
+        name: '33. Modern Product Manager',
         category: 'tech',
-        type: 'Metrics',
+        type: 'Product Manager',
+        layout: 'single_column',
+        icon: 'bi-kanban',
+        color: '#2563eb',
+        description: 'Penekanan metrik pencapaian produk, kepemimpinan tim & roadmapping.'
+      },
+      {
+        id: 'ats_infographic_19',
+        name: '34. Infographic Metrics Pro',
+        category: 'tech',
+        type: 'Metrics Pro',
         layout: 'dual_balanced',
         icon: 'bi-bar-chart-steps',
         color: '#0284c7',
         description: 'Pill badges dan indikator metrik rapi untuk menonjolkan keahlian teknis.'
       },
       {
-        id: 'ats_editorial_20',
-        name: '20. Editorial Modern Serif',
-        category: 'minimalist',
-        type: 'Editorial',
-        layout: 'single_column',
-        icon: 'bi-journal-richtext',
-        color: '#18181b',
-        description: 'Tata letak editorial majalah bisnis dengan hierarki tipografi tinggi.'
+        id: 'ats_studio_creative',
+        name: '35. Studio Creative Minimal',
+        category: 'tech',
+        type: 'Studio Design',
+        layout: 'creative_banner',
+        icon: 'bi-vector-pen',
+        color: '#db2777',
+        description: 'Aksen fuchsia modern khusus desainer UI/UX, fotografer & industri kreatif.'
+      },
+      {
+        id: 'ats_dark_modern',
+        name: '36. Modern Charcoal Pro',
+        category: 'tech',
+        type: 'Modern Charcoal',
+        layout: 'two_tone',
+        icon: 'bi-moon-stars',
+        color: '#0f172a',
+        description: 'Nuansa gelap profesional bergaris tegas untuk insinyur sistem & arsitek cloud.'
       }
     ];
 
@@ -1856,22 +2027,43 @@ export default {
           title,
           elementId: 'cvPrintArea',
           customStyles: `
-            @page { size: A4 portrait; margin: 0; }
-            body { background-color: #f1f5f9; }
-            .print-container { max-width: 800px; padding: 0; background: transparent; margin: 24px auto; }
+            @page { size: A4 portrait; margin: 8mm 10mm; }
+            html, body {
+              background-color: #f1f5f9;
+              margin: 0;
+              padding: 0;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
             .cv-paper {
               width: 210mm !important;
               max-width: 210mm !important;
-              min-height: 296mm !important;
+              min-height: 297mm !important;
               box-sizing: border-box !important;
               margin: 0 auto !important;
-              box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
               background: #fff !important;
+              border-radius: 4px;
             }
             @media print {
-              body { background: #ffffff !important; }
-              .print-container { max-width: 100% !important; margin: 0 !important; }
-              .cv-paper { box-shadow: none !important; }
+              html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
+              .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+              .cv-paper {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 6mm 8mm !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+              .cv-section, .cv-item {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
             }
           `,
           autoPrint: true
@@ -1892,22 +2084,43 @@ export default {
           title,
           elementId: 'cvBulkPrintArea',
           customStyles: `
-            @page { size: A4 portrait; margin: 0; }
-            body { background-color: #f1f5f9; }
-            .print-container { max-width: 800px; padding: 0; background: transparent; margin: 24px auto; }
+            @page { size: A4 portrait; margin: 8mm 10mm; }
+            html, body {
+              background-color: #f1f5f9;
+              margin: 0;
+              padding: 0;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
             .cv-paper {
               width: 210mm !important;
               max-width: 210mm !important;
-              min-height: 296mm !important;
+              min-height: 297mm !important;
               box-sizing: border-box !important;
               margin: 0 auto !important;
-              box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
               background: #fff !important;
+              border-radius: 4px;
             }
             @media print {
-              body { background: #ffffff !important; }
-              .print-container { max-width: 100% !important; margin: 0 !important; }
-              .cv-paper { box-shadow: none !important; }
+              html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
+              .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+              .cv-paper {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 6mm 8mm !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+              .cv-section, .cv-item {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
             }
           `,
           autoPrint: true
@@ -1928,9 +2141,15 @@ export default {
             title,
             elementId: 'cvBulkPrintArea',
             customStyles: `
-              @page { size: A4 portrait; margin: 0; }
-              body { background-color: #f1f5f9; }
-              .print-container { max-width: 800px; padding: 0; background: transparent; margin: 20px auto; }
+              @page { size: A4 portrait; margin: 8mm 10mm; }
+              html, body {
+                background-color: #f1f5f9;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
               .print-page-break {
                 page-break-after: always !important;
                 break-after: page !important;
@@ -1946,17 +2165,40 @@ export default {
               .cv-paper {
                 width: 210mm !important;
                 max-width: 210mm !important;
-                min-height: 296mm !important;
+                min-height: 297mm !important;
                 box-sizing: border-box !important;
                 margin: 0 auto !important;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
                 background: #fff !important;
+                border-radius: 4px;
               }
               @media print {
-                body { background: #ffffff !important; }
-                .print-container { max-width: 100% !important; margin: 0 !important; }
-                .print-page-break { margin-bottom: 0 !important; }
-                .cv-paper { box-shadow: none !important; }
+                html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
+                .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+                .print-page-break {
+                  margin-bottom: 0 !important;
+                  page-break-after: always !important;
+                  break-after: page !important;
+                }
+                .print-page-break:last-child {
+                  page-break-after: auto !important;
+                  break-after: auto !important;
+                }
+                .cv-paper {
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  min-height: auto !important;
+                  box-shadow: none !important;
+                  border: none !important;
+                  margin: 0 !important;
+                  padding: 6mm 8mm !important;
+                  page-break-inside: avoid !important;
+                  break-inside: avoid !important;
+                }
+                .cv-section, .cv-item {
+                  page-break-inside: avoid !important;
+                  break-inside: avoid !important;
+                }
               }
             `,
             autoPrint: true

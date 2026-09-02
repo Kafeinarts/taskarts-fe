@@ -18,19 +18,18 @@
 
     <!-- =================================================================== -->
     <!-- RENDER MODE 1: CUSTOM LAYOUT BUILDER / DYNAMIC SECTIONS             -->
-    <!-- (Used when layout is set to 'custom' or configured with customOrder)-->
     <!-- =================================================================== -->
     <div v-if="isCustomLayout" class="custom-layout-container h-100">
       <!-- Custom Header Style -->
       <div
-        class="cv-custom-header mb-2.5 pb-2"
+        class="cv-custom-header mb-3 pb-2.5"
         :class="[
           `header-align-${customConfig.headerAlign || 'left'}`,
-          customConfig.headerBanner ? 'custom-header-banner p-3 rounded-3 text-white' : 'border-bottom'
+          customConfig.headerBanner ? 'custom-header-banner p-3.5 rounded-3 text-white' : 'border-bottom'
         ]"
         :style="customHeaderStyles"
       >
-        <div class="d-flex flex-wrap align-items-center gap-3" :class="headerFlexJustify">
+        <div class="d-flex flex-wrap align-items-center gap-3.5" :class="headerFlexJustify">
           <!-- Avatar (if positioned left/top) -->
           <div v-if="shouldShowAvatar && (customConfig.avatarPos === 'left' || customConfig.avatarPos === 'center' || !customConfig.avatarPos)" class="avatar-box">
             <img
@@ -43,21 +42,21 @@
 
           <!-- Name & Title -->
           <div class="header-text-block flex-grow-1" :class="headerTextAlignClass">
-            <h1 class="cv-name fw-extrabold mb-0.5 tracking-tight" :style="{ color: customConfig.headerBanner ? '#ffffff' : activeColor }">
+            <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: customConfig.headerBanner ? '#ffffff' : activeColor }">
               {{ targetCv.fullName || 'NAMA LENGKAP' }}
             </h1>
-            <h5 class="cv-title fw-bold mb-1.5 opacity-85" :style="{ color: customConfig.headerBanner ? 'rgba(255,255,255,0.9)' : '#475569' }">
+            <h5 class="cv-title fw-bold mb-2 opacity-85" :style="{ color: customConfig.headerBanner ? 'rgba(255,255,255,0.9)' : '#475569' }">
               {{ targetCv.jobTitle || 'Judul Profesi / Spesialisasi' }}
             </h5>
 
             <!-- Contact Info Line -->
-            <div class="d-flex flex-wrap gap-2.5 cv-contact-line small" :class="contactFlexJustify" :style="{ color: customConfig.headerBanner ? 'rgba(255,255,255,0.85)' : '#64748b' }">
-              <span v-if="targetCv.email" class="contact-item"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
-              <span v-if="targetCv.phone" class="contact-item"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
-              <span v-if="targetCv.address" class="contact-item"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
-              <span v-if="targetCv.linkedin" class="contact-item"><i class="bi bi-linkedin me-1"></i>{{ targetCv.linkedin }}</span>
-              <span v-if="targetCv.github" class="contact-item"><i class="bi bi-github me-1"></i>{{ targetCv.github }}</span>
-              <span v-if="targetCv.website" class="contact-item"><i class="bi bi-globe me-1"></i>{{ targetCv.website }}</span>
+            <div class="d-flex flex-wrap gap-3 cv-contact-line small" :class="contactFlexJustify" :style="{ color: customConfig.headerBanner ? 'rgba(255,255,255,0.85)' : '#64748b' }">
+              <span v-if="targetCv.email" class="contact-item"><i class="bi bi-envelope me-1.5"></i>{{ targetCv.email }}</span>
+              <span v-if="targetCv.phone" class="contact-item"><i class="bi bi-telephone me-1.5"></i>{{ targetCv.phone }}</span>
+              <span v-if="targetCv.address" class="contact-item"><i class="bi bi-geo-alt me-1.5"></i>{{ targetCv.address }}</span>
+              <span v-if="targetCv.linkedin" class="contact-item"><i class="bi bi-linkedin me-1.5"></i>{{ targetCv.linkedin }}</span>
+              <span v-if="targetCv.github" class="contact-item"><i class="bi bi-github me-1.5"></i>{{ targetCv.github }}</span>
+              <span v-if="targetCv.website" class="contact-item"><i class="bi bi-globe me-1.5"></i>{{ targetCv.website }}</span>
             </div>
           </div>
 
@@ -75,7 +74,7 @@
 
       <!-- Single Column Custom Layout -->
       <div v-if="customConfig.columnMode === 'single'" class="custom-single-column-body">
-        <div v-for="secKey in visibleMainSections" :key="secKey" class="cv-section mb-2.5">
+        <div v-for="secKey in visibleMainSections" :key="secKey" class="cv-section mb-3">
           <component
             :is="getSectionComponent(secKey)"
             :cv="targetCv"
@@ -90,15 +89,15 @@
       </div>
 
       <!-- Two Column Custom Layout (Sidebar + Main) -->
-      <div v-else class="custom-two-column-body row g-3">
+      <div v-else class="custom-two-column-body row g-3.5">
         <!-- Sidebar Column (Left) -->
-        <div v-if="customConfig.sidebarPosition === 'left'" :class="sidebarColClass" class="custom-sidebar-col pe-2" :style="customSidebarStyles">
+        <div v-if="customConfig.sidebarPosition === 'left'" :class="sidebarColClass" class="custom-sidebar-col pe-3" :style="customSidebarStyles">
           <!-- Sidebar Avatar if chosen -->
           <div v-if="shouldShowAvatar && customConfig.avatarPos === 'sidebar'" class="text-center mb-3">
             <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
           </div>
 
-          <div v-for="secKey in visibleSidebarSections" :key="secKey" class="cv-section mb-2.5">
+          <div v-for="secKey in visibleSidebarSections" :key="secKey" class="cv-section mb-3">
             <component
               :is="getSectionComponent(secKey)"
               :cv="targetCv"
@@ -112,7 +111,7 @@
 
         <!-- Main Content Column -->
         <div :class="mainColClass" class="custom-main-col ps-2">
-          <div v-for="secKey in visibleMainSections" :key="secKey" class="cv-section mb-2.5">
+          <div v-for="secKey in visibleMainSections" :key="secKey" class="cv-section mb-3">
             <component
               :is="getSectionComponent(secKey)"
               :cv="targetCv"
@@ -124,12 +123,12 @@
         </div>
 
         <!-- Sidebar Column (Right) -->
-        <div v-if="customConfig.sidebarPosition === 'right'" :class="sidebarColClass" class="custom-sidebar-col ps-2" :style="customSidebarStyles">
+        <div v-if="customConfig.sidebarPosition === 'right'" :class="sidebarColClass" class="custom-sidebar-col ps-3" :style="customSidebarStyles">
           <div v-if="shouldShowAvatar && customConfig.avatarPos === 'sidebar'" class="text-center mb-3">
             <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
           </div>
 
-          <div v-for="secKey in visibleSidebarSections" :key="secKey" class="cv-section mb-2.5">
+          <div v-for="secKey in visibleSidebarSections" :key="secKey" class="cv-section mb-3">
             <component
               :is="getSectionComponent(secKey)"
               :cv="targetCv"
@@ -144,31 +143,119 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- RENDER MODE 2: PRESET TEMPLATES (1 - 20)                             -->
+    <!-- RENDER MODE 2: PRESET TEMPLATES                                      -->
     <!-- =================================================================== -->
 
-    <!-- TEMPLATE 1: SPLIT SIDEBAR LEFT (Classic 30:70 / 32:68) -->
-    <div v-else-if="resolvedPresetType === 'sidebar_left'" class="layout-sidebar-left row g-3">
-      <!-- Left Sidebar -->
+    <!-- TEMPLATE TYPE: TWO-TONE DARK SIDEBAR (ats_two_tone_16 / ats_dark_modern) -->
+    <div v-else-if="resolvedPresetFamily === 'two_tone_dark'" class="layout-two-tone-dark row g-0 rounded-2 overflow-hidden h-100">
+      <!-- Dark Sidebar (33%) -->
+      <div class="col-4 p-3.5 text-white" :style="{ backgroundColor: activeColor || '#1e293b' }">
+        <div v-if="shouldShowAvatar" class="text-center mb-3.5">
+          <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" class="border border-white border-2 shadow-sm" alt="Foto Profil" />
+        </div>
+        
+        <!-- Contact Block -->
+        <div class="mb-3.5">
+          <h6 class="text-uppercase fw-bold pb-1 mb-2 border-bottom border-white border-opacity-25" style="color: #ffffff; letter-spacing: 0.05em; font-size: 0.82rem;">Kontak</h6>
+          <div class="d-flex flex-column gap-1.5 text-white-50" style="font-size: 0.8rem;">
+            <span v-if="targetCv.email" class="text-break text-white"><i class="bi bi-envelope me-1.5 text-white-50"></i>{{ targetCv.email }}</span>
+            <span v-if="targetCv.phone" class="text-white"><i class="bi bi-telephone me-1.5 text-white-50"></i>{{ targetCv.phone }}</span>
+            <span v-if="targetCv.address" class="text-white"><i class="bi bi-geo-alt me-1.5 text-white-50"></i>{{ targetCv.address }}</span>
+            <span v-if="targetCv.linkedin" class="text-break text-white"><i class="bi bi-linkedin me-1.5 text-white-50"></i>{{ targetCv.linkedin }}</span>
+            <span v-if="targetCv.github" class="text-break text-white"><i class="bi bi-github me-1.5 text-white-50"></i>{{ targetCv.github }}</span>
+            <span v-if="targetCv.website" class="text-break text-white"><i class="bi bi-globe me-1.5 text-white-50"></i>{{ targetCv.website }}</span>
+          </div>
+        </div>
+
+        <!-- Skills Block -->
+        <div v-if="targetCv.skills && targetCv.skills.length" class="mb-3.5">
+          <h6 class="text-uppercase fw-bold pb-1 mb-2 border-bottom border-white border-opacity-25" style="color: #ffffff; letter-spacing: 0.05em; font-size: 0.82rem;">Keahlian</h6>
+          <div class="d-flex flex-wrap gap-1">
+            <span v-for="(skill, i) in targetCv.skills" :key="i" class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-25 px-2 py-1" style="font-size: 0.75rem;">
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Languages Block -->
+        <div v-if="targetCv.languages && targetCv.languages.length" class="mb-3.5">
+          <h6 class="text-uppercase fw-bold pb-1 mb-2 border-bottom border-white border-opacity-25" style="color: #ffffff; letter-spacing: 0.05em; font-size: 0.82rem;">Bahasa</h6>
+          <ul class="list-unstyled text-white-50 mb-0" style="font-size: 0.8rem;">
+            <li v-for="(lang, i) in targetCv.languages" :key="i" class="mb-1 text-white">• {{ lang }}</li>
+          </ul>
+        </div>
+
+        <!-- Certifications Block -->
+        <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-3">
+          <h6 class="text-uppercase fw-bold pb-1 mb-2 border-bottom border-white border-opacity-25" style="color: #ffffff; letter-spacing: 0.05em; font-size: 0.82rem;">Sertifikasi</h6>
+          <ul class="list-unstyled text-white-50 mb-0" style="font-size: 0.78rem;">
+            <li v-for="(cert, i) in targetCv.certifications" :key="i" class="mb-1 text-white">• {{ cert }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Body (67%) -->
+      <div class="col-8 p-3.5 ps-4 bg-white">
+        <div class="mb-3 border-bottom pb-2">
+          <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-0">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+        </div>
+
+        <!-- Summary -->
+        <div v-if="targetCv.summary" class="cv-section mb-3">
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Profil Profesional</h6>
+          <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
+        </div>
+
+        <!-- Experience -->
+        <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
+          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 cv-item">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <strong class="text-dark">{{ exp.position }}</strong>
+              <span class="small text-muted fw-bold">{{ exp.period }}</span>
+            </div>
+            <div class="small fw-semibold text-secondary mb-1">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
+            <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
+          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5 cv-item">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <strong class="text-dark">{{ edu.degree }}</strong>
+              <span class="small text-muted fw-bold">{{ edu.period }}</span>
+            </div>
+            <div class="small text-muted">{{ edu.institution }} <span v-if="edu.gpa">(IPK: {{ edu.gpa }})</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATE TYPE: SPLIT SIDEBAR LEFT (ats_sidebar_left_3, ats_scandi_split, ats_teal_corporate_split, ats_startup_sleek_15) -->
+    <div v-else-if="resolvedPresetFamily === 'sidebar_left'" class="layout-sidebar-left row g-3.5">
+      <!-- Left Sidebar (33%) -->
       <div class="col-4 border-end pe-3" style="border-color: #e2e8f0;">
         <div v-if="shouldShowAvatar" class="text-center mb-3">
           <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
         </div>
         <!-- Contact info -->
-        <div class="mb-2.5">
+        <div class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Kontak</h6>
-          <div class="d-flex flex-column gap-1 small text-muted">
-            <span v-if="targetCv.email" class="text-break"><i class="bi bi-envelope me-1.5 text-dark"></i>{{ targetCv.email }}</span>
-            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1.5 text-dark"></i>{{ targetCv.phone }}</span>
-            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1.5 text-dark"></i>{{ targetCv.address }}</span>
-            <span v-if="targetCv.linkedin" class="text-break"><i class="bi bi-linkedin me-1.5 text-dark"></i>{{ targetCv.linkedin }}</span>
-            <span v-if="targetCv.github" class="text-break"><i class="bi bi-github me-1.5 text-dark"></i>{{ targetCv.github }}</span>
-            <span v-if="targetCv.website" class="text-break"><i class="bi bi-globe me-1.5 text-dark"></i>{{ targetCv.website }}</span>
+          <div class="d-flex flex-column gap-1.5 small text-muted">
+            <span v-if="targetCv.email" class="text-break"><i class="bi bi-envelope me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.email }}</span>
+            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.phone }}</span>
+            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.address }}</span>
+            <span v-if="targetCv.linkedin" class="text-break"><i class="bi bi-linkedin me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.linkedin }}</span>
+            <span v-if="targetCv.github" class="text-break"><i class="bi bi-github me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.github }}</span>
+            <span v-if="targetCv.website" class="text-break"><i class="bi bi-globe me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.website }}</span>
           </div>
         </div>
 
         <!-- Skills -->
-        <div v-if="targetCv.skills && targetCv.skills.length" class="mb-2.5">
+        <div v-if="targetCv.skills && targetCv.skills.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Keahlian</h6>
           <div class="d-flex flex-wrap gap-1">
             <span v-for="(skill, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2 py-1 small">
@@ -178,49 +265,49 @@
         </div>
 
         <!-- Languages -->
-        <div v-if="targetCv.languages && targetCv.languages.length" class="mb-2.5">
+        <div v-if="targetCv.languages && targetCv.languages.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Bahasa</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(lang, i) in targetCv.languages" :key="i" class="mb-1">• {{ lang }}</li>
+          <ul class="list-unstyled small text-muted mb-0">
+            <li v-for="(lang, i) in targetCv.languages" :key="i" class="mb-1 text-dark">• {{ lang }}</li>
           </ul>
         </div>
 
         <!-- Certifications -->
-        <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-2.5">
+        <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Sertifikasi</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(cert, i) in targetCv.certifications" :key="i" class="mb-1 small">• {{ cert }}</li>
+          <ul class="list-unstyled small text-muted mb-0">
+            <li v-for="(cert, i) in targetCv.certifications" :key="i" class="mb-1 small text-dark">• {{ cert }}</li>
           </ul>
         </div>
       </div>
 
-      <!-- Right Body -->
+      <!-- Right Body (67%) -->
       <div class="col-8 ps-2">
-        <div class="mb-2.5">
-          <h1 class="cv-name fw-extrabold mb-0.5 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+        <div class="mb-3 border-bottom pb-2">
+          <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-0">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
         </div>
 
-        <div v-if="targetCv.summary" class="mb-2.5">
+        <div v-if="targetCv.summary" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Profil Profesional</h6>
           <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
         </div>
 
-        <div v-if="targetCv.experience && targetCv.experience.length" class="mb-2.5">
+        <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
-          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2">
+          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 cv-item">
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ exp.position }}</strong>
               <span class="small text-muted fw-bold">{{ exp.period }}</span>
             </div>
-            <div class="small fw-semibold text-secondary mb-0.5">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
-            <p class="small text-dark mb-0 white-space-pre-line">{{ exp.description }}</p>
+            <div class="small fw-semibold text-secondary mb-1">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
+            <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
           </div>
         </div>
 
-        <div v-if="targetCv.education && targetCv.education.length" class="mb-2.5">
+        <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
-          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5">
+          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5 cv-item">
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ edu.degree }}</strong>
               <span class="small text-muted fw-bold">{{ edu.period }}</span>
@@ -231,35 +318,35 @@
       </div>
     </div>
 
-    <!-- TEMPLATE 2: SPLIT SIDEBAR RIGHT (68:32) -->
-    <div v-else-if="resolvedPresetType === 'sidebar_right'" class="layout-sidebar-right row g-3">
-      <!-- Left Body -->
+    <!-- TEMPLATE TYPE: SPLIT SIDEBAR RIGHT (ats_sidebar_right_4) -->
+    <div v-else-if="resolvedPresetFamily === 'sidebar_right'" class="layout-sidebar-right row g-3.5">
+      <!-- Left Body (67%) -->
       <div class="col-8 border-end pe-3" style="border-color: #e2e8f0;">
-        <div class="mb-2.5">
-          <h1 class="cv-name fw-extrabold mb-0.5 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+        <div class="mb-3 border-bottom pb-2">
+          <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-0">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
         </div>
 
-        <div v-if="targetCv.summary" class="mb-2.5">
+        <div v-if="targetCv.summary" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Ringkasan Profil</h6>
           <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
         </div>
 
-        <div v-if="targetCv.experience && targetCv.experience.length" class="mb-2.5">
+        <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
-          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2">
+          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 cv-item">
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ exp.position }}</strong>
               <span class="small text-muted fw-bold">{{ exp.period }}</span>
             </div>
-            <div class="small fw-semibold text-secondary mb-0.5">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
-            <p class="small text-dark mb-0 white-space-pre-line">{{ exp.description }}</p>
+            <div class="small fw-semibold text-secondary mb-1">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
+            <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
           </div>
         </div>
 
-        <div v-if="targetCv.education && targetCv.education.length" class="mb-2.5">
+        <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
-          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5">
+          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5 cv-item">
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ edu.degree }}</strong>
               <span class="small text-muted fw-bold">{{ edu.period }}</span>
@@ -269,23 +356,24 @@
         </div>
       </div>
 
-      <!-- Right Sidebar -->
+      <!-- Right Sidebar (33%) -->
       <div class="col-4 ps-2">
         <div v-if="shouldShowAvatar" class="text-center mb-3">
           <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
         </div>
-        <div class="mb-2.5">
+        <div class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Kontak</h6>
-          <div class="d-flex flex-column gap-1 small text-muted">
-            <span v-if="targetCv.email" class="text-break"><i class="bi bi-envelope me-1.5 text-dark"></i>{{ targetCv.email }}</span>
-            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1.5 text-dark"></i>{{ targetCv.phone }}</span>
-            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1.5 text-dark"></i>{{ targetCv.address }}</span>
-            <span v-if="targetCv.linkedin" class="text-break"><i class="bi bi-linkedin me-1.5 text-dark"></i>{{ targetCv.linkedin }}</span>
-            <span v-if="targetCv.github" class="text-break"><i class="bi bi-github me-1.5 text-dark"></i>{{ targetCv.github }}</span>
+          <div class="d-flex flex-column gap-1.5 small text-muted">
+            <span v-if="targetCv.email" class="text-break"><i class="bi bi-envelope me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.email }}</span>
+            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.phone }}</span>
+            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.address }}</span>
+            <span v-if="targetCv.linkedin" class="text-break"><i class="bi bi-linkedin me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.linkedin }}</span>
+            <span v-if="targetCv.github" class="text-break"><i class="bi bi-github me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.github }}</span>
+            <span v-if="targetCv.website" class="text-break"><i class="bi bi-globe me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.website }}</span>
           </div>
         </div>
 
-        <div v-if="targetCv.skills && targetCv.skills.length" class="mb-2.5">
+        <div v-if="targetCv.skills && targetCv.skills.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Keahlian</h6>
           <div class="d-flex flex-wrap gap-1">
             <span v-for="(skill, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2 py-1 small">
@@ -294,30 +382,30 @@
           </div>
         </div>
 
-        <div v-if="targetCv.languages && targetCv.languages.length" class="mb-2.5">
+        <div v-if="targetCv.languages && targetCv.languages.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Bahasa</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(lang, i) in targetCv.languages" :key="i" class="mb-1">• {{ lang }}</li>
+          <ul class="list-unstyled small text-muted mb-0">
+            <li v-for="(lang, i) in targetCv.languages" :key="i" class="mb-1 text-dark">• {{ lang }}</li>
           </ul>
         </div>
 
-        <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-2.5">
+        <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-3">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Sertifikasi</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(cert, i) in targetCv.certifications" :key="i" class="mb-1 small">• {{ cert }}</li>
+          <ul class="list-unstyled small text-muted mb-0">
+            <li v-for="(cert, i) in targetCv.certifications" :key="i" class="mb-1 small text-dark">• {{ cert }}</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- TEMPLATE 3: CREATIVE ACCENT BANNER -->
-    <div v-else-if="resolvedPresetType === 'creative_banner'" class="layout-creative-banner">
-      <div class="p-3.5 text-white rounded-3 mb-2.5" :style="{ backgroundColor: activeColor }">
-        <div class="d-flex justify-content-between align-items-center gap-3">
-          <div>
-            <h1 class="cv-name fw-extrabold mb-0.5 text-white tracking-tight">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-            <h5 class="cv-title fw-medium text-white-50 mb-1.5">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
-            <div class="d-flex flex-wrap gap-2.5 small text-white-50">
+    <!-- TEMPLATE TYPE: CREATIVE ACCENT BANNER (ats_creative_banner_9 / ats_studio_creative) -->
+    <div v-else-if="resolvedPresetFamily === 'creative_banner'" class="layout-creative-banner">
+      <div class="p-3.5 text-white rounded-3 mb-3 shadow-sm" :style="{ backgroundColor: activeColor || '#6366f1' }">
+        <div class="d-flex justify-content-between align-items-center gap-3.5">
+          <div class="flex-grow-1">
+            <h1 class="cv-name fw-extrabold mb-1 text-white tracking-tight">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+            <h5 class="cv-title fw-medium text-white text-opacity-90 mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+            <div class="d-flex flex-wrap gap-3 small text-white text-opacity-85">
               <span v-if="targetCv.email"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
               <span v-if="targetCv.phone"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
               <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
@@ -331,46 +419,46 @@
       </div>
 
       <!-- Summary -->
-      <div v-if="targetCv.summary" class="mb-2.5">
+      <div v-if="targetCv.summary" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Ringkasan Profil</h6>
         <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
       </div>
 
       <!-- Dual Column Body -->
-      <div class="row g-3">
+      <div class="row g-3.5">
         <!-- Left: Experience -->
         <div class="col-7">
-          <div v-if="targetCv.experience && targetCv.experience.length" class="mb-2.5">
+          <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
             <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
-            <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2">
+            <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 cv-item">
               <div class="d-flex justify-content-between align-items-baseline">
                 <strong class="text-dark small">{{ exp.position }}</strong>
                 <span class="small text-muted fw-bold" style="font-size: 10px;">{{ exp.period }}</span>
               </div>
-              <div class="small text-muted mb-0.5">{{ exp.company }}</div>
-              <p class="small text-dark mb-0 white-space-pre-line">{{ exp.description }}</p>
+              <div class="small text-muted mb-1">{{ exp.company }}</div>
+              <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
             </div>
           </div>
         </div>
 
         <!-- Right: Edu & Skills -->
         <div class="col-5">
-          <div v-if="targetCv.education && targetCv.education.length" class="mb-2.5">
+          <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
             <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
-            <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5">
+            <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-2 cv-item">
               <strong class="text-dark d-block small">{{ edu.degree }}</strong>
               <div class="small text-muted">{{ edu.institution }} ({{ edu.period }})</div>
             </div>
           </div>
 
-          <div v-if="targetCv.skills && targetCv.skills.length" class="mb-2.5">
+          <div v-if="targetCv.skills && targetCv.skills.length" class="cv-section mb-3">
             <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Keahlian</h6>
             <div class="d-flex flex-wrap gap-1">
               <span v-for="(s, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2 py-0.5 small">{{ s }}</span>
             </div>
           </div>
 
-          <div v-if="targetCv.certifications && targetCv.certifications.length" class="mb-2">
+          <div v-if="targetCv.certifications && targetCv.certifications.length" class="cv-section mb-2">
             <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Sertifikasi</h6>
             <ul class="list-unstyled small mb-0">
               <li v-for="(c, i) in targetCv.certifications" :key="i" class="small">• {{ c }}</li>
@@ -380,13 +468,72 @@
       </div>
     </div>
 
-    <!-- TEMPLATE 4: TIMELINE FLOW -->
-    <div v-else-if="resolvedPresetType === 'timeline_flow'" class="layout-timeline">
-      <div class="cv-header border-bottom pb-2.5 mb-2.5 d-flex justify-content-between align-items-center">
+    <!-- TEMPLATE TYPE: GRADIENT HORIZON (ats_gradient_top_18) -->
+    <div v-else-if="resolvedPresetFamily === 'gradient_horizon'" class="layout-gradient-horizon">
+      <div class="p-3.5 text-white rounded-3 mb-3 shadow-sm" :style="{ background: `linear-gradient(135deg, ${activeColor || '#4f46e5'}, #0f172a)` }">
+        <div class="d-flex justify-content-between align-items-center gap-3.5">
+          <div>
+            <h1 class="cv-name fw-extrabold mb-1 text-white tracking-tight">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+            <h5 class="cv-title fw-medium text-white-50 mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+            <div class="d-flex flex-wrap gap-3 small text-white-50">
+              <span v-if="targetCv.email"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
+              <span v-if="targetCv.phone"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
+              <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
+              <span v-if="targetCv.linkedin"><i class="bi bi-linkedin me-1"></i>{{ targetCv.linkedin }}</span>
+            </div>
+          </div>
+          <div v-if="shouldShowAvatar">
+            <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" class="border border-white border-2 shadow-sm" alt="Foto Profil" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div v-if="targetCv.summary" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Ringkasan Profil</h6>
+        <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
+      </div>
+
+      <!-- Experience -->
+      <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
+        <div v-for="(exp, idx) in targetCv.experience" :key="idx" class="mb-2.5 cv-item">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <strong class="text-dark">{{ exp.position }} — <span class="fw-semibold text-secondary">{{ exp.company }}</span></strong>
+            <span class="small text-muted fw-bold">{{ exp.period }}</span>
+          </div>
+          <div v-if="exp.location" class="small text-muted mb-1">{{ exp.location }}</div>
+          <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
+        </div>
+      </div>
+
+      <!-- Education & Skills -->
+      <div class="row g-3.5">
+        <div v-if="targetCv.education && targetCv.education.length" class="col-6">
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
+          <div v-for="(edu, idx) in targetCv.education" :key="idx" class="mb-2 cv-item">
+            <strong class="text-dark small d-block">{{ edu.degree }}</strong>
+            <div class="small text-muted">{{ edu.institution }} ({{ edu.period }})</div>
+          </div>
+        </div>
+        <div v-if="targetCv.skills && targetCv.skills.length" class="col-6">
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Keahlian</h6>
+          <div class="d-flex flex-wrap gap-1">
+            <span v-for="(skill, idx) in targetCv.skills" :key="idx" class="badge bg-light text-dark border px-2 py-1 small">
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATE TYPE: TIMELINE FLOW (ats_timeline_11) -->
+    <div v-else-if="resolvedPresetFamily === 'timeline_flow'" class="layout-timeline">
+      <div class="cv-header border-bottom pb-2.5 mb-3 d-flex justify-content-between align-items-center">
         <div>
-          <h1 class="cv-name fw-extrabold mb-0.5" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-          <h5 class="cv-title fw-bold text-secondary mb-1.5">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
-          <div class="d-flex flex-wrap gap-2.5 small text-muted">
+          <h1 class="cv-name fw-extrabold mb-1" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+          <div class="d-flex flex-wrap gap-3 small text-muted">
             <span v-if="targetCv.email"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
             <span v-if="targetCv.phone"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
             <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
@@ -398,33 +545,33 @@
         </div>
       </div>
 
-      <div v-if="targetCv.summary" class="mb-2.5">
+      <div v-if="targetCv.summary" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Profil Profesional</h6>
-        <p class="small text-dark mb-0">{{ targetCv.summary }}</p>
+        <p class="small text-dark mb-0 lh-base">{{ targetCv.summary }}</p>
       </div>
 
       <!-- Timeline Experience -->
-      <div v-if="targetCv.experience && targetCv.experience.length" class="mb-2.5">
-        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Linimasa Pengalaman</h6>
+      <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Linimasa Pengalaman</h6>
         <div class="ps-3 position-relative border-start border-2" :style="{ borderColor: activeColor }">
-          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2 position-relative">
-            <span class="position-absolute rounded-circle bg-white border border-2" :style="{ borderColor: activeColor, width: '10px', height: '10px', left: '-21px', top: '5px' }"></span>
+          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-3 position-relative cv-item">
+            <span class="position-absolute rounded-circle bg-white border border-2" :style="{ borderColor: activeColor, width: '12px', height: '12px', left: '-22px', top: '4px' }"></span>
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ exp.position }} @ {{ exp.company }}</strong>
               <span class="badge bg-light text-dark border small">{{ exp.period }}</span>
             </div>
-            <div class="small text-muted mb-0.5">{{ exp.location }}</div>
-            <p class="small text-dark mb-0 white-space-pre-line">{{ exp.description }}</p>
+            <div class="small text-muted mb-1">{{ exp.location }}</div>
+            <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
           </div>
         </div>
       </div>
 
       <!-- Timeline Education -->
-      <div v-if="targetCv.education && targetCv.education.length" class="mb-2.5">
-        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Linimasa Pendidikan</h6>
+      <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 border-bottom" :style="headingColorStyles">Linimasa Pendidikan</h6>
         <div class="ps-3 position-relative border-start border-2" :style="{ borderColor: activeColor }">
-          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5 position-relative">
-            <span class="position-absolute rounded-circle bg-white border border-2" :style="{ borderColor: activeColor, width: '10px', height: '10px', left: '-21px', top: '5px' }"></span>
+          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-2 position-relative cv-item">
+            <span class="position-absolute rounded-circle bg-white border border-2" :style="{ borderColor: activeColor, width: '12px', height: '12px', left: '-22px', top: '4px' }"></span>
             <div class="d-flex justify-content-between align-items-baseline">
               <strong class="text-dark">{{ edu.degree }}</strong>
               <span class="badge bg-light text-dark border small">{{ edu.period }}</span>
@@ -435,7 +582,7 @@
       </div>
 
       <!-- Skills & Badges -->
-      <div v-if="targetCv.skills && targetCv.skills.length" class="mb-2">
+      <div v-if="targetCv.skills && targetCv.skills.length" class="cv-section mb-2">
         <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Keahlian & Kompetensi</h6>
         <div class="d-flex flex-wrap gap-1.5">
           <span v-for="(skill, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2.5 py-1 small">{{ skill }}</span>
@@ -443,15 +590,15 @@
       </div>
     </div>
 
-    <!-- TEMPLATE 5: DUAL BALANCED 50/50 COLUMN -->
-    <div v-else-if="resolvedPresetType === 'dual_balanced'" class="layout-dual-balanced">
-      <div class="cv-header text-center border-bottom pb-2.5 mb-2.5 position-relative">
+    <!-- TEMPLATE TYPE: DUAL BALANCED 50/50 (ats_dual_balanced_12) -->
+    <div v-else-if="resolvedPresetFamily === 'dual_balanced'" class="layout-dual-balanced">
+      <div class="cv-header text-center border-bottom pb-2.5 mb-3 position-relative">
         <div v-if="shouldShowAvatar" class="mb-2">
           <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
         </div>
-        <h1 class="cv-name fw-extrabold mb-0.5" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-        <h5 class="cv-title fw-bold text-secondary mb-1.5">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
-        <div class="d-flex justify-content-center flex-wrap gap-2.5 small text-muted">
+        <h1 class="cv-name fw-extrabold mb-1" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+        <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+        <div class="d-flex justify-content-center flex-wrap gap-3 small text-muted">
           <span v-if="targetCv.email">{{ targetCv.email }}</span>
           <span v-if="targetCv.phone">| {{ targetCv.phone }}</span>
           <span v-if="targetCv.address">| {{ targetCv.address }}</span>
@@ -459,30 +606,30 @@
         </div>
       </div>
 
-      <div v-if="targetCv.summary" class="mb-2.5">
+      <div v-if="targetCv.summary" class="cv-section mb-3">
         <p class="small text-dark mb-0 text-center lh-base fst-italic">{{ targetCv.summary }}</p>
       </div>
 
-      <div class="row g-3">
+      <div class="row g-3.5">
         <!-- Col 1: Experience -->
         <div class="col-6">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pengalaman Kerja</h6>
-          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2">
+          <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 cv-item">
             <strong class="text-dark small d-block">{{ exp.position }}</strong>
             <div class="small fw-semibold text-secondary">{{ exp.company }} ({{ exp.period }})</div>
-            <p class="small text-dark mb-0 white-space-pre-line">{{ exp.description }}</p>
+            <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
           </div>
         </div>
 
         <!-- Col 2: Education, Skills, Langs -->
         <div class="col-6">
           <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom" :style="headingColorStyles">Pendidikan</h6>
-          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5">
+          <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-2 cv-item">
             <strong class="text-dark small d-block">{{ edu.degree }}</strong>
             <div class="small text-muted">{{ edu.institution }} ({{ edu.period }})</div>
           </div>
 
-          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom mt-2.5" :style="headingColorStyles">Keahlian & Bahasa</h6>
+          <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom mt-3" :style="headingColorStyles">Keahlian & Bahasa</h6>
           <div class="d-flex flex-wrap gap-1 mb-2">
             <span v-for="(s, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2 py-0.5 small">{{ s }}</span>
           </div>
@@ -493,19 +640,151 @@
       </div>
     </div>
 
-    <!-- TEMPLATE 6: DEFAULT / SINGLE COLUMN ATS STANDARD (Classic, Nordic, Harvard, Tech, etc.) -->
-    <div v-else class="layout-single-column">
-      <div class="cv-header border-bottom pb-2.5 mb-2.5 d-flex justify-content-between align-items-center gap-3">
-        <div class="flex-grow-1">
-          <h1 class="cv-name fw-extrabold mb-0.5 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
-          <h5 class="cv-title fw-bold text-secondary mb-1.5">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
-          <div class="d-flex flex-wrap gap-2.5 small text-muted">
+    <!-- TEMPLATE TYPE: BOXED FRAMED EXECUTIVE (ats_boxed_executive_14) -->
+    <div v-else-if="resolvedPresetFamily === 'boxed_executive'" class="layout-boxed-executive">
+      <div class="cv-header p-3 bg-light rounded-3 border mb-3 d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <h1 class="cv-name fw-extrabold mb-1" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+          <div class="d-flex flex-wrap gap-3 small text-muted">
             <span v-if="targetCv.email"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
             <span v-if="targetCv.phone"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
             <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
             <span v-if="targetCv.linkedin"><i class="bi bi-linkedin me-1"></i>{{ targetCv.linkedin }}</span>
-            <span v-if="targetCv.github"><i class="bi bi-github me-1"></i>{{ targetCv.github }}</span>
-            <span v-if="targetCv.website"><i class="bi bi-globe me-1"></i>{{ targetCv.website }}</span>
+          </div>
+        </div>
+        <div v-if="shouldShowAvatar">
+          <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
+        </div>
+      </div>
+
+      <!-- Boxed Summary -->
+      <div v-if="targetCv.summary" class="p-3 bg-white border rounded-3 mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-1.5 text-primary" :style="{ color: activeColor }">Ringkasan Eksekutif</h6>
+        <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
+      </div>
+
+      <!-- Boxed Experience -->
+      <div v-if="targetCv.experience && targetCv.experience.length" class="p-3 bg-white border rounded-3 mb-3">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 text-primary" :style="{ color: activeColor }">Pengalaman Kerja</h6>
+        <div v-for="(exp, i) in targetCv.experience" :key="i" class="mb-2.5 pb-2 border-bottom last-border-0 cv-item">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <strong class="text-dark">{{ exp.position }}</strong>
+            <span class="badge bg-light text-dark border small">{{ exp.period }}</span>
+          </div>
+          <div class="small fw-semibold text-secondary mb-1">{{ exp.company }} <span v-if="exp.location">— {{ exp.location }}</span></div>
+          <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
+        </div>
+      </div>
+
+      <!-- Boxed Education & Skills -->
+      <div class="row g-3">
+        <div v-if="targetCv.education && targetCv.education.length" class="col-6">
+          <div class="p-3 bg-white border rounded-3 h-100">
+            <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 text-primary" :style="{ color: activeColor }">Pendidikan</h6>
+            <div v-for="(edu, i) in targetCv.education" :key="i" class="mb-1.5 cv-item">
+              <strong class="text-dark small d-block">{{ edu.degree }}</strong>
+              <div class="small text-muted">{{ edu.institution }} ({{ edu.period }})</div>
+            </div>
+          </div>
+        </div>
+        <div v-if="targetCv.skills && targetCv.skills.length" class="col-6">
+          <div class="p-3 bg-white border rounded-3 h-100">
+            <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2 text-primary" :style="{ color: activeColor }">Keahlian & Bahasa</h6>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              <span v-for="(s, i) in targetCv.skills" :key="i" class="badge bg-light text-dark border px-2 py-1 small">{{ s }}</span>
+            </div>
+            <div v-if="targetCv.languages && targetCv.languages.length" class="small text-muted">
+              <strong>Bahasa:</strong> {{ (targetCv.languages || []).join(', ') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATE TYPE: SKILLS FIRST / FUNCTIONAL (ats_skills_first_13 / ats_infographic_19) -->
+    <div v-else-if="resolvedPresetFamily === 'skills_first'" class="layout-skills-first">
+      <div class="cv-header border-bottom pb-2.5 mb-3 d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+          <div class="d-flex flex-wrap gap-3 small text-muted">
+            <span v-if="targetCv.email"><i class="bi bi-envelope me-1"></i>{{ targetCv.email }}</span>
+            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1"></i>{{ targetCv.phone }}</span>
+            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1"></i>{{ targetCv.address }}</span>
+            <span v-if="targetCv.linkedin"><i class="bi bi-linkedin me-1"></i>{{ targetCv.linkedin }}</span>
+          </div>
+        </div>
+        <div v-if="shouldShowAvatar">
+          <img :src="targetCv.avatar" :class="avatarShapeClass" :style="avatarStyles" alt="Foto Profil" />
+        </div>
+      </div>
+
+      <!-- Ringkasan -->
+      <div v-if="targetCv.summary" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Ringkasan Profil</h6>
+        <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
+      </div>
+
+      <!-- Keahlian Ditempatkan di Atas (Skills First) -->
+      <div v-if="targetCv.skills && targetCv.skills.length" class="cv-section mb-3 p-3 bg-light rounded-3 border">
+        <h6 class="section-heading fw-bold text-uppercase pb-1 mb-2" :style="{ color: activeColor }">
+          <i class="bi bi-stars me-1"></i> Keahlian & Kompetensi Utama
+        </h6>
+        <div class="d-flex flex-wrap gap-1.5">
+          <span v-for="(skill, idx) in targetCv.skills" :key="idx" class="badge bg-white text-dark border px-2.5 py-1.5 small shadow-sm fw-semibold">
+            {{ skill }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Pengalaman Kerja -->
+      <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
+        <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Pengalaman Kerja</h6>
+        <div v-for="(exp, idx) in targetCv.experience" :key="idx" class="mb-2.5 cv-item">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <strong class="text-dark">{{ exp.position }} — <span class="fw-semibold text-secondary">{{ exp.company }}</span></strong>
+            <span class="small text-muted fw-bold">{{ exp.period }}</span>
+          </div>
+          <div v-if="exp.location" class="small text-muted mb-1">{{ exp.location }}</div>
+          <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
+        </div>
+      </div>
+
+      <!-- Pendidikan, Bahasa & Sertifikasi -->
+      <div class="row g-3">
+        <div v-if="targetCv.education && targetCv.education.length" class="col-6">
+          <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Pendidikan</h6>
+          <div v-for="(edu, idx) in targetCv.education" :key="idx" class="mb-1.5 cv-item">
+            <strong class="text-dark small d-block">{{ edu.degree }}</strong>
+            <div class="small text-muted">{{ edu.institution }} ({{ edu.period }})</div>
+          </div>
+        </div>
+        <div v-if="(targetCv.languages && targetCv.languages.length) || (targetCv.certifications && targetCv.certifications.length)" class="col-6">
+          <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Bahasa & Sertifikasi</h6>
+          <div v-if="targetCv.languages && targetCv.languages.length" class="small text-muted mb-1">
+            <strong>Bahasa:</strong> {{ (targetCv.languages || []).join(', ') }}
+          </div>
+          <ul v-if="targetCv.certifications && targetCv.certifications.length" class="list-unstyled small mb-0">
+            <li v-for="(c, idx) in targetCv.certifications" :key="idx">• {{ c }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEFAULT / SINGLE COLUMN ATS STANDARD (ats_clean_1, ats_slate_5, ats_serif_8, ats_swiss_10, ats_compact_7, ats_tokyo_clean, etc.) -->
+    <div v-else class="layout-single-column">
+      <div class="cv-header border-bottom pb-2.5 mb-3 d-flex justify-content-between align-items-center gap-3">
+        <div class="flex-grow-1">
+          <h1 class="cv-name fw-extrabold mb-1 tracking-tight" :style="{ color: activeColor }">{{ targetCv.fullName || 'NAMA LENGKAP' }}</h1>
+          <h5 class="cv-title fw-bold text-secondary mb-2">{{ targetCv.jobTitle || 'Judul Profesi' }}</h5>
+          <div class="d-flex flex-wrap gap-3 small text-muted">
+            <span v-if="targetCv.email"><i class="bi bi-envelope me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.email }}</span>
+            <span v-if="targetCv.phone"><i class="bi bi-telephone me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.phone }}</span>
+            <span v-if="targetCv.address"><i class="bi bi-geo-alt me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.address }}</span>
+            <span v-if="targetCv.linkedin"><i class="bi bi-linkedin me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.linkedin }}</span>
+            <span v-if="targetCv.github"><i class="bi bi-github me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.github }}</span>
+            <span v-if="targetCv.website"><i class="bi bi-globe me-1.5" :style="{ color: activeColor }"></i>{{ targetCv.website }}</span>
           </div>
         </div>
         <div v-if="shouldShowAvatar">
@@ -514,28 +793,28 @@
       </div>
 
       <!-- Ringkasan Profil -->
-      <div v-if="targetCv.summary" class="cv-section mb-2.5">
+      <div v-if="targetCv.summary" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Ringkasan Profil</h6>
         <p class="small text-dark mb-0 lh-base" style="text-align: justify;">{{ targetCv.summary }}</p>
       </div>
 
       <!-- Pengalaman Kerja -->
-      <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-2.5">
+      <div v-if="targetCv.experience && targetCv.experience.length" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Pengalaman Kerja</h6>
-        <div v-for="(exp, idx) in targetCv.experience" :key="idx" class="mb-2">
+        <div v-for="(exp, idx) in targetCv.experience" :key="idx" class="mb-2.5 cv-item">
           <div class="d-flex justify-content-between align-items-baseline">
             <strong class="text-dark">{{ exp.position }} — <span class="fw-semibold text-secondary">{{ exp.company }}</span></strong>
             <span class="small text-muted fw-bold">{{ exp.period }}</span>
           </div>
-          <div v-if="exp.location" class="small text-muted mb-0.5">{{ exp.location }}</div>
-          <p class="small text-dark mb-0.5 white-space-pre-line">{{ exp.description }}</p>
+          <div v-if="exp.location" class="small text-muted mb-1">{{ exp.location }}</div>
+          <p class="small text-dark mb-0 white-space-pre-line lh-base">{{ exp.description }}</p>
         </div>
       </div>
 
       <!-- Pendidikan -->
-      <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-2.5">
+      <div v-if="targetCv.education && targetCv.education.length" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Pendidikan</h6>
-        <div v-for="(edu, idx) in targetCv.education" :key="idx" class="mb-1.5">
+        <div v-for="(edu, idx) in targetCv.education" :key="idx" class="mb-2 cv-item">
           <div class="d-flex justify-content-between align-items-baseline">
             <strong class="text-dark">{{ edu.degree }} — {{ edu.institution }}</strong>
             <span class="small text-muted fw-bold">{{ edu.period }}</span>
@@ -544,8 +823,8 @@
         </div>
       </div>
 
-      <!-- Keahlian -->
-      <div v-if="targetCv.skills && targetCv.skills.length" class="cv-section mb-2.5">
+      <!-- Keahlian Utama -->
+      <div v-if="targetCv.skills && targetCv.skills.length" class="cv-section mb-3">
         <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Keahlian Utama</h6>
         <div class="d-flex flex-wrap gap-1.5">
           <span v-for="(skill, idx) in targetCv.skills" :key="idx" class="badge bg-light text-dark border px-2.5 py-1 small">
@@ -555,17 +834,17 @@
       </div>
 
       <!-- Bahasa & Sertifikasi -->
-      <div class="row g-3">
+      <div class="row g-3.5">
         <div v-if="targetCv.languages && targetCv.languages.length" class="col-6">
           <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Bahasa</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(lang, idx) in targetCv.languages" :key="idx">• {{ lang }}</li>
+          <ul class="list-unstyled small mb-0 text-muted">
+            <li v-for="(lang, idx) in targetCv.languages" :key="idx" class="text-dark">• {{ lang }}</li>
           </ul>
         </div>
         <div v-if="targetCv.certifications && targetCv.certifications.length" class="col-6">
           <h6 class="section-heading fw-bold text-uppercase border-bottom pb-1 mb-1.5" :style="headingColorStyles">Sertifikasi</h6>
-          <ul class="list-unstyled small mb-0">
-            <li v-for="(cert, idx) in targetCv.certifications" :key="idx">• {{ cert }}</li>
+          <ul class="list-unstyled small mb-0 text-muted">
+            <li v-for="(cert, idx) in targetCv.certifications" :key="idx" class="text-dark">• {{ cert }}</li>
           </ul>
         </div>
       </div>
@@ -601,16 +880,16 @@ const CvExperienceSection = {
         style: { color: this.activeColor, borderColor: this.activeColor }
       }, this.sectionTitle || 'Pengalaman Kerja'),
       this.cv.experience.map((exp) =>
-        h('div', { class: 'mb-2' }, [
+        h('div', { class: 'mb-2.5 cv-item' }, [
           h('div', { class: 'd-flex justify-content-between align-items-baseline' }, [
             h('strong', { class: 'text-dark small' }, exp.position),
             h('span', { class: 'small text-muted fw-bold' }, exp.period)
           ]),
-          h('div', { class: 'small fw-semibold text-secondary mb-0.5' }, [
+          h('div', { class: 'small fw-semibold text-secondary mb-1' }, [
             exp.company,
             exp.location ? ` — ${exp.location}` : ''
           ]),
-          exp.description ? h('p', { class: 'small text-dark mb-0 white-space-pre-line' }, exp.description) : null
+          exp.description ? h('p', { class: 'small text-dark mb-0 white-space-pre-line lh-base' }, exp.description) : null
         ])
       )
     ]);
@@ -627,7 +906,7 @@ const CvEducationSection = {
         style: { color: this.activeColor, borderColor: this.activeColor }
       }, this.sectionTitle || 'Riwayat Pendidikan'),
       this.cv.education.map((edu) =>
-        h('div', { class: 'mb-1.5' }, [
+        h('div', { class: 'mb-2 cv-item' }, [
           h('div', { class: 'd-flex justify-content-between align-items-baseline' }, [
             h('strong', { class: 'text-dark small' }, edu.degree),
             h('span', { class: 'small text-muted fw-bold' }, edu.period)
@@ -698,7 +977,7 @@ const CvContactSection = {
         class: 'section-heading fw-bold text-uppercase pb-1 mb-1.5 border-bottom',
         style: { color: this.activeColor, borderColor: this.activeColor }
       }, this.sectionTitle || 'Informasi Kontak'),
-      h('div', { class: 'd-flex flex-column gap-1 small text-muted' }, [
+      h('div', { class: 'd-flex flex-column gap-1.5 small text-muted' }, [
         this.cv.email ? h('span', { class: 'text-break' }, [h('i', { class: 'bi bi-envelope me-1.5 text-dark' }), this.cv.email]) : null,
         this.cv.phone ? h('span', {}, [h('i', { class: 'bi bi-telephone me-1.5 text-dark' }), this.cv.phone]) : null,
         this.cv.address ? h('span', {}, [h('i', { class: 'bi bi-geo-alt me-1.5 text-dark' }), this.cv.address]) : null,
@@ -729,7 +1008,6 @@ export default {
       type: String,
       default: 'font-sans'
     },
-    // Enhanced customization props
     densityMode: {
       type: String,
       default: 'standard' // 'comfortable' | 'standard' | 'compact' | 'ultra_compact'
@@ -764,12 +1042,12 @@ export default {
     const customConfig = computed(() => {
       const cfg = props.customLayoutConfig || targetCv.value.customLayoutConfig || {};
       return {
-        columnMode: cfg.columnMode || 'single', // 'single' | 'two_column'
-        sidebarPosition: cfg.sidebarPosition || 'left', // 'left' | 'right'
-        sidebarRatio: cfg.sidebarRatio || '30', // '30', '35', '40', '50'
-        headerAlign: cfg.headerAlign || 'left', // 'left' | 'center' | 'right'
+        columnMode: cfg.columnMode || 'single',
+        sidebarPosition: cfg.sidebarPosition || 'left',
+        sidebarRatio: cfg.sidebarRatio || '30',
+        headerAlign: cfg.headerAlign || 'left',
         headerBanner: !!cfg.headerBanner,
-        avatarPos: cfg.avatarPos || 'left', // 'left' | 'right' | 'center' | 'sidebar'
+        avatarPos: cfg.avatarPos || 'left',
         sidebarBg: cfg.sidebarBg || '#f8fafc',
         mainSections: cfg.mainSections || ['summary', 'experience', 'education', 'skills', 'languages', 'certifications'],
         sidebarSections: cfg.sidebarSections || ['contact', 'skills', 'languages', 'certifications'],
@@ -778,20 +1056,24 @@ export default {
       };
     });
 
-    // Preset Layout Identifier Resolver
-    const resolvedPresetType = computed(() => {
-      const t = props.layoutType || targetCv.value.selectedTemplate || 'single_column';
-      if (t.includes('sidebar_left')) return 'sidebar_left';
-      if (t.includes('sidebar_right')) return 'sidebar_right';
-      if (t.includes('creative_banner')) return 'creative_banner';
-      if (t.includes('timeline')) return 'timeline_flow';
-      if (t.includes('dual') || t.includes('balanced')) return 'dual_balanced';
+    // Preset Layout Family Classifier
+    const resolvedPresetFamily = computed(() => {
+      const t = props.layoutType || targetCv.value.selectedTemplate || 'ats_clean_1';
+      if (t === 'ats_two_tone_16' || t === 'ats_dark_modern' || t === 'two_tone') return 'two_tone_dark';
+      if (t === 'ats_sidebar_left_3' || t === 'sidebar_left' || t === 'ats_scandi_split' || t === 'ats_teal_corporate_split' || t === 'ats_startup_sleek_15' || t === 'ats_engineering_split') return 'sidebar_left';
+      if (t === 'ats_sidebar_right_4' || t === 'sidebar_right') return 'sidebar_right';
+      if (t === 'ats_creative_banner_9' || t === 'creative_banner' || t === 'ats_studio_creative') return 'creative_banner';
+      if (t === 'ats_gradient_top_18' || t === 'gradient') return 'gradient_horizon';
+      if (t === 'ats_timeline_11' || t === 'timeline_flow') return 'timeline_flow';
+      if (t === 'ats_dual_balanced_12' || t === 'dual_balanced') return 'dual_balanced';
+      if (t === 'ats_boxed_executive_14' || t === 'boxed') return 'boxed_executive';
+      if (t === 'ats_skills_first_13' || t === 'ats_infographic_19' || t === 'skills_first') return 'skills_first';
       return 'single_column';
     });
 
     const resolvedLayoutClass = computed(() => {
       if (isCustomLayout.value) return 'layout-custom-mode';
-      return `layout-${resolvedPresetType.value}`;
+      return `layout-${resolvedPresetFamily.value}`;
     });
 
     const computedFontClass = computed(() => {
@@ -817,8 +1099,8 @@ export default {
 
     const avatarStyles = computed(() => {
       const sizeKey = targetCv.value.avatarSize || 'md';
-      let px = 82;
-      if (sizeKey === 'sm') px = 64;
+      let px = 84;
+      if (sizeKey === 'sm') px = 68;
       else if (sizeKey === 'lg') px = 100;
       else if (sizeKey === 'xl') px = 118;
 
@@ -881,7 +1163,7 @@ export default {
 
     const customSidebarStyles = computed(() => {
       return {
-        backgroundColor: customConfig.value.sidebarBg || 'transparent',
+        backgroundColor: customConfig.value.sidebarBg || '#f8fafc',
         borderRadius: '8px'
       };
     });
@@ -936,7 +1218,7 @@ export default {
       targetCv,
       isCustomLayout,
       customConfig,
-      resolvedPresetType,
+      resolvedPresetFamily,
       resolvedLayoutClass,
       computedFontClass,
       shouldShowAvatar,
@@ -961,18 +1243,19 @@ export default {
 </script>
 
 <style scoped>
-/* Standard A4 dimensions: 210mm x 297mm */
+/* Standard A4 dimensions with calibrated margins & padding */
 .cv-paper {
   width: 100%;
   max-width: 794px; /* Standard A4 width in px at 96DPI */
   min-height: 1050px;
   box-sizing: border-box;
   font-size: 13px;
-  line-height: 1.45;
-  padding: 36px 42px;
+  line-height: 1.5;
+  padding: 34px 40px;
   background-color: #ffffff;
   transition: all 0.2s ease;
   position: relative;
+  letter-spacing: normal;
 }
 
 /* Single Page A4 Lock Mode */
@@ -1014,43 +1297,43 @@ export default {
   font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Density Scales (Auto-Fit 1 Page) */
+/* Density Scales */
 .density-comfortable {
   font-size: 13.5px;
   line-height: 1.55;
-  padding: 40px 48px;
+  padding: 38px 46px;
 }
 .density-comfortable .cv-name { font-size: 1.95rem; }
 .density-comfortable .cv-title { font-size: 1.15rem; }
-.density-comfortable .cv-section { margin-bottom: 1rem !important; }
+.density-comfortable .cv-section { margin-bottom: 1.1rem !important; }
 
 .density-standard {
   font-size: 12.8px;
-  line-height: 1.45;
-  padding: 32px 38px;
+  line-height: 1.48;
+  padding: 30px 38px;
 }
 .density-standard .cv-name { font-size: 1.75rem; }
 .density-standard .cv-title { font-size: 1.05rem; }
-.density-standard .cv-section { margin-bottom: 0.75rem !important; }
+.density-standard .cv-section { margin-bottom: 0.85rem !important; }
 
 .density-compact {
   font-size: 11.8px;
-  line-height: 1.35;
-  padding: 24px 30px;
+  line-height: 1.38;
+  padding: 22px 28px;
 }
 .density-compact .cv-name { font-size: 1.55rem; }
 .density-compact .cv-title { font-size: 0.98rem; }
-.density-compact .cv-section { margin-bottom: 0.55rem !important; }
+.density-compact .cv-section { margin-bottom: 0.65rem !important; }
 .density-compact p { margin-bottom: 0.2rem !important; }
 
 .density-ultra_compact {
   font-size: 11px;
-  line-height: 1.25;
-  padding: 18px 24px;
+  line-height: 1.28;
+  padding: 16px 22px;
 }
 .density-ultra_compact .cv-name { font-size: 1.35rem; }
 .density-ultra_compact .cv-title { font-size: 0.88rem; }
-.density-ultra_compact .cv-section { margin-bottom: 0.4rem !important; }
+.density-ultra_compact .cv-section { margin-bottom: 0.45rem !important; }
 .density-ultra_compact p { margin-bottom: 0.1rem !important; }
 .density-ultra_compact .badge { padding: 2px 5px !important; font-size: 10px !important; }
 
@@ -1088,11 +1371,21 @@ export default {
   white-space: pre-line;
 }
 
+.cv-item, .cv-section, .cv-sub-section {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.section-heading {
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+}
+
 /* Print Specific Rules for True A4 Fix */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 8mm 10mm;
   }
 
   html, body {
@@ -1105,38 +1398,29 @@ export default {
   }
 
   .cv-paper {
-    width: 210mm !important;
-    max-width: 210mm !important;
-    min-height: 296mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     border: none !important;
     margin: 0 auto !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    page-break-after: always !important;
-    break-after: page !important;
     display: block !important;
     background-color: #ffffff !important;
   }
 
-  .cv-paper:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-
-  /* Specific padding preservation per density mode */
   .density-comfortable {
-    padding: 14mm 16mm !important;
-  }
-  .density-standard {
-    padding: 11mm 14mm !important;
-  }
-  .density-compact {
     padding: 8mm 10mm !important;
   }
-  .density-ultra_compact {
+  .density-standard {
     padding: 6mm 8mm !important;
+  }
+  .density-compact {
+    padding: 4mm 6mm !important;
+  }
+  .density-ultra_compact {
+    padding: 3mm 4mm !important;
   }
 
   .a4-cutoff-marker,
@@ -1146,8 +1430,8 @@ export default {
   }
 
   .a4-lock-single-page {
-    max-height: 296.5mm !important;
-    overflow: hidden !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 }
 </style>
