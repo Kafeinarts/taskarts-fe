@@ -158,6 +158,12 @@
           <span v-if="!isCollapsed" class="nav-label">Notes & Scratchpad</span>
         </router-link>
 
+        <router-link to="/diary" class="material-nav-link" title="Diary & Jurnal Cerita Harian">
+          <i class="bi bi-book-half me-3 fs-5 nav-icon text-warning"></i>
+          <span v-if="!isCollapsed" class="nav-label">Diary & Jurnal Cerita</span>
+          <span v-if="!isCollapsed" class="badge rounded-pill bg-warning text-dark ms-auto small fw-bold">Foto</span>
+        </router-link>
+
         <router-link to="/code-notes" class="material-nav-link" title="Code Snippets & Tech Notes">
           <i class="bi bi-code-slash me-3 fs-5 nav-icon text-info"></i>
           <span v-if="!isCollapsed" class="nav-label">Code Snippets</span>
@@ -291,6 +297,7 @@
             <router-link to="/selfie" class="material-nav-link"><i class="bi bi-camera-reels-fill me-3 text-danger"></i>Selfie for Happiness</router-link>
             <router-link to="/mood" class="material-nav-link"><i class="bi bi-emoji-smile-fill me-3 text-danger"></i>Kamera Mood & Alarm</router-link>
             <router-link to="/notes" class="material-nav-link"><i class="bi bi-journal-text me-3 text-secondary"></i>Notes & Scratchpad</router-link>
+            <router-link to="/diary" class="material-nav-link"><i class="bi bi-book-half me-3 text-warning"></i>Diary & Jurnal Cerita</router-link>
             <router-link to="/code-notes" class="material-nav-link"><i class="bi bi-code-slash me-3 text-info"></i>Code Snippets</router-link>
             <router-link to="/games" class="material-nav-link"><i class="bi bi-controller me-3 text-purple"></i>3D Games & Simulator</router-link>
 

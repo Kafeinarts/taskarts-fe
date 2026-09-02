@@ -9,25 +9,111 @@ const DEFAULT_INVOICES = [];
 const DEFAULT_HABITS = [];
 const DEFAULT_NOTES = [];
 const DEFAULT_EVENTS = [];
+const DEFAULT_DIARIES = [];
+
+const SAMPLE_DIARIES = [
+  {
+    id: 'diary_sample_1',
+    title: '🌅 Pagi yang Penuh Semangat & Terobosan Baru',
+    content: `# Refleksi Pagi: Memulai dengan Rasa Syukur
+
+Hari ini udara terasa sangat sejuk. Setelah menyeduh secangkir teh hangat, aku meninjau kembali target mingguan yang sudah disusun.
+
+> "Langkah kecil yang konsisten setiap hari akan membawa perubahan besar yang tak terduga."
+
+### 🌟 Hal yang Disyukuri Hari Ini:
+- [x] Bangun tepat waktu dan badan terasa bugar
+- [x] Ide solusi untuk perbaikan sistem berhasil dirumuskan
+- [ ] Diskusi santai bersama tim nanti sore
+
+Rasanya sangat memuaskan ketika apa yang kita rencanakan bisa berjalan dengan lancar. Tetap fokus dan rendah hati! ✨`,
+    mood: '🤩',
+    moodLabel: 'Bersemangat',
+    weather: '☀️',
+    weatherLabel: 'Cerah',
+    location: 'Ruang Kerja Rumah',
+    category: 'Refleksi Pagi',
+    tags: ['semangat', 'produktivitas', 'syukur'],
+    theme: 'vintage',
+    images: [
+      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80'
+    ],
+    coverImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80',
+    isPinned: true,
+    isFavorite: true,
+    isPrivate: false,
+    date: '2026-08-21',
+    time: '08:30',
+    createdAt: new Date('2026-08-21T08:30:00').toISOString(),
+    updatedAt: new Date('2026-08-21T08:30:00').toISOString()
+  },
+  {
+    id: 'diary_sample_2',
+    title: '☕ Hujan Sore, Secangkir Kopi, dan Cerita Santai',
+    content: `# Sore yang Tenang di Bawah Rintik Hujan
+
+Sore ini hujan turun cukup deras di luar jendela. Suara rintik airnya memberi ketenangan tersendiri setelah seharian berkutat dengan pekerjaan.
+
+Menikmati secangkir kopi hitam hangat sambil mendengarkan musik akustik instrumental. Ini adalah momen berharga untuk *recharging* energi mental.
+
+\`\`\`
+Momen damai seperti ini mengingatkan kita untuk menikmati setiap proses perjalanan hidup.
+\`\`\`
+
+### 📖 Rencana Malam Ini:
+1. Membaca 1 bab buku favorit
+2. Merapikan catatan ide untuk esok hari
+3. Istirahat lebih awal agar tubuh tetap fit`,
+    mood: '🌿',
+    moodLabel: 'Bersyukur & Tenang',
+    weather: '🌧️',
+    weatherLabel: 'Hujan Sejuk',
+    location: 'Coffee Shop Favorit',
+    category: 'Cerita Sore',
+    tags: ['kopi', 'hujan', 'istirahat', 'mindfulness'],
+    theme: 'lavender',
+    images: [
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80'
+    ],
+    coverImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80',
+    isPinned: false,
+    isFavorite: true,
+    isPrivate: false,
+    date: '2026-08-20',
+    time: '17:15',
+    createdAt: new Date('2026-08-20T17:15:00').toISOString(),
+    updatedAt: new Date('2026-08-20T17:15:00').toISOString()
+  }
+];
 
 const SAMPLE_NOTES = [
   {
     id: 'n_sample_1',
     title: '🚀 Alur Kerja Deployment & CI/CD Pipeline',
-    content: `# Dokumentasi Deployment Sistem
+    content: `# Dokumentasi Deployment Sistem & Data Rekapitulasi
 
 Berikut alur otomatisasi proses deployment dari commit repository hingga server production:
 
 \`\`\`mermaid
 flowchart TD
-    Dev([💻 Developer Commit]) --> Git[Push ke GitHub Branch Main]
-    Git --> CI{Trigger GitHub Actions}
+    Dev([💻 Developer Commit & Push]) --> Git[Push ke GitHub Branch Main]
+    Git --> CI{Trigger GitHub Actions CI}
     CI -- Unit Test Pass --> Build[📦 Build Vite Production Assets]
-    CI -- Test Fail --> Alert[❌ Kirim Notifikasi Slack/WA]
-    Build --> TestQA[🧪 Automated E2E Testing]
+    CI -- Test Fail --> Alert[❌ Kirim Notifikasi Slack / Discord]
+    Build --> TestQA[🧪 Automated E2E Testing QA]
     TestQA --> Docker[🐳 Build & Push Docker Image]
-    Docker --> Deploy([🚀 Deploy ke Server Production])
+    Docker --> Deploy([🚀 Deploy ke Server Production Cloud Run])
 \`\`\`
+
+### 📊 Tabel Matriks Pengujian & Spesifikasi Lingkungan
+
+| Modul / Komponen | Lingkungan (Env) | Status CI/CD | Latensi Target | Coverage Test | Penanggung Jawab | Catatan Khusus |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Authentication Service** | Staging & Prod | 🟢 Passed | < 120ms | 94.5% | Tim Backend Security | OAuth 2.0 Token Rotation |
+| **Markdown & Mermaid Studio** | Local & Prod | 🟢 Passed | < 45ms | 98.2% | Tim Frontend Vue 3 | Pan, Zoom & Node Focus Ready |
+| **Local-First Database Store** | Client Browser | 🟢 Passed | < 10ms | 100% | Tim Core Data | IndexedDB & LocalStorage Cache |
+| **Realtime Push Notifications** | Cloud Functions | 🟡 In Review | < 250ms | 87.0% | DevOps Specialist | Web Push API integration |
+| **Document PDF & SQL Exporter** | Client-Side Worker | 🟢 Passed | < 300ms | 91.8% | Tim Pelaporan | Standalone Tab Document Printer |
 
 ### 📌 Checklist Rilis:
 - [x] Verifikasi environment variable di production
@@ -383,6 +469,7 @@ export default createStore({
       invoices: loadLocal('ft_invoices', DEFAULT_INVOICES),
       habits: loadLocal('ft_habits', DEFAULT_HABITS),
       notes: loadLocal('ft_notes', DEFAULT_NOTES),
+      diaries: loadLocal('ft_diaries', DEFAULT_DIARIES),
       events: loadLocal('ft_events', DEFAULT_EVENTS),
       moodLogs: loadLocal('ft_moodLogs', []),
       workAlarms: loadLocal('ft_workAlarms', DEFAULT_WORK_ALARMS),
@@ -837,6 +924,45 @@ export default createStore({
       saveLocal('ft_notes', state.notes);
     },
 
+    // Diaries & Journal Stories
+    ADD_DIARY(state, diary) {
+      state.diaries.unshift(diary);
+      saveLocal('ft_diaries', state.diaries);
+    },
+    ADD_DIARIES_BULK(state, diariesArray) {
+      state.diaries = [...diariesArray, ...state.diaries];
+      saveLocal('ft_diaries', state.diaries);
+    },
+    UPDATE_DIARY(state, updatedDiary) {
+      const index = state.diaries.findIndex(d => d.id === updatedDiary.id);
+      if (index !== -1) {
+        state.diaries.splice(index, 1, updatedDiary);
+        saveLocal('ft_diaries', state.diaries);
+      }
+    },
+    DELETE_DIARY(state, id) {
+      state.diaries = state.diaries.filter(d => d.id !== id);
+      saveLocal('ft_diaries', state.diaries);
+    },
+    DELETE_DIARIES_BULK(state, ids) {
+      state.diaries = state.diaries.filter(d => !ids.includes(d.id));
+      saveLocal('ft_diaries', state.diaries);
+    },
+    TOGGLE_DIARY_PIN(state, id) {
+      const diary = state.diaries.find(d => d.id === id);
+      if (diary) {
+        diary.isPinned = !diary.isPinned;
+        saveLocal('ft_diaries', state.diaries);
+      }
+    },
+    TOGGLE_DIARY_FAVORITE(state, id) {
+      const diary = state.diaries.find(d => d.id === id);
+      if (diary) {
+        diary.isFavorite = !diary.isFavorite;
+        saveLocal('ft_diaries', state.diaries);
+      }
+    },
+
     // Calendar Events
     ADD_EVENT(state, eventItem) {
       state.events.unshift(eventItem);
@@ -1109,6 +1235,7 @@ export default createStore({
       state.invoices = [];
       state.habits = [];
       state.notes = [];
+      state.diaries = [];
       state.events = [];
       state.rabItems = [];
       state.rabIncomes = [];
@@ -1125,6 +1252,7 @@ export default createStore({
       saveLocal('ft_invoices', []);
       saveLocal('ft_habits', []);
       saveLocal('ft_notes', []);
+      saveLocal('ft_diaries', []);
       saveLocal('ft_events', []);
       saveLocal('ft_rabItems', []);
       saveLocal('ft_rabIncomes', []);
@@ -1142,6 +1270,7 @@ export default createStore({
       state.transactions = [...SAMPLE_TRANSACTIONS];
       state.habits = [...SAMPLE_HABITS];
       state.notes = [...SAMPLE_NOTES];
+      state.diaries = [...SAMPLE_DIARIES];
       state.events = [...DEFAULT_EVENTS];
       state.rabItems = [...SAMPLE_RAB_ITEMS];
       state.rabIncomes = [...SAMPLE_RAB_INCOMES];
@@ -1153,6 +1282,7 @@ export default createStore({
       saveLocal('ft_transactions', state.transactions);
       saveLocal('ft_habits', state.habits);
       saveLocal('ft_notes', state.notes);
+      saveLocal('ft_diaries', state.diaries);
       saveLocal('ft_events', state.events);
       saveLocal('ft_rabItems', state.rabItems);
       saveLocal('ft_rabIncomes', state.rabIncomes);
@@ -1228,6 +1358,13 @@ export default createStore({
       if (Array.isArray(incomingNotes)) {
         state.notes = incomingNotes;
         saveLocal('ft_notes', state.notes);
+      }
+
+      // 8.1 Diaries & Jurnal
+      const incomingDiaries = data.diaries || data.jurnal || data.diaryList || data.cerita;
+      if (Array.isArray(incomingDiaries)) {
+        state.diaries = incomingDiaries;
+        saveLocal('ft_diaries', state.diaries);
       }
 
       // 9. Events

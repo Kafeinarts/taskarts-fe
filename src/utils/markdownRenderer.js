@@ -224,7 +224,7 @@ export function preprocessMarkdown(rawText) {
 }
 
 /**
- * Render Markdown string to HTML, preserving mermaid blocks
+ * Render Markdown string to HTML, preserving mermaid blocks and wrapping tables in responsive containers
  */
 export function renderMarkdownToHtml(markdownText) {
   if (!markdownText) return '<em class="text-muted opacity-75">Pratinjau kosong...</em>';
@@ -247,6 +247,32 @@ export function renderMarkdownToHtml(markdownText) {
       }
     );
 
+    // Wrap tables in responsive horizontal-scroll wrappers with navigation buttons
+    const tableRegex = /<table[\s\S]*?<\/table>/gi;
+    parsedHtml = parsedHtml.replace(tableRegex, (tableHtml) => {
+      return `
+        <div class="markdown-table-wrapper my-4 border rounded-3 overflow-hidden shadow-xs bg-white">
+          <div class="markdown-table-scroll-hint d-flex align-items-center justify-content-between px-3 py-2 bg-light border-bottom text-muted">
+            <div class="d-flex align-items-center gap-2 small fw-semibold">
+              <i class="bi bi-arrow-left-right text-primary"></i>
+              <span class="table-hint-text" style="font-size: 11.5px;">Tabel Data — Bisa digeser kanan &amp; kiri (Scroll / Drag)</span>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 table-nav-actions">
+              <button type="button" class="btn btn-xs btn-white border table-scroll-btn table-scroll-left px-2 py-0.5 rounded-pill shadow-xs" title="Geser ke Kiri">
+                <i class="bi bi-chevron-left" style="font-size: 11px;"></i> <span style="font-size: 11px;">Kiri</span>
+              </button>
+              <button type="button" class="btn btn-xs btn-white border table-scroll-btn table-scroll-right px-2 py-0.5 rounded-pill shadow-xs" title="Geser ke Kanan">
+                <span style="font-size: 11px;">Kanan</span> <i class="bi bi-chevron-right" style="font-size: 11px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="markdown-table-responsive-container overflow-x-auto p-0">
+            ${tableHtml}
+          </div>
+        </div>
+      `;
+    });
+
     // Identify Mermaid code blocks in parsed HTML: <pre><code class="language-mermaid">...</code></pre>
     const mermaidRegex = /<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/gi;
     let diagramIndex = 0;
@@ -263,21 +289,140 @@ export function renderMarkdownToHtml(markdownText) {
         .replace(/&#39;/g, "'")
         .trim();
 
+      // Detect diagram type for header badge
+      let diagramTypeLabel = 'Mermaid Diagram';
+      let diagramTypeIcon = 'bi-diagram-3-fill';
+      const firstLine = decodedCode.split('\n')[0].trim().toLowerCase();
+      if (firstLine.includes('flowchart') || firstLine.includes('graph')) {
+        diagramTypeLabel = 'Flowchart Alur';
+        diagramTypeIcon = 'bi-diagram-3-fill';
+      } else if (firstLine.includes('sequence')) {
+        diagramTypeLabel = 'Sequence Diagram';
+        diagramTypeIcon = 'bi-arrow-left-right';
+      } else if (firstLine.includes('state')) {
+        diagramTypeLabel = 'State Diagram';
+        diagramTypeIcon = 'bi-toggle-on';
+      } else if (firstLine.includes('gantt')) {
+        diagramTypeLabel = 'Gantt Timeline';
+        diagramTypeIcon = 'bi-calendar-range';
+      } else if (firstLine.includes('mindmap')) {
+        diagramTypeLabel = 'Mindmap Ide';
+        diagramTypeIcon = 'bi-diagram-2';
+      } else if (firstLine.includes('pie')) {
+        diagramTypeLabel = 'Pie Chart';
+        diagramTypeIcon = 'bi-pie-chart-fill';
+      } else if (firstLine.includes('class')) {
+        diagramTypeLabel = 'Class Diagram';
+        diagramTypeIcon = 'bi-box';
+      }
+
       return `
-        <div class="mermaid-block-container my-4 p-3 bg-white rounded-4 border shadow-sm position-relative" data-diagram-id="${uniqueId}">
-          <div class="mermaid-header d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-            <span class="badge bg-primary-subtle text-primary fw-bold px-2.5 py-1 rounded-pill small">
-              <i class="bi bi-diagram-3-fill me-1"></i> Mermaid Flowchart / Diagram
-            </span>
-            <div class="d-flex gap-1">
-              <button type="button" class="btn btn-xs btn-light border rounded-pill copy-mermaid-code-btn px-2 py-0.5" data-code="${encodeURIComponent(decodedCode)}" title="Salin Kode Mermaid">
-                <i class="bi bi-clipboard me-1"></i> <span style="font-size: 11px;">Salin Kode</span>
+        <div class="mermaid-block-container my-4 bg-white rounded-4 border shadow-sm position-relative overflow-hidden" data-diagram-id="${uniqueId}">
+          <!-- Interactive Diagram Header -->
+          <div class="mermaid-header d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 bg-light border-bottom">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="badge bg-primary-subtle text-primary fw-bold px-2.5 py-1.5 rounded-pill small d-flex align-items-center gap-1">
+                <i class="bi ${diagramTypeIcon}"></i> ${diagramTypeLabel}
+              </span>
+              <span class="mermaid-node-count-badge badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded-pill small" style="font-size: 11px;">
+                <i class="bi bi-bounding-box-circles me-1"></i> <span class="node-count-text">Memuat...</span>
+              </span>
+            </div>
+
+            <!-- Header Action & Zoom Controls -->
+            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+              <!-- Zoom In / Out Toolbar -->
+              <div class="btn-group btn-group-sm bg-white rounded-pill border shadow-xs p-0.5" role="group">
+                <button type="button" class="btn btn-sm btn-light rounded-pill mermaid-zoom-out-btn px-2 py-0.5" title="Zoom Out (-)">
+                  <i class="bi bi-zoom-out"></i>
+                </button>
+                <span class="mermaid-zoom-indicator px-2 py-0.5 small fw-bold text-muted font-monospace d-flex align-items-center" style="font-size: 11px; min-width: 44px; justify-content: center;">
+                  100%
+                </span>
+                <button type="button" class="btn btn-sm btn-light rounded-pill mermaid-zoom-in-btn px-2 py-0.5" title="Zoom In (+)">
+                  <i class="bi bi-zoom-in"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-light rounded-pill mermaid-zoom-reset-btn px-2 py-0.5" title="Reset Zoom / Tengah">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-light rounded-pill mermaid-zoom-fit-btn px-2 py-0.5" title="Sesuaikan Tampilan">
+                  <i class="bi bi-aspect-ratio"></i>
+                </button>
+              </div>
+
+              <!-- Nodes List Dropdown Trigger -->
+              <button type="button" class="btn btn-xs btn-white border rounded-pill mermaid-nodes-list-btn px-2.5 py-1 shadow-xs" title="Lihat &amp; Fokus Kotak / Blok">
+                <i class="bi bi-list-nested me-1 text-primary"></i> <span style="font-size: 11.5px;">Daftar Kotak</span>
+              </button>
+
+              <!-- Fullscreen Button -->
+              <button type="button" class="btn btn-xs btn-white border rounded-pill mermaid-fullscreen-btn px-2 py-1 shadow-xs" title="Layar Penuh">
+                <i class="bi bi-arrows-fullscreen"></i>
+              </button>
+
+              <!-- Copy Code Button -->
+              <button type="button" class="btn btn-xs btn-white border rounded-pill copy-mermaid-code-btn px-2 py-1 shadow-xs" data-code="${encodeURIComponent(decodedCode)}" title="Salin Kode Mermaid">
+                <i class="bi bi-clipboard me-1"></i> <span style="font-size: 11px;">Salin</span>
               </button>
             </div>
           </div>
-          <div class="mermaid-diagram-viewport text-center overflow-x-auto py-2" id="${uniqueId}" data-mermaid-code="${encodeURIComponent(decodedCode)}">
-            <div class="spinner-border spinner-border-sm text-primary my-3" role="status">
-              <span class="visually-hidden">Rendering diagram...</span>
+
+          <!-- Interactive Viewport Stage (Pan & Zoom Canvas) -->
+          <div class="mermaid-viewport-wrapper position-relative" style="height: 380px; min-height: 320px; overflow: hidden; background-color: #fcfdfe; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px); background-size: 20px 20px;">
+            <div class="mermaid-panzoom-stage position-absolute w-100 h-100 d-flex align-items-center justify-content-center" style="transform-origin: center center; cursor: grab; user-select: none;">
+              <div class="mermaid-diagram-viewport text-center py-2" id="${uniqueId}" data-mermaid-code="${encodeURIComponent(decodedCode)}">
+                <div class="spinner-border spinner-border-sm text-primary my-3" role="status">
+                  <span class="visually-hidden">Rendering diagram...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Interaction Hints -->
+            <div class="mermaid-canvas-hint position-absolute top-0 start-0 m-2 px-2.5 py-1 rounded-pill small bg-white border shadow-xs d-flex align-items-center gap-1.5 opacity-75" style="pointer-events: none; font-size: 11px; z-index: 10;">
+              <i class="bi bi-hand-index-thumb text-primary"></i>
+              <span>Klik kotak untuk fokus &amp; detail • Drag untuk geser</span>
+            </div>
+
+            <!-- Nodes Quick Drawer / List Overlay -->
+            <div class="mermaid-nodes-drawer position-absolute top-0 end-0 h-100 bg-white border-start shadow-sm p-3 d-none flex-column" style="width: 280px; z-index: 20; max-width: 85%;">
+              <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
+                <span class="fw-bold small text-dark d-flex align-items-center gap-1">
+                  <i class="bi bi-bounding-box-circles text-primary"></i> Daftar Kotak Diagram
+                </span>
+                <button type="button" class="btn-close btn-sm close-nodes-drawer-btn" style="font-size: 10px;"></button>
+              </div>
+              <div class="mermaid-nodes-list-items overflow-y-auto flex-grow-1 d-flex flex-column gap-1.5 pe-1">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Floating Node Detail Inspector Overlay -->
+            <div class="mermaid-node-detail-card position-absolute bottom-0 start-0 end-0 m-3 p-3 bg-white rounded-3 border shadow-lg d-none align-items-center justify-content-between gap-3" style="z-index: 25; backdrop-filter: blur(8px); background-color: rgba(255, 255, 255, 0.95);">
+              <div class="d-flex align-items-center gap-3 overflow-hidden">
+                <div class="badge bg-primary-subtle text-primary p-2.5 rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
+                  <i class="bi bi-box-seam fs-5"></i>
+                </div>
+                <div class="overflow-hidden">
+                  <div class="d-flex align-items-center gap-2 mb-0.5">
+                    <span class="badge bg-primary rounded-pill px-2 py-0.5" style="font-size: 10px;">Fokus Kotak Aktif</span>
+                    <span class="text-muted font-monospace small node-id-label" style="font-size: 11px;">#Node</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-0 text-truncate node-text-label">Judul Kotak</h6>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold focus-closer-btn" title="Fokus Lebih Dekat (Zoom 2.2x)">
+                  <i class="bi bi-search me-1"></i> <span style="font-size: 11.5px;">Fokus</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 copy-node-text-btn" title="Salin Teks Kotak">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 reset-node-focus-btn" title="Kembalikan Tampilan Penuh">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+                <button type="button" class="btn-close btn-sm close-node-detail-btn ms-1"></button>
+              </div>
             </div>
           </div>
         </div>
@@ -293,10 +438,15 @@ export function renderMarkdownToHtml(markdownText) {
 
 /**
  * Scan DOM container and dynamically render all pending Mermaid diagrams
+ * with pan/zoom, interactive node focus, detail inspector, and table scroll controllers
  */
 export async function renderMermaidDiagramsInContainer(containerElement) {
   if (!containerElement) return;
 
+  // 1. Initialize Table Scrolling Controllers
+  setupTableScrollControllers(containerElement);
+
+  // 2. Initialize Mermaid Diagram Rendering & Interactivity
   const diagramContainers = containerElement.querySelectorAll('.mermaid-diagram-viewport[data-mermaid-code]');
   if (!diagramContainers || diagramContainers.length === 0) return;
 
@@ -320,6 +470,7 @@ export async function renderMermaidDiagramsInContainer(containerElement) {
     const rawCode = decodeURIComponent(el.getAttribute('data-mermaid-code') || '');
     if (!rawCode) continue;
 
+    const blockContainer = el.closest('.mermaid-block-container');
     const renderId = `render-${el.id || Math.random().toString(36).substring(2, 9)}`;
 
     try {
@@ -346,6 +497,11 @@ export async function renderMermaidDiagramsInContainer(containerElement) {
         svgEl.style.maxWidth = '100%';
         svgEl.style.height = 'auto';
         svgEl.classList.add('mermaid-rendered-svg');
+
+        // Setup Interactive Controller for this specific Mermaid block
+        if (blockContainer) {
+          setupMermaidInteractiveController(blockContainer, svgEl);
+        }
       }
     } catch (renderError) {
       console.warn('Mermaid render error for element:', renderError);
@@ -377,6 +533,451 @@ export async function renderMermaidDiagramsInContainer(containerElement) {
   });
 }
 
+/**
+ * Setup horizontal table scrolling interactions (drag to scroll + left/right buttons)
+ */
+function setupTableScrollControllers(container) {
+  const tableWrappers = container.querySelectorAll('.markdown-table-wrapper');
+  tableWrappers.forEach(wrapper => {
+    const scrollContainer = wrapper.querySelector('.markdown-table-responsive-container');
+    const leftBtn = wrapper.querySelector('.table-scroll-left');
+    const rightBtn = wrapper.querySelector('.table-scroll-right');
+
+    if (!scrollContainer) return;
+
+    const updateScrollButtons = () => {
+      const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+      if (leftBtn) {
+        leftBtn.disabled = scrollContainer.scrollLeft <= 4;
+        leftBtn.style.opacity = scrollContainer.scrollLeft <= 4 ? '0.45' : '1';
+      }
+      if (rightBtn) {
+        rightBtn.disabled = scrollContainer.scrollLeft >= maxScrollLeft - 4;
+        rightBtn.style.opacity = scrollContainer.scrollLeft >= maxScrollLeft - 4 ? '0.45' : '1';
+      }
+    };
+
+    if (leftBtn) {
+      leftBtn.onclick = (e) => {
+        e.preventDefault();
+        scrollContainer.scrollBy({ left: -220, behavior: 'smooth' });
+      };
+    }
+
+    if (rightBtn) {
+      rightBtn.onclick = (e) => {
+        e.preventDefault();
+        scrollContainer.scrollBy({ left: 220, behavior: 'smooth' });
+      };
+    }
+
+    // Drag-to-scroll behavior for table
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    scrollContainer.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking interactive elements inside table
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+      isDown = true;
+      scrollContainer.style.cursor = 'grabbing';
+      scrollContainer.style.userSelect = 'none';
+      startX = e.pageX - scrollContainer.offsetLeft;
+      scrollLeft = scrollContainer.scrollLeft;
+    });
+
+    scrollContainer.addEventListener('mouseleave', () => {
+      if (isDown) {
+        isDown = false;
+        scrollContainer.style.cursor = 'default';
+        scrollContainer.style.removeProperty('user-select');
+      }
+    });
+
+    scrollContainer.addEventListener('mouseup', () => {
+      if (isDown) {
+        isDown = false;
+        scrollContainer.style.cursor = 'default';
+        scrollContainer.style.removeProperty('user-select');
+      }
+    });
+
+    scrollContainer.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    });
+
+    scrollContainer.addEventListener('scroll', updateScrollButtons, { passive: true });
+    updateScrollButtons();
+  });
+}
+
+/**
+ * Setup Pan, Zoom, Interactive Node Click/Focus, and Detail Inspector for a Mermaid diagram
+ */
+function setupMermaidInteractiveController(blockContainer, svgEl) {
+  const panzoomStage = blockContainer.querySelector('.mermaid-panzoom-stage');
+  const viewportWrapper = blockContainer.querySelector('.mermaid-viewport-wrapper');
+  const zoomInBtn = blockContainer.querySelector('.mermaid-zoom-in-btn');
+  const zoomOutBtn = blockContainer.querySelector('.mermaid-zoom-out-btn');
+  const zoomResetBtn = blockContainer.querySelector('.mermaid-zoom-reset-btn');
+  const zoomFitBtn = blockContainer.querySelector('.mermaid-zoom-fit-btn');
+  const zoomIndicator = blockContainer.querySelector('.mermaid-zoom-indicator');
+  const fullscreenBtn = blockContainer.querySelector('.mermaid-fullscreen-btn');
+  const nodesListBtn = blockContainer.querySelector('.mermaid-nodes-list-btn');
+  const nodeCountBadge = blockContainer.querySelector('.mermaid-node-count-badge .node-count-text');
+  const nodesDrawer = blockContainer.querySelector('.mermaid-nodes-drawer');
+  const nodesListItems = blockContainer.querySelector('.mermaid-nodes-list-items');
+  const closeNodesDrawerBtn = blockContainer.querySelector('.close-nodes-drawer-btn');
+  const nodeDetailCard = blockContainer.querySelector('.mermaid-node-detail-card');
+  const nodeTitleLabel = blockContainer.querySelector('.node-text-label');
+  const nodeIdLabel = blockContainer.querySelector('.node-id-label');
+  const focusCloserBtn = blockContainer.querySelector('.focus-closer-btn');
+  const copyNodeTextBtn = blockContainer.querySelector('.copy-node-text-btn');
+  const resetNodeFocusBtn = blockContainer.querySelector('.reset-node-focus-btn');
+  const closeNodeDetailBtn = blockContainer.querySelector('.close-node-detail-btn');
+
+  if (!panzoomStage || !viewportWrapper) return;
+
+  // Viewport State
+  const state = {
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    activeNodeEl: null,
+    activeNodeData: null,
+    nodes: []
+  };
+
+  const applyTransform = (smooth = false) => {
+    panzoomStage.style.transition = smooth ? 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)' : 'none';
+    panzoomStage.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+    if (zoomIndicator) {
+      zoomIndicator.textContent = `${Math.round(state.zoom * 100)}%`;
+    }
+  };
+
+  const setZoom = (newZoom, smooth = true) => {
+    state.zoom = Math.min(Math.max(newZoom, 0.25), 4.0);
+    applyTransform(smooth);
+  };
+
+  const resetView = (smooth = true) => {
+    state.zoom = 1;
+    state.panX = 0;
+    state.panY = 0;
+    clearActiveNodeHighlight();
+    applyTransform(smooth);
+  };
+
+  const fitView = (smooth = true) => {
+    if (!svgEl || !viewportWrapper) return;
+    const svgRect = svgEl.getBoundingClientRect();
+    const vpRect = viewportWrapper.getBoundingClientRect();
+    if (svgRect.width > 0 && svgRect.height > 0 && vpRect.width > 0) {
+      const scaleX = (vpRect.width * 0.9) / (svgRect.width / state.zoom);
+      const scaleY = (vpRect.height * 0.85) / (svgRect.height / state.zoom);
+      const fitScale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.35), 1.6);
+      state.zoom = fitScale;
+      state.panX = 0;
+      state.panY = 0;
+      applyTransform(smooth);
+    }
+  };
+
+  // Zoom Button Handlers
+  if (zoomInBtn) {
+    zoomInBtn.onclick = (e) => {
+      e.stopPropagation();
+      setZoom(state.zoom + 0.25);
+    };
+  }
+  if (zoomOutBtn) {
+    zoomOutBtn.onclick = (e) => {
+      e.stopPropagation();
+      setZoom(state.zoom - 0.25);
+    };
+  }
+  if (zoomResetBtn) {
+    zoomResetBtn.onclick = (e) => {
+      e.stopPropagation();
+      resetView();
+    };
+  }
+  if (zoomFitBtn) {
+    zoomFitBtn.onclick = (e) => {
+      e.stopPropagation();
+      fitView();
+    };
+  }
+
+  // Fullscreen toggle handler
+  if (fullscreenBtn) {
+    fullscreenBtn.onclick = (e) => {
+      e.stopPropagation();
+      const isFullscreen = blockContainer.classList.toggle('mermaid-fullscreen-mode');
+      if (isFullscreen) {
+        fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen-exit text-danger"></i>';
+        fullscreenBtn.title = 'Keluar Layar Penuh (Esc)';
+        viewportWrapper.style.height = 'calc(90vh - 70px)';
+      } else {
+        fullscreenBtn.innerHTML = '<i class="bi bi-arrows-fullscreen"></i>';
+        fullscreenBtn.title = 'Layar Penuh';
+        viewportWrapper.style.height = '380px';
+      }
+      setTimeout(() => fitView(false), 150);
+    };
+  }
+
+  // Pan by Mouse Dragging
+  viewportWrapper.addEventListener('mousedown', (e) => {
+    // If clicking a node or toolbar control, do not trigger background pan drag
+    if (e.target.closest('.mermaid-header') || e.target.closest('.mermaid-nodes-drawer') || e.target.closest('.mermaid-node-detail-card')) {
+      return;
+    }
+    state.isDragging = true;
+    panzoomStage.style.cursor = 'grabbing';
+    state.startX = e.clientX - state.panX;
+    state.startY = e.clientY - state.panY;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!state.isDragging) return;
+    state.panX = e.clientX - state.startX;
+    state.panY = e.clientY - state.startY;
+    applyTransform(false);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (state.isDragging) {
+      state.isDragging = false;
+      panzoomStage.style.cursor = 'grab';
+    }
+  });
+
+  // Mouse Wheel Zoom on Viewport
+  viewportWrapper.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+    setZoom(state.zoom * zoomFactor, false);
+  }, { passive: false });
+
+  // -----------------------------------------------------------------
+  // PARSE SVG NODES FOR INTERACTIVE FOCUS & INSPECTION
+  // -----------------------------------------------------------------
+  const parseSvgNodes = () => {
+    state.nodes = [];
+    if (!svgEl) return;
+
+    // Potential node selectors across flowchart, sequence, state, class, mindmap
+    const nodeSelectors = [
+      'g.node',
+      'g.actor',
+      'g.statediagram-state',
+      'g.classGroup',
+      'g.mindmap-node',
+      'g[id*="flowchart-"]',
+      'g.cluster'
+    ];
+
+    const nodeElements = svgEl.querySelectorAll(nodeSelectors.join(', '));
+    nodeElements.forEach((nodeEl, idx) => {
+      // Find clean text representation
+      let rawText = '';
+      const textElements = nodeEl.querySelectorAll('text, span, div, p, foreignObject');
+      textElements.forEach(t => {
+        const txt = (t.textContent || '').trim();
+        if (txt && !rawText.includes(txt)) {
+          rawText += (rawText ? ' ' : '') + txt;
+        }
+      });
+
+      if (!rawText) {
+        rawText = nodeEl.getAttribute('id') || `Kotak #${idx + 1}`;
+      }
+
+      const nodeId = nodeEl.getAttribute('id') || `node-${idx + 1}`;
+      const nodeData = {
+        id: nodeId,
+        title: rawText.replace(/\s+/g, ' '),
+        index: idx,
+        element: nodeEl
+      };
+
+      state.nodes.push(nodeData);
+
+      // Enhance SVG node element styling and interactions
+      nodeEl.style.cursor = 'pointer';
+      nodeEl.classList.add('interactive-mermaid-node');
+
+      // Click node handler
+      nodeEl.onclick = (e) => {
+        e.stopPropagation();
+        focusOnNode(nodeData, true);
+      };
+    });
+
+    // Update node count in header
+    if (nodeCountBadge) {
+      nodeCountBadge.textContent = `${state.nodes.length} Kotak`;
+    }
+
+    // Populate Nodes Drawer List
+    if (nodesListItems) {
+      nodesListItems.innerHTML = '';
+      if (state.nodes.length === 0) {
+        nodesListItems.innerHTML = '<div class="text-muted small p-2">Tidak ada kotak yang dapat diidentifikasi.</div>';
+      } else {
+        state.nodes.forEach(node => {
+          const itemBtn = document.createElement('button');
+          itemBtn.type = 'button';
+          itemBtn.className = 'btn btn-light btn-sm text-start rounded-3 p-2 border d-flex align-items-center gap-2 node-list-item-btn';
+          itemBtn.innerHTML = `
+            <span class="badge bg-primary-subtle text-primary p-1 rounded"><i class="bi bi-box-seam"></i></span>
+            <div class="overflow-hidden flex-grow-1">
+              <div class="fw-bold text-dark text-truncate small">${escapeHtml(node.title)}</div>
+              <div class="text-muted font-monospace" style="font-size: 10px;">${escapeHtml(node.id)}</div>
+            </div>
+            <i class="bi bi-chevron-right text-muted small"></i>
+          `;
+          itemBtn.onclick = () => {
+            focusOnNode(node, true);
+          };
+          nodesListItems.appendChild(itemBtn);
+        });
+      }
+    }
+  };
+
+  const clearActiveNodeHighlight = () => {
+    if (state.activeNodeEl) {
+      state.activeNodeEl.classList.remove('mermaid-node-focused');
+      state.activeNodeEl = null;
+    }
+    state.activeNodeData = null;
+    if (nodeDetailCard) {
+      nodeDetailCard.classList.remove('d-flex');
+      nodeDetailCard.classList.add('d-none');
+    }
+  };
+
+  const focusOnNode = (nodeData, smooth = true, targetZoom = 1.95) => {
+    if (!nodeData || !nodeData.element) return;
+
+    clearActiveNodeHighlight();
+
+    state.activeNodeEl = nodeData.element;
+    state.activeNodeData = nodeData;
+    nodeData.element.classList.add('mermaid-node-focused');
+
+    // Calculate node bounding box relative to SVG viewport center
+    try {
+      let nodeBox = null;
+      if (typeof nodeData.element.getBBox === 'function') {
+        nodeBox = nodeData.element.getBBox();
+      }
+
+      const svgRect = svgEl.getBoundingClientRect();
+      const nodeRect = nodeData.element.getBoundingClientRect();
+      const vpRect = viewportWrapper.getBoundingClientRect();
+
+      // Target zoom level
+      state.zoom = targetZoom;
+
+      // Calculate centering offset
+      const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+      const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+      const vpCenterX = vpRect.left + vpRect.width / 2;
+      const vpCenterY = vpRect.top + vpRect.height / 2;
+
+      state.panX += (vpCenterX - nodeCenterX);
+      state.panY += (vpCenterY - nodeCenterY);
+
+      applyTransform(smooth);
+    } catch (e) {
+      state.zoom = targetZoom;
+      applyTransform(smooth);
+    }
+
+    // Display Floating Detail Inspector Card
+    if (nodeDetailCard && nodeTitleLabel && nodeIdLabel) {
+      nodeTitleLabel.textContent = nodeData.title;
+      nodeIdLabel.textContent = `#${nodeData.id}`;
+      nodeDetailCard.classList.remove('d-none');
+      nodeDetailCard.classList.add('d-flex');
+    }
+  };
+
+  // Node Detail Actions
+  if (focusCloserBtn) {
+    focusCloserBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (state.activeNodeData) {
+        focusOnNode(state.activeNodeData, true, 2.7);
+      }
+    };
+  }
+
+  if (copyNodeTextBtn) {
+    copyNodeTextBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (state.activeNodeData && state.activeNodeData.title) {
+        navigator.clipboard.writeText(state.activeNodeData.title).then(() => {
+          const orig = copyNodeTextBtn.innerHTML;
+          copyNodeTextBtn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
+          setTimeout(() => { copyNodeTextBtn.innerHTML = orig; }, 1500);
+        });
+      }
+    };
+  }
+
+  if (resetNodeFocusBtn) {
+    resetNodeFocusBtn.onclick = (e) => {
+      e.stopPropagation();
+      resetView();
+    };
+  }
+
+  if (closeNodeDetailBtn) {
+    closeNodeDetailBtn.onclick = (e) => {
+      e.stopPropagation();
+      clearActiveNodeHighlight();
+    };
+  }
+
+  // Nodes Drawer Toggle
+  if (nodesListBtn && nodesDrawer) {
+    nodesListBtn.onclick = (e) => {
+      e.stopPropagation();
+      const isOpen = nodesDrawer.classList.contains('d-flex');
+      if (isOpen) {
+        nodesDrawer.classList.remove('d-flex');
+        nodesDrawer.classList.add('d-none');
+      } else {
+        nodesDrawer.classList.remove('d-none');
+        nodesDrawer.classList.add('d-flex');
+      }
+    };
+  }
+
+  if (closeNodesDrawerBtn && nodesDrawer) {
+    closeNodesDrawerBtn.onclick = (e) => {
+      e.stopPropagation();
+      nodesDrawer.classList.remove('d-flex');
+      nodesDrawer.classList.add('d-none');
+    };
+  }
+
+  // Parse SVG Nodes after DOM injection
+  parseSvgNodes();
+}
+
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -385,3 +986,4 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+

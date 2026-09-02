@@ -192,28 +192,65 @@ export default {
   margin-bottom: 0.3rem;
 }
 
+.markdown-content-body :deep(.markdown-table-wrapper) {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.markdown-content-body :deep(.markdown-table-wrapper:hover) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+.markdown-content-body :deep(.markdown-table-responsive-container) {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+  -webkit-overflow-scrolling: touch;
+}
+
+.markdown-content-body :deep(.markdown-table-responsive-container::-webkit-scrollbar) {
+  height: 7px;
+}
+
+.markdown-content-body :deep(.markdown-table-responsive-container::-webkit-scrollbar-track) {
+  background: #f1f5f9;
+}
+
+.markdown-content-body :deep(.markdown-table-responsive-container::-webkit-scrollbar-thumb) {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.markdown-content-body :deep(.markdown-table-responsive-container::-webkit-scrollbar-thumb:hover) {
+  background: #94a3b8;
+}
+
 .markdown-content-body :deep(table) {
   width: 100%;
-  margin: 1rem 0;
+  margin: 0;
   border-collapse: collapse;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
+  min-width: 480px;
 }
 
 .markdown-content-body :deep(th),
 .markdown-content-body :deep(td) {
-  padding: 0.6rem 0.85rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #e2e8f0;
+  vertical-align: middle;
+  font-size: 0.93rem;
 }
 
 .markdown-content-body :deep(th) {
   background-color: #f8fafc;
   font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
 }
 
 .markdown-content-body :deep(tr:nth-child(even)) {
   background-color: #fbfcfe;
+}
+
+.markdown-content-body :deep(tr:hover) {
+  background-color: #f1f5f9 !important;
 }
 
 .markdown-content-body :deep(.note-rendered-img) {
@@ -227,17 +264,97 @@ export default {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* MERMAID INTERACTIVE DIAGRAM STYLING */
 .markdown-content-body :deep(.mermaid-block-container) {
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .markdown-content-body :deep(.mermaid-block-container:hover) {
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12) !important;
 }
 
+.markdown-content-body :deep(.mermaid-fullscreen-mode) {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  right: 15px !important;
+  bottom: 15px !important;
+  z-index: 2200 !important;
+  margin: 0 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.45) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.markdown-content-body :deep(.mermaid-fullscreen-mode .mermaid-viewport-wrapper) {
+  flex-grow: 1 !important;
+  height: 100% !important;
+}
+
 .markdown-content-body :deep(.mermaid-diagram-viewport svg) {
   display: inline-block;
   margin: 0 auto;
+  user-select: none;
+}
+
+/* Interactive SVG nodes hover & focus effects */
+.markdown-content-body :deep(.interactive-mermaid-node) {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.markdown-content-body :deep(.interactive-mermaid-node:hover) {
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
+}
+
+.markdown-content-body :deep(.interactive-mermaid-node:hover rect),
+.markdown-content-body :deep(.interactive-mermaid-node:hover circle),
+.markdown-content-body :deep(.interactive-mermaid-node:hover polygon),
+.markdown-content-body :deep(.interactive-mermaid-node:hover path) {
+  stroke: #4f46e5 !important;
+  stroke-width: 2.5px !important;
+}
+
+.markdown-content-body :deep(.mermaid-node-focused) {
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.85)) !important;
+  animation: mermaidNodePulse 1.8s infinite ease-in-out;
+}
+
+.markdown-content-body :deep(.mermaid-node-focused rect),
+.markdown-content-body :deep(.mermaid-node-focused circle),
+.markdown-content-body :deep(.mermaid-node-focused polygon),
+.markdown-content-body :deep(.mermaid-node-focused path) {
+  stroke: #6366f1 !important;
+  stroke-width: 3.2px !important;
+}
+
+@keyframes mermaidNodePulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(99, 102, 241, 1));
+  }
+}
+
+.markdown-content-body :deep(.mermaid-node-detail-card) {
+  animation: slideUpFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.markdown-content-body :deep(.node-list-item-btn:hover) {
+  background-color: #f1f5f9 !important;
+  border-color: #6366f1 !important;
 }
 
 /* Dark mode compatibility */
@@ -264,23 +381,82 @@ export default {
   border-color: #334155;
 }
 
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-wrapper) {
+  border-color: #334155 !important;
+  background-color: #1e293b !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-scroll-hint) {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-responsive-container) {
+  background-color: #1e293b !important;
+  scrollbar-color: #475569 #1e293b;
+}
+
 :global(.dark-theme) .markdown-content-body :deep(table),
 :global(.dark-theme) .markdown-content-body :deep(th),
 :global(.dark-theme) .markdown-content-body :deep(td) {
-  border-color: #334155;
+  border-color: #334155 !important;
 }
 
 :global(.dark-theme) .markdown-content-body :deep(th) {
-  background-color: #1e293b;
-  color: #f8fafc;
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(td) {
+  color: #cbd5e1 !important;
 }
 
 :global(.dark-theme) .markdown-content-body :deep(tr:nth-child(even)) {
-  background-color: #131b2e;
+  background-color: #131b2e !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(tr:hover) {
+  background-color: #1e293b !important;
 }
 
 :global(.dark-theme) .markdown-content-body :deep(.mermaid-block-container) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-header) {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-viewport-wrapper) {
+  background-color: #0b0f19 !important;
+  background-image: radial-gradient(#334155 1.2px, transparent 1.2px) !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-nodes-drawer) {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card) {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  border-color: #475569 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card h6) {
+  color: #f8fafc !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn) {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn:hover) {
+  background-color: #1e293b !important;
+  border-color: #818cf8 !important;
 }
 </style>

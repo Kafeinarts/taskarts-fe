@@ -60,6 +60,28 @@ const routes = [
     component: () => import("../views/VideoHubView.vue"),
   },
   {
+    path: "/videos/:id",
+    name: "video-detail",
+    component: () => import("../views/VideoDetailView.vue"),
+  },
+  {
+    path: "/custom-bingkai",
+    name: "custom-bingkai",
+    component: () => import("../views/MotivationFrameSettingsView.vue"),
+  },
+  {
+    path: "/frame-custom",
+    redirect: "/custom-bingkai",
+  },
+  {
+    path: "/motivation-frame/custom",
+    redirect: "/custom-bingkai",
+  },
+  {
+    path: "/motivation-frame/settings",
+    redirect: "/custom-bingkai",
+  },
+  {
     path: "/games",
     name: "games",
     component: () => import("../views/GamesView.vue"),
@@ -122,6 +144,20 @@ const routes = [
     path: "/notes/:id",
     name: "note-detail",
     component: () => import("../views/NoteDetailView.vue"),
+  },
+  {
+    path: "/diary",
+    name: "diary",
+    component: () => import("../views/DiaryView.vue"),
+  },
+  {
+    path: "/diary/:id",
+    name: "diary-detail",
+    component: () => import("../views/DiaryDetailView.vue"),
+  },
+  {
+    path: "/jurnal",
+    redirect: "/diary",
   },
   {
     path: "/settings",
@@ -204,10 +240,24 @@ const router = createRouter({
 });
 
 router.onError((error) => {
-  const pattern = /Loading chunk (\d)+ failed/g;
-  const isChunkLoadFailed = error.name === 'ChunkLoadError' || error.message.includes('Loading chunk') || error.message.includes('Failed to fetch');
+  const isChunkLoadFailed =
+    error.name === 'ChunkLoadError' ||
+    error.name === 'SyntaxError' ||
+    (error.message && (
+      error.message.includes('Loading chunk') ||
+      error.message.includes('Failed to fetch') ||
+      error.message.includes('Unexpected token') ||
+      error.message.includes('dynamically imported module')
+    ));
+
   if (isChunkLoadFailed) {
-    window.location.reload();
+    const lastReload = sessionStorage.getItem('last_chunk_reload');
+    const now = Date.now();
+    // Prevent infinite reload loop
+    if (!lastReload || now - parseInt(lastReload, 10) > 8000) {
+      sessionStorage.setItem('last_chunk_reload', now.toString());
+      window.location.reload();
+    }
   }
 });
 

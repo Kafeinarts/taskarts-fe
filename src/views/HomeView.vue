@@ -168,7 +168,15 @@
               <div class="p-3 bg-info text-dark rounded-3 fs-4"><i class="bi bi-journal-text"></i></div>
               <div>
                 <h6 class="fw-bold text-dark mb-0">Sticky Notes & Markdown Editor</h6>
-                <small class="text-muted">Coreta n ide & dokumentasi proyek dengan live preview</small>
+                <small class="text-muted">Coretan ide & dokumentasi proyek dengan live preview</small>
+              </div>
+            </router-link>
+
+            <router-link to="/diary" class="p-3 bg-light rounded-3 border text-decoration-none d-flex align-items-center gap-3 hover-card">
+              <div class="p-3 bg-warning text-dark rounded-3 fs-4"><i class="bi bi-book-half"></i></div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0">Diary & Jurnal Cerita Harian</h6>
+                <small class="text-muted">Tulis kisah harian, upload foto kenangan, dan rekam mood</small>
               </div>
             </router-link>
 

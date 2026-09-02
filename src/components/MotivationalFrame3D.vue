@@ -46,13 +46,14 @@
           <span>Upload Foto Motivasi</span>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1.5 fw-semibold"
-          @click="showSettingsModal = true"
-          title="Atur Bingkai & Tulisan"
+        <router-link
+          to="/custom-bingkai"
+          class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-1.5"
+          title="Kustomisasi Bingkai & Tulisan (Halaman Penuh)"
         >
-          <i class="bi bi-gear-fill"></i>
-        </button>
+          <i class="bi bi-sliders"></i>
+          <span>Custom Bingkai</span>
+        </router-link>
 
         <button
           class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 text-muted"
@@ -269,13 +270,13 @@
 
           <!-- Bottom Action Row: Customize & Fullscreen Inspiration -->
           <div class="d-flex gap-2">
-            <button 
-              class="btn btn-outline-primary rounded-3 w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-1.5 shadow-xs"
-              @click="showSettingsModal = true"
+            <router-link 
+              to="/custom-bingkai"
+              class="btn btn-outline-primary rounded-3 w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-1.5 shadow-xs text-decoration-none"
             >
               <i class="bi bi-sliders"></i>
               <span>Kustomisasi Bingkai</span>
-            </button>
+            </router-link>
             <button 
               class="btn btn-warning rounded-3 w-100 py-2 fw-bold text-dark d-flex align-items-center justify-content-center gap-1.5 shadow-xs"
               @click="triggerCheerBoost"
@@ -296,166 +297,6 @@
       accept="image/png, image/jpeg, image/webp, image/gif"
       @change="handleFileUpload"
     />
-
-    <!-- Settings & Customization Modal -->
-    <div v-if="showSettingsModal" class="modal-backdrop-custom" @click.self="showSettingsModal = false">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden bg-white">
-          <div class="modal-header px-4 py-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <span class="fs-4">🖼️</span>
-              <div>
-                <h5 class="modal-title fw-bold text-dark mb-0">Pengaturan Bingkai & Foto Motivasi</h5>
-                <small class="text-muted">Kustomisasi gaya bingkai 3D, orientasi, pencahayaan, dan kata-kata penyemangat.</small>
-              </div>
-            </div>
-            <button type="button" class="btn-close" @click="showSettingsModal = false"></button>
-          </div>
-
-          <div class="modal-body p-4">
-            <div class="row g-4">
-              <!-- Left Column: Frame Style & Lighting Selection -->
-              <div class="col-md-6">
-                <!-- Frame Style -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-dark small mb-2 d-flex align-items-center gap-1">
-                    <i class="bi bi-palette text-primary"></i> Gaya Material Bingkai 3D:
-                  </label>
-                  <div class="row g-2">
-                    <div v-for="style in frameStyles" :key="style.id" class="col-6">
-                      <div 
-                        class="p-2.5 rounded-3 border cursor-pointer d-flex align-items-center gap-2 style-option-card"
-                        :class="{ 'selected-option': currentFrameStyle === style.id }"
-                        @click="setFrameStyle(style.id)"
-                      >
-                        <span class="color-preview-circle" :style="{ background: style.previewColor }"></span>
-                        <div class="lh-1">
-                          <span class="small fw-bold text-dark d-block mb-0.5">{{ style.name }}</span>
-                          <span class="text-muted" style="font-size: 10.5px;">{{ style.desc }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Lighting Ambience Mode -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-dark small mb-2 d-flex align-items-center gap-1">
-                    <i class="bi bi-sun text-warning"></i> Suasana Pencahayaan Studio (Terang):
-                  </label>
-                  <div class="d-flex flex-column gap-2">
-                    <div 
-                      v-for="light in lightingModes" :key="light.id"
-                      class="p-2.5 rounded-3 border cursor-pointer d-flex align-items-center justify-content-between style-option-card"
-                      :class="{ 'selected-option': currentLightingMode === light.id }"
-                      @click="setLightingMode(light.id)"
-                    >
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="fs-5">{{ light.icon }}</span>
-                        <div>
-                          <span class="small fw-bold text-dark d-block">{{ light.name }}</span>
-                          <span class="text-muted" style="font-size: 11px;">{{ light.desc }}</span>
-                        </div>
-                      </div>
-                      <i v-if="currentLightingMode === light.id" class="bi bi-check-circle-fill text-primary"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Manual Orientation Override -->
-                <div>
-                  <label class="form-label fw-bold text-dark small mb-1 d-flex align-items-center gap-1">
-                    <i class="bi bi-aspect-ratio text-success"></i> Bentuk Bingkai (Auto/Override):
-                  </label>
-                  <div class="btn-group w-100" role="group">
-                    <button 
-                      type="button" 
-                      class="btn btn-sm"
-                      :class="activeItem.orientation === 'landscape' ? 'btn-primary fw-bold' : 'btn-outline-secondary'"
-                      @click="setPhotoOrientation('landscape')"
-                    >
-                      Landscape (Horizontal)
-                    </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-sm"
-                      :class="activeItem.orientation === 'portrait' ? 'btn-primary fw-bold' : 'btn-outline-secondary'"
-                      @click="setPhotoOrientation('portrait')"
-                    >
-                      Portrait (Vertikal)
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Column: Text Dedication & Photo Action -->
-              <div class="col-md-6">
-                <!-- Title & Target -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-dark small mb-1">
-                    🎯 Judul / Target Motivasi:
-                  </label>
-                  <input 
-                    type="text" 
-                    class="form-control rounded-3" 
-                    v-model="editForm.title" 
-                    placeholder="Contoh: Untuk Senyuman Keluarga Tercinta ❤️"
-                  />
-                </div>
-
-                <!-- Quote / Dedication -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-dark small mb-1">
-                    ✍️ Kata-Kata Penyemangat (Quote):
-                  </label>
-                  <textarea 
-                    class="form-control rounded-3" 
-                    rows="3" 
-                    v-model="editForm.quote" 
-                    placeholder="Tuliskan motivasi terdalam kamu saat lelah bekerja..."
-                  ></textarea>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-dark small mb-1">
-                    🚀 Target Goal (Spesifik):
-                  </label>
-                  <input 
-                    type="text" 
-                    class="form-control rounded-3" 
-                    v-model="editForm.targetGoal" 
-                    placeholder="Contoh: Target Rumah Idaman 2026 🏠"
-                  />
-                </div>
-
-                <!-- Upload / Delete Buttons -->
-                <div class="p-3 bg-light rounded-3 border d-flex flex-column gap-2">
-                  <button class="btn btn-sm btn-primary rounded-3 fw-bold d-flex align-items-center justify-content-center gap-1" @click="triggerFileInput">
-                    <i class="bi bi-upload"></i> Ganti Foto Ini
-                  </button>
-                  <button 
-                    v-if="photosList.length > 1" 
-                    class="btn btn-sm btn-outline-danger rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-1"
-                    @click="deleteCurrentPhoto"
-                  >
-                    <i class="bi bi-trash"></i> Hapus Foto dari Koleksi
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer px-4 py-3 bg-light border-top d-flex justify-content-between">
-            <button type="button" class="btn btn-secondary rounded-pill px-4 fw-semibold" @click="showSettingsModal = false">
-              Tutup
-            </button>
-            <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" @click="saveCustomText">
-              <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -463,7 +304,6 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import Swal from 'sweetalert2';
 
 export default {
   name: 'MotivationalFrame3D',
@@ -1210,11 +1050,7 @@ export default {
       isDropHover.value = false;
       const file = e.dataTransfer.files && e.dataTransfer.files[0];
       if (!file || !file.type.startsWith('image/')) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Format Tidak Didukung',
-          text: 'Harap masukkan file gambar (JPG, PNG, WEBP, atau GIF).'
-        });
+        window.alert('Harap masukkan file gambar (JPG, PNG, WEBP, atau GIF).');
         return;
       }
       processImageFile(file);
@@ -1256,13 +1092,7 @@ export default {
           persistData();
           animateToNewPhoto(1);
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Foto Motivasi Ditambahkan!',
-            text: `Berhasil diunggah dengan bingkai adaptif ${detectedOrientation.toUpperCase()}. Semangat bekerja! 🔥`,
-            timer: 2300,
-            showConfirmButton: false
-          });
+          window.alert(`Foto Motivasi Ditambahkan! Berhasil diunggah dengan bingkai adaptif ${detectedOrientation.toUpperCase()}. Semangat bekerja! 🔥`);
         };
         img.src = rawDataUrl;
       };
@@ -1293,27 +1123,17 @@ export default {
     const deleteCurrentPhoto = () => {
       if (photosList.value.length <= 1) return;
 
-      Swal.fire({
-        title: 'Hapus Foto Ini?',
-        text: 'Foto ini akan dihapus dari galeri motivasi 3D.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Hapus',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          photosList.value.splice(activeIndex.value, 1);
-          if (activeIndex.value >= photosList.value.length) {
-            activeIndex.value = photosList.value.length - 1;
-          }
-          syncEditForm();
-          persistData();
-          animateToNewPhoto(1);
-          showSettingsModal.value = false;
+      if (window.confirm('Hapus foto ini dari galeri motivasi 3D?')) {
+        photosList.value.splice(activeIndex.value, 1);
+        if (activeIndex.value >= photosList.value.length) {
+          activeIndex.value = photosList.value.length - 1;
         }
-      });
+        syncEditForm();
+        persistData();
+        animateToNewPhoto(1);
+        showSettingsModal.value = false;
+        window.alert('Foto motivasi telah dihapus.');
+      }
     };
 
     const applyPreset = (preset) => {
@@ -1341,17 +1161,6 @@ export default {
       const curIdx = styles.indexOf(currentFrameStyle.value);
       const nextIdx = (curIdx + 1) % styles.length;
       setFrameStyle(styles[nextIdx]);
-
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1600
-      });
-      Toast.fire({
-        icon: 'info',
-        title: `Model Bingkai: ${currentFrameStyleLabel.value}`
-      });
     };
 
     const setLightingMode = (modeId) => {
@@ -1365,17 +1174,6 @@ export default {
       const curIdx = modes.indexOf(currentLightingMode.value);
       const nextIdx = (curIdx + 1) % modes.length;
       setLightingMode(modes[nextIdx]);
-
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1600
-      });
-      Toast.fire({
-        icon: 'success',
-        title: `Pencahayaan: ${currentLightModeLabel.value}`
-      });
     };
 
     const setPhotoOrientation = (orientation) => {
@@ -1398,14 +1196,7 @@ export default {
         photosList.value[activeIndex.value].targetGoal = editForm.value.targetGoal;
         persistData();
         showSettingsModal.value = false;
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Motivasi Diperbarui!',
-          text: 'Plaque dan dedikasi foto motivasi berhasil disimpan.',
-          timer: 1800,
-          showConfirmButton: false
-        });
+        window.alert('Motivasi diperbarui! Plaque dan dedikasi foto motivasi berhasil disimpan.');
       }
     };
 
@@ -1430,28 +1221,6 @@ export default {
           ease: 'power2.out'
         });
       }
-
-      const motivationalMessages = [
-        '🔥 Energi Terisi Penuh! Lanjutkan Tugas dengan Semangat!',
-        '✨ Keren! Satu Langkah Lebih Dekat Menuju Impian!',
-        '🌟 Dedikasi Terbaikmu Akan Berbuah Manis!',
-        '💪 Semangat Juang! Kamu Pasti Bisa Menyelesaikannya!'
-      ];
-      const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true
-      });
-
-      Toast.fire({
-        icon: 'success',
-        title: 'Booster Energi Aktif! 🚀',
-        text: randomMsg
-      });
     };
 
     const playUpliftingChime = () => {

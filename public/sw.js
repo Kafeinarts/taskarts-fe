@@ -48,9 +48,14 @@ self.addEventListener('activate', (event) => {
 
 // Helper: Check if request URL is a CDN or static asset
 function isStaticAsset(url) {
+  if (url.pathname.includes('hot-update') || url.pathname.includes('sockjs') || url.pathname.includes('webpack')) {
+    return false;
+  }
   return (
     url.origin !== self.location.origin ||
     url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/js/') ||
+    url.pathname.startsWith('/css/') ||
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.css') ||
     url.pathname.endsWith('.woff2') ||
@@ -73,8 +78,14 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Ignore chrome-extension or dev server websocket connections
-  if (url.protocol.startsWith('chrome-extension') || url.pathname.includes('/vite/') || url.pathname.includes('ws')) {
+  // Ignore chrome-extension or dev server websocket/hot-update connections
+  if (
+    url.protocol.startsWith('chrome-extension') || 
+    url.pathname.includes('/vite/') || 
+    url.pathname.includes('ws') ||
+    url.pathname.includes('hot-update') ||
+    url.pathname.includes('sockjs')
+  ) {
     return;
   }
 
@@ -103,6 +114,13 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then((cachedResponse) => {
         const fetchPromise = fetch(request)
           .then((networkResponse) => {
+            // Guard: Never cache HTML fallback responses for JS/CSS files
+            const cType = networkResponse.headers ? networkResponse.headers.get('content-type') || '' : '';
+            const isJsOrCss = request.url.endsWith('.js') || request.url.endsWith('.css');
+            if (isJsOrCss && cType.includes('text/html')) {
+              return networkResponse;
+            }
+
             // Cache valid responses including opaque cross-origin CDN responses (status 0/opaque or 200)
             if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
               const responseToCache = networkResponse.clone();
