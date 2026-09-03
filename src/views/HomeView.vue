@@ -167,20 +167,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 5. Daily Motivation Card -->
-      <div class="m3-quote-card p-3 rounded-4 mb-4">
-        <div class="d-flex align-items-start gap-2">
-          <i class="bi bi-quote fs-4 text-warning opacity-75 lh-1"></i>
-          <div class="flex-grow-1">
-            <p class="small text-main mb-1 fst-italic">"{{ currentQuote.text }}"</p>
-            <small class="text-sub fw-semibold">— {{ currentQuote.author }}</small>
-          </div>
-          <button @click="cycleQuote" class="btn btn-sm btn-link text-sub p-0" title="Ganti Motivasi">
-            <i class="bi bi-arrow-repeat"></i>
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- =========================================================
@@ -628,47 +614,6 @@
               <span>Buka Financial Tracker Lengkap</span>
               <i class="bi bi-arrow-right"></i>
             </router-link>
-          </div>
-
-          <!-- Daily Booster & Kafeinarts Signature Card -->
-          <div class="content-card p-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <div class="section-icon-box bg-warning-subtle text-warning-emphasis">
-                <i class="bi bi-quote"></i>
-              </div>
-              <div>
-                <h6 class="fw-bold mb-0 text-main">Inspirasi Produktivitas</h6>
-                <small class="text-sub">Refleksi harian untuk fokus</small>
-              </div>
-            </div>
-
-            <div class="quote-card-inner p-3 rounded-3 mb-3">
-              <p class="quote-text fst-italic mb-2 text-main small lh-base">
-                "{{ currentQuote.text }}"
-              </p>
-              <div class="d-flex align-items-center justify-content-between text-sub small">
-                <span class="fw-bold">— {{ currentQuote.author }}</span>
-                <button
-                  type="button"
-                  class="btn btn-link text-primary p-0 small text-decoration-none"
-                  @click="cycleQuote"
-                >
-                  <i class="bi bi-shuffle me-1"></i>Ganti
-                </button>
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-theme">
-              <div class="d-flex align-items-center gap-2">
-                <div class="avatar-kafeinarts" style="width: 28px; height: 28px; font-size: 11px;">K</div>
-                <div style="font-size: 11px;" class="text-sub">
-                  Engineered by <span class="fw-bold text-main">Kafeinarts</span>
-                </div>
-              </div>
-              <router-link to="/developer" class="small text-primary text-decoration-none fw-bold">
-                Portfolio &rarr;
-              </router-link>
-            </div>
           </div>
         </div>
       </div>
@@ -1226,19 +1171,6 @@ export default {
       return txs.slice(-4).reverse();
     });
 
-    // Motivational Quotes Engine
-    const quotes = [
-      { text: "Kerapian sistem kerja hari ini adalah kemerdekaan waktu dan ketenangan pikiran di masa depan.", author: "Arif Permana (Kafeinarts)" },
-      { text: "Fokus pada progres kecil yang konsisten setiap hari, bukan kesempurnaan sesaat.", author: "James Clear" },
-      { text: "Disiplin adalah jembatan antara cita-cita dan pencapaian nyata.", author: "Jim Rohn" },
-      { text: "Waktu Anda terbatas, jangan sia-siakan untuk menjalani hidup orang lain.", author: "Steve Jobs" }
-    ];
-    const quoteIndex = ref(0);
-    const currentQuote = computed(() => quotes[quoteIndex.value % quotes.length]);
-    const cycleQuote = () => {
-      quoteIndex.value++;
-    };
-
     // Actions
     const toggleTaskDone = (id) => {
       store.dispatch('toggleTask', id);
@@ -1433,8 +1365,6 @@ export default {
       urgentTasksCount,
       filteredTasks,
       recentTransactions,
-      currentQuote,
-      cycleQuote,
       toggleTaskDone,
       submitFastTask,
       openTaskModal,
@@ -1632,11 +1562,6 @@ export default {
 
 .m3-task-row:hover {
   border-color: rgba(37, 99, 235, 0.3);
-}
-
-.m3-quote-card {
-  background: var(--sidebar-hover-bg);
-  border: 1px dashed var(--border-color);
 }
 
 /* =========================================================
@@ -1924,12 +1849,6 @@ export default {
   justify-content: center;
   font-size: 13px;
   flex-shrink: 0;
-}
-
-/* Quotes Card */
-.quote-card-inner {
-  background: var(--sidebar-hover-bg);
-  border-left: 3px solid var(--primary-color);
 }
 
 /* Launchpad Grid */
