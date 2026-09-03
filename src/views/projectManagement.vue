@@ -4,9 +4,10 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border">
       <div>
         <div class="d-flex align-items-center gap-2 mb-1">
-          <span class="badge bg-info-subtle text-info fw-semibold px-3 py-2 rounded-pill">Projects & Workflows</span>
+          <span class="badge bg-info-subtle text-info fw-semibold px-3 py-1.5 rounded-pill">Projects & Workflows</span>
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">📂 Project Workspace</h2>
+        <h2 class="fw-bold mb-1 text-dark">Project Workspace</h2>
         <p class="text-muted mb-0">Pantau progres pengerjaan proyek, nilai kontrak, deadline, dan buat invoice langsung.</p>
       </div>
       <div class="d-flex flex-wrap gap-2">

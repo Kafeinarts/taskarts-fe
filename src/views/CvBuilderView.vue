@@ -7,6 +7,7 @@
           <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-shield-check me-1"></i> 100% ATS-Friendly Standard
           </span>
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
           <span class="badge bg-primary text-white fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-grid-fill me-1"></i> 20 Varian Layout + Custom Builder
           </span>
@@ -17,7 +18,7 @@
             <i class="bi bi-stars me-1"></i> ATS Score: {{ currentAtsScore.score }}/100 ({{ currentAtsScore.grade }})
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">📄 ATS CV Builder, Custom Layout Studio & A4 Fixer</h2>
+        <h2 class="fw-bold mb-1 text-dark">ATS CV Builder, Custom Layout Studio & A4 Fixer</h2>
         <p class="text-muted mb-0">Rancang CV profesional dengan <strong>foto profil terpadu</strong>, <strong>20 pilihan template siap pakai</strong>, <strong>studio custom layout mandiri</strong>, dan <strong>penguncian pas rapi di 1 lembar A4</strong>.</p>
       </div>
 

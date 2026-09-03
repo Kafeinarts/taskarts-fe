@@ -7,11 +7,12 @@
           <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1.5 rounded-pill">
             <i class="bi bi-calculator-fill me-1"></i> Rencana Anggaran Biaya (RAB)
           </span>
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
           <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill shadow-sm">
             Clean 0 Rp Start State
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">📋 RAB & Kas Kegiatan (Management Anggaran)</h2>
+        <h2 class="fw-bold mb-1 text-dark">RAB & Kas Kegiatan (Management Anggaran)</h2>
         <p class="text-muted mb-0">Kelola estimasi biaya, alokasi dana income, realisasi pengeluaran, serta ekspor laporan resmi ke Excel & PDF.</p>
       </div>
 

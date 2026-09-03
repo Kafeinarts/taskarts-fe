@@ -433,7 +433,7 @@
             </div>
 
             <p class="small text-secondary lh-base mb-4">
-              RajinKerja.id dikembangkan secara independen oleh Arif Permana Putrasuryana sebagai solusi sistem operasi produktivitas (Workflow & Task OS) yang memprioritaskan portabilitas data, privasi penuh tanpa tracking, serta kenyamanan di berbagai perangkat mobile dan desktop.
+              RajinKerja.id dikembangkan secara independen oleh Arif Permana Putrasuryana (By Kafeinarts) sebagai solusi sistem operasi produktivitas yang memprioritaskan portabilitas data, privasi penuh tanpa tracking, serta kenyamanan di berbagai perangkat mobile dan desktop.
             </p>
 
             <h6 class="fw-bold text-dark mb-2 small"><i class="bi bi-link-45deg me-1 text-primary"></i>Media Sosial & Portofolio Resmi:</h6>

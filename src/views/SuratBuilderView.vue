@@ -7,6 +7,7 @@
           <span class="badge bg-danger text-white fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-file-earmark-check-fill me-1"></i> Persuratan Resmi Indonesia
           </span>
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
           <span class="badge bg-primary text-white fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-image me-1"></i> Custom Logo Kop Surat
           </span>
@@ -14,7 +15,7 @@
             <i class="bi bi-people-fill me-1"></i> Bulk Mail Merge (Multi-Penerima)
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">✉️ Generator Surat Resmi & Desain Kop Surat Custom</h2>
+        <h2 class="fw-bold mb-1 text-dark">Generator Surat Resmi & Desain Kop Surat Custom</h2>
         <p class="text-muted mb-0">Buat surat kedinasan, lamaran, izin, dan perjanjian kerja untuk 1 orang maupun <strong>massal / banyak penerima sekaligus</strong> dengan Kop Surat otomatis dan cetak PDF standar instansi.</p>
       </div>
 
@@ -1599,7 +1600,7 @@ export default {
       kopLogoHeight: 60,
       kopStyle: 'double',
       kopName: 'PT RAJINKERJA GLOBAL INDONESIA',
-      kopSubname: 'DIGITAL TASK OS & WORKFLOW PLATFORM',
+      kopSubname: 'PLATFORM DIGITAL ORGANIZER - BY KAFEINARTS',
       kopAddress: 'Gedung Menara Rajin Lt. 15, Jl. Jend. Sudirman Kav. 88, Jakarta Selatan 12190',
       kopContact: 'Telp: (021) 555-8899 | Email: halo@rajinkerja.id | Website: www.rajinkerja.id',
       number: '001/SK/RK/VIII/2026',

@@ -7,11 +7,12 @@
           <span class="badge bg-success-subtle text-success fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-people-fill me-1"></i> Team & Client OS
           </span>
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
           <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1.5 rounded-pill">
             <i class="bi bi-whatsapp me-1"></i> WA Broadcast Ready
           </span>
         </div>
-        <h2 class="fw-extrabold mb-1 text-dark">👥 Kontak Tim & Broadcast WhatsApp</h2>
+        <h2 class="fw-extrabold mb-1 text-dark">Kontak Tim & Broadcast WhatsApp</h2>
         <p class="text-muted mb-0">Kelola kontak tim internal, rekan kerja, dan klien. Ajak ketemuan di lokasi santai dengan bahasa casual sehari-hari & broadcast pesan WA ke banyak kontak sekaligus.</p>
       </div>
 

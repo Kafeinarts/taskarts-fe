@@ -1,209 +1,128 @@
 <template>
-  <div id="app" :class="['app-container', themeMode === 'dark' ? 'dark-theme' : 'light-theme']" :style="{ '--primary-color': accentColor }">
+  <div id="app" :class="['app-container', themeMode === 'dark' ? 'dark-theme' : (themeMode === 'oled' ? 'oled-theme dark-mode' : 'light-theme')]" :style="{ '--primary-color': accentColor }">
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
     <!-- Desktop Material Navigation Drawer -->
     <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
+      <!-- Sidebar Brand Header -->
       <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
-        <div v-if="!isCollapsed" class="d-flex align-items-center gap-2">
-          <img src="/logo.svg" alt="RajinKerja Logo" style="width: 34px; height: 34px;" class="rounded-3 shadow-sm p-0.5 bg-white border" />
-          <div class="lh-1">
-            <span class="fw-extrabold text-app fs-5 d-block" style="letter-spacing: -0.3px;">RajinKerja<span :style="{ color: accentColor }">.id</span></span>
-            <small class="text-sub fw-bold text-uppercase d-block mt-1" style="font-size: 9px; letter-spacing: 0.8px;">WORKFLOW & TASK OS</small>
+        <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
+          <div class="brand-icon-wrapper shadow-sm">
+            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
           </div>
+          <div class="lh-1 text-truncate">
+            <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
+              RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span>
+            </span>
+            <div class="d-flex align-items-center gap-1.5 mt-1">
+              <span class="brand-badge-kafeinarts">
+                <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
+              </span>
+            </div>
+          </div>
+        </router-link>
+
+        <div v-else class="mx-auto">
+          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="RajinKerja.id By Kafeinarts">
+            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+          </router-link>
         </div>
-        <button class="btn btn-sm text-sub p-1 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" title="Toggle Sidebar">
+
+        <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
           <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
         </button>
       </div>
 
+      <!-- Quick Search Bar (When Expanded) -->
+      <div v-if="!isCollapsed" class="sidebar-search-box px-3 py-2">
+        <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1">
+          <i class="bi bi-search text-muted me-2" style="font-size: 11px;"></i>
+          <input 
+            v-model="sidebarSearch" 
+            type="text" 
+            class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
+            placeholder="Cari fitur / menu..." 
+            style="font-size: 12px;"
+          />
+          <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link text-muted p-0 ms-1 text-decoration-none" title="Bersihkan">
+            <i class="bi bi-x-circle-fill" style="font-size: 12px;"></i>
+          </button>
+          <span v-else class="badge bg-light text-muted border px-1.5 py-0.5 rounded" style="font-size: 9px;">Ctrl+K</span>
+        </div>
+      </div>
+
       <!-- Navigation Links -->
       <nav class="sidebar-links p-2 flex-grow-1">
-        <!-- GROUP 1: WORKFLOW & PROYEK -->
-        <div v-if="!isCollapsed" class="sidebar-section-header">📌 WORKFLOW & PROYEK</div>
-        <div v-else class="sidebar-divider my-1"></div>
+        <div v-if="filteredNavGroups.length === 0" class="text-center py-4 px-2 text-muted small">
+          <i class="bi bi-search fs-4 d-block mb-1 opacity-50"></i>
+          Tidak ada menu "{{ sidebarSearch }}"
+        </div>
 
-        <router-link to="/" class="material-nav-link" title="Dashboard">
-          <i class="bi bi-grid-1x2-fill me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Dashboard</span>
-        </router-link>
+        <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="sidebar-group-block mb-1">
+          <!-- Section Header -->
+          <div v-if="!isCollapsed" class="sidebar-section-header d-flex align-items-center justify-content-between">
+            <span>{{ group.title }}</span>
+            <span class="badge rounded-pill bg-light text-muted border px-1.5 py-0.5" style="font-size: 9px;">{{ group.items.length }}</span>
+          </div>
+          <div v-else-if="gIdx > 0" class="sidebar-divider my-1.5"></div>
 
-        <router-link to="/todo" class="material-nav-link" title="To-Do & Kanban">
-          <i class="bi bi-kanban-fill me-3 fs-5 nav-icon text-warning"></i>
-          <span v-if="!isCollapsed" class="nav-label">To-Do & Kanban</span>
-          <span v-if="!isCollapsed && pendingTasksCount > 0" class="badge rounded-pill bg-warning text-dark ms-auto small fw-bold">
-            {{ pendingTasksCount }}
-          </span>
-        </router-link>
-
-        <router-link to="/project" class="material-nav-link" title="Proyek & Kontrak">
-          <i class="bi bi-folder-fill me-3 fs-5 nav-icon text-info"></i>
-          <span v-if="!isCollapsed" class="nav-label">Proyek & Kontrak</span>
-          <span v-if="!isCollapsed && activeProjectsCount > 0" class="badge rounded-pill bg-info text-dark ms-auto small fw-bold">
-            {{ activeProjectsCount }}
-          </span>
-        </router-link>
-
-        <router-link to="/camera" class="material-nav-link" title="Kamera Scan Dokumen">
-          <i class="bi bi-camera-fill me-3 fs-5 nav-icon text-danger"></i>
-          <span v-if="!isCollapsed" class="nav-label">Kamera & Scan Dokumen</span>
-        </router-link>
-
-        <router-link to="/surat" class="material-nav-link" title="Surat Builder Generator">
-          <i class="bi bi-file-earmark-text-fill me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Surat Generator</span>
-        </router-link>
-
-        <router-link to="/cv" class="material-nav-link" title="CV & Resume Builder">
-          <i class="bi bi-person-vcard-fill me-3 fs-5 nav-icon text-success"></i>
-          <span v-if="!isCollapsed" class="nav-label">CV & Resume Builder</span>
-        </router-link>
-
-        <router-link to="/videos" class="material-nav-link" title="Tonton & Upload Video (YouTube Sync)">
-          <i class="bi bi-play-btn-fill me-3 fs-5 nav-icon text-danger"></i>
-          <span v-if="!isCollapsed" class="nav-label">Tonton & Sync Video</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-danger text-white ms-auto small fw-bold">YouTube</span>
-        </router-link>
-
-        <div class="sidebar-divider my-2"></div>
-
-        <!-- GROUP 2: TIM & KOMUNIKASI -->
-        <div v-if="!isCollapsed" class="sidebar-section-header">👥 TIM & KOMUNIKASI</div>
-        <div v-else class="sidebar-divider my-1"></div>
-
-        <router-link to="/contacts" class="material-nav-link" title="Kontak Tim & Broadcast WA">
-          <i class="bi bi-person-lines-fill me-3 fs-5 nav-icon text-success"></i>
-          <span v-if="!isCollapsed" class="nav-label">Kontak Tim & WA</span>
-          <span v-if="!isCollapsed && totalClientsCount > 0" class="badge rounded-pill bg-success text-white ms-auto small fw-bold">
-            {{ totalClientsCount }}
-          </span>
-        </router-link>
-
-        <router-link to="/chat-ai" class="material-nav-link" title="Live Chat AI Assistant">
-          <i class="bi bi-robot me-3 fs-5 nav-icon text-info"></i>
-          <span v-if="!isCollapsed" class="nav-label">Live Chat AI</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-info text-dark ms-auto small fw-bold">AI</span>
-        </router-link>
-
-        <div class="sidebar-divider my-2"></div>
-
-        <!-- GROUP 3: KEUANGAN & DATA -->
-        <div v-if="!isCollapsed" class="sidebar-section-header">💰 KEUANGAN & DATA</div>
-        <div v-else class="sidebar-divider my-1"></div>
-
-        <router-link to="/finance" class="material-nav-link" title="Keuangan & Tracker">
-          <i class="bi bi-wallet2 me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Keuangan</span>
-          <span v-if="!isCollapsed && isBudgetExceeded" class="badge rounded-pill bg-danger text-white ms-auto small fw-bold">
-            Over Budget
-          </span>
-        </router-link>
-
-        <router-link to="/rab" class="material-nav-link" title="RAB & Kas Kegiatan Kepanitiaan">
-          <i class="bi bi-calculator-fill me-3 fs-5 nav-icon text-success"></i>
-          <span v-if="!isCollapsed" class="nav-label">RAB & Kas Kegiatan</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-success text-white ms-auto small fw-bold">NEW</span>
-        </router-link>
-
-        <router-link to="/invoice" class="material-nav-link" title="Invoice Generator (PDF)">
-          <i class="bi bi-receipt me-3 fs-5 nav-icon text-indigo"></i>
-          <span v-if="!isCollapsed" class="nav-label">Invoice Generator</span>
-        </router-link>
-
-        <router-link to="/sql" class="material-nav-link" title="SQL Data Export & Runner">
-          <i class="bi bi-database-fill-gear me-3 fs-5 nav-icon text-warning"></i>
-          <span v-if="!isCollapsed" class="nav-label">SQL Data Export</span>
-        </router-link>
-
-        <div class="sidebar-divider my-2"></div>
-
-        <!-- GROUP 4: AGENDA, HEALTH & PRODUKTIVITAS -->
-        <div v-if="!isCollapsed" class="sidebar-section-header">📅 AGENDA & PRODUKTIVITAS</div>
-        <div v-else class="sidebar-divider my-1"></div>
-
-        <router-link to="/productivity-insights" class="material-nav-link" title="Productivity Insights & D3.js Charts">
-          <i class="bi bi-bar-chart-line-fill me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Productivity Insights</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-primary text-white ms-auto small fw-bold">D3.js</span>
-        </router-link>
-
-        <router-link to="/quick-capture" class="material-nav-link" title="Quick Capture Notes & Alarms">
-          <i class="bi bi-lightning-charge-fill me-3 fs-5 nav-icon text-warning"></i>
-          <span v-if="!isCollapsed" class="nav-label">Quick Capture</span>
-        </router-link>
-
-        <router-link to="/calendar" class="material-nav-link" title="Kalender Agenda & Timed Events">
-          <i class="bi bi-calendar3 me-3 fs-5 nav-icon text-warning"></i>
-          <span v-if="!isCollapsed" class="nav-label">Kalender & Agenda</span>
-        </router-link>
-
-        <router-link to="/time-suite" class="material-nav-link" title="Time Suite & Pomodoro Timer">
-          <i class="bi bi-clock-history me-3 fs-5 nav-icon text-success"></i>
-          <span v-if="!isCollapsed" class="nav-label">Time Suite & Pomodoro</span>
-        </router-link>
-
-        <router-link to="/selfie" class="material-nav-link" title="Selfie for Happiness & Auto Backup Drive">
-          <i class="bi bi-camera-reels-fill me-3 fs-5 nav-icon text-danger"></i>
-          <span v-if="!isCollapsed" class="nav-label">Selfie for Happiness</span>
-        </router-link>
-
-        <router-link to="/mood" class="material-nav-link" title="On-Cam Mood Tracker & Alarm Kerja">
-          <i class="bi bi-emoji-smile-fill me-3 fs-5 nav-icon text-danger"></i>
-          <span v-if="!isCollapsed" class="nav-label">Kamera Mood & Alarm</span>
-        </router-link>
-
-        <router-link to="/notes" class="material-nav-link" title="Sticky Notes & Scratchpad">
-          <i class="bi bi-journal-text me-3 fs-5 nav-icon text-secondary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Notes & Scratchpad</span>
-        </router-link>
-
-        <router-link to="/diary" class="material-nav-link" title="Diary & Jurnal Cerita Harian">
-          <i class="bi bi-book-half me-3 fs-5 nav-icon text-warning"></i>
-          <span v-if="!isCollapsed" class="nav-label">Diary & Jurnal Cerita</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-warning text-dark ms-auto small fw-bold">Foto</span>
-        </router-link>
-
-        <router-link to="/code-notes" class="material-nav-link" title="Code Snippets & Tech Notes">
-          <i class="bi bi-code-slash me-3 fs-5 nav-icon text-info"></i>
-          <span v-if="!isCollapsed" class="nav-label">Code Snippets</span>
-        </router-link>
-
-        <router-link to="/games" class="material-nav-link" title="Mini Games & 3D Simulator">
-          <i class="bi bi-controller me-3 fs-5 nav-icon text-purple"></i>
-          <span v-if="!isCollapsed" class="nav-label">3D Games & Simulator</span>
-        </router-link>
-
-        <div class="sidebar-divider my-2"></div>
-
-        <!-- GROUP 5: SISTEM & PANDUAN -->
-        <div v-if="!isCollapsed" class="sidebar-section-header">⚙️ SISTEM & PANDUAN</div>
-        <div v-else class="sidebar-divider my-1"></div>
-
-        <router-link to="/preferences" class="material-nav-link" title="Preferences, Theme & Backup">
-          <i class="bi bi-sliders me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">Preferences</span>
-        </router-link>
-
-        <router-link to="/faq" class="material-nav-link" title="FAQ, Panduan & Tentang App">
-          <i class="bi bi-question-circle-fill me-3 fs-5 nav-icon text-info"></i>
-          <span v-if="!isCollapsed" class="nav-label">Info & Hidden Features</span>
-        </router-link>
-
-        <router-link to="/developer" class="material-nav-link" title="Developer Portfolio & Journey">
-          <i class="bi bi-person-badge-fill me-3 fs-5 nav-icon text-primary"></i>
-          <span v-if="!isCollapsed" class="nav-label">View Developer</span>
-          <span v-if="!isCollapsed" class="badge rounded-pill bg-primary text-white ms-auto small fw-bold">PRO</span>
-        </router-link>
+          <!-- Items in Group -->
+          <router-link
+            v-for="item in group.items"
+            :key="item.to"
+            :to="item.to"
+            class="material-nav-link"
+            :title="item.label"
+          >
+            <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+              <i :class="item.icon" class="nav-icon"></i>
+            </div>
+            <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1">{{ item.label }}</span>
+            
+            <!-- Dynamic Count Badge -->
+            <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+              {{ item.badge() }}
+            </span>
+            <!-- Static Badge Text -->
+            <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+              {{ item.badgeText }}
+            </span>
+          </router-link>
+        </div>
       </nav>
 
-      <!-- Sidebar Footer -->
-      <div class="p-3 border-top divider-color" v-if="!isCollapsed">
-        <router-link to="/preferences" class="btn btn-sm btn-outline-theme w-100 rounded-pill text-start mb-2 d-flex align-items-center gap-2">
-          <i class="bi bi-palette"></i> Theme & Color Settings
-        </router-link>
-        <button @click="showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs">
-          <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev
+      <!-- Sidebar Footer (Expanded) -->
+      <div class="sidebar-footer p-2.5 border-top divider-color" v-if="!isCollapsed">
+        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 footer-user-pill mb-2">
+          <div class="d-flex align-items-center gap-2 overflow-hidden">
+            <div class="avatar-kafeinarts">
+              <span>K</span>
+            </div>
+            <div class="lh-1 text-truncate">
+              <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts OS</span>
+              <small class="text-success fw-semibold" style="font-size: 10px;">● Workspace Siap</small>
+            </div>
+          </div>
+          <router-link to="/preferences" class="btn btn-sm btn-ghost p-1 text-sub" title="Pengaturan Sistem">
+            <i class="bi bi-gear-fill"></i>
+          </router-link>
+        </div>
+
+        <div class="d-flex gap-1.5">
+          <router-link to="/preferences" class="btn btn-sm btn-outline-theme rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 py-1.5" style="font-size: 11.5px;">
+            <i class="bi bi-palette"></i> Tema
+          </router-link>
+          <button @click="showDukungModal = true" class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5" style="font-size: 11.5px;" title="Dukung Pengembang">
+            <i class="bi bi-heart-fill"></i> Dukung
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer (Collapsed) -->
+      <div class="sidebar-footer p-2 border-top divider-color text-center" v-else>
+        <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0 mb-2" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
+          <i class="bi bi-heart-fill text-danger fs-6"></i>
         </button>
       </div>
     </aside>
@@ -213,32 +132,44 @@
       <!-- Top Bar Header -->
       <header class="top-header border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top">
         <div class="d-flex align-items-center gap-2 gap-md-3">
-          <button class="btn btn-light d-md-none rounded-3 p-1.5" @click="mobileDrawer = true" title="Menu">
-            <i class="bi bi-list fs-4"></i>
+          <button class="btn btn-sm btn-light border d-md-none rounded-3 p-1.5" @click="mobileDrawer = true" title="Buka Menu">
+            <i class="bi bi-list fs-5"></i>
           </button>
+          
+          <!-- Dynamic Breadcrumb / Page Title -->
+          <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
+            <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
+            <span class="fw-bold text-app fs-6 page-title-text">{{ currentPageTitle }}</span>
+          </div>
         </div>
 
         <div class="d-flex align-items-center gap-2">
+          <!-- Quick Capture Launcher -->
+          <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub" title="Quick Capture (Catatan & Alarm)">
+            <i class="bi bi-lightning-charge-fill text-warning"></i>
+            <span class="small fw-semibold">Quick Capture</span>
+            <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
+          </router-link>
+
           <!-- Quick Camera Shortcut Button -->
-          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Scan Kamera">
+          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
             <i class="bi bi-camera-fill text-secondary fs-6"></i>
           </router-link>
 
           <!-- Quick Mood Tracker & Alarm Shortcut Button -->
-          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Mood & Alarm">
+          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
             <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
           </router-link>
 
           <!-- Budget Alert Warning if exceeded -->
-          <div v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Over Budget!">
+          <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
             <i class="bi bi-exclamation-triangle-fill fs-6"></i>
-          </div>
+          </router-link>
 
           <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
           <button 
             @click="toggleThemeMode" 
-            class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center" 
-            style="width: 36px; height: 36px;" 
+            class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
             :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
           >
             <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
@@ -247,7 +178,7 @@
           </button>
 
           <!-- Preferences Link -->
-          <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Preferences">
+          <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
             <i class="bi bi-gear-fill text-primary fs-6"></i>
           </router-link>
         </div>
@@ -262,55 +193,59 @@
         <div class="mobile-drawer p-3" v-if="mobileDrawer">
           <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
             <div class="d-flex align-items-center gap-2">
-              <img src="/logo.svg" alt="RajinKerja Logo" style="width: 28px; height: 28px;" class="rounded-3 shadow-sm p-0.5 bg-white border" />
-              <div class="fw-bold fs-5 text-app">Menu Utama</div>
+              <div class="brand-icon-wrapper shadow-sm">
+                <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+              </div>
+              <div class="lh-1">
+                <span class="fw-bold fs-5 text-app">RajinKerja.id</span>
+                <small class="brand-badge-kafeinarts d-block mt-0.5">By Kafeinarts</small>
+              </div>
             </div>
-            <button class="btn btn-sm btn-light rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
+            <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
+
+          <!-- Mobile Search Filter -->
+          <div class="mb-3">
+            <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1.5 border">
+              <i class="bi bi-search text-muted me-2" style="font-size: 12px;"></i>
+              <input 
+                v-model="sidebarSearch" 
+                type="text" 
+                class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
+                placeholder="Cari menu..." 
+                style="font-size: 13px;"
+              />
+            </div>
+          </div>
+
           <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
-            <div class="sidebar-section-header px-1 pt-1">📌 WORKFLOW & DOKUMEN</div>
-            <router-link to="/" class="material-nav-link"><i class="bi bi-grid-1x2-fill me-3 text-primary"></i>Dashboard</router-link>
-            <router-link to="/todo" class="material-nav-link"><i class="bi bi-kanban-fill me-3 text-warning"></i>To-Do & Kanban</router-link>
-            <router-link to="/project" class="material-nav-link"><i class="bi bi-folder-fill me-3 text-info"></i>Proyek & Kontrak</router-link>
-            <router-link to="/camera" class="material-nav-link"><i class="bi bi-camera-fill me-3 text-danger"></i>Kamera & Scan Dokumen</router-link>
-            <router-link to="/surat" class="material-nav-link"><i class="bi bi-file-earmark-text-fill me-3 text-primary"></i>Surat Generator</router-link>
-            <router-link to="/cv" class="material-nav-link"><i class="bi bi-person-vcard-fill me-3 text-success"></i>CV & Resume Builder</router-link>
-
-            <div class="sidebar-divider my-2"></div>
-            <div class="sidebar-section-header px-1">👥 TIM & KOMUNIKASI</div>
-            <router-link to="/contacts" class="material-nav-link"><i class="bi bi-person-lines-fill me-3 text-success"></i>Kontak Tim & WA</router-link>
-            <router-link to="/chat-ai" class="material-nav-link"><i class="bi bi-robot me-3 text-info"></i>Live Chat AI Assistant</router-link>
-
-            <div class="sidebar-divider my-2"></div>
-            <div class="sidebar-section-header px-1">💰 KEUANGAN & DATA</div>
-            <router-link to="/finance" class="material-nav-link"><i class="bi bi-wallet2 me-3 text-primary"></i>Keuangan</router-link>
-            <router-link to="/rab" class="material-nav-link"><i class="bi bi-calculator-fill me-3 text-success"></i>RAB & Kas Kegiatan</router-link>
-            <router-link to="/invoice" class="material-nav-link"><i class="bi bi-receipt me-3 text-info"></i>Invoice Generator</router-link>
-            <router-link to="/sql" class="material-nav-link"><i class="bi bi-database-fill-gear me-3 text-warning"></i>SQL Data Export</router-link>
-
-            <div class="sidebar-divider my-2"></div>
-            <div class="sidebar-section-header px-1">📅 AGENDA & PRODUKTIVITAS</div>
-            <router-link to="/calendar" class="material-nav-link"><i class="bi bi-calendar3 me-3 text-warning"></i>Kalender & Agenda</router-link>
-            <router-link to="/time-suite" class="material-nav-link"><i class="bi bi-clock-history me-3 text-success"></i>Time Suite & Pomodoro</router-link>
-            <router-link to="/selfie" class="material-nav-link"><i class="bi bi-camera-reels-fill me-3 text-danger"></i>Selfie for Happiness</router-link>
-            <router-link to="/mood" class="material-nav-link"><i class="bi bi-emoji-smile-fill me-3 text-danger"></i>Kamera Mood & Alarm</router-link>
-            <router-link to="/notes" class="material-nav-link"><i class="bi bi-journal-text me-3 text-secondary"></i>Notes & Scratchpad</router-link>
-            <router-link to="/diary" class="material-nav-link"><i class="bi bi-book-half me-3 text-warning"></i>Diary & Jurnal Cerita</router-link>
-            <router-link to="/code-notes" class="material-nav-link"><i class="bi bi-code-slash me-3 text-info"></i>Code Snippets</router-link>
-            <router-link to="/games" class="material-nav-link"><i class="bi bi-controller me-3 text-purple"></i>3D Games & Simulator</router-link>
-
-            <div class="sidebar-divider my-2"></div>
-            <div class="sidebar-section-header px-1">⚙️ SISTEM & PANDUAN</div>
-            <router-link to="/preferences" class="material-nav-link"><i class="bi bi-sliders me-3 text-primary"></i>Preferences & Install PWA</router-link>
-            <router-link to="/faq" class="material-nav-link"><i class="bi bi-question-circle-fill me-3 text-info"></i>FAQ & About App</router-link>
-            <router-link to="/developer" class="material-nav-link"><i class="bi bi-person-badge-fill me-3 text-primary"></i>View Developer</router-link>
+            <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2">
+              <div class="sidebar-section-header px-1 pt-1">{{ group.title }}</div>
+              <router-link 
+                v-for="item in group.items" 
+                :key="item.to" 
+                :to="item.to" 
+                class="material-nav-link"
+              >
+                <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                  <i :class="item.icon" class="nav-icon"></i>
+                </div>
+                <span>{{ item.label }}</span>
+                <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                  {{ item.badge() }}
+                </span>
+                <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                  {{ item.badgeText }}
+                </span>
+              </router-link>
+            </div>
           </nav>
 
           <div class="p-2 border-top mt-3">
-            <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs">
-              <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Bank & E-Wallet)
+            <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2">
+              <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
             </button>
           </div>
         </div>
@@ -356,8 +291,9 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
 
@@ -369,9 +305,11 @@ export default {
   },
   setup() {
     const store = useStore();
+    const route = useRoute();
     const isCollapsed = ref(false);
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
+    const sidebarSearch = ref('');
 
     const pendingTasksCount = computed(() => store.getters.pendingTasksCount);
     const activeProjectsCount = computed(() => store.getters.activeProjectsCount);
@@ -379,6 +317,125 @@ export default {
     const isBudgetExceeded = computed(() => store.getters.isBudgetExceeded);
     const themeMode = computed(() => store.getters.getThemeMode);
     const accentColor = computed(() => store.getters.getAccentColor);
+
+    // Grouped navigation definition for structured elegant presentation
+    const navGroups = [
+      {
+        title: 'WORKSPACE & PROYEK',
+        items: [
+          { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb' },
+          { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark' },
+          { to: '/project', label: 'Proyek & Kontrak', icon: 'bi-briefcase-fill', color: '#0284c7', badge: () => activeProjectsCount.value, badgeClass: 'bg-info text-dark' },
+          { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48' },
+          { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb' },
+          { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669' },
+          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white' }
+        ]
+      },
+      {
+        title: 'TIM & KOMUNIKASI',
+        items: [
+          { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white' },
+          { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark' }
+        ]
+      },
+      {
+        title: 'KEUANGAN & DATA',
+        items: [
+          { to: '/finance', label: 'Keuangan & Tracker', icon: 'bi-wallet2', color: '#2563eb', badge: () => isBudgetExceeded.value ? 'Over Budget' : null, badgeClass: 'bg-danger text-white' },
+          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', badgeText: 'NEW', badgeClass: 'bg-success text-white' },
+          { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
+          { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706' }
+        ]
+      },
+      {
+        title: 'AGENDA & PRODUKTIVITAS',
+        items: [
+          { to: '/productivity-insights', label: 'Productivity Insights', icon: 'bi-bar-chart-line-fill', color: '#2563eb', badgeText: 'D3.js', badgeClass: 'bg-primary text-white' },
+          { to: '/quick-capture', label: 'Quick Capture Notes', icon: 'bi-lightning-charge-fill', color: '#f59e0b' },
+          { to: '/calendar', label: 'Kalender & Agenda', icon: 'bi-calendar3', color: '#ea580c' },
+          { to: '/time-suite', label: 'Time Suite & Pomodoro', icon: 'bi-clock-history', color: '#16a34a' },
+          { to: '/selfie', label: 'Selfie for Happiness', icon: 'bi-camera-reels-fill', color: '#e11d48' },
+          { to: '/mood', label: 'Kamera Mood & Alarm', icon: 'bi-emoji-smile-fill', color: '#f43f5e' },
+          { to: '/notes', label: 'Notes & Scratchpad', icon: 'bi-journal-text', color: '#64748b' },
+          { to: '/diary', label: 'Diary & Jurnal Cerita', icon: 'bi-book-half', color: '#ca8a04', badgeText: 'Foto', badgeClass: 'bg-warning text-dark' },
+          { to: '/code-notes', label: 'Code Snippets', icon: 'bi-code-slash', color: '#0284c7' },
+          { to: '/games', label: '3D Games & Simulator', icon: 'bi-controller', color: '#9333ea' }
+        ]
+      },
+      {
+        title: 'SISTEM & PANDUAN',
+        items: [
+          { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb' },
+          { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2' },
+          { to: '/developer', label: 'View Developer', icon: 'bi-person-badge-fill', color: '#2563eb', badgeText: 'PRO', badgeClass: 'bg-primary text-white' }
+        ]
+      }
+    ];
+
+    // Reactive filter when user types in sidebar search box
+    const filteredNavGroups = computed(() => {
+      const q = sidebarSearch.value.trim().toLowerCase();
+      if (!q) return navGroups;
+      return navGroups
+        .map(g => ({
+          ...g,
+          items: g.items.filter(item =>
+            item.label.toLowerCase().includes(q) ||
+            item.to.toLowerCase().includes(q) ||
+            g.title.toLowerCase().includes(q)
+          )
+        }))
+        .filter(g => g.items.length > 0);
+    });
+
+    // Dynamic Title & Icon based on Active Route
+    const routeTitles = {
+      '/': { title: 'Dashboard Executive', icon: 'bi-grid-1x2-fill' },
+      '/todo': { title: 'To-Do & Kanban OS', icon: 'bi-kanban-fill' },
+      '/project': { title: 'Proyek & Kontrak', icon: 'bi-briefcase-fill' },
+      '/camera': { title: 'Kamera Scan Dokumen', icon: 'bi-camera-fill' },
+      '/surat': { title: 'Surat Generator Resmi', icon: 'bi-file-earmark-richtext-fill' },
+      '/cv': { title: 'CV & Resume Builder ATS', icon: 'bi-person-vcard-fill' },
+      '/videos': { title: 'Tonton & Sync Video Hub', icon: 'bi-play-btn-fill' },
+      '/contacts': { title: 'Kontak Tim & Broadcast WA', icon: 'bi-person-lines-fill' },
+      '/chat-ai': { title: 'Live Chat AI Assistant', icon: 'bi-robot' },
+      '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
+      '/rab': { title: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill' },
+      '/invoice': { title: 'Invoice Generator (PDF)', icon: 'bi-receipt' },
+      '/sql': { title: 'SQL Data Export & Runner', icon: 'bi-database-fill-gear' },
+      '/productivity-insights': { title: 'Productivity Insights (D3.js)', icon: 'bi-bar-chart-line-fill' },
+      '/quick-capture': { title: 'Quick Capture & Alarms', icon: 'bi-lightning-charge-fill' },
+      '/calendar': { title: 'Kalender & Agenda Kerja', icon: 'bi-calendar3' },
+      '/time-suite': { title: 'Time Suite & Pomodoro', icon: 'bi-clock-history' },
+      '/selfie': { title: 'Selfie for Happiness', icon: 'bi-camera-reels-fill' },
+      '/mood': { title: 'Kamera Mood & Alarm Kerja', icon: 'bi-emoji-smile-fill' },
+      '/notes': { title: 'Sticky Notes & Scratchpad', icon: 'bi-journal-text' },
+      '/diary': { title: 'Diary & Jurnal Cerita Harian', icon: 'bi-book-half' },
+      '/code-notes': { title: 'Code Snippets & Tech Notes', icon: 'bi-code-slash' },
+      '/games': { title: '3D Games & Simulator', icon: 'bi-controller' },
+      '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
+      '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },
+      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' }
+    };
+
+    const currentPageTitle = computed(() => {
+      const path = route.path;
+      if (routeTitles[path]) return routeTitles[path].title;
+      for (const key of Object.keys(routeTitles)) {
+        if (key !== '/' && path.startsWith(key)) return routeTitles[key].title;
+      }
+      return 'RajinKerja.id';
+    });
+
+    const currentPageIcon = computed(() => {
+      const path = route.path;
+      if (routeTitles[path]) return routeTitles[path].icon;
+      for (const key of Object.keys(routeTitles)) {
+        if (key !== '/' && path.startsWith(key)) return routeTitles[key].icon;
+      }
+      return 'bi-app-indicator';
+    });
 
     const applyThemeToBody = (mode) => {
       document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'dark-mode');
@@ -402,8 +459,21 @@ export default {
       applyThemeToBody(newVal);
     }, { immediate: true });
 
+    // Keyboard shortcut handler (Ctrl+K or Cmd+K)
+    const handleKeydown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const searchEl = document.querySelector('.search-input');
+        if (searchEl) {
+          searchEl.focus();
+          searchEl.select();
+        }
+      }
+    };
+
     onMounted(() => {
       applyThemeToBody(themeMode.value);
+      window.addEventListener('keydown', handleKeydown);
 
       // Automated Nightly Local Storage Backup Check
       const isNightlyEnabled = localStorage.getItem('ft_auto_nightly_backup') !== 'false';
@@ -472,6 +542,10 @@ export default {
       });
     });
 
+    onUnmounted(() => {
+      window.removeEventListener('keydown', handleKeydown);
+    });
+
     const toggleThemeMode = () => {
       let next = 'light';
       if (themeMode.value === 'light') next = 'dark';
@@ -484,6 +558,10 @@ export default {
       isCollapsed,
       mobileDrawer,
       showDukungModal,
+      sidebarSearch,
+      filteredNavGroups,
+      currentPageTitle,
+      currentPageIcon,
       pendingTasksCount,
       activeProjectsCount,
       totalClientsCount,
@@ -878,11 +956,11 @@ body {
 .material-nav-link {
   display: flex;
   align-items: center;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
   color: var(--sidebar-text);
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   margin-bottom: 2px;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
@@ -891,7 +969,7 @@ body {
 .material-nav-link:hover {
   background-color: var(--sidebar-hover-bg);
   color: var(--text-main);
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
 .material-nav-link.router-link-active,
@@ -899,7 +977,151 @@ body {
   background-color: var(--sidebar-active-bg);
   color: var(--sidebar-active-text) !important;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+/* Brand styling & Kafeinarts Signature */
+.brand-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 3px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.brand-icon-wrapper:hover {
+  transform: scale(1.04);
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.4px;
+}
+
+.brand-badge-kafeinarts {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+/* Sidebar Search Box */
+.sidebar-search-box {
+  border-bottom: 1px solid var(--sidebar-divider);
+}
+
+.search-input-group {
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--sidebar-divider);
+  transition: all 0.2s ease;
+}
+
+.search-input-group:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.search-input {
+  color: var(--text-main);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+
+/* Nav item icon box */
+.nav-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(148, 163, 184, 0.12);
+  color: var(--item-color, var(--primary-color));
+  margin-right: 10px;
+  flex-shrink: 0;
+  font-size: 14.5px;
+  transition: all 0.2s ease;
+}
+
+.material-nav-link:hover .nav-icon-box {
+  background-color: rgba(37, 99, 235, 0.18);
+  transform: scale(1.05);
+}
+
+.material-nav-link.router-link-active .nav-icon-box {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+}
+
+.avatar-kafeinarts {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.footer-user-pill {
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--sidebar-divider);
+}
+
+/* Page Breadcrumb Pill */
+.page-breadcrumb-pill {
+  padding: 5px 13px;
+  border-radius: 9999px;
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+}
+
+.page-title-badge {
+  font-size: 14px;
+  color: var(--primary-color);
+}
+
+.header-icon-btn {
+  width: 36px;
+  height: 36px;
+  transition: all 0.2s ease;
+}
+
+.header-icon-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.08);
+}
+
+.btn-sidebar-toggle:hover {
+  background-color: var(--sidebar-hover-bg);
+  color: var(--text-main);
 }
 
 .text-app {
