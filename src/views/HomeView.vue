@@ -53,9 +53,6 @@
           <button @click="openTransactionModal" class="btn btn-sm btn-outline-theme rounded-pill flex-fill py-2 fw-semibold d-flex align-items-center justify-content-center gap-1.5">
             <i class="bi bi-wallet2 text-success"></i> + Kas
           </button>
-          <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-2 fw-semibold d-flex align-items-center justify-content-center gap-1 text-warning" title="Quick Capture">
-            <i class="bi bi-lightning-charge-fill"></i>
-          </router-link>
         </div>
       </div>
 
@@ -227,14 +224,6 @@
               >
                 <i class="bi bi-file-earmark-richtext-fill text-primary"></i>
                 <span>Buat Surat</span>
-              </router-link>
-
-              <router-link
-                to="/quick-capture"
-                class="btn btn-outline-warning rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
-              >
-                <i class="bi bi-lightning-charge-fill"></i>
-                <span>Quick Capture</span>
               </router-link>
             </div>
           </div>
@@ -1058,18 +1047,6 @@
         </form>
       </div>
     </div>
-
-    <!-- Floating Action Button for Quick Capture -->
-    <router-link
-      to="/quick-capture"
-      class="fab-quick-capture"
-      title="Quick Capture: Catat ide & alarm seketika"
-    >
-      <div class="fab-icon-box">
-        <i class="bi bi-lightning-charge-fill"></i>
-      </div>
-      <span class="fab-text">Quick Capture</span>
-    </router-link>
   </div>
 </template>
 
@@ -2058,49 +2035,6 @@ export default {
   background: var(--bg-surface);
   color: var(--primary-color);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-
-/* Floating Action Button (FAB) */
-.fab-quick-capture {
-  position: fixed;
-  bottom: 85px;
-  right: 28px;
-  z-index: 1040;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f59e0b;
-  color: #0f172a;
-  padding: 8px 18px 8px 8px;
-  border-radius: 9999px;
-  text-decoration: none;
-  box-shadow: 0 8px 24px -2px rgba(245, 158, 11, 0.4);
-  border: 2px solid #ffffff;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.fab-quick-capture:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
-  color: #000000;
-}
-
-.fab-icon-box {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #0f172a;
-  color: #f59e0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.fab-text {
-  font-weight: 800;
-  font-size: 13.5px;
-  letter-spacing: -0.2px;
 }
 
 /* Modal Custom Styling */
