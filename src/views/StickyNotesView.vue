@@ -237,8 +237,8 @@
 
           <div class="col-lg-6">
             <label class="form-label fw-bold text-dark small">Live Rendered Preview (Markdown, Gambar & Mermaid)</label>
-            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column overflow-hidden">
-              <div class="overflow-auto flex-grow-1 p-2 bg-white rounded-3 border" style="max-height: 380px;">
+            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column overflow-hidden scratchpad-preview-card">
+              <div class="overflow-auto flex-grow-1 p-3 bg-white rounded-3 border scratchpad-preview-inner" style="max-height: 380px;">
                 <MarkdownViewer :content="scratchpadContent" />
               </div>
               <div class="border-top pt-3 mt-3 d-flex justify-content-end align-items-center">
@@ -1400,8 +1400,14 @@ export default {
 :global(.dark-theme) .note-card-preview-wrapper,
 :global(.dark-mode) .note-card-preview-wrapper,
 :global(.oled-theme) .note-card-preview-wrapper {
-  color: #e2e8f0 !important;
+  color: #cbd5e1 !important;
   border-color: var(--border-color) !important;
+}
+
+:global(.dark-theme) .note-card-preview-wrapper *,
+:global(.dark-mode) .note-card-preview-wrapper *,
+:global(.oled-theme) .note-card-preview-wrapper * {
+  color: #cbd5e1 !important;
 }
 
 :global(.dark-theme) .note-card-footer,
@@ -1417,10 +1423,21 @@ export default {
   border-color: var(--border-color) !important;
 }
 
+:global(.dark-theme) .btn-action-icon:hover,
+:global(.dark-mode) .btn-action-icon:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--primary-color) !important;
+}
+
 :global(.oled-theme) .btn-action-icon {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #333333 !important;
+}
+
+:global(.oled-theme) .btn-action-icon:hover {
+  background-color: #27272a !important;
+  color: var(--primary-color) !important;
 }
 
 :global(.dark-theme) .btn-preview-badge,
@@ -1442,5 +1459,59 @@ export default {
   background-color: #0d0d0d !important;
   color: #ffffff !important;
   border: 1px solid #27272a !important;
+}
+
+/* Scratchpad & Editor dark mode readability */
+:global(.dark-theme) .scratchpad-preview-card,
+:global(.dark-mode) .scratchpad-preview-card,
+:global(.oled-theme) .scratchpad-preview-card,
+:global(.dark-theme) .preview-box,
+:global(.dark-mode) .preview-box,
+:global(.oled-theme) .preview-box {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+:global(.dark-theme) .scratchpad-preview-inner,
+:global(.dark-mode) .scratchpad-preview-inner,
+:global(.oled-theme) .scratchpad-preview-inner {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: #f1f5f9 !important;
+}
+
+:global(.dark-theme) textarea.font-monospace,
+:global(.dark-mode) textarea.font-monospace,
+:global(.oled-theme) textarea.font-monospace {
+  background-color: var(--bg-input) !important;
+  color: #f8fafc !important;
+  border-color: var(--border-color) !important;
+  caret-color: var(--primary-color) !important;
+}
+
+:global(.dark-theme) .text-purple,
+:global(.dark-mode) .text-purple,
+:global(.oled-theme) .text-purple {
+  color: #c084fc !important;
+}
+
+:global(.dark-theme) .text-indigo,
+:global(.dark-mode) .text-indigo,
+:global(.oled-theme) .text-indigo {
+  color: #a5b4fc !important;
+}
+
+:global(.dark-theme) .bg-purple-subtle,
+:global(.dark-mode) .bg-purple-subtle,
+:global(.oled-theme) .bg-purple-subtle {
+  background-color: rgba(168, 85, 247, 0.2) !important;
+  color: #d8b4fe !important;
+}
+
+:global(.dark-theme) .bg-indigo-subtle,
+:global(.dark-mode) .bg-indigo-subtle,
+:global(.oled-theme) .bg-indigo-subtle {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  color: #c7d2fe !important;
 }
 </style>

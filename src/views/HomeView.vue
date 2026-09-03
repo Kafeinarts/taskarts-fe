@@ -241,35 +241,63 @@
 
           <!-- Right: Live Real-time Clock & System Snapshot -->
           <div class="col-lg-5 col-xl-4">
-            <div class="system-snapshot-box p-3.5 rounded-4">
-              <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-theme">
+            <div class="system-snapshot-box p-3.5 p-sm-4 rounded-4 shadow-sm position-relative overflow-hidden">
+              <div class="snapshot-card-ambient-glow"></div>
+
+              <!-- Header: Live Pulse Indicator & Timezone Chip -->
+              <div class="d-flex align-items-center justify-content-between mb-3 pb-2.5 border-bottom border-theme position-relative">
                 <div class="d-flex align-items-center gap-2">
-                  <div class="pulse-indicator"></div>
-                  <span class="small fw-bold text-sub text-uppercase tracking-wider">WAKTU AKTIF & TANGGAL</span>
+                  <div class="pulse-indicator-wrapper">
+                    <span class="pulse-indicator-core"></span>
+                    <span class="pulse-indicator-wave"></span>
+                  </div>
+                  <span class="small fw-extrabold text-sub text-uppercase tracking-wider snapshot-header-title">WAKTU AKTIF & TANGGAL</span>
                 </div>
-                <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-0.5 rounded-pill small">WIB (UTC+7)</span>
+                <div class="d-flex align-items-center gap-1.5">
+                  <span class="badge timezone-chip px-2.5 py-1 rounded-pill small fw-bold d-flex align-items-center gap-1.5 shadow-xs">
+                    <i :class="timeOfDayIcon"></i>
+                    <span>WIB (UTC+7)</span>
+                  </span>
+                </div>
               </div>
 
-              <!-- Digital Clock Display -->
-              <div class="live-clock-display mb-3">
-                <div class="clock-time font-mono fw-extrabold">{{ currentTimeFormatted }}</div>
-                <div class="clock-date text-sub small fw-semibold">{{ currentDateFormatted }}</div>
+              <!-- Digital Clock Display Face -->
+              <div class="live-clock-display-card mb-3 position-relative p-2.5 rounded-3">
+                <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-2">
+                  <div class="d-flex align-items-baseline gap-1">
+                    <span class="clock-time-digits font-mono fw-extrabold">{{ currentHour }}:{{ currentMinute }}</span>
+                    <span class="clock-seconds-badge font-mono fw-bold">:{{ currentSeconds }}</span>
+                  </div>
+                  <div class="greeting-time-pill small fw-bold px-2.5 py-1 rounded-pill">
+                    {{ greetingTime }}
+                  </div>
+                </div>
+                <div class="clock-date-row d-flex align-items-center gap-2 mt-2 pt-1 text-sub small fw-semibold">
+                  <i class="bi bi-calendar3 text-primary fs-6"></i>
+                  <span class="date-full-text">{{ currentDateFormatted }}</span>
+                </div>
               </div>
 
               <!-- Quick Health Indicator -->
-              <div class="mini-metrics-grid">
-                <div class="mini-metric-item">
-                  <div class="metric-label">Status Arus Kas</div>
-                  <div class="metric-value" :class="netProfit >= 0 ? 'text-success' : 'text-danger'">
+              <div class="mini-metrics-grid position-relative">
+                <router-link to="/finance" class="mini-metric-item text-decoration-none">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="metric-label">Status Arus Kas</span>
+                    <i class="bi bi-wallet2 text-sub small"></i>
+                  </div>
+                  <div class="metric-value text-truncate" :class="netProfit >= 0 ? 'text-success' : 'text-danger'">
                     {{ formatCurrency(netProfit) }}
                   </div>
-                </div>
-                <div class="mini-metric-item">
-                  <div class="metric-label">Tugas Pending</div>
-                  <div class="metric-value text-warning-emphasis fw-bold">
+                </router-link>
+                <router-link to="/todo" class="mini-metric-item text-decoration-none">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="metric-label">Tugas Pending</span>
+                    <i class="bi bi-check2-circle text-sub small"></i>
+                  </div>
+                  <div class="metric-value text-warning-emphasis fw-bold text-truncate">
                     {{ pendingTasksCount }} Tugas
                   </div>
-                </div>
+                </router-link>
               </div>
             </div>
           </div>
@@ -1122,6 +1150,26 @@ export default {
       return now.value.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     });
 
+    const currentHour = computed(() => {
+      return String(now.value.getHours()).padStart(2, '0');
+    });
+
+    const currentMinute = computed(() => {
+      return String(now.value.getMinutes()).padStart(2, '0');
+    });
+
+    const currentSeconds = computed(() => {
+      return String(now.value.getSeconds()).padStart(2, '0');
+    });
+
+    const timeOfDayIcon = computed(() => {
+      const h = now.value.getHours();
+      if (h >= 5 && h < 11) return 'bi bi-sun-fill text-warning';
+      if (h >= 11 && h < 15) return 'bi bi-brightness-high-fill text-warning';
+      if (h >= 15 && h < 18) return 'bi bi-sunset-fill text-warning-emphasis';
+      return 'bi bi-moon-stars-fill text-primary';
+    });
+
     // Time-based Greeting
     const greetingTime = computed(() => {
       const hour = now.value.getHours();
@@ -1349,6 +1397,10 @@ export default {
       modalTxDate,
       currentTimeFormatted,
       currentDateFormatted,
+      currentHour,
+      currentMinute,
+      currentSeconds,
+      timeOfDayIcon,
       greetingTime,
       myBusiness,
       welcomeBanner,
@@ -1632,29 +1684,107 @@ export default {
 
 /* Digital Clock & Snapshot Box */
 .system-snapshot-box {
-  background: var(--sidebar-hover-bg);
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.pulse-indicator {
+.system-snapshot-box:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.08);
+}
+
+.snapshot-card-ambient-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+  opacity: 0.12;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.pulse-indicator-wrapper {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-indicator-core {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
-  animation: pulse-ring 2s infinite ease-in-out;
+  z-index: 2;
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+.pulse-indicator-wave {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #10b981;
+  opacity: 0.75;
+  animation: pulse-wave 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-.clock-time {
-  font-size: 24px;
-  letter-spacing: 1px;
+@keyframes pulse-wave {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  70%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+.snapshot-header-title {
+  font-size: 11px;
+  letter-spacing: 0.8px;
+}
+
+.timezone-chip {
+  background: var(--sidebar-hover-bg);
   color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-size: 11px;
+}
+
+.live-clock-display-card {
+  background: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+}
+
+.clock-time-digits {
+  font-size: 32px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+}
+
+.clock-seconds-badge {
+  font-size: 16px;
+  color: var(--primary-color);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.greeting-time-pill {
+  background: var(--bg-surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border-color);
+  font-size: 11.5px;
+}
+
+.clock-date-row {
+  border-top: 1px dashed var(--border-color);
+}
+
+.date-full-text {
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
 }
 
 .mini-metrics-grid {
@@ -1664,10 +1794,18 @@ export default {
 }
 
 .mini-metric-item {
-  background: var(--bg-surface);
+  background: var(--sidebar-hover-bg);
   border: 1px solid var(--border-color);
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.mini-metric-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
 }
 
 .metric-label {
@@ -1677,9 +1815,9 @@ export default {
 }
 
 .metric-value {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* KPI Metric Cards */

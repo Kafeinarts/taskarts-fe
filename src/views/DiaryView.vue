@@ -613,8 +613,8 @@
           <!-- Live Rendered Markdown Right Column -->
           <div class="col-lg-6">
             <label class="form-label fw-bold text-dark small">Live Rendered Preview (Format Cerita Cantik)</label>
-            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column overflow-hidden">
-              <div class="overflow-auto flex-grow-1 p-3 bg-white rounded-3 border custom-scrollbar" style="max-height: 380px;">
+            <div class="card p-4 rounded-3 border-2 bg-light h-100 d-flex flex-column overflow-hidden scratchpad-preview-card">
+              <div class="overflow-auto flex-grow-1 p-3 bg-white rounded-3 border custom-scrollbar scratchpad-preview-inner" style="max-height: 380px;">
                 <MarkdownViewer :content="scratchpadContent || '*Mulai ketik cerita di sebelah kiri untuk melihat pratinjau langsung di sini...*'" />
               </div>
               <div class="border-top pt-3 mt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">

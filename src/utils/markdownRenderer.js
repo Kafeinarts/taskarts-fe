@@ -16,17 +16,43 @@ export async function getMermaid() {
   }
 }
 
-export async function initMermaid() {
-  if (mermaidInitialized) return;
+let lastMermaidTheme = null;
+
+export async function initMermaid(forceTheme = null) {
+  const isDark = forceTheme 
+    ? (forceTheme === 'dark' || forceTheme === 'oled')
+    : (typeof document !== 'undefined' && (
+        document.body.classList.contains('dark-mode') ||
+        document.body.classList.contains('dark-theme') ||
+        document.body.classList.contains('oled-theme')
+      ));
+
+  const targetTheme = isDark ? 'dark' : 'default';
+  if (mermaidInitialized && lastMermaidTheme === targetTheme) return;
+
   const mermaid = await getMermaid();
   if (!mermaid) return;
   try {
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'default',
+      theme: targetTheme,
       securityLevel: 'loose',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      themeVariables: {
+      themeVariables: isDark ? {
+        darkMode: true,
+        background: '#0b0f19',
+        mainBkg: '#1e293b',
+        primaryColor: '#1e293b',
+        primaryTextColor: '#f8fafc',
+        primaryBorderColor: '#818cf8',
+        lineColor: '#94a3b8',
+        secondaryColor: '#334155',
+        tertiaryColor: '#0f172a',
+        textColor: '#f8fafc',
+        nodeBorder: '#818cf8',
+        edgeLabelBackground: '#0f172a',
+        fontSize: '14px'
+      } : {
         primaryColor: '#e0e7ff',
         primaryTextColor: '#1e1b4b',
         primaryBorderColor: '#6366f1',
@@ -46,6 +72,7 @@ export async function initMermaid() {
       }
     });
     mermaidInitialized = true;
+    lastMermaidTheme = targetTheme;
   } catch (e) {
     console.warn('Mermaid init error:', e);
   }

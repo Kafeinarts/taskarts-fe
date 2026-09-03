@@ -948,6 +948,43 @@ body {
 }
 
 /* Buttons */
+.btn-white {
+  background-color: #ffffff;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.btn-white:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.dark-mode .btn-white,
+.dark-theme .btn-white {
+  background-color: var(--bg-surface) !important;
+  color: #f1f5f9 !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode .btn-white:hover,
+.dark-theme .btn-white:hover {
+  background-color: var(--bg-hover) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-color) !important;
+}
+
+.oled-theme .btn-white {
+  background-color: #171717 !important;
+  color: #ffffff !important;
+  border-color: #27272a !important;
+}
+
+.oled-theme .btn-white:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+  border-color: var(--primary-color) !important;
+}
+
 .dark-mode .btn-light, .dark-theme .btn-light {
   background-color: var(--bg-input) !important;
   color: #f1f5f9 !important;

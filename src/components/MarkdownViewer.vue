@@ -520,3 +520,192 @@ export default {
   border-color: #818cf8 !important;
 }
 </style>
+
+<style>
+/* Global high-contrast Dark Mode & OLED overrides for dynamically injected Markdown elements */
+.dark-mode .markdown-rich-viewer,
+.dark-theme .markdown-rich-viewer,
+.oled-theme .markdown-rich-viewer {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .markdown-content-body h1,
+.dark-theme .markdown-content-body h1,
+.oled-theme .markdown-content-body h1,
+.dark-mode .markdown-content-body h2,
+.dark-theme .markdown-content-body h2,
+.oled-theme .markdown-content-body h2,
+.dark-mode .markdown-content-body h3,
+.dark-theme .markdown-content-body h3,
+.oled-theme .markdown-content-body h3,
+.dark-mode .markdown-content-body h4,
+.dark-theme .markdown-content-body h4,
+.oled-theme .markdown-content-body h4,
+.dark-mode .markdown-content-body h5,
+.dark-theme .markdown-content-body h5,
+.oled-theme .markdown-content-body h5,
+.dark-mode .markdown-content-body h6,
+.dark-theme .markdown-content-body h6,
+.oled-theme .markdown-content-body h6 {
+  color: #f8fafc !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode .markdown-content-body p,
+.dark-theme .markdown-content-body p,
+.oled-theme .markdown-content-body p,
+.dark-mode .markdown-content-body li,
+.dark-theme .markdown-content-body li,
+.oled-theme .markdown-content-body li,
+.dark-mode .markdown-content-body ul,
+.dark-theme .markdown-content-body ul,
+.oled-theme .markdown-content-body ul,
+.dark-mode .markdown-content-body ol,
+.dark-theme .markdown-content-body ol,
+.oled-theme .markdown-content-body ol {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .markdown-content-body strong,
+.dark-theme .markdown-content-body strong,
+.oled-theme .markdown-content-body strong,
+.dark-mode .markdown-content-body b,
+.dark-theme .markdown-content-body b,
+.oled-theme .markdown-content-body b {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.dark-mode .markdown-content-body em,
+.dark-theme .markdown-content-body em,
+.oled-theme .markdown-content-body em,
+.dark-mode .markdown-content-body i:not(.bi),
+.dark-theme .markdown-content-body i:not(.bi),
+.oled-theme .markdown-content-body i:not(.bi) {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .markdown-content-body a,
+.dark-theme .markdown-content-body a,
+.oled-theme .markdown-content-body a {
+  color: #60a5fa !important;
+}
+
+.dark-mode .markdown-content-body blockquote,
+.dark-theme .markdown-content-body blockquote,
+.oled-theme .markdown-content-body blockquote {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+.oled-theme .markdown-content-body blockquote {
+  background-color: #141414 !important;
+  border-left-color: var(--primary-color) !important;
+}
+
+.dark-mode .markdown-content-body code:not(pre code),
+.dark-theme .markdown-content-body code:not(pre code),
+.oled-theme .markdown-content-body code:not(pre code) {
+  background-color: #1e293b !important;
+  color: #f472b6 !important;
+  border: 1px solid #334155 !important;
+}
+
+.oled-theme .markdown-content-body code:not(pre code) {
+  background-color: #171717 !important;
+  border-color: #27272a !important;
+}
+
+.dark-mode .markdown-content-body pre,
+.dark-theme .markdown-content-body pre,
+.oled-theme .markdown-content-body pre {
+  background-color: #0b0f19 !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+.oled-theme .markdown-content-body pre {
+  background-color: #000000 !important;
+  border-color: #262626 !important;
+}
+
+.dark-mode .markdown-content-body pre code,
+.dark-theme .markdown-content-body pre code,
+.oled-theme .markdown-content-body pre code {
+  background-color: transparent !important;
+  color: #f1f5f9 !important;
+}
+
+.dark-mode .markdown-content-body table,
+.dark-theme .markdown-content-body table,
+.oled-theme .markdown-content-body table {
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .markdown-content-body th,
+.dark-theme .markdown-content-body th,
+.oled-theme .markdown-content-body th {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.oled-theme .markdown-content-body th {
+  background-color: #121212 !important;
+  border-color: #262626 !important;
+}
+
+.dark-mode .markdown-content-body td,
+.dark-theme .markdown-content-body td,
+.oled-theme .markdown-content-body td {
+  background-color: transparent !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+.oled-theme .markdown-content-body td {
+  border-color: #262626 !important;
+}
+
+.dark-mode .markdown-content-body tr:nth-child(even),
+.dark-theme .markdown-content-body tr:nth-child(even),
+.oled-theme .markdown-content-body tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .markdown-content-body hr,
+.dark-theme .markdown-content-body hr,
+.oled-theme .markdown-content-body hr {
+  border-color: #334155 !important;
+}
+
+/* Mermaid SVG Diagrams Text Visibility in Dark Mode */
+.dark-mode .mermaid-diagram-viewport svg text,
+.dark-theme .mermaid-diagram-viewport svg text,
+.oled-theme .mermaid-diagram-viewport svg text,
+.dark-mode .mermaid-diagram-viewport svg tspan,
+.dark-theme .mermaid-diagram-viewport svg tspan,
+.oled-theme .mermaid-diagram-viewport svg tspan {
+  fill: #f1f5f9 !important;
+}
+
+.dark-mode .mermaid-diagram-viewport svg .node text,
+.dark-theme .mermaid-diagram-viewport svg .node text,
+.oled-theme .mermaid-diagram-viewport svg .node text {
+  fill: #f8fafc !important;
+}
+
+.dark-mode .mermaid-diagram-viewport svg .edgeLabel,
+.dark-theme .mermaid-diagram-viewport svg .edgeLabel,
+.oled-theme .mermaid-diagram-viewport svg .edgeLabel {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+.oled-theme .mermaid-diagram-viewport svg .edgeLabel {
+  background-color: #000000 !important;
+  color: #f1f5f9 !important;
+}
+</style>
