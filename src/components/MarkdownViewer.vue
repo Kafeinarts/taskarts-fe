@@ -357,105 +357,165 @@ export default {
   border-color: #6366f1 !important;
 }
 
-/* Dark mode compatibility */
-:global(.dark-theme) .markdown-rich-viewer {
+/* Dark mode & OLED compatibility */
+:global(.dark-theme) .markdown-rich-viewer,
+:global(.dark-mode) .markdown-rich-viewer,
+:global(.oled-theme) .markdown-rich-viewer {
   color: #e2e8f0;
 }
 
 :global(.dark-theme) .markdown-content-body :deep(h1),
+:global(.dark-mode) .markdown-content-body :deep(h1),
+:global(.oled-theme) .markdown-content-body :deep(h1),
 :global(.dark-theme) .markdown-content-body :deep(h2),
-:global(.dark-theme) .markdown-content-body :deep(h3) {
+:global(.dark-mode) .markdown-content-body :deep(h2),
+:global(.oled-theme) .markdown-content-body :deep(h2),
+:global(.dark-theme) .markdown-content-body :deep(h3),
+:global(.dark-mode) .markdown-content-body :deep(h3),
+:global(.oled-theme) .markdown-content-body :deep(h3),
+:global(.dark-theme) .markdown-content-body :deep(h4),
+:global(.dark-mode) .markdown-content-body :deep(h4),
+:global(.oled-theme) .markdown-content-body :deep(h4) {
   color: #f8fafc;
   border-color: #334155;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(blockquote) {
+:global(.dark-theme) .markdown-content-body :deep(p),
+:global(.dark-mode) .markdown-content-body :deep(p),
+:global(.oled-theme) .markdown-content-body :deep(p),
+:global(.dark-theme) .markdown-content-body :deep(li),
+:global(.dark-mode) .markdown-content-body :deep(li),
+:global(.oled-theme) .markdown-content-body :deep(li) {
+  color: #e2e8f0;
+}
+
+:global(.dark-theme) .markdown-content-body :deep(blockquote),
+:global(.dark-mode) .markdown-content-body :deep(blockquote),
+:global(.oled-theme) .markdown-content-body :deep(blockquote) {
   background-color: #1e293b;
-  color: #94a3b8;
+  color: #cbd5e1;
   border-left-color: #818cf8;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(code) {
+:global(.dark-theme) .markdown-content-body :deep(code),
+:global(.dark-mode) .markdown-content-body :deep(code),
+:global(.oled-theme) .markdown-content-body :deep(code) {
   background-color: #1e293b;
   color: #f472b6;
   border-color: #334155;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.markdown-table-wrapper) {
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-wrapper),
+:global(.dark-mode) .markdown-content-body :deep(.markdown-table-wrapper),
+:global(.oled-theme) .markdown-content-body :deep(.markdown-table-wrapper) {
   border-color: #334155 !important;
   background-color: #1e293b !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.markdown-table-scroll-hint) {
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-scroll-hint),
+:global(.dark-mode) .markdown-content-body :deep(.markdown-table-scroll-hint),
+:global(.oled-theme) .markdown-content-body :deep(.markdown-table-scroll-hint) {
   background-color: #0f172a !important;
   border-color: #334155 !important;
   color: #94a3b8 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.markdown-table-responsive-container) {
+:global(.dark-theme) .markdown-content-body :deep(.markdown-table-responsive-container),
+:global(.dark-mode) .markdown-content-body :deep(.markdown-table-responsive-container),
+:global(.oled-theme) .markdown-content-body :deep(.markdown-table-responsive-container) {
   background-color: #1e293b !important;
   scrollbar-color: #475569 #1e293b;
 }
 
 :global(.dark-theme) .markdown-content-body :deep(table),
+:global(.dark-mode) .markdown-content-body :deep(table),
+:global(.oled-theme) .markdown-content-body :deep(table),
 :global(.dark-theme) .markdown-content-body :deep(th),
-:global(.dark-theme) .markdown-content-body :deep(td) {
+:global(.dark-mode) .markdown-content-body :deep(th),
+:global(.oled-theme) .markdown-content-body :deep(th),
+:global(.dark-theme) .markdown-content-body :deep(td),
+:global(.dark-mode) .markdown-content-body :deep(td),
+:global(.oled-theme) .markdown-content-body :deep(td) {
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(th) {
+:global(.dark-theme) .markdown-content-body :deep(th),
+:global(.dark-mode) .markdown-content-body :deep(th),
+:global(.oled-theme) .markdown-content-body :deep(th) {
   background-color: #1e293b !important;
   color: #f8fafc !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(td) {
+:global(.dark-theme) .markdown-content-body :deep(td),
+:global(.dark-mode) .markdown-content-body :deep(td),
+:global(.oled-theme) .markdown-content-body :deep(td) {
   color: #cbd5e1 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(tr:nth-child(even)) {
+:global(.dark-theme) .markdown-content-body :deep(tr:nth-child(even)),
+:global(.dark-mode) .markdown-content-body :deep(tr:nth-child(even)),
+:global(.oled-theme) .markdown-content-body :deep(tr:nth-child(even)) {
   background-color: #131b2e !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(tr:hover) {
+:global(.dark-theme) .markdown-content-body :deep(tr:hover),
+:global(.dark-mode) .markdown-content-body :deep(tr:hover),
+:global(.oled-theme) .markdown-content-body :deep(tr:hover) {
   background-color: #1e293b !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-block-container) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-block-container),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-block-container),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-block-container) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-header) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-header),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-header),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-header) {
   background-color: #0f172a !important;
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-viewport-wrapper) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-viewport-wrapper),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-viewport-wrapper),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-viewport-wrapper) {
   background-color: #0b0f19 !important;
   background-image: radial-gradient(#334155 1.2px, transparent 1.2px) !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-nodes-drawer) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-nodes-drawer),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-nodes-drawer),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-nodes-drawer) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-node-detail-card),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-node-detail-card) {
   background-color: rgba(30, 41, 59, 0.95) !important;
   border-color: #475569 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card h6) {
+:global(.dark-theme) .markdown-content-body :deep(.mermaid-node-detail-card h6),
+:global(.dark-mode) .markdown-content-body :deep(.mermaid-node-detail-card h6),
+:global(.oled-theme) .markdown-content-body :deep(.mermaid-node-detail-card h6) {
   color: #f8fafc !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn) {
+:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn),
+:global(.dark-mode) .markdown-content-body :deep(.node-list-item-btn),
+:global(.oled-theme) .markdown-content-body :deep(.node-list-item-btn) {
   background-color: #0f172a !important;
   border-color: #334155 !important;
   color: #cbd5e1 !important;
 }
 
-:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn:hover) {
+:global(.dark-theme) .markdown-content-body :deep(.node-list-item-btn:hover),
+:global(.dark-mode) .markdown-content-body :deep(.node-list-item-btn:hover),
+:global(.oled-theme) .markdown-content-body :deep(.node-list-item-btn:hover) {
   background-color: #1e293b !important;
   border-color: #818cf8 !important;
 }

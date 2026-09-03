@@ -790,7 +790,7 @@ export default createStore({
       rabExpenses: loadLocal('ft_rabExpenses', []),
       aiProvider: loadLocal('ft_aiProvider', 'gemini'),
       aiModel: loadLocal('ft_aiModel', 'gemini-1.5-flash'),
-      themeMode: 'light', // Light mode default
+      themeMode: loadLocal('ft_themeMode', 'light'), // Persisted theme mode
       accentColor: loadLocal('ft_accentColor', '#2563eb'), // default Material blue
       budgetThreshold: loadLocal('ft_budgetThreshold', 5000000), // Default budget threshold: Rp 5.000.000
       welcomeBanner: loadLocal('ft_welcomeBanner', {

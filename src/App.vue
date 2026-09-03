@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="['app-container', themeMode === 'dark' ? 'dark-theme' : (themeMode === 'oled' ? 'oled-theme dark-mode' : 'light-theme')]" :style="{ '--primary-color': accentColor }">
+  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
@@ -100,7 +100,7 @@
               <span>K</span>
             </div>
             <div class="lh-1 text-truncate">
-              <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts OS</span>
+              <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts</span>
               <small class="text-success fw-semibold" style="font-size: 10px;">● Workspace Siap</small>
             </div>
           </div>
@@ -204,6 +204,19 @@
           <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
             <i class="bi bi-exclamation-triangle-fill fs-6"></i>
           </router-link>
+
+          <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
+          <button 
+            @click="toggleBluePinkMode" 
+            class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
+            :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)' : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'"
+            style="font-size: 11.5px; height: 32px; width: auto;"
+          >
+            <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: accentColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
+            <span class="fw-bold d-none d-sm-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
+              {{ isPinkMode ? '🌸 Pink' : '🔵 Blue' }}
+            </span>
+          </button>
 
           <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
           <button 
@@ -601,6 +614,56 @@ export default {
       window.removeEventListener('keydown', handleKeydown);
     });
 
+    const isPinkMode = computed(() => {
+      const c = (accentColor.value || '').toLowerCase();
+      return c === '#ec4899' || c === '#f43f5e' || c === '#db2777' || c === '#e11d48';
+    });
+
+    const toggleBluePinkMode = () => {
+      if (isPinkMode.value) {
+        store.dispatch('setAccentColor', '#2563eb');
+        store.dispatch('showNotification', {
+          type: 'info',
+          title: '🔵 Blue Mode Aktif',
+          message: 'Aksen warna diubah ke Material Royal Blue (#2563eb).'
+        });
+      } else {
+        store.dispatch('setAccentColor', '#ec4899');
+        store.dispatch('showNotification', {
+          type: 'info',
+          title: '🌸 Pink Mode Aktif',
+          message: 'Aksen warna diubah ke Sakura Rose Pink (#ec4899).'
+        });
+      }
+    };
+
+    // Keep document attributes & styles in sync with theme and accent color
+    watch(themeMode, (mode) => {
+      const isDark = mode === 'dark' || mode === 'oled';
+      document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+      if (isDark) {
+        document.documentElement.classList.add('dark-mode', 'dark-theme');
+        document.body.classList.add('dark-mode', 'dark-theme');
+      } else {
+        document.documentElement.classList.remove('dark-mode', 'dark-theme');
+        document.body.classList.remove('dark-mode', 'dark-theme');
+      }
+      if (mode === 'oled') {
+        document.documentElement.classList.add('oled-theme');
+        document.body.classList.add('oled-theme');
+      } else {
+        document.documentElement.classList.remove('oled-theme');
+        document.body.classList.remove('oled-theme');
+      }
+    }, { immediate: true });
+
+    watch(accentColor, (color) => {
+      if (color) {
+        document.documentElement.style.setProperty('--primary-color', color);
+        document.body.style.setProperty('--primary-color', color);
+      }
+    }, { immediate: true });
+
     const toggleThemeMode = () => {
       let next = 'light';
       if (themeMode.value === 'light') next = 'dark';
@@ -624,6 +687,8 @@ export default {
       isBudgetExceeded,
       themeMode,
       accentColor,
+      isPinkMode,
+      toggleBluePinkMode,
       toggleThemeMode
     };
   }
@@ -735,152 +800,232 @@ body {
 }
 
 /* =========================================================
-   Unified Dark Reader Style Inversion Engine (.dark-mode)
+   Unified High-Contrast Dark Mode & Readability Engine
+   Supports: .dark-mode, .dark-theme, and [data-bs-theme="dark"]
    ========================================================= */
-.dark-mode .bg-white,
-.dark-mode .card:not(.pwa-pure-black-card),
-.dark-mode .top-header,
-.dark-mode .modal-content,
-.dark-mode .mobile-bottom-bar,
-.dark-mode .accordion-item,
-.dark-mode .offcanvas,
-.dark-mode .offcanvas-body,
-.dark-mode .dropdown-menu,
-.dark-mode .list-group-item {
+
+/* Typography & Text Contrast Overhauls */
+.dark-mode h1, .dark-theme h1,
+.dark-mode h2, .dark-theme h2,
+.dark-mode h3, .dark-theme h3,
+.dark-mode h4, .dark-theme h4,
+.dark-mode h5, .dark-theme h5,
+.dark-mode h6, .dark-theme h6,
+.dark-mode .h1, .dark-theme .h1,
+.dark-mode .h2, .dark-theme .h2,
+.dark-mode .h3, .dark-theme .h3,
+.dark-mode .h4, .dark-theme .h4,
+.dark-mode .h5, .dark-theme .h5,
+.dark-mode .h6, .dark-theme .h6,
+.dark-mode .card-title, .dark-theme .card-title,
+.dark-mode .modal-title, .dark-theme .modal-title,
+.dark-mode .offcanvas-title, .dark-theme .offcanvas-title {
+  color: #f8fafc !important;
+}
+
+/* Invert dark text utility classes to high-contrast white/slate, except inside bright colored badges */
+.dark-mode .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(.badge.bg-info):not(.badge.bg-info-subtle),
+.dark-theme .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(.badge.bg-info):not(.badge.bg-info-subtle),
+.dark-mode .text-black, .dark-theme .text-black,
+.dark-mode .text-body, .dark-theme .text-body,
+.dark-mode .text-main, .dark-theme .text-main,
+.dark-mode .text-app, .dark-theme .text-app,
+.dark-mode strong:not(.badge *):not(.badge),
+.dark-theme strong:not(.badge *):not(.badge),
+.dark-mode b, .dark-theme b {
+  color: #f1f5f9 !important;
+}
+
+/* Secondary & Muted text: crisp slate-400 / zinc-300 with > 5:1 contrast against dark surfaces */
+.dark-mode .text-muted, .dark-theme .text-muted,
+.dark-mode .text-secondary, .dark-theme .text-secondary,
+.dark-mode .text-sub, .dark-theme .text-sub,
+.dark-mode small.text-muted, .dark-theme small.text-muted,
+.dark-mode .small.text-muted, .dark-theme .small.text-muted,
+.dark-mode .text-body-secondary, .dark-theme .text-body-secondary {
+  color: #94a3b8 !important;
+}
+
+/* Form labels and legends */
+.dark-mode label, .dark-theme label,
+.dark-mode .form-label, .dark-theme .form-label,
+.dark-mode .col-form-label, .dark-theme .col-form-label,
+.dark-mode legend, .dark-theme legend {
+  color: #e2e8f0 !important;
+}
+
+/* Surfaces, Cards, Modals, Dropdowns, Offcanvas */
+.dark-mode .bg-white, .dark-theme .bg-white,
+.dark-mode .card:not(.pwa-pure-black-card), .dark-theme .card:not(.pwa-pure-black-card),
+.dark-mode .content-card, .dark-theme .content-card,
+.dark-mode .top-header, .dark-theme .top-header,
+.dark-mode .modal-content, .dark-theme .modal-content,
+.dark-mode .mobile-bottom-bar, .dark-theme .mobile-bottom-bar,
+.dark-mode .accordion-item, .dark-theme .accordion-item,
+.dark-mode .offcanvas, .dark-theme .offcanvas,
+.dark-mode .offcanvas-body, .dark-theme .offcanvas-body,
+.dark-mode .dropdown-menu, .dark-theme .dropdown-menu,
+.dark-mode .list-group-item, .dark-theme .list-group-item {
   background-color: var(--bg-surface) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .text-dark,
-.dark-mode .text-black,
-.dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4, .dark-mode h5, .dark-mode h6,
-.dark-mode .card-title,
-.dark-mode .form-label,
-.dark-mode .navbar-brand,
-.dark-mode strong {
+.dark-mode .card-header, .dark-theme .card-header,
+.dark-mode .card-footer, .dark-theme .card-footer {
+  background-color: var(--bg-surface) !important;
   color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
 }
 
-.dark-mode .text-muted,
-.dark-mode .text-secondary,
-.dark-mode small.text-muted,
-.dark-mode .small.text-muted {
-  color: var(--text-sub) !important;
-}
-
-.dark-mode .bg-light,
-.dark-mode .bg-body-tertiary,
-.dark-mode .table-light,
-.dark-mode .input-group-text,
-.dark-mode .preview-box {
+/* Light backgrounds inversion */
+.dark-mode .bg-light, .dark-theme .bg-light,
+.dark-mode .bg-body-tertiary, .dark-theme .bg-body-tertiary,
+.dark-mode .bg-body-secondary, .dark-theme .bg-body-secondary,
+.dark-mode .table-light, .dark-theme .table-light,
+.dark-mode .preview-box, .dark-theme .preview-box,
+.dark-mode .search-input-group, .dark-theme .search-input-group {
   background-color: var(--bg-input) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .btn-light {
-  background-color: var(--bg-input) !important;
-  color: var(--text-main) !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .btn-light:hover {
-  background-color: var(--bg-hover) !important;
-  color: #ffffff !important;
-}
-
-.dark-mode .btn-outline-secondary {
-  border-color: var(--border-color) !important;
-  color: var(--text-sub) !important;
-}
-
-.dark-mode .btn-outline-secondary:hover {
-  background-color: var(--bg-hover) !important;
-  color: #ffffff !important;
-}
-
-.dark-mode .table,
-.dark-mode .table th,
-.dark-mode .table td {
-  color: var(--text-main) !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .table-hover tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-.dark-mode .form-control,
-.dark-mode .form-select,
-.dark-mode textarea {
+/* Form Inputs, Selects, and Textareas */
+.dark-mode .form-control, .dark-theme .form-control,
+.dark-mode .form-select, .dark-theme .form-select,
+.dark-mode textarea, .dark-theme textarea {
   background-color: var(--bg-input) !important;
   color: #ffffff !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .form-control::placeholder,
-.dark-mode textarea::placeholder {
-  color: #64748b !important;
+.dark-mode .form-control::placeholder, .dark-theme .form-control::placeholder,
+.dark-mode textarea::placeholder, .dark-theme textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
 }
 
-.dark-mode .form-control:focus,
-.dark-mode .form-select:focus {
+.dark-mode .form-control:focus, .dark-theme .form-control:focus,
+.dark-mode .form-select:focus, .dark-theme .form-select:focus,
+.dark-mode textarea:focus, .dark-theme textarea:focus {
   background-color: var(--bg-input) !important;
   color: #ffffff !important;
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
 }
 
-.dark-mode .modal-header,
-.dark-mode .modal-footer {
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .btn-close {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-.dark-mode .border,
-.dark-mode .border-top,
-.dark-mode .border-bottom,
-.dark-mode .border-start,
-.dark-mode .border-end,
-.dark-mode .border-2 {
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .badge.bg-light {
+.dark-mode .input-group-text, .dark-theme .input-group-text {
   background-color: var(--bg-input) !important;
-  color: var(--text-main) !important;
+  color: #cbd5e1 !important;
   border-color: var(--border-color) !important;
 }
 
-/* High-Contrast Badge Badges for Dark Readers */
-.dark-mode .bg-primary-subtle {
-  background-color: rgba(37, 99, 235, 0.2) !important;
-  color: #60a5fa !important;
+/* Tables */
+.dark-mode .table, .dark-theme .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: #f1f5f9;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
+  --bs-table-hover-color: #ffffff;
+  --bs-table-border-color: var(--border-color);
+  color: #f1f5f9 !important;
 }
 
-.dark-mode .bg-success-subtle {
-  background-color: rgba(16, 185, 129, 0.2) !important;
-  color: #34d399 !important;
+.dark-mode .table th, .dark-theme .table th {
+  background-color: var(--bg-surface) !important;
+  color: #f8fafc !important;
+  border-color: var(--border-color) !important;
 }
 
-.dark-mode .bg-warning-subtle {
-  background-color: rgba(245, 158, 11, 0.2) !important;
-  color: #fbbf24 !important;
+.dark-mode .table td, .dark-theme .table td {
+  color: #e2e8f0 !important;
+  border-color: var(--border-color) !important;
 }
 
-.dark-mode .bg-danger-subtle {
-  background-color: rgba(225, 29, 72, 0.2) !important;
-  color: #f87171 !important;
+.dark-mode .table-hover tbody tr:hover, .dark-theme .table-hover tbody tr:hover,
+.dark-mode .table-hover tbody tr:hover td, .dark-theme .table-hover tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
 }
 
-.dark-mode .bg-info-subtle {
-  background-color: rgba(13, 148, 136, 0.2) !important;
-  color: #2dd4bf !important;
+/* Buttons */
+.dark-mode .btn-light, .dark-theme .btn-light {
+  background-color: var(--bg-input) !important;
+  color: #f1f5f9 !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode .btn-light:hover, .dark-theme .btn-light:hover {
+  background-color: var(--bg-hover) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .btn-outline-secondary, .dark-theme .btn-outline-secondary {
+  border-color: var(--border-color) !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .btn-outline-secondary:hover, .dark-theme .btn-outline-secondary:hover {
+  background-color: var(--bg-hover) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .modal-header, .dark-theme .modal-header,
+.dark-mode .modal-footer, .dark-theme .modal-footer {
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode .btn-close, .dark-theme .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+.dark-mode .border, .dark-theme .border,
+.dark-mode .border-top, .dark-theme .border-top,
+.dark-mode .border-bottom, .dark-theme .border-bottom,
+.dark-mode .border-start, .dark-theme .border-start,
+.dark-mode .border-end, .dark-theme .border-end,
+.dark-mode .border-2, .dark-theme .border-2 {
+  border-color: var(--border-color) !important;
+}
+
+/* Badges */
+.dark-mode .badge.bg-light, .dark-theme .badge.bg-light {
+  background-color: var(--bg-input) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.dark-mode .badge.bg-white, .dark-theme .badge.bg-white {
+  background-color: var(--bg-surface) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.dark-mode .badge.bg-warning, .dark-theme .badge.bg-warning,
+.dark-mode .badge.bg-warning-subtle, .dark-theme .badge.bg-warning-subtle {
+  background-color: #f59e0b !important;
+  color: #0f172a !important;
+}
+
+.dark-mode .badge.bg-info, .dark-theme .badge.bg-info,
+.dark-mode .badge.bg-info-subtle, .dark-theme .badge.bg-info-subtle {
+  background-color: #06b6d4 !important;
+  color: #0f172a !important;
+}
+
+/* High-Contrast Subtle Badges */
+.dark-mode .bg-primary-subtle, .dark-theme .bg-primary-subtle {
+  background-color: rgba(37, 99, 235, 0.22) !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .bg-success-subtle, .dark-theme .bg-success-subtle {
+  background-color: rgba(16, 185, 129, 0.22) !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .bg-danger-subtle, .dark-theme .bg-danger-subtle {
+  background-color: rgba(225, 29, 72, 0.22) !important;
+  color: #fda4af !important;
 }
 
 /* =========================================================
@@ -900,10 +1045,12 @@ body {
 
 .oled-theme .bg-white,
 .oled-theme .card:not(.pwa-pure-black-card),
+.oled-theme .content-card,
 .oled-theme .modal-content,
 .oled-theme .dropdown-menu,
 .oled-theme .accordion-item,
-.oled-theme .offcanvas {
+.oled-theme .offcanvas,
+.oled-theme .offcanvas-body {
   background-color: #0d0d0d !important;
   border-color: #262626 !important;
   color: #ffffff !important;
@@ -911,8 +1058,10 @@ body {
 
 .oled-theme .bg-light,
 .oled-theme .bg-body-tertiary,
+.oled-theme .bg-body-secondary,
 .oled-theme .input-group-text,
-.oled-theme .preview-box {
+.oled-theme .preview-box,
+.oled-theme .search-input-group {
   background-color: #171717 !important;
   color: #ffffff !important;
   border-color: #333333 !important;
@@ -948,6 +1097,84 @@ body {
 
 .oled-theme .btn-light:hover {
   background-color: #292929 !important;
+}
+
+/* =========================================================
+   Primary Accent Color Overrides (Blue Mode, Pink Mode, Palette)
+   ========================================================= */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  filter: brightness(0.92);
+  color: #ffffff !important;
+}
+
+.btn-outline-primary {
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.link-primary {
+  color: var(--primary-color) !important;
+}
+
+/* Pink Mode Specific Refinements */
+.pink-mode .brand-accent {
+  color: #ec4899 !important;
+}
+
+.pink-mode .bg-primary-subtle {
+  background-color: rgba(236, 72, 153, 0.15) !important;
+  color: #ec4899 !important;
+}
+
+.pink-mode.dark-mode .bg-primary-subtle,
+.pink-mode.dark-theme .bg-primary-subtle,
+.pink-mode .dark-mode .bg-primary-subtle,
+.pink-mode .dark-theme .bg-primary-subtle {
+  background-color: rgba(236, 72, 153, 0.25) !important;
+  color: #f472b6 !important;
 }
 
 /* Modals backdrop styling */

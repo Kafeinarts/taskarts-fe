@@ -1377,40 +1377,70 @@ export default {
 }
 
 /* Dark theme overrides */
-:global(.dark-theme) .sticky-note-card {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155 !important;
+/* Dark & OLED theme overrides using CSS variables */
+:global(.dark-theme) .sticky-note-card,
+:global(.dark-mode) .sticky-note-card {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
 }
 
-:global(.dark-theme) .note-card-title {
+:global(.oled-theme) .sticky-note-card {
+  background-color: #0d0d0d !important;
+  color: #ffffff !important;
+  border: 1px solid #27272a !important;
+}
+
+:global(.dark-theme) .note-card-title,
+:global(.dark-mode) .note-card-title,
+:global(.oled-theme) .note-card-title {
   color: #f8fafc !important;
 }
 
-:global(.dark-theme) .note-card-preview-wrapper {
+:global(.dark-theme) .note-card-preview-wrapper,
+:global(.dark-mode) .note-card-preview-wrapper,
+:global(.oled-theme) .note-card-preview-wrapper {
   color: #e2e8f0 !important;
-  border-color: #334155 !important;
+  border-color: var(--border-color) !important;
 }
 
-:global(.dark-theme) .note-card-footer {
+:global(.dark-theme) .note-card-footer,
+:global(.dark-mode) .note-card-footer,
+:global(.oled-theme) .note-card-footer {
   color: #94a3b8 !important;
 }
 
-:global(.dark-theme) .btn-action-icon {
-  background-color: #0f172a !important;
+:global(.dark-theme) .btn-action-icon,
+:global(.dark-mode) .btn-action-icon {
+  background-color: var(--bg-input) !important;
   color: #cbd5e1 !important;
-  border-color: #334155 !important;
+  border-color: var(--border-color) !important;
 }
 
-:global(.dark-theme) .btn-preview-badge {
-  background-color: #131b2e !important;
-  color: #60a5fa !important;
-  border-color: #334155 !important;
+:global(.oled-theme) .btn-action-icon {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
 }
 
-:global(.dark-theme) .modal-backdrop-custom .card {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155 !important;
+:global(.dark-theme) .btn-preview-badge,
+:global(.dark-mode) .btn-preview-badge,
+:global(.oled-theme) .btn-preview-badge {
+  background-color: var(--bg-input) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+:global(.dark-theme) .modal-backdrop-custom .card,
+:global(.dark-mode) .modal-backdrop-custom .card {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+:global(.oled-theme) .modal-backdrop-custom .card {
+  background-color: #0d0d0d !important;
+  color: #ffffff !important;
+  border: 1px solid #27272a !important;
 }
 </style>

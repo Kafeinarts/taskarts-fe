@@ -483,26 +483,86 @@
           <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-3">
             <i class="bi bi-palette-fill fs-3 text-primary"></i>
             <div>
-              <h5 class="fw-bold text-dark mb-0">Warna Aksen Material</h5>
-              <p class="small text-muted mb-0">Pilih tema aksen warna untuk tombol & highlight.</p>
+              <h5 class="fw-bold text-dark mb-0">🎨 Mode Aksen Warna (Blue & Pink)</h5>
+              <p class="small text-muted mb-0">Pilih mode aksen utama atau palet warna untuk tombol & highlight.</p>
             </div>
           </div>
 
-          <div class="d-flex flex-wrap gap-2 mb-3">
-            <button
-              v-for="color in accentPalette"
-              :key="color.hex"
-              class="btn rounded-circle p-0 d-flex align-items-center justify-content-center color-swatch"
-              :style="{ backgroundColor: color.hex, width: '42px', height: '42px' }"
-              :title="color.name"
-              @click="setAccent(color.hex)"
-            >
-              <i v-if="accentColor === color.hex" class="bi bi-check-lg text-white fs-5 fw-bold"></i>
-            </button>
+          <!-- Featured: Blue Mode & Pink Mode Interactive Selector Cards -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div 
+                class="p-3 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
+                :class="isBlueMode ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
+                @click="setAccent('#2563eb')"
+                style="cursor: pointer;"
+              >
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1.5">
+                    <span class="badge rounded-pill px-2.5 py-1 fw-bold text-white shadow-xs" style="background-color: #2563eb;">
+                      🔵 Blue Mode
+                    </span>
+                    <i v-if="isBlueMode" class="bi bi-check-circle-fill fs-5" style="color: #2563eb;"></i>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-0 fs-7">Royal Material Blue</h6>
+                  <p class="small text-muted mb-0 mt-1" style="font-size: 11px;">Gaya formal, fokus & profesional.</p>
+                </div>
+                <div class="mt-2.5 pt-2 border-top d-flex align-items-center justify-content-between">
+                  <span class="small fw-semibold text-muted" style="font-size: 10.5px;">#2563eb</span>
+                  <span class="rounded-circle shadow-xs" style="width: 14px; height: 14px; background-color: #2563eb;"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div 
+                class="p-3 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
+                :class="isPinkMode ? 'border-danger bg-danger bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
+                @click="setAccent('#ec4899')"
+                style="cursor: pointer;"
+              >
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1.5">
+                    <span class="badge rounded-pill px-2.5 py-1 fw-bold text-white shadow-xs" style="background-color: #ec4899;">
+                      🌸 Pink Mode
+                    </span>
+                    <i v-if="isPinkMode" class="bi bi-check-circle-fill fs-5" style="color: #ec4899;"></i>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-0 fs-7">Sakura Rose Pink</h6>
+                  <p class="small text-muted mb-0 mt-1" style="font-size: 11px;">Gaya modern, ceria & estetik.</p>
+                </div>
+                <div class="mt-2.5 pt-2 border-top d-flex align-items-center justify-content-between">
+                  <span class="small fw-semibold text-muted" style="font-size: 10.5px;">#ec4899</span>
+                  <span class="rounded-circle shadow-xs" style="width: 14px; height: 14px; background-color: #ec4899;"></span>
+                </div>
+              </div>
+            </div>
           </div>
-          <small class="text-muted d-block">
-            Warna aksen aktif: <strong class="text-dark">{{ currentAccentName }}</strong> ({{ accentColor }})
-          </small>
+
+          <!-- Color Palette Swatches -->
+          <div class="mb-3">
+            <span class="small fw-bold text-dark d-block mb-2">Palet Warna Lengkap:</span>
+            <div class="d-flex flex-wrap gap-2">
+              <button
+                v-for="color in accentPalette"
+                :key="color.hex"
+                class="btn rounded-circle p-0 d-flex align-items-center justify-content-center color-swatch border border-2"
+                :class="accentColor.toLowerCase() === color.hex.toLowerCase() ? 'border-dark shadow-sm' : 'border-transparent'"
+                :style="{ backgroundColor: color.hex, width: '38px', height: '38px' }"
+                :title="color.name"
+                @click="setAccent(color.hex)"
+              >
+                <i v-if="accentColor.toLowerCase() === color.hex.toLowerCase()" class="bi bi-check-lg text-white fs-6 fw-bold"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+            <span class="small text-muted">Aksen Terpilih:</span>
+            <span class="badge rounded-pill px-3 py-1.5 fw-bold text-white shadow-xs" :style="{ backgroundColor: accentColor }">
+              {{ currentAccentName }} ({{ accentColor }})
+            </span>
+          </div>
         </div>
       </div>
 
@@ -914,7 +974,8 @@ export default {
     };
 
     const accentPalette = [
-      { name: 'Material Blue', hex: '#2563eb' },
+      { name: 'Blue Mode (Royal Blue)', hex: '#2563eb' },
+      { name: 'Pink Mode (Sakura Pink)', hex: '#ec4899' },
       { name: 'Emerald Green', hex: '#10b981' },
       { name: 'Deep Purple', hex: '#7c3aed' },
       { name: 'Crimson Rose', hex: '#e11d48' },
@@ -923,9 +984,18 @@ export default {
       { name: 'Teal Cyan', hex: '#0d9488' }
     ];
 
+    const isBlueMode = computed(() => (accentColor.value || '').toLowerCase() === '#2563eb');
+    const isPinkMode = computed(() => {
+      const c = (accentColor.value || '').toLowerCase();
+      return c === '#ec4899' || c === '#f43f5e' || c === '#db2777' || c === '#e11d48';
+    });
+
     const currentAccentName = computed(() => {
       const found = accentPalette.find(c => c.hex.toLowerCase() === accentColor.value.toLowerCase());
-      return found ? found.name : 'Custom';
+      if (found) return found.name;
+      if (isBlueMode.value) return 'Blue Mode';
+      if (isPinkMode.value) return 'Pink Mode';
+      return 'Kustom';
     });
 
     const setAccent = (colorHex) => {
@@ -1232,6 +1302,8 @@ export default {
       selectTheme,
       accentPalette,
       currentAccentName,
+      isBlueMode,
+      isPinkMode,
       setAccent,
       triggerPwaInstall,
       requestNotifPermission,
