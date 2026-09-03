@@ -19,6 +19,11 @@
       </div>
 
       <div class="d-flex flex-wrap align-items-center gap-2">
+        <!-- Cek Draft Laporan & Surat Button -->
+        <button class="btn btn-outline-primary rounded-pill px-3.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm" @click="openDraftsModal" title="Periksa daftar draft dan laporan yang sudah dikerjakan">
+          <i class="bi bi-folder2-open text-primary"></i>
+          <span>Cek Draft ({{ draftsList.length }})</span>
+        </button>
         <button class="btn btn-outline-warning text-dark rounded-pill px-3 fw-semibold" @click="exportSuratJson" title="Download data Surat sebagai JSON">
           <i class="bi bi-filetype-json text-warning me-1"></i> Export JSON
         </button>
@@ -26,8 +31,11 @@
           <i class="bi bi-upload text-info me-1"></i> Import JSON
         </button>
         <input type="file" ref="suratJsonInput" accept=".json" class="d-none" @change="onSuratJsonSelected" />
-        <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter">
-          <i class="bi bi-floppy me-1"></i> Simpan Surat
+        <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter(false)" :title="currentDraftId ? 'Perbarui draft yang sedang dibuka' : 'Simpan surat ke arsip draft'">
+          <i class="bi bi-floppy me-1"></i> {{ currentDraftId ? 'Perbarui Draft' : 'Simpan Draft' }}
+        </button>
+        <button v-if="currentDraftId" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 fw-semibold" @click="saveLetter(true)" title="Simpan sebagai draft baru (salinan terpisah)">
+          <i class="bi bi-plus-circle me-1"></i> Simpan Draft Baru
         </button>
         <button v-if="suratMode === 'single'" class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
           <i class="bi bi-whatsapp me-1"></i> Kirim via WA
@@ -35,7 +43,7 @@
         <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
           <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
           <i v-else class="bi bi-printer"></i>
-          <span>{{ isPdfLoading ? 'Menyiapkan Surat...' : (suratMode === 'bulk' ? 'Buka Semua Surat di Tab Baru (Bulk PDF)' : 'Buka / Cetak Surat di Tab Baru') }}</span>
+          <span>{{ isPdfLoading ? 'Menyiapkan Surat...' : (suratMode === 'bulk' ? 'Buka Semua Surat (Bulk PDF A4)' : 'Cetak / Buka PDF A4') }}</span>
         </button>
       </div>
     </div>
@@ -233,11 +241,37 @@
             <span v-if="suratMode === 'bulk'" class="badge bg-success rounded-pill small">Master Mail Merge</span>
           </div>
 
-          <!-- Nav Tabs for Form: Kop Surat, Metadata, Isi & Tanda Tangan -->
+          <!-- Active Draft Indicator Banner -->
+          <div v-if="currentDraft" class="alert alert-primary py-2 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 shadow-xs">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-file-earmark-check-fill text-primary fs-5"></i>
+              <div>
+                <div class="fw-bold small text-dark">Draft Aktif: {{ currentDraft.title || (currentDraft.data && currentDraft.data.subject) || 'Surat' }}</div>
+                <div class="text-muted" style="font-size: 11px;">
+                  Terakhir disimpan: {{ formatDateTime(currentDraft.updatedAt || currentDraft.createdAt) }} • Status: <span class="text-success fw-semibold">{{ currentDraft.status || 'Selesai Dikerjakan' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-1.5">
+              <button type="button" class="btn btn-xs btn-primary rounded-pill px-2.5 fw-bold" @click="saveLetter(false)" title="Perbarui draft ini">
+                <i class="bi bi-floppy me-1"></i> Perbarui
+              </button>
+              <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2" @click="createNewDraft" title="Mulai lembar surat baru">
+                <i class="bi bi-plus-lg"></i> Baru
+              </button>
+            </div>
+          </div>
+
+          <!-- Nav Tabs for Form: Kop Surat, Kertas & Margin A4, Metadata, Isi & Tanda Tangan -->
           <ul class="nav nav-pills nav-fill mb-3 bg-light p-1 rounded-3">
             <li class="nav-item">
               <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'kop' }" @click="formTab = 'kop'">
                 <i class="bi bi-image me-1"></i> Kop & Logo
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'margin' }" @click="formTab = 'margin'">
+                <i class="bi bi-aspect-ratio me-1"></i> Kertas & Margin
               </button>
             </li>
             <li class="nav-item">
@@ -267,29 +301,45 @@
             </div>
 
             <div v-if="letter.showKop" class="p-3 bg-light border rounded-3 mb-3">
-              <!-- Logo Upload & Presets -->
-              <div class="mb-3">
-                <label class="form-label fw-bold text-dark small">Gambar Logo Kop Surat</label>
-                <div class="d-flex align-items-center gap-2 mb-2">
+              <!-- Logo Upload, Status, & Hapus Logo (Tanpa Logo) -->
+              <div class="mb-3 p-2.5 bg-white border rounded-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="form-label fw-bold text-dark small mb-0">Logo Kop Surat</label>
+                  <span v-if="currentLogoSrc" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small">
+                    <i class="bi bi-image me-1"></i>Logo Terpasang
+                  </span>
+                  <span v-else class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill small">
+                    <i class="bi bi-slash-circle me-1"></i>Tanpa Logo (Kop Polos)
+                  </span>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2.5">
                   <input type="file" ref="logoInput" accept="image/*" class="d-none" @change="onLogoSelected" />
-                  <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" @click="$refs.logoInput.click()">
+                  <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold" @click="$refs.logoInput.click()">
                     <i class="bi bi-upload me-1"></i> Upload Logo Baru
                   </button>
-                  <button v-if="letter.kopLogo" type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" @click="letter.kopLogo = ''" title="Hapus logo">
-                    <i class="bi bi-trash"></i> Hapus
+                  
+                  <!-- Tombol Hapus Logo (Bisa Dihapus Kapan Saja) -->
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold"
+                    @click="clearLogo"
+                    :disabled="!currentLogoSrc"
+                    title="Hapus logo agar kop surat tampil polos tanpa logo"
+                  >
+                    <i class="bi bi-trash me-1"></i> Hapus Logo (Tanpa Logo)
                   </button>
-                  <span v-if="letter.kopLogo" class="badge bg-success text-white small">Logo Terpasang</span>
                 </div>
 
                 <!-- Ready Preset Logos -->
-                <div class="small text-muted mb-1">Atau pilih Logo Preset Instansi:</div>
+                <div class="small text-muted mb-1.5">Atau pilih Logo Preset Instansi:</div>
                 <div class="d-flex flex-wrap gap-1.5">
                   <button
                     v-for="preset in logoPresets"
                     :key="preset.id"
                     type="button"
-                    class="btn btn-xs rounded-pill"
-                    :class="letter.kopLogoPreset === preset.id ? 'btn-dark' : 'btn-outline-secondary'"
+                    class="btn btn-xs rounded-pill transition-all"
+                    :class="(letter.kopLogoPreset === preset.id && !letter.kopLogo) || (preset.id === 'none' && !currentLogoSrc) ? 'btn-dark fw-bold shadow-xs' : 'btn-outline-secondary'"
                     @click="applyLogoPreset(preset)"
                   >
                     {{ preset.name }}
@@ -298,7 +348,7 @@
               </div>
 
               <!-- Posisi Logo & Ukuran Slider -->
-              <div class="row g-2 mb-3">
+              <div v-if="currentLogoSrc" class="row g-2 mb-3">
                 <div class="col-md-6">
                   <label class="form-label fw-bold text-dark small">Posisi Logo</label>
                   <select class="form-select form-select-sm" v-model="letter.kopLogoPosition">
@@ -340,6 +390,185 @@
                   <option value="thick">Garis Tunggal Tebal</option>
                   <option value="none">Tanpa Garis Pembatas</option>
                 </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: KERTAS & MARGIN RESMI -->
+          <div v-show="formTab === 'margin'">
+            <!-- Alert Info -->
+            <div class="alert alert-info py-2 px-3 rounded-3 small mb-3 border-info-subtle d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <i class="bi bi-aspect-ratio-fill me-1.5 text-info"></i>
+                <strong>Format Kertas:</strong> {{ currentPaperInfo.name }} ({{ currentPaperInfo.widthMm }} × {{ currentPaperInfo.heightMm }} mm) — {{ letter.paperOrientation === 'landscape' ? 'Mendatar (Landscape)' : 'Tegak (Portrait)' }}
+              </div>
+              <span class="badge bg-primary text-white fw-bold">{{ (letter.paperSize || 'A4').toUpperCase() }}</span>
+            </div>
+
+            <!-- 1. Pilihan Ukuran Kertas Resmi -->
+            <div class="mb-3 p-3 bg-light border rounded-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label fw-bold text-dark small mb-0">1. Pilihan Ukuran Kertas</label>
+                <span class="text-muted" style="font-size: 11px;">Presisi Cetak & PDF</span>
+              </div>
+              <div class="row g-2">
+                <div v-for="p in paperSizesList" :key="p.id" class="col-6 col-sm-4">
+                  <div
+                    class="p-2.5 rounded-3 border text-center cursor-pointer transition-all h-100 d-flex flex-column justify-content-between"
+                    :class="letter.paperSize === p.id ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-dark hover-shadow'"
+                    @click="letter.paperSize = p.id"
+                  >
+                    <div>
+                      <div class="fw-bold fs-6">{{ p.name }}</div>
+                      <div class="small" :class="letter.paperSize === p.id ? 'text-white-50' : 'text-muted'" style="font-size: 11px;">
+                        {{ p.widthMm }} × {{ p.heightMm }} mm
+                      </div>
+                    </div>
+                    <div class="mt-1.5">
+                      <span v-if="p.id === 'a4'" class="badge" :class="letter.paperSize === p.id ? 'bg-white text-primary fw-bold' : 'bg-success-subtle text-success border border-success-subtle'" style="font-size: 9.5px;">
+                        Standar Nasional (A4)
+                      </span>
+                      <span v-else-if="p.id === 'f4'" class="badge" :class="letter.paperSize === p.id ? 'bg-white text-primary fw-bold' : 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'" style="font-size: 9.5px;">
+                        HVS Folio / Dinas
+                      </span>
+                      <span v-else class="badge" :class="letter.paperSize === p.id ? 'bg-white text-primary fw-bold' : 'bg-light text-secondary border'" style="font-size: 9.5px;">
+                        Dokumen Bisnis
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Orientasi Kertas -->
+              <div class="mt-3 pt-2.5 border-top">
+                <label class="form-label fw-bold text-dark small mb-1.5">Orientasi Halaman</label>
+                <div class="btn-group w-100">
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    :class="letter.paperOrientation !== 'landscape' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                    @click="letter.paperOrientation = 'portrait'"
+                  >
+                    <i class="bi bi-file-earmark me-1"></i> Tegak / Portrait (Standar Surat)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    :class="letter.paperOrientation === 'landscape' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                    @click="letter.paperOrientation = 'landscape'"
+                  >
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Mendatar / Landscape (Tabel & Memo)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Preset Margin Resmi Indonesia -->
+            <div class="mb-3 p-3 bg-light border rounded-3">
+              <label class="form-label fw-bold text-dark small mb-1">2. Preset Jarak Margin Resmi Indonesia</label>
+              <div class="d-grid gap-1.5">
+                <button
+                  type="button"
+                  class="btn btn-sm text-start rounded-3 d-flex justify-content-between align-items-center"
+                  :class="letter.marginPreset === 'official' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                  @click="applyMarginPreset('official')"
+                >
+                  <span><strong>Standar Kedinasan (Tata Naskah Dinas RI)</strong><br><small style="font-size: 11px;">Atas 20mm, Bawah 20mm, Kiri 25mm (Arsip/Ordner), Kanan 20mm</small></span>
+                  <i v-if="letter.marginPreset === 'official'" class="bi bi-check-circle-fill"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm text-start rounded-3 d-flex justify-content-between align-items-center"
+                  :class="letter.marginPreset === 'symmetric' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                  @click="applyMarginPreset('symmetric')"
+                >
+                  <span><strong>Standar Simetris</strong><br><small style="font-size: 11px;">Atas 20mm, Bawah 20mm, Kiri 20mm, Kanan 20mm</small></span>
+                  <i v-if="letter.marginPreset === 'symmetric'" class="bi bi-check-circle-fill"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm text-start rounded-3 d-flex justify-content-between align-items-center"
+                  :class="letter.marginPreset === 'compact' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                  @click="applyMarginPreset('compact')"
+                >
+                  <span><strong>Ringkas / Muat 1 Halaman</strong><br><small style="font-size: 11px;">Atas 15mm, Bawah 15mm, Kiri 20mm, Kanan 15mm</small></span>
+                  <i v-if="letter.marginPreset === 'compact'" class="bi bi-check-circle-fill"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm text-start rounded-3 d-flex justify-content-between align-items-center"
+                  :class="letter.marginPreset === 'wide' ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'"
+                  @click="applyMarginPreset('wide')"
+                >
+                  <span><strong>Ekstra Lebar (Banyak Lampiran)</strong><br><small style="font-size: 11px;">Atas 25mm, Bawah 25mm, Kiri 30mm, Kanan 20mm</small></span>
+                  <i v-if="letter.marginPreset === 'wide'" class="bi bi-check-circle-fill"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. Custom Millimeter Margins -->
+            <div class="mb-3 p-3 bg-light border rounded-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label fw-bold text-dark small mb-0">3. Penyesuaian Jarak Margin Milimeter (mm)</label>
+                <button type="button" class="btn btn-xs btn-outline-info" @click="showMarginGuides = !showMarginGuides">
+                  <i class="bi bi-bounding-box-circles me-1"></i> {{ showMarginGuides ? 'Sembunyikan Garis Panduan' : 'Lihat Garis Panduan di Kertas' }}
+                </button>
+              </div>
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="small text-muted mb-0">Jarak Margin Atas (Top)</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" max="60" class="form-control" v-model.number="letter.marginTop" @change="letter.marginPreset = 'custom'" />
+                    <span class="input-group-text">mm</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="small text-muted mb-0">Jarak Margin Bawah (Bottom)</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" max="60" class="form-control" v-model.number="letter.marginBottom" @change="letter.marginPreset = 'custom'" />
+                    <span class="input-group-text">mm</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="small text-muted mb-0">Jarak Margin Kiri (Left / Arsip)</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" max="60" class="form-control" v-model.number="letter.marginLeft" @change="letter.marginPreset = 'custom'" />
+                    <span class="input-group-text">mm</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="small text-muted mb-0">Jarak Margin Kanan (Right)</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" max="60" class="form-control" v-model.number="letter.marginRight" @change="letter.marginPreset = 'custom'" />
+                    <span class="input-group-text">mm</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Tipografi Kertas -->
+            <div class="p-3 bg-light border rounded-3">
+              <label class="form-label fw-bold text-dark small mb-2">4. Tipografi & Ukuran Teks Standar Surat</label>
+              <div class="row g-2">
+                <div class="col-md-7">
+                  <label class="small text-muted mb-0">Jenis Font</label>
+                  <select class="form-select form-select-sm" v-model="letter.fontFamily">
+                    <option value="'Times New Roman', Times, serif">Times New Roman (Standar Resmi)</option>
+                    <option value="'Bookman Old Style', Georgia, serif">Bookman Old Style (Klasik Kedinasan)</option>
+                    <option value="Arial, Helvetica, sans-serif">Arial (Modern Bersih)</option>
+                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Kontemporer)</option>
+                    <option value="Garamond, serif">Garamond (Elegan)</option>
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <label class="small text-muted mb-0">Ukuran Font Dasar</label>
+                  <select class="form-select form-select-sm" v-model="letter.fontSize">
+                    <option value="15">12 pt (15px) Standar</option>
+                    <option value="14">11 pt (14px) Proporsional</option>
+                    <option value="13">10.5 pt (13px) Rapat</option>
+                    <option value="16">13 pt (16px) Besar</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -473,10 +702,11 @@
       <div class="col-lg-7">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
           <!-- Preview Header Bar (no-print) -->
-          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2 mb-3 no-print gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="fw-bold text-dark"><i class="bi bi-eye text-primary me-1"></i> Live Letter Preview</span>
+          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2.5 mb-2.5 no-print gap-2">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+              <span class="fw-bold text-dark"><i class="bi bi-file-earmark-richtext text-primary me-1"></i> Live Document Preview</span>
               <span class="badge bg-light text-dark border small">{{ activeTemplateTitle }}</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle small fw-bold">{{ currentPaperInfo.name }}</span>
               <span v-if="suratMode === 'bulk'" class="badge bg-success text-white small">
                 Penerima #{{ activeBulkIndex + 1 }} dari {{ bulkRecipients.length }}
               </span>
@@ -502,15 +732,72 @@
               <button class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
                 <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
                 <i v-else class="bi bi-printer"></i>
-                <span>{{ isPdfLoading ? 'Menyiapkan...' : (suratMode === 'bulk' ? 'Buka Semua (' + bulkRecipients.length + ' Surat)' : 'Buka / Cetak Surat') }}</span>
+                <span>{{ isPdfLoading ? 'Menyiapkan...' : (suratMode === 'bulk' ? 'Buka Semua (' + bulkRecipients.length + ' Surat ' + currentPaperInfo.name + ')' : 'Cetak / Buka PDF ' + currentPaperInfo.name) }}</span>
               </button>
             </div>
           </div>
 
-          <!-- ======================================================== -->
-          <!-- 1. SINGLE MODE PRINTABLE LETTER PAPER                    -->
-          <!-- ======================================================== -->
-          <div v-if="suratMode === 'single'" id="letterPrintArea" class="letter-paper border shadow-sm p-4 p-md-5 bg-white text-dark mx-auto">
+          <!-- Quick Controls Bar (no-print) -->
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 bg-light border rounded-3 mb-2.5 no-print">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="d-flex align-items-center gap-1">
+                <label class="small text-muted fw-bold mb-0">Ukuran:</label>
+                <select class="form-select form-select-sm border-primary fw-semibold text-primary py-0.5" v-model="letter.paperSize" style="width: auto; font-size: 12px;">
+                  <option v-for="p in paperSizesList" :key="p.id" :value="p.id">{{ p.name }} ({{ p.widthMm }}×{{ p.heightMm }} mm)</option>
+                </select>
+              </div>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn" :class="letter.paperOrientation !== 'landscape' ? 'btn-primary text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="letter.paperOrientation = 'portrait'" title="Tegak (Portrait)">
+                  <i class="bi bi-file-earmark me-1"></i> Tegak
+                </button>
+                <button type="button" class="btn" :class="letter.paperOrientation === 'landscape' ? 'btn-primary text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="letter.paperOrientation = 'landscape'" title="Mendatar (Landscape)">
+                  <i class="bi bi-file-earmark-spreadsheet me-1"></i> Mendatar
+                </button>
+              </div>
+              <button type="button" class="btn btn-sm" :class="showMarginGuides ? 'btn-info text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="showMarginGuides = !showMarginGuides" title="Batas Margin Garis Putus-Putus">
+                <i class="bi bi-bounding-box-circles me-1"></i> {{ showMarginGuides ? 'Garis Margin: ON' : 'Garis Margin' }}
+              </button>
+            </div>
+            <div class="d-flex align-items-center gap-1.5">
+              <label class="small text-muted fw-bold mb-0">Zoom:</label>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary bg-white px-2" :disabled="previewZoom <= 50" @click="previewZoom = Math.max(50, previewZoom - 10)" title="Perkecil Zoom">-</button>
+                <button type="button" class="btn btn-light border px-2 fw-semibold" style="min-width: 48px; font-size: 11.5px;" @click="previewZoom = 100" title="Reset 100%">{{ previewZoom }}%</button>
+                <button type="button" class="btn btn-outline-secondary bg-white px-2" :disabled="previewZoom >= 150" @click="previewZoom = Math.min(150, previewZoom + 10)" title="Perbesar Zoom">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Info Strip (no-print) -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-1.5 rounded-2 bg-white border mb-3 text-muted no-print" style="font-size: 11.5px;">
+            <div>
+              <i class="bi bi-aspect-ratio text-primary me-1"></i> <strong>Kertas:</strong> {{ currentPaperInfo.name }} ({{ currentPaperInfo.widthMm }} × {{ currentPaperInfo.heightMm }} mm) • {{ letter.paperOrientation === 'landscape' ? 'Mendatar (Landscape)' : 'Tegak (Portrait)' }}
+            </div>
+            <div>
+              <i class="bi bi-arrows-collapse text-secondary me-1"></i> <strong>Jarak Margin:</strong> Atas {{ letter.marginTop || 20 }}mm • Bawah {{ letter.marginBottom || 20 }}mm • Kiri {{ letter.marginLeft || 25 }}mm • Kanan {{ letter.marginRight || 20 }}mm
+            </div>
+          </div>
+
+          <!-- Document Desk Workbench (Visual A4 Canvas) -->
+          <div class="preview-desk-workbench rounded-3 p-3 p-md-4 overflow-auto">
+            <div class="d-inline-block text-start" :style="previewTransformStyle">
+              <!-- ======================================================== -->
+              <!-- 1. SINGLE MODE PRINTABLE LETTER PAPER                    -->
+              <!-- ======================================================== -->
+              <div v-if="suratMode === 'single'" id="letterPrintArea" class="letter-paper bg-white text-dark mx-auto" :style="letterPaperInlineStyles">
+                <!-- Margin Guide Overlay (Visual Margin Boundary) -->
+                <div
+                  v-if="showMarginGuides"
+                  class="margin-guide-overlay no-print"
+                  :style="{
+                    top: (letter.marginTop || 20) + 'mm',
+                    bottom: (letter.marginBottom || 20) + 'mm',
+                    left: (letter.marginLeft || 25) + 'mm',
+                    right: (letter.marginRight || 20) + 'mm'
+                  }"
+                >
+                  <span class="margin-guide-tag">📐 Batas Margin: Atas {{ letter.marginTop || 20 }}mm | Kiri {{ letter.marginLeft || 25 }}mm | Kanan {{ letter.marginRight || 20 }}mm | Bawah {{ letter.marginBottom || 20 }}mm</span>
+                </div>
             <!-- KOP SURAT HEADER -->
             <div v-if="letter.showKop" class="kop-header-container mb-4" :class="'kop-align-' + (letter.kopLogoPosition || 'left')">
               <div class="d-flex align-items-center justify-content-between gap-3 mb-2" :class="{ 'flex-column text-center': letter.kopLogoPosition === 'center', 'flex-row-reverse': letter.kopLogoPosition === 'right' }">
@@ -535,12 +822,9 @@
               </div>
 
               <!-- Kop Divider Lines -->
-              <div v-if="letter.kopStyle === 'double'" class="kop-divider-double mt-2">
-                <div class="border-top border-dark border-3 mb-0.5"></div>
-                <div class="border-top border-dark border-1"></div>
-              </div>
-              <div v-else-if="letter.kopStyle === 'thick'" class="border-top border-dark border-3 mt-2"></div>
-              <div v-else-if="letter.kopStyle === 'single'" class="border-top border-secondary border-1 mt-2"></div>
+              <div v-if="letter.kopStyle === 'double'" class="kop-divider-double"></div>
+              <div v-else-if="letter.kopStyle === 'thick'" class="kop-divider-thick"></div>
+              <div v-else-if="letter.kopStyle === 'single'" class="kop-divider-single"></div>
             </div>
 
             <!-- Letter Metadata (Tanggal & Nomor) -->
@@ -607,16 +891,30 @@
             </div>
           </div>
 
-          <!-- ======================================================== -->
-          <!-- 2. BULK MODE PRINTABLE AREA (Multi-Letter Pages)          -->
-          <!-- ======================================================== -->
-          <div v-else id="letterBulkPrintArea" class="bulk-print-container">
-            <!-- In Web UI: Shows active recipient or all -->
-            <div
-              v-for="(rec, recIdx) in (isPrintingAll ? bulkRecipients : [activeBulkRecipient || bulkRecipients[0]])"
-              :key="rec ? rec.id : recIdx"
-              class="letter-paper border shadow-sm p-4 p-md-5 bg-white text-dark mx-auto mb-4 print-page-break"
-            >
+              <!-- ======================================================== -->
+              <!-- 2. BULK MODE PRINTABLE AREA (Multi-Letter Pages)          -->
+              <!-- ======================================================== -->
+              <div v-else id="letterBulkPrintArea" class="bulk-print-container">
+                <!-- In Web UI: Shows active recipient or all -->
+                <div
+                  v-for="(rec, recIdx) in (isPrintingAll ? bulkRecipients : [activeBulkRecipient || bulkRecipients[0]])"
+                  :key="rec ? rec.id : recIdx"
+                  class="letter-paper bg-white text-dark mx-auto mb-4 print-page-break"
+                  :style="letterPaperInlineStyles"
+                >
+                  <!-- Margin Guide Overlay (Visual Margin Boundary) -->
+                  <div
+                    v-if="showMarginGuides"
+                    class="margin-guide-overlay no-print"
+                    :style="{
+                      top: (letter.marginTop || 20) + 'mm',
+                      bottom: (letter.marginBottom || 20) + 'mm',
+                      left: (letter.marginLeft || 25) + 'mm',
+                      right: (letter.marginRight || 20) + 'mm'
+                    }"
+                  >
+                    <span class="margin-guide-tag">📐 Batas Margin: Atas {{ letter.marginTop || 20 }}mm | Kiri {{ letter.marginLeft || 25 }}mm | Kanan {{ letter.marginRight || 20 }}mm | Bawah {{ letter.marginBottom || 20 }}mm</span>
+                  </div>
               <!-- KOP SURAT HEADER -->
               <div v-if="letter.showKop" class="kop-header-container mb-4" :class="'kop-align-' + (letter.kopLogoPosition || 'left')">
                 <div class="d-flex align-items-center justify-content-between gap-3 mb-2" :class="{ 'flex-column text-center': letter.kopLogoPosition === 'center', 'flex-row-reverse': letter.kopLogoPosition === 'right' }">
@@ -641,12 +939,9 @@
                 </div>
 
                 <!-- Kop Divider Lines -->
-                <div v-if="letter.kopStyle === 'double'" class="kop-divider-double mt-2">
-                  <div class="border-top border-dark border-3 mb-0.5"></div>
-                  <div class="border-top border-dark border-1"></div>
-                </div>
-                <div v-else-if="letter.kopStyle === 'thick'" class="border-top border-dark border-3 mt-2"></div>
-                <div v-else-if="letter.kopStyle === 'single'" class="border-top border-secondary border-1 mt-2"></div>
+                <div v-if="letter.kopStyle === 'double'" class="kop-divider-double"></div>
+                <div v-else-if="letter.kopStyle === 'thick'" class="kop-divider-thick"></div>
+                <div v-else-if="letter.kopStyle === 'single'" class="kop-divider-single"></div>
               </div>
 
               <!-- Letter Metadata (Tanggal & Nomor) -->
@@ -711,6 +1006,8 @@
                 <strong>Tembusan:</strong>
                 <div class="white-space-pre-line">{{ renderDynamicText(letter.ccText, rec) }}</div>
               </div>
+            </div>
+          </div>
             </div>
           </div>
         </div>
@@ -881,6 +1178,178 @@
         </div>
       </div>
     </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 3: CEK DRAFT & RIWAYAT LAPORAN / SURAT (no-print)  -->
+    <!-- ======================================================== -->
+    <div v-if="showDraftsModal" class="card border-0 shadow-lg rounded-4 p-4 my-4 bg-white border-top border-primary border-4 no-print">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-3 mb-3 gap-2">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">
+              <i class="bi bi-folder2-open me-1"></i> Drafts & Reports
+            </span>
+            <span class="badge bg-light text-dark border rounded-pill">{{ draftsList.length }} Laporan / Surat Tersimpan</span>
+          </div>
+          <h4 class="fw-bold mb-0 text-dark">
+            📂 Cek Draft & Riwayat Laporan yang Sudah Dikerjakan
+          </h4>
+          <p class="text-muted small mb-0">Lihat semua arsip surat & laporan yang pernah dikerjakan, lanjutkan edit, atau cetak cepat ke format PDF A4.</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold" @click="createNewDraft">
+            <i class="bi bi-plus-lg me-1"></i> Mulai Surat Baru
+          </button>
+          <button type="button" class="btn-close" @click="showDraftsModal = false"></button>
+        </div>
+      </div>
+
+      <!-- Search & Filter Category -->
+      <div class="row g-3 mb-3 align-items-center">
+        <div class="col-md-7">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              v-model="draftSearchQuery"
+              placeholder="Cari berdasarkan judul, perihal, nomor surat, atau nama penerima..."
+            />
+            <button v-if="draftSearchQuery" class="btn btn-outline-secondary" type="button" @click="draftSearchQuery = ''">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-md-5 d-flex gap-1 justify-content-md-end flex-wrap">
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill px-3"
+            :class="draftFilter === 'all' ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
+            @click="draftFilter = 'all'"
+          >
+            Semua ({{ draftsList.length }})
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill px-3"
+            :class="draftFilter === 'single' ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
+            @click="draftFilter = 'single'"
+          >
+            Tunggal ({{ singleDraftsCount }})
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill px-3"
+            :class="draftFilter === 'bulk' ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
+            @click="draftFilter = 'bulk'"
+          >
+            Massal / Bulk ({{ bulkDraftsCount }})
+          </button>
+        </div>
+      </div>
+
+      <!-- Drafts List Cards -->
+      <div v-if="filteredDrafts.length > 0" class="d-flex flex-column gap-2.5" style="max-height: 480px; overflow-y: auto;">
+        <div
+          v-for="draft in filteredDrafts"
+          :key="draft.id"
+          class="p-3 rounded-3 border transition-all"
+          :class="currentDraftId === draft.id ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'bg-light hover-bg-white border-light-subtle'"
+        >
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap align-items-center gap-1.5 mb-1.5">
+                <span v-if="currentDraftId === draft.id" class="badge bg-primary text-white rounded-pill small">
+                  <i class="bi bi-pencil-fill me-1"></i>Sedang Dibuka di Editor
+                </span>
+                <span class="badge" :class="draft.mode === 'bulk' ? 'bg-success text-white' : 'bg-secondary text-white'">
+                  <i :class="draft.mode === 'bulk' ? 'bi bi-people-fill' : 'bi bi-file-earmark-text'" class="me-1"></i>
+                  {{ draft.mode === 'bulk' ? 'Mode Massal' : 'Mode Tunggal' }}
+                </span>
+                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">
+                  <i class="bi bi-clock-history me-1"></i>{{ formatDateTime(draft.updatedAt || draft.createdAt) }}
+                </span>
+                <span v-if="draft.data && (draft.data.kopLogo || (draft.data.kopLogoPreset && draft.data.kopLogoPreset !== 'none'))" class="badge bg-light text-muted border">
+                  <i class="bi bi-image me-1"></i>Dengan Logo
+                </span>
+                <span v-else class="badge bg-light text-muted border">
+                  <i class="bi bi-slash-circle me-1"></i>Tanpa Logo
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  {{ draft.status || 'Selesai Dikerjakan' }}
+                </span>
+              </div>
+
+              <h6 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                {{ draft.title || (draft.data && draft.data.subject) || 'Surat Tanpa Judul' }}
+              </h6>
+
+              <div class="small text-muted d-flex flex-wrap gap-x-3 gap-y-1">
+                <div><i class="bi bi-hash text-primary me-1"></i>No: <strong>{{ (draft.data && draft.data.number) || draft.number || '-' }}</strong></div>
+                <div><i class="bi bi-calendar3 text-primary me-1"></i>Tanggal: <strong>{{ (draft.data && draft.data.date) || draft.date || '-' }}</strong></div>
+                <div><i class="bi bi-person text-primary me-1"></i>Penerima: <strong>{{ (draft.data && draft.data.recipientName) || draft.recipient || '-' }}</strong></div>
+                <div v-if="draft.mode === 'bulk' && draft.bulkRecipients"><i class="bi bi-people text-success me-1"></i>Total: <strong>{{ draft.bulkRecipients.length }} Penerima</strong></div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap align-items-center gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-xs"
+                @click="loadDraftToEditor(draft)"
+                title="Muat draft ke editor untuk diedit kembali"
+              >
+                <i class="bi bi-pencil-square me-1"></i> Buka di Editor
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary rounded-pill px-2.5"
+                @click="printDraftDirect(draft)"
+                title="Buka pratinjau cetak PDF A4 langsung"
+              >
+                <i class="bi bi-printer me-1"></i> Cetak A4
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary rounded-pill px-2.5"
+                @click="duplicateDraft(draft)"
+                title="Salin / Duplikasi draft ini"
+              >
+                <i class="bi bi-files"></i> Duplikat
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger rounded-pill px-2.5"
+                @click="deleteDraft(draft.id)"
+                title="Hapus draft dari arsip"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-5 bg-light rounded-4 border">
+        <div class="display-6 text-muted mb-2">📂</div>
+        <h6 class="fw-bold text-dark mb-1">Tidak ada draft yang cocok</h6>
+        <p class="text-muted small mb-3">Belum ada laporan atau surat yang tersimpan dengan kata kunci pencarian tersebut.</p>
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" @click="createNewDraft">
+          <i class="bi bi-plus-lg me-1"></i> Buat Surat Baru Sekarang
+        </button>
+      </div>
+
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center border-top pt-3 mt-3 gap-2">
+        <span class="small text-muted">
+          Draft tersimpan otomatis di penyimpanan lokal browser Anda secara aman dan privat.
+        </span>
+        <button type="button" class="btn btn-light rounded-pill px-3" @click="showDraftsModal = false">
+          Tutup
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -889,7 +1358,7 @@ import { ref, computed, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
-import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
+import { openPrintableDocumentInNewTab, PAPER_SIZES } from '../utils/pdfTabOpener';
 
 export default {
   name: 'SuratBuilderView',
@@ -954,6 +1423,7 @@ export default {
     ];
 
     const logoPresets = [
+      { id: 'none', name: '🚫 Tanpa Logo (Kop Polos)', url: '' },
       { id: 'logo_app', name: 'Logo RajinKerja', url: '/logo.svg' },
       { id: 'logo_garuda', name: 'Lambang Garuda RI', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg/200px-Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg.png' },
       { id: 'logo_corp', name: 'Gedung Korporat', url: 'https://cdn-icons-png.flaticon.com/512/2942/2942821.png' },
@@ -1148,17 +1618,96 @@ export default {
       signerNip: 'NIK: RK-2026-001',
       signaturePosition: 'right',
       signatureImage: '',
-      ccText: '1. Direktur Operasional\n2. Arsip Bagian Sekretariat'
+      ccText: '1. Direktur Operasional\n2. Arsip Bagian Sekretariat',
+      paperSize: 'a4',
+      paperOrientation: 'portrait',
+      marginTop: 20,
+      marginBottom: 20,
+      marginLeft: 25,
+      marginRight: 20,
+      marginPreset: 'official',
+      fontFamily: "'Times New Roman', Times, serif",
+      fontSize: '14'
+    });
+
+    const paperSizesList = computed(() => Object.values(PAPER_SIZES));
+
+    const currentPaperInfo = computed(() => {
+      const key = (letter.value.paperSize || 'a4').toLowerCase();
+      return PAPER_SIZES[key] || PAPER_SIZES.a4;
+    });
+
+    const previewZoom = ref(100);
+    const showMarginGuides = ref(false);
+
+    const previewTransformStyle = computed(() => {
+      const scale = (previewZoom.value || 100) / 100;
+      return {
+        transform: scale !== 1 ? `scale(${scale})` : 'none',
+        transformOrigin: 'top center',
+        transition: 'transform 0.15s ease-out'
+      };
     });
 
     const currentLogoSrc = computed(() => {
       if (letter.value.kopLogo) return letter.value.kopLogo;
-      if (letter.value.kopLogoPreset) {
+      if (letter.value.kopLogoPreset && letter.value.kopLogoPreset !== 'none') {
         const found = logoPresets.find(p => p.id === letter.value.kopLogoPreset);
         return found ? found.url : '';
       }
       return '';
     });
+
+    const letterPaperInlineStyles = computed(() => {
+      const paper = currentPaperInfo.value;
+      const isLandscape = letter.value.paperOrientation === 'landscape';
+      const widthMm = isLandscape ? paper.heightMm : paper.widthMm;
+      const minHeightMm = isLandscape ? paper.widthMm : paper.heightMm;
+
+      const top = letter.value.marginTop ?? 20;
+      const btm = letter.value.marginBottom ?? 20;
+      const lft = letter.value.marginLeft ?? 25;
+      const rgt = letter.value.marginRight ?? 20;
+      const font = letter.value.fontFamily || "'Times New Roman', Times, serif";
+      const size = (letter.value.fontSize || 14) + 'px';
+
+      return {
+        width: `${widthMm}mm`,
+        minHeight: `${minHeightMm}mm`,
+        paddingTop: `${top}mm`,
+        paddingBottom: `${btm}mm`,
+        paddingLeft: `${lft}mm`,
+        paddingRight: `${rgt}mm`,
+        fontFamily: font,
+        fontSize: size,
+        boxSizing: 'border-box'
+      };
+    });
+
+    const applyMarginPreset = (presetKey) => {
+      letter.value.marginPreset = presetKey;
+      if (presetKey === 'official') {
+        letter.value.marginTop = 20;
+        letter.value.marginBottom = 20;
+        letter.value.marginLeft = 25;
+        letter.value.marginRight = 20;
+      } else if (presetKey === 'symmetric') {
+        letter.value.marginTop = 20;
+        letter.value.marginBottom = 20;
+        letter.value.marginLeft = 20;
+        letter.value.marginRight = 20;
+      } else if (presetKey === 'compact') {
+        letter.value.marginTop = 15;
+        letter.value.marginBottom = 15;
+        letter.value.marginLeft = 20;
+        letter.value.marginRight = 15;
+      } else if (presetKey === 'wide') {
+        letter.value.marginTop = 25;
+        letter.value.marginBottom = 25;
+        letter.value.marginLeft = 30;
+        letter.value.marginRight = 20;
+      }
+    };
 
     const filteredTemplates = computed(() => {
       if (activeTemplateCat.value === 'all') return letterTemplates;
@@ -1237,6 +1786,8 @@ export default {
       });
     };
 
+    const logoInput = ref(null);
+
     const onLogoSelected = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -1251,6 +1802,32 @@ export default {
     const applyLogoPreset = (preset) => {
       letter.value.kopLogoPreset = preset.id;
       letter.value.kopLogo = '';
+      if (preset.id === 'none') {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Kop Diatur Tanpa Logo (Kop Polos)',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    };
+
+    const clearLogo = () => {
+      letter.value.kopLogo = '';
+      letter.value.kopLogoPreset = 'none';
+      if (logoInput.value) {
+        logoInput.value.value = '';
+      }
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Logo Kop Dihapus (Kop Polos)',
+        showConfirmButton: false,
+        timer: 1500
+      });
     };
 
     const onSignSelected = (e) => {
@@ -1435,69 +2012,339 @@ export default {
       window.open(url, '_blank');
     };
 
-    // Print Logic (Single vs Bulk)
+    // Print Logic (Single vs Bulk) with Exact Paper Size and Margins
     const isPdfLoading = ref(false);
+
+    const getDocPrintStyles = () => {
+      const paper = currentPaperInfo.value;
+      const isLandscape = letter.value.paperOrientation === 'landscape';
+      const widthMm = isLandscape ? paper.heightMm : paper.widthMm;
+      const minHeightMm = isLandscape ? paper.widthMm : paper.heightMm;
+
+      const mTop = letter.value.marginTop ?? 20;
+      const mBottom = letter.value.marginBottom ?? 20;
+      const mLeft = letter.value.marginLeft ?? 25;
+      const mRight = letter.value.marginRight ?? 20;
+      const font = letter.value.fontFamily || "'Times New Roman', Times, serif";
+      const fSize = (letter.value.fontSize || 14) + 'px';
+
+      return `
+        @page {
+          size: ${widthMm}mm ${minHeightMm}mm;
+          margin: 0;
+        }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .letter-paper {
+          width: ${widthMm}mm !important;
+          max-width: ${widthMm}mm !important;
+          min-height: ${minHeightMm}mm !important;
+          box-sizing: border-box !important;
+          padding-top: ${mTop}mm !important;
+          padding-bottom: ${mBottom}mm !important;
+          padding-left: ${mLeft}mm !important;
+          padding-right: ${mRight}mm !important;
+          margin: 0 auto !important;
+          box-shadow: none !important;
+          border: none !important;
+          background: #ffffff !important;
+          font-family: ${font} !important;
+          font-size: ${fSize} !important;
+          line-height: 1.6 !important;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        .kop-divider-double {
+          margin-top: 8px !important;
+          margin-bottom: 16px !important;
+          border-top: 3px solid #000000 !important;
+          border-bottom: 1px solid #000000 !important;
+          height: 5px !important;
+        }
+        .kop-divider-thick {
+          margin-top: 8px !important;
+          margin-bottom: 16px !important;
+          border-top: 3px solid #000000 !important;
+        }
+        .kop-divider-single {
+          margin-top: 8px !important;
+          margin-bottom: 16px !important;
+          border-top: 1px solid #1e293b !important;
+        }
+        .no-break {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+        .bulk-print-container > .letter-paper,
+        .print-page-break {
+          page-break-after: always !important;
+          break-after: page !important;
+          margin-bottom: 0 !important;
+        }
+        .bulk-print-container > .letter-paper:last-child,
+        .print-page-break:last-child {
+          page-break-after: auto !important;
+          break-after: auto !important;
+        }
+      `;
+    };
+
+    const getA4PrintStyles = getDocPrintStyles;
 
     const printCurrentMode = () => {
       if (isPdfLoading.value) return;
       isPdfLoading.value = true;
 
       setTimeout(() => {
+        const docCustomStyles = getDocPrintStyles();
+        const paper = currentPaperInfo.value;
+
         if (suratMode.value === 'bulk') {
           isPrintingAll.value = true;
           nextTick(() => {
-            const title = `Surat_Massal_${bulkRecipients.value.length}_Penerima`;
+            const title = `Surat_Massal_${bulkRecipients.value.length}_Penerima_${paper.name}`;
             openPrintableDocumentInNewTab({
               title,
               elementId: 'letterBulkPrintArea',
-              customStyles: `
-                .bulk-print-container > .letter-paper { page-break-after: always; break-after: page; margin-bottom: 30px; box-shadow: none !important; }
-              `,
-              autoPrint: true
+              customStyles: docCustomStyles,
+              autoPrint: true,
+              paperSize: letter.value.paperSize || 'a4',
+              paperOrientation: letter.value.paperOrientation || 'portrait',
+              marginTop: letter.value.marginTop ?? 20,
+              marginBottom: letter.value.marginBottom ?? 20,
+              marginLeft: letter.value.marginLeft ?? 25,
+              marginRight: letter.value.marginRight ?? 20
             });
             isPrintingAll.value = false;
             isPdfLoading.value = false;
           });
         } else {
-          const title = `Surat_${letter.value.subject || 'Resmi'}_${letter.value.recipientName || 'Penerima'}`;
+          const title = `Surat_${letter.value.subject || 'Resmi'}_${paper.name}`;
           openPrintableDocumentInNewTab({
             title,
             elementId: 'letterPrintArea',
-            customStyles: `
-              .letter-paper { box-shadow: none !important; border: none !important; }
-            `,
-            autoPrint: true
+            customStyles: docCustomStyles,
+            autoPrint: true,
+            paperSize: letter.value.paperSize || 'a4',
+            paperOrientation: letter.value.paperOrientation || 'portrait',
+            marginTop: letter.value.marginTop ?? 20,
+            marginBottom: letter.value.marginBottom ?? 20,
+            marginLeft: letter.value.marginLeft ?? 25,
+            marginRight: letter.value.marginRight ?? 20
           });
           isPdfLoading.value = false;
         }
-      }, 400);
+      }, 350);
     };
 
     const printLetter = () => {
       printCurrentMode();
     };
 
-    const saveLetter = () => {
-      const suratObj = {
+    // ==========================================================
+    // DRAFT & REPORT MANAGEMENT (Cek Draft & Laporan Dikerjakan)
+    // ==========================================================
+    const showDraftsModal = ref(false);
+    const currentDraftId = ref(null);
+    const draftSearchQuery = ref('');
+    const draftFilter = ref('all'); // 'all' | 'single' | 'bulk'
+
+    const draftsList = computed(() => {
+      return store.state.suratList || [];
+    });
+
+    const currentDraft = computed(() => {
+      if (!currentDraftId.value) return null;
+      return draftsList.value.find(d => d.id === currentDraftId.value) || null;
+    });
+
+    const singleDraftsCount = computed(() => {
+      return draftsList.value.filter(d => d.mode !== 'bulk').length;
+    });
+
+    const bulkDraftsCount = computed(() => {
+      return draftsList.value.filter(d => d.mode === 'bulk').length;
+    });
+
+    const filteredDrafts = computed(() => {
+      let list = draftsList.value;
+      if (draftFilter.value === 'single') {
+        list = list.filter(d => d.mode !== 'bulk');
+      } else if (draftFilter.value === 'bulk') {
+        list = list.filter(d => d.mode === 'bulk');
+      }
+      if (draftSearchQuery.value.trim()) {
+        const q = draftSearchQuery.value.toLowerCase();
+        list = list.filter(d => {
+          const title = (d.title || '').toLowerCase();
+          const recipient = (d.recipient || (d.data && d.data.recipientName) || '').toLowerCase();
+          const number = (d.number || (d.data && d.data.number) || '').toLowerCase();
+          const subject = (d.data && d.data.subject ? d.data.subject : '').toLowerCase();
+          return title.includes(q) || recipient.includes(q) || number.includes(q) || subject.includes(q);
+        });
+      }
+      return list;
+    });
+
+    const formatDateTime = (isoStr) => {
+      if (!isoStr) return '-';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch {
+        return isoStr;
+      }
+    };
+
+    const openDraftsModal = () => {
+      showDraftsModal.value = true;
+    };
+
+    const loadDraftToEditor = (draft) => {
+      if (!draft) return;
+      currentDraftId.value = draft.id;
+      if (draft.mode) {
+        suratMode.value = draft.mode;
+      }
+      if (draft.data) {
+        letter.value = {
+          ...letter.value,
+          ...JSON.parse(JSON.stringify(draft.data))
+        };
+      }
+      if (draft.bulkRecipients && Array.isArray(draft.bulkRecipients)) {
+        bulkRecipients.value = JSON.parse(JSON.stringify(draft.bulkRecipients));
+        activeBulkIndex.value = 0;
+      }
+      showDraftsModal.value = false;
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Draft "${draft.title}" Berhasil Dimuat!`,
+        text: 'Naskah surat siap diedit dan dicetak ke format A4.',
+        showConfirmButton: false,
+        timer: 2000
+      });
+    };
+
+    const printDraftDirect = (draft) => {
+      loadDraftToEditor(draft);
+      nextTick(() => {
+        setTimeout(() => {
+          printCurrentMode();
+        }, 350);
+      });
+    };
+
+    const duplicateDraft = (draft) => {
+      const duplicated = {
+        ...JSON.parse(JSON.stringify(draft)),
         id: 'surat_' + Date.now(),
+        title: (draft.title || 'Surat') + ' (Salinan)',
+        status: 'Selesai Dikerjakan',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      store.dispatch('addSurat', duplicated);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Draft Berhasil Diduplikasi!',
+        showConfirmButton: false,
+        timer: 1800
+      });
+    };
+
+    const deleteDraft = (draftId) => {
+      Swal.fire({
+        title: 'Hapus Laporan / Draft Ini?',
+        text: 'Draft ini akan dihapus permanen dari arsip persuratan.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#dc3545'
+      }).then((res) => {
+        if (res.isConfirmed) {
+          store.dispatch('deleteSurat', draftId);
+          if (currentDraftId.value === draftId) {
+            currentDraftId.value = null;
+          }
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Draft Berhasil Dihapus',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+    };
+
+    const createNewDraft = () => {
+      currentDraftId.value = null;
+      letter.value.subject = 'Surat Baru';
+      letter.value.number = '001/SK/RK/' + new Date().getFullYear();
+      letter.value.date = new Date().toISOString().split('T')[0];
+      showDraftsModal.value = false;
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Lembar Surat Baru Siap',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    };
+
+    const saveLetter = (saveAsNew = false) => {
+      const isExisting = !saveAsNew && currentDraftId.value;
+      const idToUse = isExisting ? currentDraftId.value : 'surat_' + Date.now();
+      const nowIso = new Date().toISOString();
+
+      const suratObj = {
+        id: idToUse,
         title: letter.value.subject || 'Surat Resmi',
-        recipient: suratMode.value === 'bulk' ? `Massal (${bulkRecipients.value.length} Penerima)` : letter.value.recipientName,
+        recipient: suratMode.value === 'bulk' ? `Massal (${bulkRecipients.value.length} Penerima)` : (letter.value.recipientName || 'Penerima'),
         date: letter.value.date,
         number: letter.value.number,
         mode: suratMode.value,
+        status: 'Selesai Dikerjakan',
         data: JSON.parse(JSON.stringify(letter.value)),
-        bulkRecipients: JSON.parse(JSON.stringify(bulkRecipients.value))
+        bulkRecipients: JSON.parse(JSON.stringify(bulkRecipients.value)),
+        updatedAt: nowIso
       };
 
-      store.dispatch('addSurat', suratObj);
+      if (isExisting) {
+        store.dispatch('updateSurat', suratObj);
+      } else {
+        suratObj.createdAt = nowIso;
+        store.dispatch('addSurat', suratObj);
+        currentDraftId.value = idToUse;
+      }
+
       sendOnDeviceNotification('Surat Berhasil Disimpan', {
         body: `Dokumen "${letter.value.subject}" berhasil disimpan ke sistem arsip persuratan.`
       });
 
       Swal.fire({
         icon: 'success',
-        title: 'Surat Tersimpan!',
-        text: 'Naskah surat dan pengaturan kop telah disimpan ke dalam arsip.',
+        title: isExisting ? 'Draft Berhasil Diperbarui!' : 'Draft Surat Tersimpan!',
+        text: 'Naskah surat dan pengaturan margin A4 tersimpan rapi dalam arsip laporan yang sudah dikerjakan.',
         timer: 2000,
         showConfirmButton: false
       });
@@ -1690,7 +2537,11 @@ export default {
       activeTemplateTitle,
       logoPresets,
       currentLogoSrc,
+      logoInput,
+      clearLogo,
       letter,
+      letterPaperInlineStyles,
+      applyMarginPreset,
       formattedDate,
       bodyParagraphs,
       isListParagraph,
@@ -1707,6 +2558,29 @@ export default {
       isPdfLoading,
       printCurrentMode,
       printLetter,
+      // Paper, Preview & Zoom
+      paperSizesList,
+      currentPaperInfo,
+      previewZoom,
+      showMarginGuides,
+      previewTransformStyle,
+      // Drafts & Reports Management
+      showDraftsModal,
+      currentDraftId,
+      currentDraft,
+      draftSearchQuery,
+      draftFilter,
+      draftsList,
+      singleDraftsCount,
+      bulkDraftsCount,
+      filteredDrafts,
+      formatDateTime,
+      openDraftsModal,
+      loadDraftToEditor,
+      printDraftDirect,
+      duplicateDraft,
+      deleteDraft,
+      createNewDraft,
       // Bulk State & Methods
       activeBulkIndex,
       activeBulkRecipient,
@@ -1746,14 +2620,75 @@ export default {
 </script>
 
 <style scoped>
+.preview-desk-workbench {
+  background-color: #334155;
+  background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border: 1px solid #1e293b;
+  min-height: 700px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 20px 48px 20px;
+}
+
 .letter-paper {
-  width: 100%;
-  max-width: 794px; /* Standard A4 width in px at 96DPI */
-  min-height: 1050px;
-  box-sizing: border-box;
-  font-family: 'Times New Roman', Times, 'Georgia', serif;
-  font-size: 14px;
+  box-sizing: border-box !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 2px !important;
+  position: relative !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
   line-height: 1.6;
+}
+
+.margin-guide-overlay {
+  position: absolute;
+  border: 1.5px dashed #0284c7;
+  pointer-events: none;
+  z-index: 50;
+  background-color: rgba(2, 132, 199, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.1);
+}
+
+.margin-guide-tag {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-family: monospace;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+/* Kop Surat Divider Lines */
+.kop-divider-double {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-top: 3px solid #000000;
+  border-bottom: 1px solid #000000;
+  height: 5px;
+}
+
+.kop-divider-thick {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-top: 3px solid #000000;
+}
+
+.kop-divider-single {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-top: 1px solid #1e293b;
 }
 
 .kop-align-left .kop-text-wrapper {
@@ -1771,26 +2706,41 @@ export default {
 
 .btn-xs {
   font-size: 11.5px;
+  padding: 0.2rem 0.5rem;
 }
 
 .cursor-pointer {
   cursor: pointer;
 }
 
+.white-space-pre-line {
+  white-space: pre-line;
+}
+
+/* ======================================================== */
+/* MEDIA PRINT (Dynamic page size and margins)              */
+/* ======================================================== */
 @media print {
   .no-print,
   .print-hide {
     display: none !important;
   }
 
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .letter-paper {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: auto !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-page-break {
@@ -1798,7 +2748,6 @@ export default {
     break-after: page !important;
     display: block !important;
     margin: 0 !important;
-    padding: 0 !important;
   }
 
   .print-page-break:last-child {

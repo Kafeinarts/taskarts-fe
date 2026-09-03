@@ -154,6 +154,176 @@ sequenceDiagram
   }
 ];
 
+const SAMPLE_SURAT_DRAFTS = [
+  {
+    id: 'srt_draft_lpj',
+    title: 'Laporan Pertanggungjawaban (LPJ) & Evaluasi Kinerja Triwulan',
+    recipient: 'Dewan Direksi & Manajemen',
+    date: '2026-08-28',
+    number: '042/LPJ-TI/RK/VIII/2026',
+    mode: 'single',
+    status: 'Selesai Dikerjakan',
+    createdAt: '2026-08-28T09:00:00.000Z',
+    updatedAt: '2026-08-28T14:20:00.000Z',
+    data: {
+      showKop: true,
+      kopLogo: '',
+      kopLogoPreset: 'none',
+      kopLogoPosition: 'left',
+      kopLogoHeight: 60,
+      kopStyle: 'double',
+      kopName: 'PT RAJINKERJA GLOBAL INDONESIA',
+      kopSubname: 'DIVISI MANAJEMEN PROYEK & TEKNOLOGI INFORMASI',
+      kopAddress: 'Gedung Menara Rajin Lt. 15, Jl. Jend. Sudirman Kav. 88, Jakarta Selatan 12190',
+      kopContact: 'Telp: (021) 555-8899 | Email: sekretariat@rajinkerja.id | Web: www.rajinkerja.id',
+      number: '042/LPJ-TI/RK/VIII/2026',
+      city: 'Jakarta',
+      date: '2026-08-28',
+      attachment: '1 (Satu) Berkas Rekapitulasi & Dokumentasi Proyek',
+      subject: 'Laporan Pertanggungjawaban (LPJ) & Evaluasi Kinerja Triwulan III',
+      recipientName: 'Bapak / Ibu Dewan Direksi',
+      recipientTitle: 'Pimpinan Eksekutif Manajemen',
+      recipientAddress: 'Gedung Menara Rajin Lt. 20, Jakarta Selatan',
+      salutation: 'Dengan hormat,',
+      bodyContent: 'Sehubungan dengan telah berakhirnya rangkaian implementasi program kerja kuartal berjalan, bersama surat ini kami dari Tim Manajemen Proyek menyampaikan Laporan Pertanggungjawaban (LPJ) dan Evaluasi Kinerja Sistem Digitalisasi Operasional.\n\nBerdasarkan hasil pemantauan berkala dan audit teknis, seluruh milestone telah terlaksana dengan rekapitulasi pencapaian sebagai berikut:\n1. Integrasi Sistem Task OS & Modul Pelaporan selesai 100% tepat waktu sesuai jadwal kerja.\n2. Efisiensi koordinasi tim dan kecepatan sirkulasi dokumen dinas meningkat signifikan sebesar 42%.\n3. Realisasi penyerapan anggaran operasional terkendali dengan sangat baik pada angka 91,5% dari pagu RAB.\n\nDemikian laporan pertanggungjawaban ini kami sampaikan sebagai bahan evaluasi dan pertimbangan strategis manajemen. Atas perhatian, arahan, dan kepercayaan yang telah diberikan, kami sampaikan terima kasih.',
+      closing: 'Hormat kami,',
+      signerName: 'Arif Permana, S.Kom',
+      signerTitle: 'Project Lead & Solution Architect',
+      signerNip: 'NIK. RK-2026-001',
+      signaturePosition: 'right',
+      signatureImage: '',
+      ccText: '1. Direktur Utama\n2. Arsip Bagian Administrasi & Keuangan',
+      marginTop: 20,
+      marginBottom: 20,
+      marginLeft: 25,
+      marginRight: 20,
+      marginPreset: 'official',
+      fontFamily: 'Times New Roman',
+      fontSize: '14px'
+    }
+  },
+  {
+    id: 'srt_draft_keu',
+    title: 'Surat Pengantar Penyampaian Laporan Keuangan & Audit Internal',
+    recipient: 'Bapak Hendra Gunawan, S.E., Ak.',
+    date: '2026-08-25',
+    number: '018/KEU-LAP/VIII/2026',
+    mode: 'single',
+    status: 'Selesai Dikerjakan',
+    createdAt: '2026-08-25T10:30:00.000Z',
+    updatedAt: '2026-08-25T16:45:00.000Z',
+    data: {
+      showKop: true,
+      kopLogo: '',
+      kopLogoPreset: 'none',
+      kopLogoPosition: 'left',
+      kopLogoHeight: 60,
+      kopStyle: 'thick',
+      kopName: 'KANTOR JASA KEUANGAN & MANAJEMEN BISNIS',
+      kopSubname: 'UNIT AUDIT & PERENCANAAN ANGGARAN',
+      kopAddress: 'Jl. Gatot Subroto No. 45, Jakarta Selatan 12930',
+      kopContact: 'Telp: (021) 778-9900 | Email: finance@rajinkerja.id',
+      number: '018/KEU-LAP/VIII/2026',
+      city: 'Jakarta',
+      date: '2026-08-25',
+      attachment: '1 (Satu) Bundel Laporan Neraca & Laba Rugi',
+      subject: 'Surat Pengantar Penyampaian Laporan Keuangan & Audit Internal',
+      recipientName: 'Bapak Hendra Gunawan, S.E., Ak.',
+      recipientTitle: 'Kepala Bagian Keuangan & Pajak',
+      recipientAddress: 'PT Mitra Sukses Makmur\nJakarta',
+      salutation: 'Dengan hormat,',
+      bodyContent: 'Menindaklanjuti proses verifikasi transaksi pembukuan dan rekonsiliasi perbankan periode bulan berjalan, bersama surat ini kami sampaikan berkas Laporan Keuangan Terpadu untuk diperiksa dan disahkan.\n\nAdapun ringkasan berkas laporan yang kami sertakan terdiri atas:\n1. Laporan Neraca Saldo dan Posisi Kas Terkini\n2. Laporan Laba Rugi Komprehensif dan Beban Operasional Usaha\n3. Catatan Atas Laporan Keuangan (CALK) dan Rekapitulasi Faktur\n\nApabila terdapat hal-hal yang membutuhkan klarifikasi atau penjelasan tambahan mengenai rincian jurnal, tim akuntansi kami siap membantu setiap saat.',
+      closing: 'Hormat kami,',
+      signerName: 'Siti Rahmawati, S.E.',
+      signerTitle: 'Senior Financial Analyst',
+      signerNip: 'NIP. 19890412 201402 2 003',
+      signaturePosition: 'right',
+      signatureImage: '',
+      ccText: '1. Dewan Komisaris\n2. Arsip Bagian Akuntansi & Verifikasi',
+      marginTop: 20,
+      marginBottom: 20,
+      marginLeft: 25,
+      marginRight: 20,
+      marginPreset: 'official',
+      fontFamily: 'Times New Roman',
+      fontSize: '14px'
+    }
+  },
+  {
+    id: 'srt_draft_penugasan',
+    title: 'Laporan Pelaksanaan Tugas Kedinasan Lapangan (SPTD)',
+    recipient: 'Massal (3 Tim Lapangan)',
+    date: '2026-08-20',
+    number: '033/SPTD-LAP/VIII/2026',
+    mode: 'bulk',
+    status: 'Selesai Dikerjakan',
+    createdAt: '2026-08-20T08:00:00.000Z',
+    updatedAt: '2026-08-20T17:00:00.000Z',
+    data: {
+      showKop: true,
+      kopLogo: '',
+      kopLogoPreset: 'none',
+      kopLogoPosition: 'left',
+      kopLogoHeight: 60,
+      kopStyle: 'double',
+      kopName: 'DINAS KOMUNIKASI DAN INFORMATIKA',
+      kopSubname: 'BIDANG TATA KELOLA E-GOVERNMENT & APLIKASI INFORMATIKA',
+      kopAddress: 'Jl. Merdeka Barat No. 12, Kompleks Perkantoran Pemerintah Kota',
+      kopContact: 'Telp: (021) 345-6789 | Laman: diskominfo.pemkot.go.id',
+      number: '033/SPTD-LAP/VIII/2026',
+      city: 'Jakarta',
+      date: '2026-08-20',
+      attachment: '1 (Satu) Lembar Lembar Konfirmasi Kunjungan',
+      subject: 'Surat Perintah & Laporan Tugas Koordinasi Teknis',
+      salutation: 'Dengan hormat,',
+      bodyContent: 'Menerangkan bahwa sehubungan dengan pelaksanaan integrasi jaringan dan pemeliharaan server database, Kepala Dinas memberikan perintah kedinasan kepada:\n\nNama Pegawai : {{nama}}\nJabatan : {{jabatan}}\nUnit Kerja / Instansi : {{instansi}}\nNomor Penugasan : {{nomor_surat}}\n\nUntuk melaksanakan pendampingan teknis dan verifikasi kesiapan perangkat di lokasi instalasi. Seluruh biaya perjalanan dinas dibebankan pada DIPA anggaran tahun berjalan sesuai ketentuan yang berlaku.\n\nDemikian surat perintah tugas ini diterbitkan untuk dilaksanakan dengan penuh rasa tanggung jawab dan menyerahkan laporan tertulis setelah pelaksanaan tugas berakhir.',
+      closing: 'Kepala Dinas Komunikasi & Informatika,',
+      signerName: 'Drs. H. Bambang Soeprapto, M.Si',
+      signerTitle: 'Pembina Utama Muda / Kepala Dinas',
+      signerNip: 'NIP. 19740510 199803 1 004',
+      signaturePosition: 'right',
+      signatureImage: '',
+      ccText: '1. Sekretaris Daerah\n2. Inspektorat Kota\n3. Arsip Kepegawaian',
+      marginTop: 20,
+      marginBottom: 20,
+      marginLeft: 25,
+      marginRight: 20,
+      marginPreset: 'official',
+      fontFamily: 'Times New Roman',
+      fontSize: '14px'
+    },
+    bulkRecipients: [
+      {
+        id: 'rec_d1',
+        name: 'Budi Santoso, S.Kom',
+        title: 'Pranata Komputer Ahli Muda',
+        company: 'Balai Teknologi Informasi',
+        phone: '081234567890',
+        number: '033/SPTD-LAP/01/VIII/2026',
+        notes: 'Koordinator Jaringan'
+      },
+      {
+        id: 'rec_d2',
+        name: 'Rian Prasetyo, S.T.',
+        title: 'Analis Sistem Informasi',
+        company: 'Pusat Data Terpadu',
+        phone: '081398765432',
+        number: '033/SPTD-LAP/02/VIII/2026',
+        notes: 'Spesialis Keamanan Siber'
+      },
+      {
+        id: 'rec_d3',
+        name: 'Dinda Kirana, S.Ds.',
+        title: 'Pengelola Media & Informasi Publik',
+        company: 'Bidang Komunikasi Publik',
+        phone: '085712345678',
+        number: '033/SPTD-LAP/03/VIII/2026',
+        notes: 'Dokumentasi & Sosialisasi'
+      }
+    ]
+  }
+];
+
 // Sample data generator for users who click "Load Sample Data"
 const SAMPLE_CONTACTS = [
   {
@@ -783,7 +953,7 @@ export default createStore({
         }
       ]),
       codeNotes: loadLocal('ft_codeNotes', SAMPLE_CODE_NOTES),
-      suratList: loadLocal('ft_suratList', []),
+      suratList: loadLocal('ft_suratList', SAMPLE_SURAT_DRAFTS),
       selfieGallery: loadLocal('ft_selfieGallery', [])
     };
   },
@@ -814,7 +984,7 @@ export default createStore({
       const list = (state.codeNotes && state.codeNotes.length) ? state.codeNotes : SAMPLE_CODE_NOTES;
       return list.find(c => String(c.id) === String(id));
     },
-    getSuratList: (state) => state.suratList,
+    getSuratList: (state) => (state.suratList && state.suratList.length ? state.suratList : SAMPLE_SURAT_DRAFTS),
     getSelfieGallery: (state) => state.selfieGallery,
 
     // RAB Getters
@@ -1228,6 +1398,15 @@ export default createStore({
 
     ADD_SURAT(state, surat) {
       state.suratList.unshift(surat);
+      saveLocal('ft_suratList', state.suratList);
+    },
+    UPDATE_SURAT(state, updatedSurat) {
+      const idx = state.suratList.findIndex(s => s.id === updatedSurat.id);
+      if (idx !== -1) {
+        state.suratList.splice(idx, 1, updatedSurat);
+      } else {
+        state.suratList.unshift(updatedSurat);
+      }
       saveLocal('ft_suratList', state.suratList);
     },
     DELETE_SURAT(state, id) {
@@ -1930,7 +2109,10 @@ export default createStore({
     },
 
     addSurat({ commit }, surat) {
-      commit('ADD_SURAT', { ...surat, id: 'srt_' + Date.now(), createdAt: new Date().toISOString() });
+      commit('ADD_SURAT', { ...surat, id: surat.id || ('srt_' + Date.now()), createdAt: surat.createdAt || new Date().toISOString() });
+    },
+    updateSurat({ commit }, surat) {
+      commit('UPDATE_SURAT', { ...surat, updatedAt: new Date().toISOString() });
     },
     deleteSurat({ commit }, id) {
       commit('DELETE_SURAT', id);
