@@ -1,7 +1,194 @@
 <template>
   <div class="dashboard-container" data-aos="fade-up">
-    <!-- 1. EXECUTIVE HERO HEADER -->
-    <div class="executive-hero-card mb-4">
+    <!-- =========================================================
+         MOBILE DASHBOARD: MATERIAL DESIGN QUICK ACCESS LAUNCHER (d-md-none)
+         ========================================================= -->
+    <div class="mobile-dashboard d-md-none">
+      <!-- 1. M3 Greeting & Header Card -->
+      <div class="m3-card m3-card-tonal p-3.5 mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-1.5">
+            <span class="m3-chip-brand">
+              <i class="bi bi-stars text-warning me-1"></i>By Kafeinarts
+            </span>
+            <span v-if="isBudgetExceeded" class="badge bg-danger rounded-pill px-2 py-0.5 small fw-bold">
+              Over Budget
+            </span>
+          </div>
+          <div class="m3-time-chip">
+            <i class="bi bi-clock me-1 text-primary"></i>{{ currentTimeFormatted }}
+          </div>
+        </div>
+
+        <h2 class="fw-extrabold text-main mb-1 fs-5">
+          {{ greetingTime }}, <span class="text-primary">{{ displayName }}</span> 👋
+        </h2>
+        <p class="text-sub small mb-3 lh-sm">Workspace terpadu & pintasan aplikasi kerja harian Anda.</p>
+
+        <!-- Glance KPI Stats Strip -->
+        <div class="m3-stats-strip d-flex align-items-center justify-content-between gap-1 p-2 rounded-3 mb-3">
+          <router-link to="/todo" class="m3-stat-item flex-fill text-center text-decoration-none">
+            <div class="m3-stat-value text-primary">{{ pendingTasksCount }}</div>
+            <div class="m3-stat-label">Pending Task</div>
+          </router-link>
+          <div class="m3-stat-divider"></div>
+          <router-link to="/project" class="m3-stat-item flex-fill text-center text-decoration-none">
+            <div class="m3-stat-value text-info">{{ activeProjectsCount }}</div>
+            <div class="m3-stat-label">Proyek Aktif</div>
+          </router-link>
+          <div class="m3-stat-divider"></div>
+          <router-link to="/finance" class="m3-stat-item flex-fill text-center text-decoration-none">
+            <div class="m3-stat-value" :class="netProfit >= 0 ? 'text-success' : 'text-danger'">
+              {{ formatCurrencyShort(netProfit) }}
+            </div>
+            <div class="m3-stat-label">Saldo Kas</div>
+          </router-link>
+        </div>
+
+        <!-- Quick Fast Actions -->
+        <div class="d-flex gap-2">
+          <button @click="openTaskModal" class="btn btn-sm btn-primary rounded-pill flex-fill py-2 fw-bold d-flex align-items-center justify-content-center gap-1.5 shadow-xs">
+            <i class="bi bi-plus-circle-fill"></i> + Tugas
+          </button>
+          <button @click="openTransactionModal" class="btn btn-sm btn-outline-theme rounded-pill flex-fill py-2 fw-semibold d-flex align-items-center justify-content-center gap-1.5">
+            <i class="bi bi-wallet2 text-success"></i> + Kas
+          </button>
+          <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-2 fw-semibold d-flex align-items-center justify-content-center gap-1 text-warning" title="Quick Capture">
+            <i class="bi bi-lightning-charge-fill"></i>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- 2. Search & Filter Bar -->
+      <div class="mb-3 px-0.5">
+        <div class="m3-search-bar d-flex align-items-center rounded-pill px-3 py-2 border mb-2.5">
+          <i class="bi bi-search text-muted me-2 fs-6"></i>
+          <input
+            v-model="mobileSearch"
+            type="text"
+            class="border-0 bg-transparent flex-grow-1 shadow-none outline-none text-main"
+            placeholder="Cari fitur (Surat, CV, To-Do, Kas, WA...)"
+            style="font-size: 13px;"
+          />
+          <button v-if="mobileSearch" @click="mobileSearch = ''" class="btn btn-link p-0 text-muted">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+
+        <!-- Category Horizontal Scroll Pills (Material 3 Filter Chips) -->
+        <div class="m3-category-scroll d-flex gap-1.5 overflow-x-auto pb-1">
+          <button
+            v-for="cat in mobileCategories"
+            :key="cat.id"
+            class="m3-chip"
+            :class="{ active: mobileCategory === cat.id }"
+            @click="mobileCategory = cat.id"
+          >
+            <i :class="cat.icon"></i>
+            <span>{{ cat.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Quick Access App Icons Grid (Material You / Vuetify Style Launcher) -->
+      <div class="mb-3.5">
+        <div class="d-flex align-items-center justify-content-between px-1 mb-2.5">
+          <span class="text-sub fw-bold small text-uppercase" style="letter-spacing: 0.5px; font-size: 11px;">
+            Pintasan Aplikasi & Fitur
+          </span>
+          <span class="badge bg-light text-muted border rounded-pill small">{{ filteredQuickApps.length }} Fitur</span>
+        </div>
+
+        <div v-if="filteredQuickApps.length === 0" class="text-center py-5 m3-card p-4">
+          <i class="bi bi-search fs-3 text-muted mb-2 d-block opacity-50"></i>
+          <div class="fw-bold text-main">Tidak ditemukan "{{ mobileSearch }}"</div>
+          <p class="text-sub small mb-2">Coba kata kunci lain atau pilih kategori lain</p>
+          <button @click="mobileSearch = ''; mobileCategory = 'all'" class="btn btn-sm btn-outline-primary rounded-pill">
+            Reset Pencarian
+          </button>
+        </div>
+
+        <div v-else class="m3-app-grid">
+          <router-link
+            v-for="app in filteredQuickApps"
+            :key="app.id"
+            :to="app.to"
+            class="m3-app-item text-decoration-none"
+          >
+            <div class="m3-app-icon-squircle" :style="{ background: app.bgGradient }">
+              <i :class="app.icon" class="m3-app-icon text-white"></i>
+              <!-- Contextual badge on top-right -->
+              <span v-if="app.badge && app.badge()" class="m3-app-badge" :class="app.badgeClass || 'bg-danger text-white'">
+                {{ app.badge() }}
+              </span>
+            </div>
+            <span class="m3-app-label text-main text-truncate">{{ app.title }}</span>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- 4. Quick Urgent Task Widget (Mobile) -->
+      <div class="m3-card p-3 mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-theme">
+          <div class="d-flex align-items-center gap-1.5">
+            <i class="bi bi-fire text-danger fs-6"></i>
+            <span class="fw-bold text-main small">Tugas Prioritas Segera</span>
+          </div>
+          <router-link to="/todo" class="small text-primary text-decoration-none fw-semibold">
+            Buka To-Do <i class="bi bi-chevron-right small"></i>
+          </router-link>
+        </div>
+
+        <div v-if="topUrgentTasks.length === 0" class="text-center py-2 text-muted small">
+          <i class="bi bi-check2-circle text-success me-1"></i> Tidak ada tugas mendesak hari ini. Mantap!
+        </div>
+
+        <div v-else class="d-flex flex-column gap-2">
+          <div
+            v-for="task in topUrgentTasks"
+            :key="task.id"
+            class="d-flex align-items-center gap-2 p-2 rounded-3 m3-task-row"
+          >
+            <input
+              type="checkbox"
+              :checked="task.done"
+              @change="toggleTaskDone(task.id)"
+              class="form-check-input mt-0 cursor-pointer"
+            />
+            <div class="flex-grow-1 text-truncate">
+              <div class="text-main fw-semibold small text-truncate" :class="{ 'text-decoration-line-through text-muted': task.done }">
+                {{ task.name }}
+              </div>
+              <div class="text-sub d-flex align-items-center gap-1" style="font-size: 10.5px;">
+                <span class="badge bg-danger-subtle text-danger px-1 py-0 rounded">{{ task.level }}</span>
+                <span>{{ task.deadline || 'Hari ini' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Daily Motivation Card -->
+      <div class="m3-quote-card p-3 rounded-4 mb-4">
+        <div class="d-flex align-items-start gap-2">
+          <i class="bi bi-quote fs-4 text-warning opacity-75 lh-1"></i>
+          <div class="flex-grow-1">
+            <p class="small text-main mb-1 fst-italic">"{{ currentQuote.text }}"</p>
+            <small class="text-sub fw-semibold">— {{ currentQuote.author }}</small>
+          </div>
+          <button @click="cycleQuote" class="btn btn-sm btn-link text-sub p-0" title="Ganti Motivasi">
+            <i class="bi bi-arrow-repeat"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         DESKTOP DASHBOARD (d-none d-md-block)
+         ========================================================= -->
+    <div class="desktop-dashboard d-none d-md-block">
+      <!-- 1. EXECUTIVE HERO HEADER -->
+      <div class="executive-hero-card mb-4">
       <div class="hero-inner p-4 p-lg-5">
         <div class="row align-items-center g-4">
           <!-- Left: Greeting & Status -->
@@ -719,6 +906,7 @@
         </div>
       </div>
     </div>
+    </div> <!-- /desktop-dashboard -->
 
     <!-- QUICK TASK MODAL -->
     <div
@@ -913,11 +1101,12 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useStore } from 'vuex';
-import ProductivityDashboard from '@/components/ProductivityDashboard.vue';
-import Workspace3DSimulator from '@/components/Workspace3DSimulator.vue';
-import MotivationalFrame3D from '@/components/MotivationalFrame3D.vue';
+
+const ProductivityDashboard = defineAsyncComponent(() => import('@/components/ProductivityDashboard.vue'));
+const Workspace3DSimulator = defineAsyncComponent(() => import('@/components/Workspace3DSimulator.vue'));
+const MotivationalFrame3D = defineAsyncComponent(() => import('@/components/MotivationalFrame3D.vue'));
 
 export default {
   name: 'HomeView',
@@ -929,7 +1118,21 @@ export default {
   setup() {
     const store = useStore();
 
-    // Active Navigation Tabs
+    // Mobile Launcher Reactive State
+    const mobileSearch = ref('');
+    const mobileCategory = ref('all');
+
+    const mobileCategories = [
+      { id: 'all', label: 'Semua Fitur', icon: 'bi-grid-fill' },
+      { id: 'work', label: 'Tugas & Proyek', icon: 'bi-briefcase-fill' },
+      { id: 'docs', label: 'Surat & Dokumen', icon: 'bi-file-earmark-richtext-fill' },
+      { id: 'finance', label: 'Keuangan & Kas', icon: 'bi-wallet2' },
+      { id: 'comm', label: 'Tim & Chat AI', icon: 'bi-people-fill' },
+      { id: 'tools', label: 'Alat Produktif', icon: 'bi-lightning-charge-fill' },
+      { id: 'media', label: 'Media & Hiburan', icon: 'bi-controller' }
+    ];
+
+    // Active Navigation Tabs (Desktop)
     const activeTab = ref('tasks'); // 'tasks', 'launchpad', 'visual'
     const activeVisualTab = ref('productivity'); // 'productivity', 'frame', 'workspace'
     const taskFilter = ref('pending'); // 'all', 'pending', 'urgent'
@@ -1101,6 +1304,76 @@ export default {
       }
     };
 
+    // Mobile Quick Access Apps Launcher Catalog
+    const quickAccessApps = [
+      // Tugas & Proyek
+      { id: 'todo', title: 'To-Do List', category: 'work', icon: 'bi-check2-square', to: '/todo', bgGradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)', badge: () => pendingTasksCount.value ? `${pendingTasksCount.value}` : null, badgeClass: 'bg-primary' },
+      { id: 'project', title: 'Proyek Kerja', category: 'work', icon: 'bi-briefcase-fill', to: '/project', bgGradient: 'linear-gradient(135deg, #0284c7, #0369a1)', badge: () => activeProjectsCount.value ? `${activeProjectsCount.value}` : null, badgeClass: 'bg-info' },
+      { id: 'calendar', title: 'Kalender', category: 'work', icon: 'bi-calendar3', to: '/calendar', bgGradient: 'linear-gradient(135deg, #ea580c, #c2410c)' },
+      { id: 'time-suite', title: 'Pomodoro', category: 'work', icon: 'bi-clock-history', to: '/time-suite', bgGradient: 'linear-gradient(135deg, #16a34a, #15803d)' },
+
+      // Dokumen & Surat
+      { id: 'surat', title: 'Surat Resmi', category: 'docs', icon: 'bi-file-earmark-richtext-fill', to: '/surat', bgGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', badge: () => 'Kop', badgeClass: 'bg-primary' },
+      { id: 'cv', title: 'CV ATS', category: 'docs', icon: 'bi-person-vcard-fill', to: '/cv', bgGradient: 'linear-gradient(135deg, #10b981, #047857)', badge: () => 'ATS', badgeClass: 'bg-success' },
+      { id: 'invoice', title: 'Invoice', category: 'docs', icon: 'bi-receipt', to: '/invoice', bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)' },
+      { id: 'camera', title: 'Scan Kamera', category: 'docs', icon: 'bi-camera-fill', to: '/camera', bgGradient: 'linear-gradient(135deg, #ef4444, #b91c1c)' },
+
+      // Keuangan & Kas
+      { id: 'finance', title: 'Kas & Finansial', category: 'finance', icon: 'bi-wallet2', to: '/finance', bgGradient: 'linear-gradient(135deg, #2563eb, #1e40af)', badge: () => isBudgetExceeded.value ? '!' : null, badgeClass: 'bg-danger' },
+      { id: 'rab', title: 'RAB Anggaran', category: 'finance', icon: 'bi-calculator-fill', to: '/rab', bgGradient: 'linear-gradient(135deg, #059669, #065f46)', badge: () => 'NEW', badgeClass: 'bg-success' },
+      { id: 'sql', title: 'SQL Studio', category: 'finance', icon: 'bi-database-fill-gear', to: '/sql', bgGradient: 'linear-gradient(135deg, #d97706, #b45309)' },
+
+      // Tim & Komunikasi
+      { id: 'contacts', title: 'Kontak & Tim', category: 'comm', icon: 'bi-person-lines-fill', to: '/contacts', bgGradient: 'linear-gradient(135deg, #10b981, #059669)', badge: () => 'WA', badgeClass: 'bg-success' },
+      { id: 'chat-ai', title: 'Chat AI Asisten', category: 'comm', icon: 'bi-robot', to: '/chat-ai', bgGradient: 'linear-gradient(135deg, #06b6d4, #0891b2)', badge: () => 'AI', badgeClass: 'bg-info' },
+
+      // Alat Produktif
+      { id: 'quick-capture', title: 'Quick Capture', category: 'tools', icon: 'bi-lightning-charge-fill', to: '/quick-capture', bgGradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+      { id: 'productivity-insights', title: 'Insights D3', category: 'tools', icon: 'bi-bar-chart-line-fill', to: '/productivity-insights', bgGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', badge: () => 'D3', badgeClass: 'bg-primary' },
+      { id: 'notes', title: 'Sticky Notes', category: 'tools', icon: 'bi-journal-text', to: '/notes', bgGradient: 'linear-gradient(135deg, #64748b, #475569)' },
+      { id: 'code-notes', title: 'Code Snippets', category: 'tools', icon: 'bi-code-slash', to: '/code-notes', bgGradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
+
+      // Media & Hiburan
+      { id: 'diary', title: 'Diary & Jurnal', category: 'media', icon: 'bi-book-half', to: '/diary', bgGradient: 'linear-gradient(135deg, #ca8a04, #a16207)' },
+      { id: 'videos', title: 'Video Sync', category: 'media', icon: 'bi-play-btn-fill', to: '/videos', bgGradient: 'linear-gradient(135deg, #dc2626, #991b1b)' },
+      { id: 'games', title: '3D Games', category: 'media', icon: 'bi-controller', to: '/games', bgGradient: 'linear-gradient(135deg, #9333ea, #7e22ce)' },
+      { id: 'mood', title: 'Kamera Mood', category: 'media', icon: 'bi-emoji-smile-fill', to: '/mood', bgGradient: 'linear-gradient(135deg, #f43f5e, #e11d48)' },
+
+      // Sistem & Preferensi
+      { id: 'preferences', title: 'Pengaturan', category: 'tools', icon: 'bi-sliders', to: '/preferences', bgGradient: 'linear-gradient(135deg, #475569, #334155)' },
+      { id: 'faq', title: 'Panduan FAQ', category: 'tools', icon: 'bi-question-circle-fill', to: '/faq', bgGradient: 'linear-gradient(135deg, #0891b2, #0e7490)' },
+      { id: 'developer', title: 'Developer', category: 'tools', icon: 'bi-person-badge-fill', to: '/developer', bgGradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }
+    ];
+
+    const filteredQuickApps = computed(() => {
+      let list = quickAccessApps;
+      if (mobileCategory.value !== 'all') {
+        list = list.filter(app => app.category === mobileCategory.value);
+      }
+      const q = mobileSearch.value.trim().toLowerCase();
+      if (q) {
+        list = list.filter(app =>
+          app.title.toLowerCase().includes(q) ||
+          app.id.toLowerCase().includes(q)
+        );
+      }
+      return list;
+    });
+
+    const topUrgentTasks = computed(() => {
+      return allTasksList.value
+        .filter(t => !t.done)
+        .slice(0, 3);
+    });
+
+    const formatCurrencyShort = (val) => {
+      if (!val || isNaN(val)) return 'Rp 0';
+      if (Math.abs(val) >= 1_000_000_000) return (val / 1_000_000_000).toFixed(1) + ' M';
+      if (Math.abs(val) >= 1_000_000) return (val / 1_000_000).toFixed(1) + ' jt';
+      if (Math.abs(val) >= 1_000) return (val / 1_000).toFixed(0) + ' rb';
+      return 'Rp ' + val.toLocaleString('id-ID');
+    };
+
     const formatCurrency = (val) => {
       if (isNaN(val) || val === null || val === undefined) val = 0;
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
@@ -1119,6 +1392,13 @@ export default {
     };
 
     return {
+      mobileSearch,
+      mobileCategory,
+      mobileCategories,
+      quickAccessApps,
+      filteredQuickApps,
+      topUrgentTasks,
+      formatCurrencyShort,
       activeTab,
       activeVisualTab,
       taskFilter,
@@ -1175,6 +1455,193 @@ export default {
   margin: 0 auto;
 }
 
+/* =========================================================
+   MOBILE DASHBOARD & MATERIAL DESIGN LAUNCHER STYLES
+   ========================================================= */
+.mobile-dashboard {
+  padding-bottom: 24px;
+}
+
+.m3-chip-brand {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.m3-time-chip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.m3-stats-strip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.m3-stat-item {
+  padding: 4px;
+  border-radius: 8px;
+  transition: transform 0.15s ease;
+}
+
+.m3-stat-item:active {
+  transform: scale(0.95);
+}
+
+.m3-stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.m3-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 1px;
+}
+
+.m3-stat-divider {
+  width: 1px;
+  height: 28px;
+  background-color: var(--border-color);
+  opacity: 0.6;
+}
+
+.m3-search-bar {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.m3-search-bar:focus-within {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.m3-category-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.m3-category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 4-Column Material Icon Grid (Vuetify / Quasar Style) */
+.m3-app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px 8px;
+}
+
+@media (max-width: 340px) {
+  .m3-app-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.m3-app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 2px;
+  border-radius: 12px;
+  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.m3-app-item:active {
+  transform: scale(0.91);
+}
+
+.m3-app-icon-squircle {
+  width: 58px;
+  height: 58px;
+  border-radius: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.14);
+  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.16s ease;
+}
+
+.m3-app-item:hover .m3-app-icon-squircle {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.2);
+}
+
+.m3-app-icon {
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+.m3-app-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  border-radius: 9999px;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  line-height: 1.1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  border: 1.5px solid var(--bg-surface);
+}
+
+.m3-app-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-top: 6px;
+  width: 100%;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: -0.1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.m3-task-row {
+  background: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s;
+}
+
+.m3-task-row:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.m3-quote-card {
+  background: var(--sidebar-hover-bg);
+  border: 1px dashed var(--border-color);
+}
+
+/* =========================================================
+   DESKTOP DASHBOARD STYLES
+   ========================================================= */
 /* Executive Hero Header */
 .executive-hero-card {
   background: var(--bg-surface);

@@ -129,17 +129,56 @@
 
     <!-- Main Content Area -->
     <div :class="['main-content', { expanded: isCollapsed }]">
-      <!-- Top Bar Header -->
-      <header class="top-header border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top">
-        <div class="d-flex align-items-center gap-2 gap-md-3">
-          <button class="btn btn-sm btn-light border d-md-none rounded-3 p-1.5" @click="mobileDrawer = true" title="Buka Menu">
+      <!-- Material Design 3 Top App Bar Header -->
+      <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
+        <div class="d-flex align-items-center gap-2">
+          <!-- MOBILE: If on subpage, show prominent Back to Home button! -->
+          <router-link
+            v-if="route.path !== '/'"
+            to="/"
+            class="btn btn-sm m3-back-btn d-flex align-items-center gap-1.5 fw-bold shadow-xs"
+            title="Kembali ke Beranda (Dashboard)"
+          >
+            <i class="bi bi-arrow-left fs-6"></i>
+            <span>Home</span>
+          </router-link>
+
+          <!-- MOBILE: If on Home, show drawer hamburger toggle -->
+          <button
+            v-else
+            class="btn btn-sm btn-icon-m3 d-md-none rounded-circle"
+            @click="mobileDrawer = true"
+            title="Buka Menu Navigasi"
+          >
             <i class="bi bi-list fs-5"></i>
           </button>
+
+          <!-- DESKTOP: Sidebar collapse toggle -->
+          <button
+            class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
+            @click="isCollapsed = !isCollapsed"
+            :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
+          >
+            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
+          </button>
           
-          <!-- Dynamic Breadcrumb / Page Title -->
+          <!-- Dynamic Breadcrumb / Page Title Badge -->
           <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
+            <!-- Desktop Back-to-home Breadcrumb link -->
+            <router-link
+              v-if="route.path !== '/'"
+              to="/"
+              class="d-none d-md-inline text-sub text-decoration-none hover-primary small fw-semibold breadcrumb-home-link"
+              title="Ke Dashboard Home"
+            >
+              <i class="bi bi-house-door me-1"></i>Home
+            </router-link>
+            <span v-if="route.path !== '/'" class="d-none d-md-inline text-muted small opacity-50">/</span>
+
             <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
-            <span class="fw-bold text-app fs-6 page-title-text">{{ currentPageTitle }}</span>
+            <span class="fw-bold text-app fs-6 page-title-text text-truncate" style="max-width: 220px;">
+              {{ currentPageTitle }}
+            </span>
           </div>
         </div>
 
@@ -254,8 +293,8 @@
       <!-- Dukung Dev Modal Popup (Bank & E-Wallet) -->
       <DukungDevModal v-model="showDukungModal" />
 
-      <!-- Main Router View Container with Fade-Slide Animation -->
-      <div class="p-3 p-md-4">
+      <!-- Main Router View Container with Snappy Lightweight Fade-Slide Animation -->
+      <div class="p-3 p-md-4 main-view-viewport">
         <router-view v-slot="{ Component }">
           <transition name="fade-slide" mode="out-in">
             <component :is="Component" />
@@ -263,28 +302,44 @@
         </router-view>
       </div>
 
-      <!-- Mobile Bottom Nav Bar -->
-      <nav class="mobile-bottom-bar d-md-none border-top fixed-bottom d-flex justify-content-around py-2 shadow-lg">
-        <router-link to="/" class="mobile-nav-btn" active-class="active">
-          <i class="bi bi-grid-1x2-fill"></i>
-          <span>Home</span>
+      <!-- Material Design 3 Mobile Bottom Navigation Bar -->
+      <nav class="m3-bottom-nav d-md-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
+        <router-link to="/" class="m3-bottom-nav-item" :class="{ active: route.path === '/' }">
+          <div class="m3-nav-indicator">
+            <i class="bi bi-grid-fill"></i>
+          </div>
+          <span class="m3-nav-label">Home</span>
         </router-link>
-        <router-link to="/todo" class="mobile-nav-btn" active-class="active">
-          <i class="bi bi-check2-square"></i>
-          <span>To-Do</span>
+
+        <router-link to="/todo" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/todo') || route.path.startsWith('/tasks') }">
+          <div class="m3-nav-indicator position-relative">
+            <i class="bi bi-check2-square"></i>
+            <span v-if="pendingTasksCount" class="m3-badge-dot">{{ pendingTasksCount > 99 ? '99+' : pendingTasksCount }}</span>
+          </div>
+          <span class="m3-nav-label">To-Do</span>
         </router-link>
-        <router-link to="/camera" class="mobile-nav-btn" active-class="active">
-          <i class="bi bi-camera-fill text-danger"></i>
-          <span>Scan</span>
+
+        <router-link to="/finance" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/finance') }">
+          <div class="m3-nav-indicator position-relative">
+            <i class="bi bi-wallet2"></i>
+            <span v-if="isBudgetExceeded" class="m3-badge-alert">!</span>
+          </div>
+          <span class="m3-nav-label">Kas</span>
         </router-link>
-        <router-link to="/finance" class="mobile-nav-btn" active-class="active">
-          <i class="bi bi-wallet2"></i>
-          <span>Keuangan</span>
+
+        <router-link to="/surat" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/surat') }">
+          <div class="m3-nav-indicator">
+            <i class="bi bi-file-earmark-richtext-fill"></i>
+          </div>
+          <span class="m3-nav-label">Surat</span>
         </router-link>
-        <router-link to="/preferences" class="mobile-nav-btn" active-class="active">
-          <i class="bi bi-sliders"></i>
-          <span>Settings</span>
-        </router-link>
+
+        <button type="button" class="m3-bottom-nav-item btn-clean" @click="mobileDrawer = true">
+          <div class="m3-nav-indicator">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </div>
+          <span class="m3-nav-label">Menu</span>
+        </button>
       </nav>
     </div>
   </div>
@@ -555,6 +610,7 @@ export default {
     };
 
     return {
+      route,
       isCollapsed,
       mobileDrawer,
       showDukungModal,
@@ -1163,20 +1219,20 @@ body {
   z-index: 1020;
 }
 
-/* Route Transitions */
+/* Route Transitions - Snappy SPA Feel (No Lag) */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1), transform 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .fade-slide-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(6px);
 }
 
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-6px);
 }
 
 /* Overlay transition */
@@ -1226,29 +1282,229 @@ body {
   box-shadow: 6px 0 24px rgba(0, 0, 0, 0.22);
 }
 
-/* Mobile Bottom Bar */
-.mobile-bottom-bar {
+/* Material Design 3 Top App Bar & Back Button */
+.m3-top-app-bar {
+  height: 64px;
   background-color: var(--bg-surface);
   border-color: var(--border-color);
-  z-index: 1030;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1020;
 }
 
-.mobile-nav-btn {
+.m3-back-btn {
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+  color: var(--primary-color) !important;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.m3-back-btn:hover {
+  background-color: rgba(37, 99, 235, 0.12);
+  transform: translateX(-2px);
+}
+
+.m3-back-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-icon-m3 {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.btn-icon-m3:hover {
+  background-color: var(--border-color);
+  color: var(--primary-color);
+}
+
+.btn-icon-m3:active {
+  transform: scale(0.92);
+}
+
+.breadcrumb-home-link:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Material Design 3 Mobile Bottom Navigation Bar */
+.m3-bottom-nav {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  height: 66px;
+  padding: 4px 10px;
+  z-index: 1030;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.m3-bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   color: var(--text-sub);
   text-decoration: none;
-  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex: 1;
+  max-width: 76px;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.mobile-nav-btn i {
-  font-size: 18px;
+.btn-clean {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
-.mobile-nav-btn.active {
+.m3-nav-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  font-size: 16px;
+}
+
+.m3-nav-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+  letter-spacing: -0.1px;
+}
+
+.m3-bottom-nav-item:active {
+  transform: scale(0.94);
+}
+
+.m3-bottom-nav-item.active {
   color: var(--primary-color);
+}
+
+.m3-bottom-nav-item.active .m3-nav-indicator {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: var(--primary-color);
+}
+
+.dark-mode .m3-bottom-nav-item.active .m3-nav-indicator {
+  background-color: rgba(37, 99, 235, 0.28);
+  color: #60a5fa;
+}
+
+.m3-bottom-nav-item.active .m3-nav-label {
+  font-weight: 800;
+}
+
+.m3-badge-dot {
+  position: absolute;
+  top: -4px;
+  right: 6px;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 9999px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.m3-badge-alert {
+  position: absolute;
+  top: -3px;
+  right: 8px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-badge 1.5s infinite;
+}
+
+@keyframes pulse-badge {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Material Design 3 Cards, Surfaces & Chips (Manual Vuetify / Quasar Style) */
+.m3-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s ease;
+}
+
+.m3-card-elevated {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+.m3-card-tonal {
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+.m3-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--sidebar-hover-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.m3-chip:hover {
+  background-color: rgba(37, 99, 235, 0.08);
+  color: var(--text-main);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.m3-chip:active {
+  transform: scale(0.95);
+}
+
+.m3-chip.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
 }
 
 @media (max-width: 768px) {
@@ -1257,6 +1513,12 @@ body {
   }
   .main-content {
     margin-left: 0 !important;
+    padding-bottom: 84px !important;
+  }
+  .main-view-viewport {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-bottom: 30px !important;
   }
 }
 
