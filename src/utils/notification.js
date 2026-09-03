@@ -23,37 +23,51 @@ export async function requestNotificationPermission() {
 export function sendOnDeviceNotification(title, options = {}) {
   const isEnabled = localStorage.getItem('ft_notifications_enabled') !== 'false';
   
+  const notifTitle = (typeof title === 'object' && title !== null)
+    ? (title.title || 'Notifikasi Sistem')
+    : (title || 'Notifikasi Sistem');
+
+  const opts = (typeof title === 'object' && title !== null)
+    ? title
+    : (options || {});
+
+  const notifBody = opts.body || opts.message || '';
+  const notifType = opts.type || 'info';
+  const notifIcon = opts.icon || 'bi-bell-fill';
+  
   // 1. Dispatch custom event for in-app toast notification
-  window.dispatchEvent(
-    new CustomEvent('app-toast-notification', {
-      detail: {
-        id: Date.now() + Math.random().toString(36).substr(2, 4),
-        title,
-        body: options.body || '',
-        type: options.type || 'info', // 'success', 'warning', 'danger', 'info'
-        icon: options.icon || 'bi-bell-fill'
-      }
-    })
-  );
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('app-toast-notification', {
+        detail: {
+          id: Date.now() + Math.random().toString(36).substr(2, 4),
+          title: notifTitle,
+          body: notifBody,
+          type: notifType, // 'success', 'warning', 'danger', 'info'
+          icon: notifIcon
+        }
+      })
+    );
+  }
 
   // 2. Trigger native device notification if permitted & enabled
   if (!isEnabled) return;
 
-  if (checkNotificationSupport() && Notification.permission === 'granted') {
+  if (typeof window !== 'undefined' && checkNotificationSupport() && Notification.permission === 'granted') {
     try {
-      const notif = new Notification(title, {
-        body: options.body || 'RajinKerja Work Suite System Alert',
+      const notif = new Notification(notifTitle, {
+        body: notifBody || 'RajinKerja Work Suite System Alert',
         icon: '/logo.svg',
         badge: '/logo.svg',
-        tag: options.tag || 'rajinkerja-notif-' + Date.now(),
+        tag: opts.tag || 'rajinkerja-notif-' + Date.now(),
         renotify: true,
         vibrate: [200, 100, 200]
       });
 
       notif.onclick = () => {
         window.focus();
-        if (options.url) {
-          window.location.hash = options.url;
+        if (opts.url) {
+          window.location.hash = opts.url;
         }
       };
     } catch (e) {

@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import { sendOnDeviceNotification } from '../utils/notification';
 
 // Default empty datasets as requested: "buat semuanya dari raw dan kosong tanpa ada data apa apa"
 const DEFAULT_CONTACTS = [];
@@ -1920,6 +1921,23 @@ export default createStore({
     }
   },
   actions: {
+    showNotification(_, payload) {
+      if (!payload) return;
+      if (typeof payload === 'string') {
+        sendOnDeviceNotification(payload);
+      } else {
+        const title = payload.title || 'Notifikasi Sistem';
+        sendOnDeviceNotification(title, {
+          body: payload.body || payload.message || '',
+          type: payload.type || 'info',
+          icon: payload.icon || ''
+        });
+      }
+    },
+    showToast({ dispatch }, payload) {
+      dispatch('showNotification', payload);
+    },
+
     setThemeMode({ commit }, mode) {
       commit('SET_THEME_MODE', mode);
     },

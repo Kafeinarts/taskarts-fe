@@ -36,11 +36,11 @@ export default {
     const toasts = ref([]);
 
     const handleToastEvent = (e) => {
-      const { id, title, body, type, icon } = e.detail;
+      const { id, title, body, message, type, icon } = (e.detail || {});
       const newToast = {
         id: id || Date.now() + Math.random(),
         title: title || 'Notifikasi Sistem',
-        body: body || '',
+        body: body || message || '',
         type: type || 'info',
         icon: icon || ''
       };
