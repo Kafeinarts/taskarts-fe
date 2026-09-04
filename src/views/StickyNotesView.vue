@@ -44,6 +44,24 @@
         </div>
       </div>
 
+      <!-- Storage Full Alert Banner -->
+      <div v-if="isStorageFullState" class="alert alert-danger rounded-4 shadow-sm border-2 border-danger d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 p-3 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-2.5 bg-danger text-white rounded-3 fs-4">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold text-danger mb-0.5">⚠️ Kapasitas Local Storage Penuh!</h6>
+            <p class="small text-dark mb-0">
+              Penyimpanan memori browser penuh. Pembuatan catatan baru, update catatan, dan draft otomatis sementara dikunci demi keamanan data.
+            </p>
+          </div>
+        </div>
+        <router-link to="/storage" class="btn btn-danger btn-sm fw-bold px-3 py-2 rounded-pill shadow-sm align-self-start align-self-md-center">
+          <i class="bi bi-hdd-stack-fill me-1"></i> Buka Menu Storage
+        </router-link>
+      </div>
+
       <!-- SEARCH & FILTER BAR -->
       <div class="bg-white p-3 rounded-4 shadow-sm border mb-4">
         <div class="row g-3 align-items-center">
@@ -187,11 +205,24 @@
             </div>
           </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <div class="d-flex align-items-center gap-2 px-3 py-1.5 bg-light rounded-pill border small">
-              <i class="bi bi-floppy-fill text-success" :class="{ 'spin-icon': isAutoSavingScratchpad }"></i>
-              <span class="fw-bold text-dark">{{ scratchpadSaveStatus }}</span>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div
+              class="d-flex align-items-center gap-2 px-3 py-1.5 rounded-pill border small"
+              :class="isStorageFullState ? 'bg-danger-subtle text-danger border-danger' : 'bg-light text-dark'"
+            >
+              <i class="bi" :class="isStorageFullState ? 'bi-exclamation-triangle-fill text-danger' : 'bi-floppy-fill text-success', { 'spin-icon': isAutoSavingScratchpad }"></i>
+              <span class="fw-bold">{{ isStorageFullState ? '⚠️ Storage Penuh (Simpan Terkunci)' : scratchpadSaveStatus }}</span>
             </div>
+            <button
+              type="button"
+              class="btn btn-primary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1 shadow-sm"
+              :disabled="isStorageFullState"
+              @click="saveScratchpadImmediately"
+              title="Simpan coretan sekarang"
+            >
+              <i class="bi bi-floppy"></i>
+              <span>Simpan Scratchpad</span>
+            </button>
             <button type="button" class="btn btn-outline-danger rounded-pill px-3 py-1.5 fw-bold" @click="clearScratchpad" v-if="scratchpadContent">
               <i class="bi bi-eraser me-1"></i> Bersihkan
             </button>
@@ -230,6 +261,7 @@
               rows="16"
               v-model="scratchpadContent"
               @input="handleScratchpadInput"
+              @blur="saveScratchpadImmediately"
               @paste="handlePasteImage($event, 'scratchpad')"
               placeholder="Tulis coretan sementara di sini...&#10;- Ide produk baru&#10;- Screenshot atau gambar (Bisa Ctrl+V langsung di sini!)&#10;- Diagram flowchart Mermaid&#10;&#10;Isi ini tersimpan otomatis tanpa perlu tombol simpan!"
             ></textarea>
@@ -270,8 +302,16 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
+            <span v-if="isStorageFullState" class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold">
+              <i class="bi bi-lock-fill me-1"></i> Storage Penuh
+            </span>
             <button type="button" class="btn btn-light border rounded-3 px-3 py-2 fw-semibold" @click="activeMode = 'list'">Batal</button>
-            <button type="button" class="btn btn-primary rounded-3 px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2" @click="saveNote">
+            <button
+              type="button"
+              class="btn rounded-3 px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2"
+              :class="isStorageFullState ? 'btn-secondary opacity-75' : 'btn-primary'"
+              @click="saveNote"
+            >
               <i class="bi bi-check-circle-fill"></i>
               <span>{{ isEditing ? 'Update Catatan' : 'Simpan Catatan' }}</span>
             </button>
@@ -644,8 +684,11 @@
 <script>
 import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 import MarkdownViewer from '../components/MarkdownViewer.vue';
 import { MERMAID_PRESETS, initMermaid } from '../utils/markdownRenderer';
+import { safeSetItem, safeRemoveItem, isStorageFull } from '../utils/storageManager';
 
 const DRAFT_KEY = 'rk_note_draft';
 const SCRATCHPAD_KEY = 'rk_quick_scratchpad';
@@ -657,6 +700,12 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
+
+    const isStorageFullState = ref(isStorageFull());
+    const updateStorageState = () => {
+      isStorageFullState.value = isStorageFull();
+    };
 
     const activeMode = ref('list'); // 'list', 'editor', 'bulk', 'scratchpad'
     const isEditing = ref(false);
@@ -746,6 +795,9 @@ export default {
 
     onMounted(() => {
       initMermaid();
+      window.addEventListener('storage-quota-updated', updateStorageState);
+      window.addEventListener('storage-quota-full', updateStorageState);
+
       try {
         const savedDraft = localStorage.getItem(DRAFT_KEY);
         if (savedDraft) {
@@ -769,32 +821,50 @@ export default {
     });
 
     onUnmounted(() => {
+      window.removeEventListener('storage-quota-updated', updateStorageState);
+      window.removeEventListener('storage-quota-full', updateStorageState);
       if (scratchpadTimer) clearTimeout(scratchpadTimer);
       if (noteDraftTimer) clearTimeout(noteDraftTimer);
+      saveScratchpadImmediately();
     });
 
+    const saveScratchpadImmediately = () => {
+      if (scratchpadTimer) clearTimeout(scratchpadTimer);
+      if (isStorageFull()) {
+        scratchpadSaveStatus.value = '⚠️ Penyimpanan Penuh';
+        isAutoSavingScratchpad.value = false;
+        return false;
+      }
+      const res = safeSetItem(SCRATCHPAD_KEY, scratchpadContent.value);
+      if (res.success) {
+        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        scratchpadSaveStatus.value = `Tersimpan ${nowStr}`;
+      } else {
+        scratchpadSaveStatus.value = '⚠️ ' + (res.error || 'Gagal menyimpan');
+      }
+      isAutoSavingScratchpad.value = false;
+      return res.success;
+    };
+
     const handleScratchpadInput = () => {
+      if (isStorageFull()) {
+        scratchpadSaveStatus.value = '⚠️ Penyimpanan Penuh (Simpan Terkunci)';
+        isAutoSavingScratchpad.value = false;
+        return;
+      }
       scratchpadSaveStatus.value = 'Menyimpan...';
       isAutoSavingScratchpad.value = true;
 
       if (scratchpadTimer) clearTimeout(scratchpadTimer);
 
       scratchpadTimer = setTimeout(() => {
-        try {
-          localStorage.setItem(SCRATCHPAD_KEY, scratchpadContent.value);
-          const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          scratchpadSaveStatus.value = `Tersimpan ${nowStr}`;
-          isAutoSavingScratchpad.value = false;
-        } catch (err) {
-          scratchpadSaveStatus.value = 'Gagal menyimpan';
-          isAutoSavingScratchpad.value = false;
-        }
-      }, 1200);
+        saveScratchpadImmediately();
+      }, 600);
     };
 
     const clearScratchpad = () => {
       scratchpadContent.value = '';
-      localStorage.removeItem(SCRATCHPAD_KEY);
+      safeRemoveItem(SCRATCHPAD_KEY);
       scratchpadSaveStatus.value = 'Scratchpad dibersihkan';
       showToast('Quick Scratchpad berhasil dibersihkan.');
     };
@@ -816,13 +886,13 @@ export default {
     };
 
     const onFormInput = () => {
-      if (!isEditing.value) {
+      if (!isEditing.value && !isStorageFull()) {
         if (noteDraftTimer) clearTimeout(noteDraftTimer);
         noteDraftTimer = setTimeout(() => {
-          localStorage.setItem(DRAFT_KEY, JSON.stringify(form.value));
+          safeSetItem(DRAFT_KEY, form.value);
           draftSaved.value = true;
           lastSavedTime.value = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        }, 1000);
+        }, 800);
       }
     };
 
@@ -860,6 +930,22 @@ export default {
         return;
       }
 
+      if (isStorageFull()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Penyimpanan Penuh!',
+          text: 'Tidak dapat menyimpan catatan karena kapasitas Local Storage telah penuh. Silakan buka menu Storage untuk membersihkan cache atau menghapus data yang tidak terpakai.',
+          confirmButtonText: 'Buka Menu Storage',
+          showCancelButton: true,
+          cancelButtonText: 'Tutup'
+        }).then((r) => {
+          if (r.isConfirmed) {
+            router.push('/storage');
+          }
+        });
+        return;
+      }
+
       if (isEditing.value) {
         store.dispatch('updateNote', { ...form.value, id: editingId.value, updatedAt: new Date().toISOString() });
         showToast('Note berhasil diperbarui!');
@@ -868,7 +954,7 @@ export default {
         showToast('Note baru berhasil disimpan!');
       }
 
-      localStorage.removeItem(DRAFT_KEY);
+      safeRemoveItem(DRAFT_KEY);
       draftSaved.value = false;
       form.value = { title: '', content: '', color: '#fef08a' };
       isEditing.value = false;
@@ -916,6 +1002,22 @@ export default {
         return;
       }
 
+      if (isStorageFull()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Penyimpanan Penuh!',
+          text: 'Tidak dapat menyimpan catatan bulk karena kapasitas Local Storage telah penuh. Buka menu Storage untuk mengosongkan ruang.',
+          confirmButtonText: 'Buka Menu Storage',
+          showCancelButton: true,
+          cancelButtonText: 'Tutup'
+        }).then((r) => {
+          if (r.isConfirmed) {
+            router.push('/storage');
+          }
+        });
+        return;
+      }
+
       const now = new Date().toISOString();
       const rowsWithMetadata = validRows.map((r, i) => ({
         ...r,
@@ -937,6 +1039,16 @@ export default {
     const processBulkPaste = () => {
       if (!bulkPasteText.value || !bulkPasteText.value.trim()) {
         showToast('Teks paste kosong.');
+        return;
+      }
+
+      if (isStorageFull()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Penyimpanan Penuh!',
+          text: 'Tidak dapat mengimpor catatan karena kapasitas Local Storage telah penuh.',
+          confirmButtonText: 'Buka Menu Storage'
+        }).then(() => router.push('/storage'));
         return;
       }
 
@@ -1182,6 +1294,8 @@ export default {
       scratchpadContent,
       scratchpadSaveStatus,
       isAutoSavingScratchpad,
+      saveScratchpadImmediately,
+      isStorageFullState,
       editorTextarea,
       scratchpadTextarea,
       imageModal,

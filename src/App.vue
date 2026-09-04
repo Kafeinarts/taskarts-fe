@@ -229,6 +229,17 @@
             <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
           </button>
 
+          <!-- Storage Link -->
+          <router-link
+            to="/storage"
+            class="btn btn-sm border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn position-relative"
+            :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
+            title="Kapasitas & Kuota Storage"
+          >
+            <i class="bi bi-hdd-stack-fill fs-6" :class="isStorageFullState ? 'text-white' : 'text-primary'"></i>
+            <span v-if="isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+          </router-link>
+
           <!-- Preferences Link -->
           <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
             <i class="bi bi-gear-fill text-primary fs-6"></i>
@@ -365,6 +376,7 @@ import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
 import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
+import { isStorageFull } from './utils/storageManager';
 
 export default {
   name: 'App',
@@ -379,6 +391,11 @@ export default {
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
     const sidebarSearch = ref('');
+    const isStorageFullState = ref(isStorageFull());
+
+    const updateStorageState = () => {
+      isStorageFullState.value = isStorageFull();
+    };
 
     const pendingTasksCount = computed(() => store.getters.pendingTasksCount);
     const activeProjectsCount = computed(() => store.getters.activeProjectsCount);
@@ -435,6 +452,7 @@ export default {
       {
         title: 'SISTEM & PANDUAN',
         items: [
+          { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white' },
           { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb' },
           { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2' },
           { to: '/developer', label: 'View Developer', icon: 'bi-person-badge-fill', color: '#2563eb', badgeText: 'PRO', badgeClass: 'bg-primary text-white' }
@@ -483,6 +501,7 @@ export default {
       '/diary': { title: 'Diary & Jurnal Cerita Harian', icon: 'bi-book-half' },
       '/code-notes': { title: 'Code Snippets & Tech Notes', icon: 'bi-code-slash' },
       '/games': { title: '3D Games & Simulator', icon: 'bi-controller' },
+      '/storage': { title: 'Storage & Kapasitas Local Storage', icon: 'bi-hdd-stack-fill' },
       '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
       '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },
       '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' }
@@ -618,10 +637,16 @@ export default {
       window.addEventListener('open-dukung-dev', () => {
         showDukungModal.value = true;
       });
+
+      // Storage quota listeners
+      window.addEventListener('storage-quota-updated', updateStorageState);
+      window.addEventListener('storage-quota-full', updateStorageState);
     });
 
     onUnmounted(() => {
       window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('storage-quota-updated', updateStorageState);
+      window.removeEventListener('storage-quota-full', updateStorageState);
     });
 
     const isPinkMode = computed(() => {
@@ -698,6 +723,7 @@ export default {
       themeMode,
       accentColor,
       isPinkMode,
+      isStorageFullState,
       toggleBluePinkMode,
       toggleThemeMode
     };

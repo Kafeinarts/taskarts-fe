@@ -1,5 +1,6 @@
 import { createStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
+import { safeSetItem, isStorageFull } from '../utils/storageManager';
 
 // Default empty datasets as requested: "buat semuanya dari raw dan kosong tanpa ada data apa apa"
 const DEFAULT_CONTACTS = [];
@@ -765,18 +766,19 @@ function loadLocal(key, defaultData) {
 
 function saveLocal(key, data) {
   try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (e) {
-    console.error('Storage error:', e);
-    // If quota exceeded, purge legacy snapshot cache to recover space and retry
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('ft_nightly_backup_snapshot');
-        localStorage.setItem(key, JSON.stringify(data));
-      }
-    } catch (retryErr) {
-      console.warn('LocalStorage quota still exceeded:', retryErr);
+    const res = safeSetItem(key, data);
+    if (!res.success && res.isFull) {
+      console.warn(`[Storage Guard] Cannot save to ${key}: Storage is FULL!`);
+      sendOnDeviceNotification('⚠️ Penyimpanan Penuh', {
+        body: `Gagal menyimpan data "${key}": Kuota penyimpanan Local Storage penuh. Hapus beberapa data di menu Storage.`,
+        type: 'warning'
+      });
+      return false;
     }
+    return res.success;
+  } catch (e) {
+    console.error('Storage error in saveLocal:', e);
+    return false;
   }
 }
 
@@ -1766,21 +1768,13 @@ export default createStore({
       // 17. LocalStorage-based features: Videos & Custom Folders
       const incomingVideos = data.videos || data.videoList || data.rk_video_hub_videos;
       if (Array.isArray(incomingVideos)) {
-        try {
-          localStorage.setItem('ft_saved_video_hub_list', JSON.stringify(incomingVideos));
-          localStorage.setItem('rk_video_hub_videos', JSON.stringify(incomingVideos));
-        } catch (e) {
-          console.error(e);
-        }
+        safeSetItem('ft_saved_video_hub_list', incomingVideos);
+        safeSetItem('rk_video_hub_videos', incomingVideos);
       }
 
       const incomingFolders = data.customFolders || data.projectFolders;
       if (Array.isArray(incomingFolders)) {
-        try {
-          localStorage.setItem('ft_custom_folders', JSON.stringify(incomingFolders));
-        } catch (e) {
-          console.error(e);
-        }
+        safeSetItem('ft_custom_folders', incomingFolders);
       }
 
       // 18. Settings & Preferences

@@ -173,6 +173,11 @@ const routes = [
     redirect: "/diary",
   },
   {
+    path: "/storage",
+    name: "storage",
+    component: () => import("../views/StorageView.vue"),
+  },
+  {
     path: "/settings",
     name: "settings",
     component: () => import("../views/PreferencesView.vue"),

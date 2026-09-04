@@ -862,6 +862,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { safeSetItem } from '../utils/storageManager';
 
 export default {
   name: 'TodoList',
@@ -1059,7 +1060,7 @@ export default {
           projectFolders.value = JSON.parse(stored);
         } else {
           projectFolders.value = [...DEFAULT_FOLDERS];
-          localStorage.setItem('ft_custom_folders', JSON.stringify(projectFolders.value));
+          safeSetItem('ft_custom_folders', projectFolders.value);
         }
       } catch (e) {
         projectFolders.value = [...DEFAULT_FOLDERS];
@@ -1071,7 +1072,7 @@ export default {
       const clean = folderName.trim();
       if (!projectFolders.value.includes(clean)) {
         projectFolders.value.push(clean);
-        localStorage.setItem('ft_custom_folders', JSON.stringify(projectFolders.value));
+        safeSetItem('ft_custom_folders', projectFolders.value);
         showToastMsg(`Folder proyek "${clean}" berhasil ditambahkan!`);
       }
     };

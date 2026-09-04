@@ -904,7 +904,9 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
+import Swal from 'sweetalert2';
 import MarkdownViewer from '../components/MarkdownViewer.vue';
+import { safeSetItem, safeRemoveItem, isStorageFull } from '../utils/storageManager';
 
 export default {
   name: 'DiaryView',
@@ -1190,14 +1192,19 @@ export default {
     });
 
     const handleScratchpadInput = () => {
+      if (isStorageFull()) {
+        scratchpadSaveStatus.value = '⚠️ Storage Penuh (Terkunci)';
+        isAutoSavingScratchpad.value = false;
+        return;
+      }
       isAutoSavingScratchpad.value = true;
       scratchpadSaveStatus.value = 'Menyimpan...';
 
       if (scratchpadTimer) clearTimeout(scratchpadTimer);
       scratchpadTimer = setTimeout(() => {
-        localStorage.setItem('rajinkerja_diary_scratchpad', scratchpadContent.value);
-        localStorage.setItem('rajinkerja_diary_scratchpad_mood', scratchpadMood.value);
-        localStorage.setItem('rajinkerja_diary_scratchpad_weather', scratchpadWeather.value);
+        safeSetItem('rajinkerja_diary_scratchpad', scratchpadContent.value);
+        safeSetItem('rajinkerja_diary_scratchpad_mood', scratchpadMood.value);
+        safeSetItem('rajinkerja_diary_scratchpad_weather', scratchpadWeather.value);
         isAutoSavingScratchpad.value = false;
         scratchpadSaveStatus.value = 'Tersimpan Otomatis';
       }, 500);
@@ -1206,7 +1213,7 @@ export default {
     const clearScratchpad = () => {
       if (window.confirm('Bersihkan coretan scratchpad ini?')) {
         scratchpadContent.value = '';
-        localStorage.removeItem('rajinkerja_diary_scratchpad');
+        safeRemoveItem('rajinkerja_diary_scratchpad');
         scratchpadSaveStatus.value = 'Tersimpan Kosong';
       }
     };
@@ -1332,6 +1339,22 @@ export default {
           icon: 'warning',
           title: 'Judul Diperlukan',
           text: 'Harap masukkan judul cerita diary Anda.'
+        });
+        return;
+      }
+
+      if (isStorageFull()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Penyimpanan Penuh!',
+          text: 'Tidak dapat menyimpan cerita diary karena kapasitas Local Storage telah penuh. Buka menu Storage untuk mengosongkan ruang penyimpanan.',
+          confirmButtonText: 'Buka Menu Storage',
+          showCancelButton: true,
+          cancelButtonText: 'Tutup'
+        }).then((r) => {
+          if (r.isConfirmed) {
+            router.push('/storage');
+          }
         });
         return;
       }

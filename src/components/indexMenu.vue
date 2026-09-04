@@ -235,6 +235,7 @@
 <script>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
+import { safeSetItem, isStorageFull } from '../utils/storageManager';
 
 export default {
   name: 'IndexMenu',
@@ -282,7 +283,8 @@ export default {
     });
 
     watch(note, (val) => {
-      localStorage.setItem('stickyNote', val);
+      if (isStorageFull()) return;
+      safeSetItem('stickyNote', val);
       showToast.value = true;
       setTimeout(() => (showToast.value = false), 2000);
     });
