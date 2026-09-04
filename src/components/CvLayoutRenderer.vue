@@ -1419,8 +1419,8 @@ export default {
 /* Print Specific Rules for True A4 Fix */
 @media print {
   @page {
-    size: A4 portrait;
-    margin: 8mm 10mm;
+    size: 210mm 297mm;
+    margin: 0;
   }
 
   html, body {
@@ -1433,8 +1433,9 @@ export default {
   }
 
   .cv-paper {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     border: none !important;

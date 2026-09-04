@@ -63,6 +63,82 @@
           </div>
 
           <form @submit.prevent="saveInvoiceToStore" class="row g-3">
+            <!-- Logo & Brand Header Configuration (Kafeinarts Inverted Vector) -->
+            <div class="col-12 p-3 bg-light rounded-3 border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label small fw-bold mb-0 text-dark">
+                  <i class="bi bi-image text-primary me-1"></i> Logo & Identitas Kop Invoice
+                </label>
+                <div class="btn-group btn-group-sm">
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="invoice.paperTheme === 'light' ? 'btn-primary text-white fw-semibold' : 'btn-outline-secondary bg-white'"
+                    @click="invoice.paperTheme = 'light'"
+                    title="Kertas Putih Terang (Standar Cetak A4)"
+                  >
+                    <i class="bi bi-sun me-1"></i> Putih Terang
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs"
+                    :class="invoice.paperTheme === 'dark' ? 'btn-dark text-white fw-semibold' : 'btn-outline-secondary bg-white'"
+                    @click="invoice.paperTheme = 'dark'"
+                    title="Kertas Gelap Modern (Dark Mode Invoice)"
+                  >
+                    <i class="bi bi-moon-stars me-1"></i> Gelap Modern
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label text-muted mb-1" style="font-size: 11.5px;">Pilihan Logo</label>
+                  <select class="form-select form-select-sm" v-model="invoice.logoType">
+                    <option value="kafeinarts">Logo Kafeinarts (Vector Inverted)</option>
+                    <option value="custom">Upload Logo Kustom</option>
+                    <option value="none">Tanpa Logo (Inisial Teks)</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6" v-if="invoice.logoType === 'kafeinarts'">
+                  <label class="form-label text-muted mb-1" style="font-size: 11.5px;">Mode Garis Outline Logo</label>
+                  <select class="form-select form-select-sm" v-model="invoice.logoOutlineMode">
+                    <option value="auto">Otomatis Invert (Hitam di Putih / Putih di Gelap)</option>
+                    <option value="dark">Hitam Pekat (#0f172a)</option>
+                    <option value="light">Putih Terang (#ffffff)</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6" v-if="invoice.logoType === 'custom'">
+                  <label class="form-label text-muted mb-1" style="font-size: 11.5px;">Upload Berkas Logo</label>
+                  <input type="file" class="form-control form-control-sm" accept="image/*" @change="handleCustomLogoUpload" />
+                </div>
+
+                <div class="col-12" v-if="invoice.logoType === 'kafeinarts'">
+                  <div class="d-flex align-items-center justify-content-between p-2 rounded-2 border mt-1" :class="invoice.paperTheme === 'dark' ? 'bg-dark text-white border-secondary' : 'bg-white text-dark'">
+                    <div class="d-flex align-items-center gap-2">
+                      <KafeinartsLogo :size="38" :outline-mode="invoice.logoOutlineMode" :inverted="invoice.paperTheme === 'dark'" />
+                      <div style="font-size: 11.5px;">
+                        <strong class="text-primary d-block">Logo Kafeinarts Aktif</strong>
+                        <span :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">
+                          Garis outline: <strong>{{ invoice.paperTheme === 'dark' || invoice.logoOutlineMode === 'light' ? 'Putih' : 'Hitam' }}</strong> • Background transparan
+                        </span>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                      <label class="small text-muted me-1 mb-0" style="font-size: 11px;">Ukuran:</label>
+                      <select class="form-select form-select-sm py-0.5" v-model.number="invoice.logoSize" style="width: 80px; font-size: 11px;">
+                        <option :value="46">Kecil</option>
+                        <option :value="58">Sedang</option>
+                        <option :value="74">Besar</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="col-md-6">
               <label class="form-label small fw-bold">Nomor Invoice <span class="text-danger">*</span></label>
               <input
@@ -175,43 +251,63 @@
 
       <!-- Professional Printable Invoice Preview (Right) -->
       <div class="col-lg-7">
-        <div class="card border-0 shadow-lg rounded-4 bg-white p-5 invoice-paper" id="invoicePreviewArea">
+        <div
+          class="card border-0 shadow-lg rounded-4 p-5 invoice-paper transition-all"
+          :class="invoice.paperTheme === 'dark' ? 'bg-dark text-white' : 'bg-white text-dark'"
+          id="invoicePreviewArea"
+        >
           <!-- Letterhead Banner -->
-          <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+          <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4" :class="invoice.paperTheme === 'dark' ? 'border-secondary' : ''">
             <div>
-              <div class="d-flex align-items-center gap-2 mb-1">
-                <div class="bg-primary text-white fw-bold rounded-2 px-2 py-1 fs-5">
+              <div class="d-flex align-items-center gap-3 mb-1">
+                <!-- Kafeinarts Inverted Vector Logo -->
+                <div v-if="invoice.logoType === 'kafeinarts'" class="invoice-brand-logo flex-shrink-0">
+                  <KafeinartsLogo
+                    :size="invoice.logoSize || 58"
+                    :outline-mode="invoice.logoOutlineMode || 'auto'"
+                    :inverted="invoice.paperTheme === 'dark'"
+                  />
+                </div>
+                <!-- Custom Uploaded Logo -->
+                <div v-else-if="invoice.logoType === 'custom' && invoice.customLogoUrl" class="invoice-brand-logo flex-shrink-0">
+                  <img :src="invoice.customLogoUrl" :style="{ maxHeight: (invoice.logoSize || 58) + 'px' }" class="rounded object-fit-contain" alt="Logo Bisnis" />
+                </div>
+                <!-- Fallback Initial Badge -->
+                <div v-else class="bg-primary text-white fw-bold rounded-2 px-2 py-1 fs-5 flex-shrink-0">
                   FT
                 </div>
-                <h3 class="fw-extrabold text-dark mb-0">{{ myBusiness.name }}</h3>
+
+                <div>
+                  <h3 class="fw-extrabold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ myBusiness.name }}</h3>
+                  <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.tagline }}</p>
+                </div>
               </div>
-              <p class="text-muted small mb-0">{{ myBusiness.tagline }}</p>
-              <small class="text-muted d-block mt-1">{{ myBusiness.email }} • {{ myBusiness.phone }}</small>
+              <small class="d-block mt-1" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.email }} • {{ myBusiness.phone }}</small>
             </div>
 
             <div class="text-end">
               <span class="badge bg-primary text-white text-uppercase px-3 py-2 rounded-pill fs-6 mb-2">INVOICE</span>
-              <h5 class="fw-bold text-dark mb-0">{{ invoice.invoiceNumber }}</h5>
-              <small class="text-muted d-block">Status: <strong class="text-success">{{ invoice.status || 'Unpaid' }}</strong></small>
+              <h5 class="fw-bold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.invoiceNumber }}</h5>
+              <small :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'" class="d-block">Status: <strong class="text-success">{{ invoice.status || 'Unpaid' }}</strong></small>
             </div>
           </div>
 
           <!-- Dates & Client Metadata -->
           <div class="row mb-4">
             <div class="col-6">
-              <span class="text-muted small text-uppercase fw-bold d-block">Diterbitkan Untuk:</span>
-              <h6 class="fw-bold text-dark mb-1">{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
-              <p class="small text-secondary mb-0" v-if="invoice.clientEmail">{{ invoice.clientEmail }}</p>
-              <p class="small text-secondary mb-0" v-if="invoice.clientAddress">{{ invoice.clientAddress }}</p>
+              <span class="small text-uppercase fw-bold d-block" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Diterbitkan Untuk:</span>
+              <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
+              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientEmail">{{ invoice.clientEmail }}</p>
+              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientAddress">{{ invoice.clientAddress }}</p>
             </div>
 
             <div class="col-6 text-end">
               <div class="mb-2">
-                <span class="text-muted small text-uppercase fw-bold d-block">Tanggal Terbit:</span>
-                <span class="fw-bold text-dark">{{ formatDate(invoice.issueDate) }}</span>
+                <span class="small text-uppercase fw-bold d-block" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Tanggal Terbit:</span>
+                <span class="fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ formatDate(invoice.issueDate) }}</span>
               </div>
               <div>
-                <span class="text-muted small text-uppercase fw-bold d-block">Jatuh Tempo:</span>
+                <span class="small text-uppercase fw-bold d-block" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Jatuh Tempo:</span>
                 <span class="fw-bold text-danger">{{ formatDate(invoice.dueDate) }}</span>
               </div>
             </div>
@@ -219,8 +315,8 @@
 
           <!-- Table of Services -->
           <div class="table-responsive mb-4">
-            <table class="table align-middle border">
-              <thead class="table-light">
+            <table class="table align-middle border" :class="invoice.paperTheme === 'dark' ? 'table-dark border-secondary' : ''">
+              <thead :class="invoice.paperTheme === 'dark' ? 'table-dark' : 'table-light'">
                 <tr>
                   <th style="width: 40px;">#</th>
                   <th>Deskripsi Pekerjaan / Layanan</th>
@@ -233,11 +329,11 @@
                 <tr v-for="(item, idx) in invoice.items" :key="idx">
                   <td>{{ idx + 1 }}</td>
                   <td>
-                    <div class="fw-bold text-dark">{{ item.nama || 'Layanan Freelance' }}</div>
+                    <div class="fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ item.nama || 'Layanan Freelance' }}</div>
                   </td>
                   <td class="text-center fw-semibold">{{ item.quantity || 1 }}</td>
                   <td class="text-end">{{ formatCurrency(item.biaya) }}</td>
-                  <td class="text-end fw-bold text-dark">{{ formatCurrency(item.quantity * item.biaya) }}</td>
+                  <td class="text-end fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ formatCurrency(item.quantity * item.biaya) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -246,13 +342,13 @@
           <!-- Financial Calculation Totals -->
           <div class="row justify-content-end mb-4">
             <div class="col-md-6">
-              <div class="bg-light p-3 rounded-3">
+              <div class="p-3 rounded-3" :class="invoice.paperTheme === 'dark' ? 'bg-black bg-opacity-25 border border-secondary' : 'bg-light border'">
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted small">Subtotal:</span>
-                  <span class="fw-bold text-dark">{{ formatCurrency(subtotal) }}</span>
+                  <span class="small" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Subtotal:</span>
+                  <span class="fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ formatCurrency(subtotal) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2" v-if="invoice.taxPercent > 0">
-                  <span class="text-muted small">PPN ({{ invoice.taxPercent }}%):</span>
+                  <span class="small" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">PPN ({{ invoice.taxPercent }}%):</span>
                   <span>+ {{ formatCurrency(taxAmount) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2 text-danger" v-if="invoice.discount > 0">
@@ -268,9 +364,9 @@
           </div>
 
           <!-- Payment Notes Footer -->
-          <div class="border-top pt-3">
-            <h6 class="fw-bold text-dark mb-1">Instruksi Pembayaran & Rekening Bank:</h6>
-            <p class="small text-muted mb-0 style-notes">{{ invoice.notes }}</p>
+          <div class="border-top pt-3" :class="invoice.paperTheme === 'dark' ? 'border-secondary' : ''">
+            <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">Instruksi Pembayaran & Rekening Bank:</h6>
+            <p class="small mb-0 style-notes" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ invoice.notes }}</p>
           </div>
         </div>
       </div>
@@ -351,9 +447,14 @@ import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import { openPdfBlobInNewTab, openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
+import KafeinartsLogo from '../components/KafeinartsLogo.vue';
+import { getKafeinartsLogoDataUrl } from '../utils/kafeinartsLogoHelper';
 
 export default {
   name: 'InvoiceView',
+  components: {
+    KafeinartsLogo
+  },
   setup() {
     const store = useStore();
     const route = useRoute();
@@ -376,6 +477,12 @@ export default {
       clientAddress: '',
       currency: 'IDR',
       status: 'Draft',
+      // Kafeinarts Logo & Inverted Outline Configuration
+      logoType: 'kafeinarts', // 'kafeinarts' | 'custom' | 'none'
+      logoOutlineMode: 'auto', // 'auto' | 'dark' | 'light'
+      logoSize: 58,
+      customLogoUrl: '',
+      paperTheme: 'light', // 'light' | 'dark'
       items: [
         { nama: '', quantity: 1, biaya: 0 }
       ],
@@ -383,6 +490,17 @@ export default {
       discount: 0,
       notes: ''
     });
+
+    const handleCustomLogoUpload = (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          invoice.value.customLogoUrl = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
 
     onMounted(() => {
       if (route.query.clientName) {
@@ -548,130 +666,162 @@ export default {
       isPdfLoading.value = true;
       setTimeout(() => {
         openPrintableDocumentInNewTab({
-          title: `Invoice - ${invoice.value.invoiceNumber || 'Inv'}`,
-          elementId: 'invoice-printable-area',
-          autoPrint: true
+          title: `Invoice - ${invoice.value.invoiceNumber || 'Inv'}_A4`,
+          elementId: 'invoicePreviewArea',
+          autoPrint: true,
+          paperSize: 'a4',
+          paperOrientation: 'portrait',
+          marginTop: 10,
+          marginBottom: 10,
+          marginLeft: 12,
+          marginRight: 12
         });
         isPdfLoading.value = false;
-      }, 400);
+      }, 350);
     };
 
-    const downloadPDF = () => {
+    const downloadPDF = async () => {
       if (isPdfLoading.value) return;
       isPdfLoading.value = true;
 
-      setTimeout(() => {
-        try {
-          const doc = new jsPDF();
+      try {
+        const doc = new jsPDF();
 
-          // Header
-          doc.setFontSize(20);
-          doc.setTextColor(37, 99, 235);
-          doc.setFont('helvetica', 'bold');
-          doc.text(myBusiness.value.name, 14, 20);
-
-          doc.setFontSize(10);
-          doc.setTextColor(100);
-          doc.setFont('helvetica', 'normal');
-          doc.text(myBusiness.value.tagline, 14, 26);
-          doc.text(`${myBusiness.value.email} | ${myBusiness.value.phone}`, 14, 31);
-
-          // Invoice Badge
-          doc.setFontSize(18);
-          doc.setTextColor(15, 23, 42);
-          doc.setFont('helvetica', 'bold');
-          doc.text('INVOICE', 196, 20, { align: 'right' });
-          doc.setFontSize(12);
-          doc.text(invoice.value.invoiceNumber, 196, 27, { align: 'right' });
-
-          doc.line(14, 36, 196, 36);
-
-          // Dates & Client info
-          let yPos = 46;
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Diterbitkan Untuk:', 14, yPos);
-          doc.text('Tanggal Terbit:', 130, yPos);
-          doc.setFont('helvetica', 'normal');
-          doc.text(formatDate(invoice.value.issueDate), 196, yPos, { align: 'right' });
-
-          yPos += 6;
-          doc.setFont('helvetica', 'bold');
-          doc.text(invoice.value.clientName || 'Klien Umum', 14, yPos);
-          doc.text('Jatuh Tempo:', 130, yPos);
-          doc.setFont('helvetica', 'normal');
-          doc.text(formatDate(invoice.value.dueDate), 196, yPos, { align: 'right' });
-
-          if (invoice.value.clientEmail) {
-            yPos += 5;
-            doc.text(invoice.value.clientEmail, 14, yPos);
+        // 1. Add Kafeinarts Logo or Custom Logo
+        let hasLogo = false;
+        if (invoice.value.logoType === 'kafeinarts') {
+          try {
+            // For printed PDF document, use crisp inverted dark outline on white page
+            const logoDataUrl = await getKafeinartsLogoDataUrl({
+              inverted: false,
+              outlineMode: invoice.value.logoOutlineMode === 'light' ? 'light' : 'dark',
+              size: 240
+            });
+            if (logoDataUrl) {
+              doc.addImage(logoDataUrl, 'PNG', 14, 13, 20, 20);
+              hasLogo = true;
+            }
+          } catch (logoErr) {
+            console.warn('Could not generate Kafeinarts logo data URL for PDF:', logoErr);
           }
-
-          yPos += 12;
-          // Table Headers
-          doc.setFillColor(241, 245, 249);
-          doc.rect(14, yPos, 182, 8, 'F');
-          doc.setFont('helvetica', 'bold');
-          doc.text('#', 16, yPos + 6);
-          doc.text('Deskripsi Layanan', 26, yPos + 6);
-          doc.text('Qty', 130, yPos + 6, { align: 'center' });
-          doc.text('Harga Unit', 160, yPos + 6, { align: 'right' });
-          doc.text('Total', 192, yPos + 6, { align: 'right' });
-
-          yPos += 12;
-          doc.setFont('helvetica', 'normal');
-          invoice.value.items.forEach((item, idx) => {
-            doc.text(String(idx + 1), 16, yPos);
-            doc.text(item.nama || 'Layanan Freelance', 26, yPos);
-            doc.text(String(item.quantity || 1), 130, yPos, { align: 'center' });
-            doc.text(formatCurrency(item.biaya), 160, yPos, { align: 'right' });
-            doc.text(formatCurrency(item.quantity * item.biaya), 192, yPos, { align: 'right' });
-            yPos += 8;
-          });
-
-          doc.line(14, yPos, 196, yPos);
-          yPos += 10;
-
-          // Totals
-          doc.setFont('helvetica', 'bold');
-          doc.text('Subtotal:', 140, yPos);
-          doc.text(formatCurrency(subtotal.value), 192, yPos, { align: 'right' });
-          yPos += 6;
-
-          if (taxAmount.value > 0) {
-            doc.text(`PPN (${invoice.value.taxPercent}%):`, 140, yPos);
-            doc.text(formatCurrency(taxAmount.value), 192, yPos, { align: 'right' });
-            yPos += 6;
+        } else if (invoice.value.logoType === 'custom' && invoice.value.customLogoUrl) {
+          try {
+            doc.addImage(invoice.value.customLogoUrl, 'PNG', 14, 13, 20, 20);
+            hasLogo = true;
+          } catch (customErr) {
+            console.warn('Could not add custom logo to PDF:', customErr);
           }
-
-          doc.setFontSize(12);
-          doc.setTextColor(37, 99, 235);
-          doc.text('TOTAL TAGIHAN:', 140, yPos + 2);
-          doc.text(formatCurrency(totalAmount.value), 192, yPos + 2, { align: 'right' });
-
-          yPos += 16;
-          doc.setFontSize(10);
-          doc.setTextColor(15, 23, 42);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Instruksi Pembayaran:', 14, yPos);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(9);
-
-          const notesLines = doc.splitTextToSize(invoice.value.notes || 'Terima kasih!', 180);
-          doc.text(notesLines, 14, yPos + 6);
-
-          // Open in clean new tab without popup
-          const pdfBlob = doc.output('blob');
-          openPdfBlobInNewTab(pdfBlob, `Invoice_${invoice.value.invoiceNumber}`);
-          showToastMsg('Dokumen PDF berhasil dibuka di tab baru!');
-        } catch (err) {
-          console.error(err);
-          showToastMsg('Gagal memproses PDF, membuka tampilan cetak...');
-          triggerPrint();
-        } finally {
-          isPdfLoading.value = false;
         }
-      }, 500);
+
+        const textStartX = hasLogo ? 38 : 14;
+
+        // Header Business Info
+        doc.setFontSize(hasLogo ? 17 : 20);
+        doc.setTextColor(37, 99, 235);
+        doc.setFont('helvetica', 'bold');
+        doc.text(myBusiness.value.name, textStartX, 20);
+
+        doc.setFontSize(hasLogo ? 9 : 10);
+        doc.setTextColor(100);
+        doc.setFont('helvetica', 'normal');
+        doc.text(myBusiness.value.tagline, textStartX, 26);
+        doc.text(`${myBusiness.value.email} | ${myBusiness.value.phone}`, textStartX, 31);
+
+        // Invoice Badge
+        doc.setFontSize(18);
+        doc.setTextColor(15, 23, 42);
+        doc.setFont('helvetica', 'bold');
+        doc.text('INVOICE', 196, 20, { align: 'right' });
+        doc.setFontSize(12);
+        doc.text(invoice.value.invoiceNumber, 196, 27, { align: 'right' });
+
+        doc.line(14, 36, 196, 36);
+
+        // Dates & Client info
+        let yPos = 46;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Diterbitkan Untuk:', 14, yPos);
+        doc.text('Tanggal Terbit:', 130, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(formatDate(invoice.value.issueDate), 196, yPos, { align: 'right' });
+
+        yPos += 6;
+        doc.setFont('helvetica', 'bold');
+        doc.text(invoice.value.clientName || 'Klien Umum', 14, yPos);
+        doc.text('Jatuh Tempo:', 130, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(formatDate(invoice.value.dueDate), 196, yPos, { align: 'right' });
+
+        if (invoice.value.clientEmail) {
+          yPos += 5;
+          doc.text(invoice.value.clientEmail, 14, yPos);
+        }
+
+        yPos += 12;
+        // Table Headers
+        doc.setFillColor(241, 245, 249);
+        doc.rect(14, yPos, 182, 8, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.text('#', 16, yPos + 6);
+        doc.text('Deskripsi Layanan', 26, yPos + 6);
+        doc.text('Qty', 130, yPos + 6, { align: 'center' });
+        doc.text('Harga Unit', 160, yPos + 6, { align: 'right' });
+        doc.text('Total', 192, yPos + 6, { align: 'right' });
+
+        yPos += 12;
+        doc.setFont('helvetica', 'normal');
+        invoice.value.items.forEach((item, idx) => {
+          doc.text(String(idx + 1), 16, yPos);
+          doc.text(item.nama || 'Layanan Freelance', 26, yPos);
+          doc.text(String(item.quantity || 1), 130, yPos, { align: 'center' });
+          doc.text(formatCurrency(item.biaya), 160, yPos, { align: 'right' });
+          doc.text(formatCurrency(item.quantity * item.biaya), 192, yPos, { align: 'right' });
+          yPos += 8;
+        });
+
+        doc.line(14, yPos, 196, yPos);
+        yPos += 10;
+
+        // Totals
+        doc.setFont('helvetica', 'bold');
+        doc.text('Subtotal:', 140, yPos);
+        doc.text(formatCurrency(subtotal.value), 192, yPos, { align: 'right' });
+        yPos += 6;
+
+        if (taxAmount.value > 0) {
+          doc.text(`PPN (${invoice.value.taxPercent}%):`, 140, yPos);
+          doc.text(formatCurrency(taxAmount.value), 192, yPos, { align: 'right' });
+          yPos += 6;
+        }
+
+        doc.setFontSize(12);
+        doc.setTextColor(37, 99, 235);
+        doc.text('TOTAL TAGIHAN:', 140, yPos + 2);
+        doc.text(formatCurrency(totalAmount.value), 192, yPos + 2, { align: 'right' });
+
+        yPos += 16;
+        doc.setFontSize(10);
+        doc.setTextColor(15, 23, 42);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Instruksi Pembayaran:', 14, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        const notesLines = doc.splitTextToSize(invoice.value.notes || 'Terima kasih!', 180);
+        doc.text(notesLines, 14, yPos + 6);
+
+        // Open in clean new tab without popup
+        const pdfBlob = doc.output('blob');
+        openPdfBlobInNewTab(pdfBlob, `Invoice_${invoice.value.invoiceNumber}`);
+        showToastMsg('Dokumen PDF berhasil dibuka di tab baru!');
+      } catch (err) {
+        console.error(err);
+        showToastMsg('Gagal memproses PDF, membuka tampilan cetak...');
+        triggerPrint();
+      } finally {
+        isPdfLoading.value = false;
+      }
     };
 
     const exportToExcel = () => {
@@ -835,6 +985,7 @@ export default {
       isPdfLoading,
       triggerPrint,
       downloadPDF,
+      handleCustomLogoUpload,
       exportToExcel,
       invoiceJsonInput,
       exportInvoiceJson,
@@ -847,7 +998,14 @@ export default {
 
 <style scoped>
 .invoice-paper {
-  min-height: 600px;
+  min-height: 680px;
+  transition: all 0.25s ease;
+}
+
+.invoice-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .style-notes {
@@ -861,6 +1019,10 @@ export default {
   .invoice-paper {
     box-shadow: none !important;
     padding: 0 !important;
+    min-height: auto !important;
+    width: 100% !important;
+    background-color: transparent !important;
+    color: #000000 !important;
   }
 }
 </style>

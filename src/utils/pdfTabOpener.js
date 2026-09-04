@@ -151,7 +151,18 @@ export function openPrintableDocumentInNewTab({
         border-radius: 0 !important;
         transform: none !important;
       }
-      .letter-paper {
+      .cv-preview-scaler-stage,
+      .cv-preview-scaler-inner {
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      .letter-paper,
+      .cv-paper,
+      .invoice-paper {
         width: var(--paper-width) !important;
         max-width: var(--paper-width) !important;
         min-height: var(--paper-height) !important;
@@ -168,6 +179,8 @@ export function openPrintableDocumentInNewTab({
         break-inside: avoid !important;
       }
       .bulk-print-container > .letter-paper,
+      .bulk-print-container > .cv-paper,
+      .bulk-cv-container .cv-paper,
       .page-break,
       .print-page-break {
         page-break-after: always !important;
@@ -178,16 +191,23 @@ export function openPrintableDocumentInNewTab({
         margin: 0 auto !important;
       }
       .bulk-print-container > .letter-paper:last-child,
+      .bulk-print-container > .cv-paper:last-child,
+      .bulk-cv-container .print-page-break:last-child,
       .page-break:last-child,
       .print-page-break:last-child {
         page-break-after: auto !important;
         break-after: auto !important;
       }
-      .no-break {
+      .no-break,
+      .cv-section,
+      .cv-item,
+      .cv-sub-section {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
       }
-      .margin-guide-active .letter-paper::before {
+      .margin-guide-active .letter-paper::before,
+      .margin-guide-active .cv-paper::before,
+      .margin-guide-active .invoice-paper::before {
         display: none !important;
       }
     }
@@ -230,7 +250,16 @@ export function openPrintableDocumentInNewTab({
       transform-origin: top center;
       transition: transform 0.15s ease-out;
     }
-    .letter-paper {
+    .cv-preview-scaler-stage,
+    .cv-preview-scaler-inner {
+      transform: none !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      display: block !important;
+    }
+    .letter-paper,
+    .cv-paper,
+    .invoice-paper {
       width: var(--paper-width) !important;
       min-height: var(--paper-height) !important;
       box-sizing: border-box !important;
@@ -247,7 +276,9 @@ export function openPrintableDocumentInNewTab({
     }
 
     /* Visual Margin Guide Lines (Batas Margin) */
-    .margin-guide-active .letter-paper::before {
+    .margin-guide-active .letter-paper::before,
+    .margin-guide-active .cv-paper::before,
+    .margin-guide-active .invoice-paper::before {
       content: "📐 Batas Margin Kertas (" attr(data-margins) ")";
       position: absolute;
       top: var(--margin-top);
@@ -391,7 +422,7 @@ export function openPrintableDocumentInNewTab({
       styleEl.innerHTML = '@page { size: ' + w + 'mm ' + h + 'mm; margin: 0; }';
 
       // Set data-margins for guide
-      document.querySelectorAll('.letter-paper').forEach(el => {
+      document.querySelectorAll('.letter-paper, .cv-paper, .invoice-paper').forEach(el => {
         el.setAttribute('data-margins', 'Atas: ' + mTop + 'mm | Bawah: ' + mBtm + 'mm | Kiri: ' + mLft + 'mm | Kanan: ' + mRgt + 'mm');
       });
     }

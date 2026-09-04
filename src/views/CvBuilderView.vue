@@ -760,80 +760,61 @@
           </div>
 
           <!-- ======================================================== -->
-          <!-- A4 FIX & AUTO-FIT 1 PAGE OPTIMIZER TOOLBAR               -->
+          <!-- A4 FIX & PAPER CONFIGURATION TOOLBAR (Surat Generator Style) -->
           <!-- ======================================================== -->
-          <div class="p-2.5 bg-light rounded-3 border mb-3 no-print">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-              <!-- A4 Status & Meter -->
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge rounded-pill px-2.5 py-1" :class="pageFitStatus.badgeClass">
-                  <i :class="pageFitStatus.icon" class="me-1"></i> {{ pageFitStatus.label }}
-                </span>
-                <small class="text-muted fw-semibold">Tinggi: ~{{ pageFitStatus.percent }}% dari A4</small>
+          <div class="p-2.5 bg-light rounded-3 border mb-2.5 no-print">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="d-flex align-items-center gap-1">
+                  <label class="small text-muted fw-bold mb-0" style="font-size: 11.5px;">Ukuran:</label>
+                  <select class="form-select form-select-sm border-primary fw-semibold text-primary py-0.5" v-model="cvPaperSize" style="width: auto; font-size: 11.5px;">
+                    <option v-for="p in paperSizesList" :key="p.id" :value="p.id">{{ p.name }} ({{ p.widthMm }}×{{ p.heightMm }} mm)</option>
+                  </select>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-xs" :class="cvPaperOrientation !== 'landscape' ? 'btn-primary text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="cvPaperOrientation = 'portrait'" title="Tegak (Portrait) - Standar ATS">
+                    <i class="bi bi-file-earmark me-1"></i> Tegak
+                  </button>
+                  <button type="button" class="btn btn-xs" :class="cvPaperOrientation === 'landscape' ? 'btn-primary text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="cvPaperOrientation = 'landscape'" title="Mendatar (Landscape)">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Mendatar
+                  </button>
+                </div>
+                <button type="button" class="btn btn-xs" :class="showMarginGuides ? 'btn-info text-white fw-semibold' : 'btn-outline-secondary bg-white'" @click="showMarginGuides = !showMarginGuides" title="Batas Margin Garis Putus-Putus">
+                  <i class="bi bi-bounding-box-circles me-1"></i> {{ showMarginGuides ? 'Garis Margin: ON' : 'Garis Margin' }}
+                </button>
               </div>
 
-              <!-- Quick Density & Auto-Fit Controls -->
+              <!-- A4 Status Meter & Auto-fit -->
               <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge rounded-pill px-2.5 py-1" :class="pageFitStatus.badgeClass" style="font-size: 11px;">
+                  <i :class="pageFitStatus.icon" class="me-1"></i> {{ pageFitStatus.label }} (~{{ pageFitStatus.percent }}%)
+                </span>
                 <button
                   type="button"
                   class="btn btn-xs btn-outline-primary rounded-pill fw-bold px-2.5 py-1"
                   @click="autoFitToOnePage"
                   title="Otomatis sesuaikan skala agar pas 1 halaman A4"
                 >
-                  <i class="bi bi-magic me-1"></i> ⚡ Auto-Fit 1 Halaman A4
+                  <i class="bi bi-magic me-1"></i> ⚡ Auto-Fit 1 Hal A4
                 </button>
-
                 <!-- Density Selector -->
                 <div class="btn-group btn-group-sm" role="group">
-                  <button
-                    type="button"
-                    class="btn btn-xs"
-                    :class="activeDensityMode === 'comfortable' ? 'btn-primary' : 'btn-light border'"
-                    @click="activeDensityMode = 'comfortable'"
-                    title="Jarak Lega"
-                  >
-                    Lega
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-xs"
-                    :class="activeDensityMode === 'standard' ? 'btn-primary' : 'btn-light border'"
-                    @click="activeDensityMode = 'standard'"
-                    title="Jarak Standar"
-                  >
-                    Standar
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-xs"
-                    :class="activeDensityMode === 'compact' ? 'btn-primary' : 'btn-light border'"
-                    @click="activeDensityMode = 'compact'"
-                    title="Jarak Padat"
-                  >
-                    Padat
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-xs"
-                    :class="activeDensityMode === 'ultra_compact' ? 'btn-primary' : 'btn-light border'"
-                    @click="activeDensityMode = 'ultra_compact'"
-                    title="Jarak Ultra Padat"
-                  >
-                    Ultra Padat
-                  </button>
+                  <button type="button" class="btn btn-xs" :class="activeDensityMode === 'comfortable' ? 'btn-primary' : 'btn-light border'" @click="activeDensityMode = 'comfortable'" title="Jarak Lega">Lega</button>
+                  <button type="button" class="btn btn-xs" :class="activeDensityMode === 'standard' ? 'btn-primary' : 'btn-light border'" @click="activeDensityMode = 'standard'" title="Jarak Standar">Standar</button>
+                  <button type="button" class="btn btn-xs" :class="activeDensityMode === 'compact' ? 'btn-primary' : 'btn-light border'" @click="activeDensityMode = 'compact'" title="Jarak Padat">Padat</button>
+                  <button type="button" class="btn btn-xs" :class="activeDensityMode === 'ultra_compact' ? 'btn-primary' : 'btn-light border'" @click="activeDensityMode = 'ultra_compact'" title="Jarak Ultra Padat">Ultra</button>
                 </div>
-
-                <!-- Page Guide Toggle -->
-                <button
-                  type="button"
-                  class="btn btn-xs rounded-pill px-2 py-1"
-                  :class="showPageGuide ? 'btn-secondary text-white' : 'btn-outline-secondary'"
-                  @click="showPageGuide = !showPageGuide"
-                  title="Tampilkan garis pembatas halaman A4"
-                >
-                  <i class="bi bi-rulers"></i> Panduan A4
-                </button>
               </div>
+            </div>
+          </div>
+
+          <!-- Document Info Strip (no-print, Surat Generator Style) -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-1.5 rounded-2 bg-white border mb-3 text-muted no-print shadow-xs" style="font-size: 11.5px;">
+            <div>
+              <i class="bi bi-aspect-ratio text-primary me-1"></i> <strong>Kertas CV:</strong> {{ (PAPER_SIZES[cvPaperSize] || PAPER_SIZES.a4).name }} ({{ (PAPER_SIZES[cvPaperSize] || PAPER_SIZES.a4).widthMm }} × {{ (PAPER_SIZES[cvPaperSize] || PAPER_SIZES.a4).heightMm }} mm) • {{ cvPaperOrientation === 'landscape' ? 'Mendatar (Landscape)' : 'Tegak (Portrait)' }}
+            </div>
+            <div>
+              <i class="bi bi-check-circle-fill text-success me-1"></i> <strong>Standar ATS:</strong> Format A4 Proporsional • Otomatis Tab Baru & Cetak Bersih
             </div>
           </div>
 
@@ -917,7 +898,7 @@
                   :density-mode="activeDensityMode"
                   :heading-style="activeHeadingStyle"
                   :lock-single-page="lockSinglePage"
-                  :show-page-guide="showPageGuide"
+                  :show-page-guide="showMarginGuides"
                   :custom-layout-config="activeCustomConfig"
                 />
               </div>
@@ -948,7 +929,7 @@
                     :density-mode="cand.densityMode || activeDensityMode"
                     :heading-style="cand.headingStyle || activeHeadingStyle"
                     :lock-single-page="lockSinglePage"
-                    :show-page-guide="showPageGuide"
+                    :show-page-guide="showMarginGuides"
                     :custom-layout-config="cand.customLayoutConfig || activeCustomConfig"
                   />
                 </div>
@@ -1000,7 +981,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
 import { useStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
-import { openPrintableDocumentInNewTab } from '../utils/pdfTabOpener';
+import { openPrintableDocumentInNewTab, PAPER_SIZES } from '../utils/pdfTabOpener';
 import CvLayoutRenderer from '../components/CvLayoutRenderer.vue';
 
 export default {
@@ -1026,6 +1007,16 @@ export default {
     const activeHeadingStyle = ref('underline'); // 'underline' | 'boxed' | 'left_bar' | 'pill' | 'minimal'
     const lockSinglePage = ref(false);
     const showPageGuide = ref(true);
+
+    // Paper Configuration (A4 Surat Generator Workflow)
+    const paperSizesList = computed(() => Object.values(PAPER_SIZES));
+    const cvPaperSize = ref('a4');
+    const cvPaperOrientation = ref('portrait');
+    const cvMarginTop = ref(8);
+    const cvMarginBottom = ref(8);
+    const cvMarginLeft = ref(10);
+    const cvMarginRight = ref(10);
+    const showMarginGuides = ref(false);
 
     // Mobile & Cross-Device Preview Zoom / Scale Controller
     const previewZoom = ref('auto'); // 'auto' | '100' | '80' | '65' | '50'
@@ -2182,8 +2173,103 @@ export default {
       });
     };
 
-    // Print & PDF New Tab Logic (True A4 Alignment)
+    // Print & PDF New Tab Logic (True A4 Alignment - Surat Generator Workflow)
     const isPdfLoading = ref(false);
+
+    const getCvPrintStyles = () => {
+      const paper = PAPER_SIZES[cvPaperSize.value] || PAPER_SIZES.a4;
+      const isLandscape = cvPaperOrientation.value === 'landscape';
+      const widthMm = isLandscape ? paper.heightMm : paper.widthMm;
+      const minHeightMm = isLandscape ? paper.widthMm : paper.heightMm;
+
+      const mTop = cvMarginTop.value ?? 8;
+      const mBottom = cvMarginBottom.value ?? 8;
+      const mLeft = cvMarginLeft.value ?? 10;
+      const mRight = cvMarginRight.value ?? 10;
+
+      return `
+        @page {
+          size: ${widthMm}mm ${minHeightMm}mm;
+          margin: 0;
+        }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          color: #000000 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-workbench {
+          padding: 0 !important;
+          margin: 0 !important;
+          background: transparent !important;
+        }
+        .print-container {
+          max-width: 100% !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          transform: none !important;
+        }
+        .cv-preview-scaler-stage,
+        .cv-preview-scaler-inner {
+          transform: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          display: block !important;
+        }
+        .cv-paper {
+          width: ${widthMm}mm !important;
+          max-width: ${widthMm}mm !important;
+          min-height: ${minHeightMm}mm !important;
+          box-sizing: border-box !important;
+          margin: 0 auto !important;
+          box-shadow: none !important;
+          border: none !important;
+          background: #ffffff !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+        .bulk-print-container > .cv-paper,
+        .bulk-cv-container .cv-paper,
+        .print-page-break {
+          page-break-after: always !important;
+          break-after: page !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+          display: block !important;
+          margin: 0 auto !important;
+        }
+        .bulk-print-container > .cv-paper:last-child,
+        .bulk-cv-container .print-page-break:last-child,
+        .print-page-break:last-child {
+          page-break-after: auto !important;
+          break-after: auto !important;
+        }
+        .no-break,
+        .cv-section,
+        .cv-item,
+        .cv-sub-section {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+        .a4-cutoff-marker,
+        .no-print,
+        .print-hide {
+          display: none !important;
+        }
+        .a4-lock-single-page {
+          max-height: none !important;
+          overflow: visible !important;
+        }
+      `;
+    };
 
     const printCurrentMode = () => {
       if (isPdfLoading.value) return;
@@ -2194,47 +2280,14 @@ export default {
         openPrintableDocumentInNewTab({
           title,
           elementId: 'cvPrintArea',
-          customStyles: `
-            @page { size: A4 portrait; margin: 8mm 10mm; }
-            html, body {
-              background-color: #f1f5f9;
-              margin: 0;
-              padding: 0;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
-            .cv-paper {
-              width: 210mm !important;
-              max-width: 210mm !important;
-              min-height: 297mm !important;
-              box-sizing: border-box !important;
-              margin: 0 auto !important;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-              background: #fff !important;
-              border-radius: 4px;
-            }
-            @media print {
-              html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
-              .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-              .cv-paper {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-height: auto !important;
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 6mm 8mm !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-              }
-              .cv-section, .cv-item {
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-              }
-            }
-          `,
-          autoPrint: true
+          customStyles: getCvPrintStyles(),
+          autoPrint: true,
+          paperSize: cvPaperSize.value || 'a4',
+          paperOrientation: cvPaperOrientation.value || 'portrait',
+          marginTop: cvMarginTop.value || 8,
+          marginBottom: cvMarginBottom.value || 8,
+          marginLeft: cvMarginLeft.value || 10,
+          marginRight: cvMarginRight.value || 10
         });
         isPdfLoading.value = false;
       }, 350);
@@ -2251,47 +2304,14 @@ export default {
         openPrintableDocumentInNewTab({
           title,
           elementId: 'cvBulkPrintArea',
-          customStyles: `
-            @page { size: A4 portrait; margin: 8mm 10mm; }
-            html, body {
-              background-color: #f1f5f9;
-              margin: 0;
-              padding: 0;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
-            .cv-paper {
-              width: 210mm !important;
-              max-width: 210mm !important;
-              min-height: 297mm !important;
-              box-sizing: border-box !important;
-              margin: 0 auto !important;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-              background: #fff !important;
-              border-radius: 4px;
-            }
-            @media print {
-              html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
-              .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-              .cv-paper {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-height: auto !important;
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 6mm 8mm !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-              }
-              .cv-section, .cv-item {
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-              }
-            }
-          `,
-          autoPrint: true
+          customStyles: getCvPrintStyles(),
+          autoPrint: true,
+          paperSize: cvPaperSize.value || 'a4',
+          paperOrientation: cvPaperOrientation.value || 'portrait',
+          marginTop: cvMarginTop.value || 8,
+          marginBottom: cvMarginBottom.value || 8,
+          marginLeft: cvMarginLeft.value || 10,
+          marginRight: cvMarginRight.value || 10
         });
         isPdfLoading.value = false;
       }, 350);
@@ -2308,73 +2328,19 @@ export default {
           openPrintableDocumentInNewTab({
             title,
             elementId: 'cvBulkPrintArea',
-            customStyles: `
-              @page { size: A4 portrait; margin: 8mm 10mm; }
-              html, body {
-                background-color: #f1f5f9;
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .print-container { max-width: 820px; padding: 0; background: transparent; margin: 24px auto 48px auto; }
-              .print-page-break {
-                page-break-after: always !important;
-                break-after: page !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-                margin-bottom: 28px;
-              }
-              .print-page-break:last-child {
-                page-break-after: auto !important;
-                break-after: auto !important;
-                margin-bottom: 0;
-              }
-              .cv-paper {
-                width: 210mm !important;
-                max-width: 210mm !important;
-                min-height: 297mm !important;
-                box-sizing: border-box !important;
-                margin: 0 auto !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-                background: #fff !important;
-                border-radius: 4px;
-              }
-              @media print {
-                html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
-                .print-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-                .print-page-break {
-                  margin-bottom: 0 !important;
-                  page-break-after: always !important;
-                  break-after: page !important;
-                }
-                .print-page-break:last-child {
-                  page-break-after: auto !important;
-                  break-after: auto !important;
-                }
-                .cv-paper {
-                  width: 100% !important;
-                  max-width: 100% !important;
-                  min-height: auto !important;
-                  box-shadow: none !important;
-                  border: none !important;
-                  margin: 0 !important;
-                  padding: 6mm 8mm !important;
-                  page-break-inside: avoid !important;
-                  break-inside: avoid !important;
-                }
-                .cv-section, .cv-item {
-                  page-break-inside: avoid !important;
-                  break-inside: avoid !important;
-                }
-              }
-            `,
-            autoPrint: true
+            customStyles: getCvPrintStyles(),
+            autoPrint: true,
+            paperSize: cvPaperSize.value || 'a4',
+            paperOrientation: cvPaperOrientation.value || 'portrait',
+            marginTop: cvMarginTop.value || 8,
+            marginBottom: cvMarginBottom.value || 8,
+            marginLeft: cvMarginLeft.value || 10,
+            marginRight: cvMarginRight.value || 10
           });
           isPrintingAll.value = false;
           isPdfLoading.value = false;
         });
-      }, 400);
+      }, 350);
     };
 
     const saveDraft = () => {
@@ -2557,6 +2523,16 @@ export default {
       pageFitStatus,
       autoFitToOnePage,
       singleRendererEl,
+      // Paper Configuration (Surat Generator Style)
+      PAPER_SIZES,
+      paperSizesList,
+      cvPaperSize,
+      cvPaperOrientation,
+      cvMarginTop,
+      cvMarginBottom,
+      cvMarginLeft,
+      cvMarginRight,
+      showMarginGuides,
       // Preview Scaler & Zoom State
       previewScrollContainerEl,
       previewZoom,
