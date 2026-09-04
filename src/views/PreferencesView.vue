@@ -575,18 +575,24 @@
                 <i class="bi bi-shield-check fs-2"></i>
               </div>
               <div>
-                <h5 class="fw-bold text-dark mb-0">💾 Automated Nightly Local Storage Backup & Export</h5>
-                <p class="small text-muted mb-0">Pencadangan otomatis setiap malam ke Local Storage & Export lengkap seluruh database aplikasi (.json).</p>
+                <h5 class="fw-bold text-dark mb-0">💾 Automated Nightly Backup & Export</h5>
+                <p class="small text-muted mb-0">Pencadangan otomatis ke IndexedDB (bebas batas kuota 5MB) & Export lengkap seluruh database aplikasi (.json).</p>
               </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
-              <button class="btn btn-primary fw-bold px-4 py-2 rounded-3 shadow-sm d-flex align-items-center gap-2" @click="exportAllDataJson">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <button class="btn btn-primary fw-bold px-3 py-2 rounded-3 shadow-sm d-flex align-items-center gap-1.5" @click="exportAllDataJson">
                 <i class="bi bi-download"></i>
-                <span>Export All Data (JSON)</span>
+                <span>Export All (JSON)</span>
               </button>
-              <button class="btn btn-outline-secondary fw-semibold px-3 py-2 rounded-3" @click="triggerNightlyBackupNow">
-                <i class="bi bi-arrow-repeat me-1"></i> Cadangkan Sekarang
+              <button class="btn btn-outline-primary fw-semibold px-3 py-2 rounded-3 d-flex align-items-center gap-1.5" :disabled="isBackingUp" @click="triggerNightlyBackupNow">
+                <span v-if="isBackingUp" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                <i v-else class="bi bi-arrow-repeat me-1"></i>
+                <span>Cadangkan Sekarang</span>
+              </button>
+              <button class="btn btn-outline-success fw-semibold px-3 py-2 rounded-3 d-flex align-items-center gap-1.5" @click="restoreFromNightlySnapshot">
+                <i class="bi bi-box-arrow-in-down me-1"></i>
+                <span>Pulihkan Snapshot</span>
               </button>
             </div>
           </div>
@@ -599,7 +605,7 @@
                     ⚡ Automated Nightly Backup (Tiap Malam)
                   </label>
                   <small class="text-muted" style="font-size: 0.8rem;">
-                    Secara otomatis menyimpan snapshot lengkap seluruh data aplikasi ke memori aman setiap pergantian hari.
+                    Secara otomatis menyimpan snapshot lengkap seluruh data aplikasi ke IndexedDB browser (bebas kuota 5MB).
                   </small>
                 </div>
                 <input
@@ -616,9 +622,9 @@
             <div class="col-md-6">
               <div class="p-3 rounded-3 bg-light border">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="small fw-bold text-dark">Status Cadangan Terakhir:</span>
+                  <span class="small fw-bold text-dark">Status Cadangan Terakhir (IndexedDB):</span>
                   <span class="badge bg-success-subtle text-success fw-bold px-2.5 py-1 rounded-pill">
-                    <i class="bi bi-check-circle-fill me-1"></i>Aktif
+                    <i class="bi bi-check-circle-fill me-1"></i>Aman & Bebas Kuota
                   </span>
                 </div>
                 <div class="small text-muted">Tanggal: <strong class="text-dark">{{ lastBackupDate || 'Hari ini' }}</strong></div>
@@ -705,6 +711,11 @@ import {
   requestNotificationPermission, 
   sendOnDeviceNotification 
 } from '../utils/notification';
+import { 
+  saveNightlySnapshot, 
+  getNightlySnapshot, 
+  cleanLegacyLocalStorageSnapshot 
+} from '../utils/backupStorage';
 
 export default {
   name: 'PreferencesView',
@@ -750,72 +761,139 @@ export default {
     const autoNightlyBackup = ref(localStorage.getItem('ft_auto_nightly_backup') !== 'false');
     const lastBackupDate = ref(localStorage.getItem('ft_last_nightly_backup_date') || new Date().toISOString().split('T')[0]);
     const lastBackupTime = ref(localStorage.getItem('ft_last_nightly_backup_time') || new Date().toLocaleTimeString('id-ID'));
+    const isBackingUp = ref(false);
 
     const toggleNightlyBackupSetting = () => {
-      localStorage.setItem('ft_auto_nightly_backup', autoNightlyBackup.value ? 'true' : 'false');
+      try {
+        localStorage.setItem('ft_auto_nightly_backup', autoNightlyBackup.value ? 'true' : 'false');
+      } catch (e) {}
       if (autoNightlyBackup.value) {
         triggerNightlyBackupNow();
       }
     };
 
-    const triggerNightlyBackupNow = () => {
-      let videos = [];
-      let customFolders = [];
+    const triggerNightlyBackupNow = async () => {
+      if (isBackingUp.value) return;
+      isBackingUp.value = true;
       try {
-        videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || localStorage.getItem('rk_video_hub_videos') || '[]');
-      } catch (e) {}
+        let videos = [];
+        let customFolders = [];
+        try {
+          videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || localStorage.getItem('rk_video_hub_videos') || '[]');
+        } catch (e) {}
+        try {
+          customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+        } catch (e) {}
+
+        const fullState = {
+          app: 'RajinKerja',
+          version: '2.5',
+          exportDate: new Date().toISOString(),
+          rabItems: store.getters.getRabItems || [],
+          rabIncomes: store.getters.getRabIncomes || [],
+          rabExpenses: store.getters.getRabExpenses || [],
+          tasks: store.getters.getTasks || [],
+          projects: store.getters.getProjects || [],
+          transactions: store.getters.getTransactions || [],
+          invoices: store.getters.getInvoices || [],
+          contacts: store.getters.getContacts || [],
+          habits: store.getters.getHabits || [],
+          notes: store.getters.getNotes || [],
+          events: store.getters.getEvents || [],
+          codeNotes: store.getters.getCodeNotes || [],
+          suratList: store.getters.getSuratList || [],
+          cvData: store.getters.getCvData || {},
+          userProfile: store.getters.getUserProfile || {},
+          myBusiness: store.getters.getMyBusiness || {},
+          moodLogs: store.getters.getMoodLogs || [],
+          workAlarms: store.getters.getWorkAlarms || [],
+          selfieGallery: store.getters.getSelfieGallery || [],
+          videos,
+          customFolders,
+          themeMode: store.getters.getThemeMode,
+          accentColor: store.getters.getAccentColor,
+          budgetThreshold: store.getters.getBudgetThreshold,
+          welcomeBanner: store.getters.getWelcomeBanner,
+          geminiApiKey: store.getters.getGeminiApiKey,
+          aiProvider: store.getters.getAiProvider,
+          aiModel: store.getters.getAiModel
+        };
+
+        const res = await saveNightlySnapshot(fullState);
+        const today = res.date || new Date().toISOString().split('T')[0];
+        const time = res.time || new Date().toLocaleTimeString('id-ID');
+
+        lastBackupDate.value = today;
+        lastBackupTime.value = time;
+
+        sendOnDeviceNotification('💾 Nightly Backup Berhasil', {
+          body: `Snapshot data tersimpan aman di IndexedDB (${time}).`,
+          type: 'success'
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Snapshot Tersimpan!',
+          text: `Snapshot database lengkap berhasil disimpan ke IndexedDB browser (${time}). Aman dan tidak membebani kuota localStorage.`,
+          timer: 2500,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        console.error('Trigger backup error:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Mencadangkan',
+          text: err.message || 'Terjadi kendala saat menyimpan snapshot ke IndexedDB.'
+        });
+      } finally {
+        isBackingUp.value = false;
+      }
+    };
+
+    const restoreFromNightlySnapshot = async () => {
       try {
-        customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
-      } catch (e) {}
+        const snapshot = await getNightlySnapshot();
+        if (!snapshot) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Snapshot Belum Tersedia',
+            text: 'Belum ada data snapshot yang tersimpan di IndexedDB browser Anda. Klik "Cadangkan Sekarang" untuk menyimpannya.'
+          });
+          return;
+        }
 
-      const fullState = {
-        app: 'RajinKerja',
-        version: '2.5',
-        exportDate: new Date().toISOString(),
-        rabItems: store.getters.getRabItems || [],
-        rabIncomes: store.getters.getRabIncomes || [],
-        rabExpenses: store.getters.getRabExpenses || [],
-        tasks: store.getters.getTasks || [],
-        projects: store.getters.getProjects || [],
-        transactions: store.getters.getTransactions || [],
-        invoices: store.getters.getInvoices || [],
-        contacts: store.getters.getContacts || [],
-        habits: store.getters.getHabits || [],
-        notes: store.getters.getNotes || [],
-        events: store.getters.getEvents || [],
-        codeNotes: store.getters.getCodeNotes || [],
-        suratList: store.getters.getSuratList || [],
-        cvData: store.getters.getCvData || {},
-        userProfile: store.getters.getUserProfile || {},
-        myBusiness: store.getters.getMyBusiness || {},
-        moodLogs: store.getters.getMoodLogs || [],
-        workAlarms: store.getters.getWorkAlarms || [],
-        selfieGallery: store.getters.getSelfieGallery || [],
-        videos,
-        customFolders,
-        themeMode: store.getters.getThemeMode,
-        accentColor: store.getters.getAccentColor,
-        budgetThreshold: store.getters.getBudgetThreshold,
-        welcomeBanner: store.getters.getWelcomeBanner,
-        geminiApiKey: store.getters.getGeminiApiKey,
-        aiProvider: store.getters.getAiProvider,
-        aiModel: store.getters.getAiModel
-      };
+        const confirm = await Swal.fire({
+          title: 'Pulihkan Snapshot Semalam?',
+          text: `Apakah Anda ingin memulihkan seluruh data dari snapshot terakhir (${snapshot.exportDate || 'terbaru'})? Data saat ini akan ditimpa dengan data cadangan ini.`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#2563eb',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Ya, Pulihkan Sekarang',
+          cancelButtonText: 'Batal'
+        });
 
-      const today = new Date().toISOString().split('T')[0];
-      const time = new Date().toLocaleTimeString('id-ID');
-
-      localStorage.setItem('ft_nightly_backup_snapshot', JSON.stringify(fullState));
-      localStorage.setItem('ft_last_nightly_backup_date', today);
-      localStorage.setItem('ft_last_nightly_backup_time', time);
-
-      lastBackupDate.value = today;
-      lastBackupTime.value = time;
-
-      sendOnDeviceNotification('💾 Nightly Backup Berhasil', {
-        body: `Snapshot data lengkap tersimpan aman pada ${time}.`,
-        type: 'success'
-      });
+        if (confirm.isConfirmed) {
+          store.dispatch('importFullData', snapshot);
+          sendOnDeviceNotification('🔄 Snapshot Berhasil Dipulihkan', {
+            body: 'Seluruh database aplikasi berhasil dipulihkan dari IndexedDB.',
+            type: 'success'
+          });
+          Swal.fire({
+            icon: 'success',
+            title: 'Restorasi Selesai!',
+            text: 'Data aplikasi telah berhasil dipulihkan dari snapshot.',
+            timer: 2500
+          });
+        }
+      } catch (err) {
+        console.error('Failed to restore snapshot:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Memulihkan',
+          text: err.message || 'Terjadi kesalahan saat memulihkan data snapshot.'
+        });
+      }
     };
 
     const exportAllDataJson = () => {
@@ -1272,6 +1350,7 @@ export default {
     };
 
     onMounted(() => {
+      cleanLegacyLocalStorageSnapshot();
       checkPwaStatus();
       updateNotifPermissionState();
       window.addEventListener('pwa-prompt-available', checkPwaStatus);
@@ -1314,8 +1393,10 @@ export default {
       autoNightlyBackup,
       lastBackupDate,
       lastBackupTime,
+      isBackingUp,
       toggleNightlyBackupSetting,
       triggerNightlyBackupNow,
+      restoreFromNightlySnapshot,
       exportAllDataJson,
       exportJSONBackup,
       handleJSONSelect,

@@ -364,6 +364,7 @@ import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
+import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
 
 export default {
   name: 'App',
@@ -543,58 +544,67 @@ export default {
       applyThemeToBody(themeMode.value);
       window.addEventListener('keydown', handleKeydown);
 
-      // Automated Nightly Local Storage Backup Check
-      const isNightlyEnabled = localStorage.getItem('ft_auto_nightly_backup') !== 'false';
-      if (isNightlyEnabled) {
-        const lastBackup = localStorage.getItem('ft_last_nightly_backup_date');
-        const today = new Date().toISOString().split('T')[0];
-        if (lastBackup !== today) {
-          let videos = [];
-          let customFolders = [];
-          try {
-            videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || '[]');
-          } catch (e) {}
-          try {
-            customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
-          } catch (e) {}
+      // Clean up legacy monolithic snapshot from localStorage to release quota back to app
+      cleanLegacyLocalStorageSnapshot();
 
-          const fullState = {
-            app: 'RajinKerja',
-            version: '2.5',
-            exportDate: new Date().toISOString(),
-            rabItems: store.getters.getRabItems || [],
-            rabIncomes: store.getters.getRabIncomes || [],
-            rabExpenses: store.getters.getRabExpenses || [],
-            tasks: store.getters.getTasks || [],
-            projects: store.getters.getProjects || [],
-            transactions: store.getters.getTransactions || [],
-            invoices: store.getters.getInvoices || [],
-            contacts: store.getters.getContacts || [],
-            habits: store.getters.getHabits || [],
-            notes: store.getters.getNotes || [],
-            events: store.getters.getEvents || [],
-            codeNotes: store.getters.getCodeNotes || [],
-            suratList: store.getters.getSuratList || [],
-            cvData: store.getters.getCvData || {},
-            userProfile: store.getters.getUserProfile || {},
-            myBusiness: store.getters.getMyBusiness || {},
-            moodLogs: store.getters.getMoodLogs || [],
-            workAlarms: store.getters.getWorkAlarms || [],
-            selfieGallery: store.getters.getSelfieGallery || [],
-            videos,
-            customFolders,
-            themeMode: store.getters.getThemeMode,
-            accentColor: store.getters.getAccentColor,
-            budgetThreshold: store.getters.getBudgetThreshold,
-            welcomeBanner: store.getters.getWelcomeBanner,
-            geminiApiKey: store.getters.getGeminiApiKey,
-            aiProvider: store.getters.getAiProvider,
-            aiModel: store.getters.getAiModel
-          };
-          localStorage.setItem('ft_nightly_backup_snapshot', JSON.stringify(fullState));
-          localStorage.setItem('ft_last_nightly_backup_date', today);
-          localStorage.setItem('ft_last_nightly_backup_time', new Date().toLocaleTimeString('id-ID'));
+      // Automated Nightly Backup Check (Persisted in IndexedDB to prevent QuotaExceededError)
+      try {
+        const isNightlyEnabled = localStorage.getItem('ft_auto_nightly_backup') !== 'false';
+        if (isNightlyEnabled) {
+          const lastBackup = localStorage.getItem('ft_last_nightly_backup_date');
+          const today = new Date().toISOString().split('T')[0];
+          if (lastBackup !== today) {
+            let videos = [];
+            let customFolders = [];
+            try {
+              videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || '[]');
+            } catch (e) {}
+            try {
+              customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+            } catch (e) {}
+
+            const fullState = {
+              app: 'RajinKerja',
+              version: '2.5',
+              exportDate: new Date().toISOString(),
+              rabItems: store.getters.getRabItems || [],
+              rabIncomes: store.getters.getRabIncomes || [],
+              rabExpenses: store.getters.getRabExpenses || [],
+              tasks: store.getters.getTasks || [],
+              projects: store.getters.getProjects || [],
+              transactions: store.getters.getTransactions || [],
+              invoices: store.getters.getInvoices || [],
+              contacts: store.getters.getContacts || [],
+              habits: store.getters.getHabits || [],
+              notes: store.getters.getNotes || [],
+              events: store.getters.getEvents || [],
+              codeNotes: store.getters.getCodeNotes || [],
+              suratList: store.getters.getSuratList || [],
+              cvData: store.getters.getCvData || {},
+              userProfile: store.getters.getUserProfile || {},
+              myBusiness: store.getters.getMyBusiness || {},
+              moodLogs: store.getters.getMoodLogs || [],
+              workAlarms: store.getters.getWorkAlarms || [],
+              selfieGallery: store.getters.getSelfieGallery || [],
+              videos,
+              customFolders,
+              themeMode: store.getters.getThemeMode,
+              accentColor: store.getters.getAccentColor,
+              budgetThreshold: store.getters.getBudgetThreshold,
+              welcomeBanner: store.getters.getWelcomeBanner,
+              geminiApiKey: store.getters.getGeminiApiKey,
+              aiProvider: store.getters.getAiProvider,
+              aiModel: store.getters.getAiModel
+            };
+
+            // Save to IndexedDB safely without crashing
+            saveNightlySnapshot(fullState).catch((backupErr) => {
+              console.warn('Nightly backup snapshot error:', backupErr);
+            });
+          }
         }
+      } catch (err) {
+        console.warn('Automated nightly backup check encountered error:', err);
       }
 
       // Listen for PWA Install Prompt Event

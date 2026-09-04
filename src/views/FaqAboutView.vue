@@ -190,10 +190,10 @@
                 <h5 class="fw-bold text-dark mb-0">Nightly Automatic Backup (Pukul 00:00)</h5>
               </div>
               <p class="small text-secondary lh-base mb-2">
-                Sistem secara otomatis mendeteksi pergantian hari dan membuat snapshot pencadangan seluruh data (To-Do, Keuangan, RAB, CV, Surat) ke dalam slot <code>ft_nightly_backup</code> di localStorage. Jika browser Anda tidak sengaja dibersihkan, data cadangan semalam masih tersimpan aman.
+                Sistem secara otomatis mendeteksi pergantian hari dan membuat snapshot pencadangan seluruh data (To-Do, Keuangan, RAB, CV, Surat) ke dalam database berkapasitas tinggi IndexedDB (bebas dari batas kuota 5MB localStorage). Data cadangan semalam tersimpan aman dan dapat dipulihkan kapan saja.
               </p>
               <div class="small bg-white p-2 rounded border font-monospace text-success">
-                App.vue ➔ setInterval Check (Midnight Trigger) ➔ LocalStorage Lock
+                App.vue ➔ IndexedDB High-Capacity Storage ➔ Safe Snapshot
               </div>
             </div>
           </div>

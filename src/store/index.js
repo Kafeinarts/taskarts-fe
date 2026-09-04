@@ -768,6 +768,15 @@ function saveLocal(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {
     console.error('Storage error:', e);
+    // If quota exceeded, purge legacy snapshot cache to recover space and retry
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('ft_nightly_backup_snapshot');
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    } catch (retryErr) {
+      console.warn('LocalStorage quota still exceeded:', retryErr);
+    }
   }
 }
 
