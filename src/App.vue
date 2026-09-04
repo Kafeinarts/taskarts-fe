@@ -501,6 +501,7 @@ export default {
       '/diary': { title: 'Diary & Jurnal Cerita Harian', icon: 'bi-book-half' },
       '/code-notes': { title: 'Code Snippets & Tech Notes', icon: 'bi-code-slash' },
       '/games': { title: '3D Games & Simulator', icon: 'bi-controller' },
+      '/storage/view': { title: 'Inspeksi Kunci & Detail JSON', icon: 'bi-code-square' },
       '/storage': { title: 'Storage & Kapasitas Local Storage', icon: 'bi-hdd-stack-fill' },
       '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
       '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },

@@ -1,11 +1,12 @@
 /**
  * Storage Manager Utility for RajinKerja.id
- * Monitors LocalStorage capacity, calculates usage, and guards against quota overflow.
+ * Monitors LocalStorage & Cache Memory capacity, calculates usage, and guards against quota overflow.
+ * Storage limit extended to 5 GB (Cache Memory mode).
  */
 
-export const MAX_STORAGE_QUOTA_BYTES = 5 * 1024 * 1024; // 5 MB standard browser quota
-export const WARNING_THRESHOLD_PERCENT = 75;
-export const FULL_THRESHOLD_PERCENT = 95;
+export const MAX_STORAGE_QUOTA_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB (5,368,709,120 bytes) Cache Memory
+export const WARNING_THRESHOLD_PERCENT = 85;
+export const FULL_THRESHOLD_PERCENT = 98;
 
 const FORCE_FULL_KEY = 'ft_storage_force_full_simulated';
 
@@ -149,7 +150,7 @@ export function getLocalStorageUsage() {
   // Sort items from largest to smallest size
   items.sort((a, b) => b.bytes - a.bytes);
 
-  const percentUsed = Math.min(100, parseFloat(((totalBytes / MAX_STORAGE_QUOTA_BYTES) * 100).toFixed(1)));
+  const percentUsed = Math.min(100, parseFloat(((totalBytes / MAX_STORAGE_QUOTA_BYTES) * 100).toFixed(2)));
   const isForced = window.localStorage.getItem(FORCE_FULL_KEY) === 'true';
   const isFull = isForced || percentUsed >= FULL_THRESHOLD_PERCENT || totalBytes >= MAX_STORAGE_QUOTA_BYTES;
   const isWarning = percentUsed >= WARNING_THRESHOLD_PERCENT && !isFull;
@@ -159,7 +160,9 @@ export function getLocalStorageUsage() {
     totalBytes,
     totalKB: parseFloat((totalBytes / 1024).toFixed(1)),
     totalMB: parseFloat((totalBytes / (1024 * 1024)).toFixed(2)),
+    totalGB: parseFloat((totalBytes / (1024 * 1024 * 1024)).toFixed(4)),
     maxQuotaBytes: MAX_STORAGE_QUOTA_BYTES,
+    maxQuotaFormatted: '5.00 GB',
     remainingBytes,
     remainingFormatted: formatBytes(remainingBytes),
     percentUsed,
@@ -283,3 +286,29 @@ export function clearTemporaryCache() {
   window.dispatchEvent(new CustomEvent('storage-quota-updated'));
   return { clearedCount, freedBytes, freedFormatted: formatBytes(freedBytes) };
 }
+
+/**
+ * Total Reset (Factory Reset) for RajinKerja.id
+ * Wipes all application data from LocalStorage and triggers storage quota update events.
+ * Optionally preserves visual appearance settings (Theme Mode and Accent Color).
+ */
+export function executeTotalReset({ keepTheme = true } = {}) {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+
+  const savedTheme = keepTheme ? window.localStorage.getItem('ft_themeMode') : null;
+  const savedAccent = keepTheme ? window.localStorage.getItem('ft_accentColor') : null;
+
+  // Clear all localStorage entries
+  window.localStorage.clear();
+
+  // Restore theme if requested
+  if (keepTheme) {
+    if (savedTheme) window.localStorage.setItem('ft_themeMode', savedTheme);
+    if (savedAccent) window.localStorage.setItem('ft_accentColor', savedAccent);
+  }
+
+  // Notify listeners across app
+  window.dispatchEvent(new CustomEvent('storage-quota-updated'));
+  return true;
+}
+

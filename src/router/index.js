@@ -178,6 +178,15 @@ const routes = [
     component: () => import("../views/StorageView.vue"),
   },
   {
+    path: "/storage/view/:key",
+    name: "storage-key-detail",
+    component: () => import("../views/StorageKeyDetailView.vue"),
+  },
+  {
+    path: "/storage/json-viewer",
+    redirect: to => `/storage/view/${encodeURIComponent(to.query.key || '')}`,
+  },
+  {
     path: "/settings",
     name: "settings",
     component: () => import("../views/PreferencesView.vue"),

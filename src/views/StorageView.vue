@@ -5,18 +5,18 @@
       <div>
         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
           <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1.5 rounded-pill">
-            <i class="bi bi-hdd-stack-fill me-1"></i> LocalStorage Inspector
+            <i class="bi bi-hdd-stack-fill me-1"></i> LocalStorage & Cache Inspector
           </span>
           <span
             class="badge fw-bold px-3 py-1.5 rounded-pill"
             :class="storageInfo.isFull ? 'bg-danger text-white' : storageInfo.isWarning ? 'bg-warning text-dark' : 'bg-success-subtle text-success'"
           >
             <i class="bi" :class="storageInfo.isFull ? 'bi-x-octagon-fill' : storageInfo.isWarning ? 'bi-exclamation-triangle-fill' : 'bi-shield-check'"></i>
-            {{ storageInfo.isFull ? 'Kapasitas Penuh (Simpan Terkunci)' : storageInfo.isWarning ? 'Kapasitas Hampir Penuh' : 'Penyimpanan Aman & Normal' }}
+            {{ storageInfo.isFull ? 'Kapasitas Penuh (Simpan Terkunci)' : storageInfo.isWarning ? 'Kapasitas Mendekati Batas' : 'Penyimpanan Aman & Normal' }}
           </span>
         </div>
-        <h2 class="fw-extrabold mb-1 text-dark">💾 Manajemen Storage & Kapasitas Local Storage</h2>
-        <p class="text-muted mb-0">Pantau penggunaan memori browser, periksa kuota penyimpanan per modul, bersihkan data lama, dan kelola kapasitas.</p>
+        <h2 class="fw-extrabold mb-1 text-dark">💾 Manajemen Storage & Kapasitas Memori Cache</h2>
+        <p class="text-muted mb-0">Pantau penggunaan memori browser, kuota cache 5 GB diperluas, inspeksi JSON per modul di halaman terpisah, dan reset total data.</p>
       </div>
 
       <div class="d-flex flex-wrap gap-2">
@@ -44,7 +44,7 @@
             </h5>
             <p class="small text-dark mb-0">
               Kapasitas memori Local Storage browser telah mencapai batas maksimal {{ storageInfo.isForcedFull ? '(Mode Simulasi Aktif)' : '' }}.
-              Semua operasi penambahan catatan (Notes & Scratchpad), tugas, transaksi, dan data baru <strong>dikunci sementara</strong> demi mencegah hilangnya atau rusaknya data.
+              Semua operasi penambahan catatan, tugas, transaksi, dan data baru <strong>dikunci sementara</strong> demi mencegah hilangnya data.
             </p>
           </div>
         </div>
@@ -67,12 +67,12 @@
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="small fw-bold text-muted text-uppercase tracking-wider">Total Digunakan</span>
             <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1 rounded-pill">
-              Kuota ~5.00 MB
+              Kuota ~5.00 GB
             </span>
           </div>
           <div class="d-flex align-items-baseline gap-2 mb-2">
-            <h3 class="fw-extrabold text-dark mb-0">{{ storageInfo.totalKB }} <span class="fs-6 fw-normal text-muted">KB</span></h3>
-            <span class="small text-muted">({{ storageInfo.totalMB }} MB)</span>
+            <h3 class="fw-extrabold text-dark mb-0">{{ storageInfo.totalMB }} <span class="fs-6 fw-normal text-muted">MB</span></h3>
+            <span class="small text-muted">({{ storageInfo.totalKB.toLocaleString() }} KB)</span>
           </div>
           <!-- Progress Bar -->
           <div class="progress rounded-pill mb-2" style="height: 10px;">
@@ -80,7 +80,7 @@
               class="progress-bar rounded-pill"
               :class="storageInfo.isFull ? 'bg-danger' : storageInfo.isWarning ? 'bg-warning' : 'bg-primary'"
               role="progressbar"
-              :style="{ width: storageInfo.percentUsed + '%' }"
+              :style="{ width: Math.max(storageInfo.percentUsed, 1) + '%' }"
               :aria-valuenow="storageInfo.percentUsed"
               aria-valuemin="0"
               aria-valuemax="100"
@@ -88,7 +88,7 @@
           </div>
           <div class="d-flex justify-content-between small text-muted">
             <span>{{ storageInfo.percentUsed }}% Terpakai</span>
-            <span>Maks: 5,120 KB</span>
+            <span>Maks: 5,120 MB (5.00 GB)</span>
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@
           </div>
           <h3 class="fw-extrabold text-dark mb-1">{{ storageInfo.remainingFormatted }}</h3>
           <p class="small text-muted mb-0">
-            Kapasitas aman browser untuk menyimpan data baru.
+            Kapasitas cache memory luas 5 GB tanpa pembatasan sempit.
           </p>
         </div>
       </div>
@@ -122,7 +122,7 @@
             {{ storageInfo.isFull ? '🔒 TERKUNCI (FULL)' : '🔓 AKTIF & NORMAL' }}
           </h4>
           <p class="small text-muted mb-0">
-            {{ storageInfo.isFull ? 'Menyimpan dicegah agar memori tidak error.' : 'Notes, tugas, dan data baru dapat disimpan lancar.' }}
+            {{ storageInfo.isFull ? 'Menyimpan dicegah agar memori tidak error.' : 'Notes, tugas, dan data baru dapat disimpan bebas.' }}
           </p>
         </div>
       </div>
@@ -138,8 +138,39 @@
           </div>
           <h3 class="fw-extrabold text-dark mb-1">{{ storageInfo.itemCount }} <span class="fs-6 fw-normal text-muted">Items</span></h3>
           <p class="small text-muted mb-0">
-            Modul & variabel tersimpan di LocalStorage saat ini.
+            Modul & variabel tersimpan di penyimpanan saat ini.
           </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEDICATED TOTAL RESET & FACTORY RESET CARD -->
+    <div class="card border border-2 border-danger shadow-sm rounded-4 bg-danger bg-opacity-10 p-4 mb-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div class="d-flex align-items-start gap-3">
+          <div class="p-3 bg-danger text-white rounded-4 fs-2">
+            <i class="bi bi-radioactive"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+              <h4 class="fw-extrabold text-danger mb-0">🔥 Reset Total Seluruh Data (Factory Reset)</h4>
+              <span class="badge bg-danger text-white px-2.5 py-1 rounded-pill fw-bold">Penghapusan Total</span>
+            </div>
+            <p class="text-dark small mb-0" style="max-width: 780px;">
+              Tombol ini akan <strong>mengosongkan seluruh memori Local Storage</strong> dan mereset state aplikasi ke kondisi bersih awal (Clean Slate).
+              Menghapus seluruh daftar tugas (To-Do), proyek, catatan, scratchpad, jurnal harian, transaksi & RAB, profil, galeri foto, dan riwayat.
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 flex-shrink-0 align-items-center">
+          <button class="btn btn-secondary fw-semibold rounded-3 px-3 py-2 shadow-sm" @click="loadSampleDataForDemo">
+            <i class="bi bi-box-seam me-1"></i> Muat Data Contoh (Demo)
+          </button>
+          <button class="btn btn-danger fw-bold rounded-3 px-4 py-2 shadow-sm d-flex align-items-center gap-2" @click="confirmTotalReset">
+            <i class="bi bi-trash3-fill"></i>
+            <span>Reset Total Aplikasi</span>
+          </button>
         </div>
       </div>
     </div>
@@ -148,7 +179,7 @@
     <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
       <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
         <i class="bi bi-tools text-primary"></i>
-        <span>Alat Pembersihan & Simulasi Kuota</span>
+        <span>Alat Pembersihan Cepat & Pengujian Kuota</span>
       </h5>
 
       <div class="row g-3 align-items-center">
@@ -161,7 +192,7 @@
                 <span>Bersihkan Cache & Draft Sementara</span>
               </div>
               <p class="small text-muted mb-3">
-                Menghapus draft catatan yang belum selesai, cache lama, dan skor game sementara tanpa menghapus catatan atau tugas utama Anda.
+                Menghapus draft catatan yang belum tersimpan, cache lama, dan skor game sementara tanpa menghapus catatan atau tugas utama Anda.
               </p>
             </div>
             <button class="btn btn-outline-primary btn-sm fw-bold w-100 rounded-3 py-2" @click="quickCleanCache">
@@ -225,7 +256,7 @@
             <i class="bi bi-table text-primary"></i>
             <span>Rincian Penggunaan Berdasarkan Kunci Data</span>
           </h5>
-          <p class="small text-muted mb-0">Urutan modul berdasarkan konsumsi ruang memori dari yang terbesar ke terkecil.</p>
+          <p class="small text-muted mb-0">Klik <strong>Lihat JSON</strong> pada salah satu baris untuk membuka inspeksi data di halaman terpisah.</p>
         </div>
 
         <!-- Category Filter & Search -->
@@ -251,12 +282,12 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light small text-uppercase text-muted">
             <tr>
-              <th scope="col" style="width: 30%;">Modul & Kunci LocalStorage</th>
+              <th scope="col" style="width: 28%;">Modul & Kunci LocalStorage</th>
               <th scope="col" style="width: 18%;">Kategori</th>
               <th scope="col" style="width: 15%;">Ukuran Memori</th>
-              <th scope="col" style="width: 12%;">% Kuota</th>
-              <th scope="col" style="width: 13%;">Jumlah Data</th>
-              <th scope="col" class="text-end" style="width: 12%;">Aksi</th>
+              <th scope="col" style="width: 12%;">% Penggunaan</th>
+              <th scope="col" style="width: 11%;">Jumlah Data</th>
+              <th scope="col" class="text-end" style="width: 16%;">Aksi & Pratinjau</th>
             </tr>
           </thead>
           <tbody>
@@ -287,7 +318,7 @@
                     <div
                       class="progress-bar bg-primary rounded-pill"
                       role="progressbar"
-                      :style="{ width: Math.min(100, (item.bytes / storageInfo.totalBytes) * 100) + '%' }"
+                      :style="{ width: Math.min(100, (item.bytes / (storageInfo.totalBytes || 1)) * 100) + '%' }"
                     ></div>
                   </div>
                   <span class="small font-monospace text-muted">
@@ -300,22 +331,33 @@
                   {{ item.itemCount !== null ? `${item.itemCount} ${item.isJson ? 'entri' : 'huruf'}` : '-' }}
                 </span>
               </td>
-              <td class="text-end">
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-light border rounded-2 px-2 py-1" type="button" data-bs-toggle="dropdown">
+              <td class="text-end text-nowrap">
+                <!-- Direct link to dedicated JSON Viewer page -->
+                <router-link
+                  :to="'/storage/view/' + encodeURIComponent(item.key)"
+                  class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1 text-decoration-none fw-semibold d-inline-flex align-items-center gap-1.5"
+                  title="Buka Pratinjau JSON di Halaman Terpisah"
+                >
+                  <i class="bi bi-code-slash"></i>
+                  <span>Lihat JSON</span>
+                </router-link>
+
+                <!-- Dropdown for extra actions -->
+                <div class="dropdown d-inline-block">
+                  <button class="btn btn-sm btn-light border rounded-circle p-1.5" type="button" data-bs-toggle="dropdown" aria-label="Menu Aksi">
                     <i class="bi bi-three-dots-vertical"></i>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
                     <li>
-                      <button class="dropdown-item d-flex align-items-center gap-2" @click="viewKeyDetail(item)">
-                        <i class="bi bi-eye text-primary"></i>
-                        <span>Lihat Isi / JSON</span>
-                      </button>
+                      <router-link :to="'/storage/view/' + encodeURIComponent(item.key)" class="dropdown-item d-flex align-items-center gap-2">
+                        <i class="bi bi-box-arrow-up-right text-primary"></i>
+                        <span>Buka Halaman JSON Terpisah</span>
+                      </router-link>
                     </li>
                     <li>
                       <button class="dropdown-item d-flex align-items-center gap-2" @click="exportSingleKey(item)">
                         <i class="bi bi-download text-success"></i>
-                        <span>Download JSON</span>
+                        <span>Unduh File JSON</span>
                       </button>
                     </li>
                     <li><hr class="dropdown-divider"></li>
@@ -340,40 +382,6 @@
         </table>
       </div>
     </div>
-
-    <!-- MODAL: VIEW KEY DETAILS -->
-    <div
-      class="modal fade"
-      id="keyDetailModal"
-      tabindex="-1"
-      aria-hidden="true"
-      ref="detailModalRef"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content rounded-4 border-0 shadow">
-          <div class="modal-header border-bottom p-4">
-            <div>
-              <h5 class="modal-title fw-bold text-dark">
-                🔍 Pratinjau Kunci: <code>{{ selectedKeyItem?.key }}</code>
-              </h5>
-              <div class="small text-muted">
-                {{ selectedKeyItem?.label }} &bull; Ukuran: <strong>{{ selectedKeyItem?.formattedSize }}</strong>
-              </div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body p-4 bg-light font-monospace">
-            <pre class="bg-white p-3 rounded-3 border text-dark overflow-auto" style="max-height: 400px; font-size: 0.85rem;">{{ formattedModalContent }}</pre>
-          </div>
-          <div class="modal-footer border-top p-3 d-flex justify-content-between">
-            <button class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
-            <button class="btn btn-primary rounded-pill px-4" @click="exportSingleKey(selectedKeyItem)">
-              <i class="bi bi-download me-1"></i> Download JSON
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -385,7 +393,8 @@ import {
   getLocalStorageUsage,
   setSimulatedStorageFull,
   safeRemoveItem,
-  clearTemporaryCache
+  clearTemporaryCache,
+  executeTotalReset
 } from '../utils/storageManager';
 
 export default {
@@ -396,16 +405,13 @@ export default {
     const isRefreshing = ref(false);
     const searchKey = ref('');
     const selectedCategory = ref('ALL');
-    const selectedKeyItem = ref(null);
-    const detailModalRef = ref(null);
-    let bsModal = null;
 
     const refreshStorage = () => {
       isRefreshing.value = true;
       storageInfo.value = getLocalStorageUsage();
       setTimeout(() => {
         isRefreshing.value = false;
-      }, 400);
+      }, 350);
     };
 
     const uniqueCategories = computed(() => {
@@ -480,27 +486,6 @@ export default {
       }
     };
 
-    const viewKeyDetail = (item) => {
-      selectedKeyItem.value = item;
-      if (window.bootstrap && detailModalRef.value) {
-        if (!bsModal) {
-          bsModal = new window.bootstrap.Modal(detailModalRef.value);
-        }
-        bsModal.show();
-      }
-    };
-
-    const formattedModalContent = computed(() => {
-      if (!selectedKeyItem.value) return '';
-      const raw = localStorage.getItem(selectedKeyItem.value.key) || '';
-      try {
-        const parsed = JSON.parse(raw);
-        return JSON.stringify(parsed, null, 2);
-      } catch (e) {
-        return raw;
-      }
-    });
-
     const exportSingleKey = (item) => {
       if (!item) return;
       const raw = localStorage.getItem(item.key) || '';
@@ -531,6 +516,83 @@ export default {
           icon: 'success',
           title: 'Kunci Dihapus!',
           text: `Data ${item.label} telah dihapus dari LocalStorage.`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    };
+
+    const confirmTotalReset = async () => {
+      const step1 = await Swal.fire({
+        title: 'Konfirmasi Reset Total?',
+        html: `
+          <p class="text-muted mb-2">Anda akan melakukan <strong>Reset Total Seluruh Data Aplikasi</strong>.</p>
+          <div class="alert alert-danger text-start small mb-0">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            Semua catatan, coretan scratchpad, to-do list, manajemen proyek, arus kas RAB, profil, dan galeri akan dihapus permanen dari browser.
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Lanjutkan ke Verifikasi',
+        cancelButtonText: 'Batal'
+      });
+
+      if (!step1.isConfirmed) return;
+
+      const step2 = await Swal.fire({
+        title: 'Verifikasi Terakhir!',
+        text: 'Ketik "RESET" dengan huruf kapital di bawah ini untuk memulai penghapusan total:',
+        input: 'text',
+        inputPlaceholder: 'Ketik RESET',
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: 'Ya, Reset Total Sekarang',
+        cancelButtonText: 'Batal',
+        preConfirm: (inputVal) => {
+          if ((inputVal || '').trim().toUpperCase() !== 'RESET') {
+            Swal.showValidationMessage('Ketik RESET dengan benar untuk melanjutkan.');
+            return false;
+          }
+          return true;
+        }
+      });
+
+      if (step2.isConfirmed) {
+        executeTotalReset({ keepTheme: true });
+        store.dispatch('clearAllData');
+        refreshStorage();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Reset Total Berhasil!',
+          text: 'Seluruh data aplikasi dan memori cache telah dikosongkan ke setelan bersih awal.',
+          confirmButtonColor: '#0284c7'
+        });
+      }
+    };
+
+    const loadSampleDataForDemo = async () => {
+      const confirm = await Swal.fire({
+        title: 'Muat Data Contoh (Demo)?',
+        text: 'Ini akan mengisi aplikasi dengan sampel proyek, tugas, catatan, dan transaksi untuk kebutuhan demonstrasi.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#0284c7',
+        confirmButtonText: 'Ya, Muat Data Contoh',
+        cancelButtonText: 'Batal'
+      });
+
+      if (confirm.isConfirmed) {
+        store.dispatch('loadSampleData');
+        refreshStorage();
+        Swal.fire({
+          icon: 'success',
+          title: 'Data Contoh Dimuat!',
+          text: 'Data contoh telah berhasil disiapkan ke dalam memori.',
           timer: 2000,
           showConfirmButton: false
         });
@@ -571,9 +633,6 @@ export default {
     onUnmounted(() => {
       window.removeEventListener('storage-quota-updated', handleStorageChange);
       window.removeEventListener('storage-quota-full', handleStorageChange);
-      if (bsModal) {
-        bsModal.hide();
-      }
     });
 
     return {
@@ -583,16 +642,14 @@ export default {
       selectedCategory,
       uniqueCategories,
       filteredItems,
-      selectedKeyItem,
-      detailModalRef,
-      formattedModalContent,
       refreshStorage,
       toggleSimulatedFull,
       quickCleanCache,
       clearScratchpadStorage,
-      viewKeyDetail,
       exportSingleKey,
       deleteSingleKey,
+      confirmTotalReset,
+      loadSampleDataForDemo,
       exportAllDataBackup
     };
   }

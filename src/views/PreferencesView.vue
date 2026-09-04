@@ -671,23 +671,24 @@
         </div>
       </div>
 
-      <!-- Raw Reset & Demo Controls -->
+      <!-- Navigasi Pintasan ke Manajemen Storage & Kuota -->
       <div class="col-lg-12">
-        <div class="card border border-2 border-danger shadow-sm rounded-4 bg-danger bg-opacity-10 p-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-              <h5 class="fw-bold text-danger mb-1">🔥 Reset Data Ke Setelan Pabrik</h5>
-              <p class="small text-danger mb-0">Bersihkan seluruh data menjadi kosong (Raw State) atau muat data contoh untuk demo.</p>
+            <div class="d-flex align-items-center gap-3">
+              <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3">
+                <i class="bi bi-hdd-stack-fill fs-3"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold text-dark mb-1">💾 Manajemen Memori Storage & Reset Total</h5>
+                <p class="small text-muted mb-0">Kelola rincian kuota cache memory 5 GB, inspeksi JSON terpisah per modul, bersihkan cache, atau lakukan reset total aplikasi di menu khusus Storage.</p>
+              </div>
             </div>
 
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-danger fw-bold rounded-3" @click="resetToRawEmpty">
-                <i class="bi bi-trash3-fill me-1"></i> Bersihkan Semua Data
-              </button>
-              <button class="btn btn-secondary fw-semibold rounded-3" @click="loadSampleData">
-                <i class="bi bi-box-seam me-1"></i> Muat Data Contoh (Demo)
-              </button>
-            </div>
+            <router-link to="/storage" class="btn btn-outline-primary fw-bold rounded-pill px-4 py-2.5 text-nowrap d-flex align-items-center gap-2 text-decoration-none">
+              <i class="bi bi-arrow-right-circle"></i>
+              <span>Buka Menu Storage & Kuota</span>
+            </router-link>
           </div>
         </div>
       </div>
