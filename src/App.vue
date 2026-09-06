@@ -1,25 +1,5 @@
 <template>
   <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled' || themeMode === 'coffee') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', themeMode === 'coffee' ? 'coffee-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
-    <!-- Top Route Loading Progress Bar (Blue or Pink based on theme) -->
-    <div
-      v-if="isNavigating || navProgress > 0"
-      class="global-top-progress-bar"
-      :class="isPinkMode ? 'pink-progress-bar' : 'blue-progress-bar'"
-      :style="{ width: navProgress + '%' }"
-    ></div>
-
-    <!-- Global Page Navigation Loading Spinner Overlay -->
-    <transition name="fade">
-      <div v-if="isNavigating" class="global-route-loader-overlay">
-        <div class="loader-spinner-card d-flex align-items-center gap-2.5 shadow-lg">
-          <div class="spinner-border spinner-border-sm" :class="isPinkMode ? 'text-danger' : 'text-primary'" role="status" style="width: 1.3rem; height: 1.3rem; border-width: 0.18rem;">
-            <span class="visually-hidden">Memuat halaman...</span>
-          </div>
-          <span class="small fw-bold text-main">Memuat Halaman...</span>
-        </div>
-      </div>
-    </transition>
-
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
@@ -446,7 +426,6 @@ import ModeSelectorModal from './components/ModeSelectorModal.vue';
 import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
 import { isStorageFull } from './utils/storageManager';
 import { getModeConfig, filterNavGroupsByMode } from './utils/workspaceModes';
-import { isNavigating, navProgress } from './utils/pageLoader';
 
 export default {
   name: 'App',
@@ -504,7 +483,6 @@ export default {
         title: 'WORKSPACE & PROYEK',
         items: [
           { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb' },
-          { to: '/browser', label: 'Browser & Riset', icon: 'bi-compass-fill', color: '#0284c7', badgeText: 'MultiTab', badgeClass: 'bg-info text-dark' },
           { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white' },
           { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white' },
           { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark' },
@@ -528,7 +506,6 @@ export default {
           { to: '/finance', label: 'Keuangan & Tracker', icon: 'bi-wallet2', color: '#2563eb', badge: () => isBudgetExceeded.value ? 'Over Budget' : null, badgeClass: 'bg-danger text-white' },
           { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', badgeText: 'NEW', badgeClass: 'bg-success text-white' },
           { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
-          { to: '/pos', label: 'POS & Katalog Freelance', icon: 'bi-shop-window', color: '#0284c7', badgeText: 'WA', badgeClass: 'bg-info text-dark' },
           { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706' }
         ]
       },
@@ -580,7 +557,6 @@ export default {
     // Dynamic Title & Icon based on Active Route
     const routeTitles = {
       '/': { title: 'Dashboard Executive', icon: 'bi-grid-1x2-fill' },
-      '/browser': { title: 'Browser Riset & Multi-Tab', icon: 'bi-compass-fill' },
       '/job-tracker': { title: 'Simpan Lamaran Kerja (Glints/LinkedIn)', icon: 'bi-briefcase-fill' },
       '/medium-draft': { title: 'Medium Draft & Story Builder', icon: 'bi-medium' },
       '/todo': { title: 'To-Do & Kanban OS', icon: 'bi-kanban-fill' },
@@ -594,7 +570,6 @@ export default {
       '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
       '/rab': { title: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill' },
       '/invoice': { title: 'Invoice Generator (PDF)', icon: 'bi-receipt' },
-      '/pos': { title: 'Katalog & POS Freelance (WA)', icon: 'bi-shop-window' },
       '/sql': { title: 'SQL Data Export & Runner', icon: 'bi-database-fill-gear' },
       '/productivity-insights': { title: 'Productivity Insights (D3.js)', icon: 'bi-bar-chart-line-fill' },
       '/quick-capture': { title: 'Quick Capture & Alarms', icon: 'bi-lightning-charge-fill' },
@@ -868,8 +843,6 @@ export default {
       themeMode,
       accentColor,
       isPinkMode,
-      isNavigating,
-      navProgress,
       isStorageFullState,
       isModeModalOpen,
       currentWorkspaceMode,
@@ -882,51 +855,6 @@ export default {
 </script>
 
 <style>
-/* Global Top Route Loading Progress Bar */
-.global-top-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3.5px;
-  z-index: 9999999;
-  transition: width 0.18s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.blue-progress-bar {
-  background: linear-gradient(90deg, #2563eb 0%, #0284c7 60%, #38bdf8 100%);
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.7);
-}
-
-.pink-progress-bar {
-  background: linear-gradient(90deg, #db2777 0%, #ec4899 60%, #f43f5e 100%);
-  box-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
-}
-
-/* Floating Page Navigation Spinner Overlay */
-.global-route-loader-overlay {
-  position: fixed;
-  top: 14px;
-  right: 18px;
-  z-index: 9999998;
-  pointer-events: none;
-}
-
-.loader-spinner-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  padding: 7px 16px;
-  border-radius: 999px;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.dark-theme .loader-spinner-card {
-  background: rgba(24, 24, 27, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-}
-
 /* Global Anti-Horizontal Scroll & Mobile Constraints */
 html, body, #app, .app-container {
   max-width: 100vw !important;

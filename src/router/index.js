@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import { getActiveModeId, isRouteAllowedInMode, getModeConfig } from "../utils/workspaceModes";
-import { startNavLoading, finishNavLoading } from "../utils/pageLoader";
 
 const routes = [
   {
@@ -45,19 +44,6 @@ const routes = [
     path: "/project",
     name: "project",
     component: () => import("../views/projectManagement.vue"),
-  },
-  {
-    path: "/pos",
-    name: "pos",
-    component: () => import("../views/FreelancePosView.vue"),
-  },
-  {
-    path: "/freelance-pos",
-    redirect: "/pos",
-  },
-  {
-    path: "/katalog",
-    redirect: "/pos",
   },
   {
     path: "/finance",
@@ -302,19 +288,6 @@ const routes = [
     redirect: "/medium-draft",
   },
   {
-    path: "/browser",
-    name: "browser",
-    component: () => import("../views/BrowserResearchView.vue"),
-  },
-  {
-    path: "/research-browser",
-    redirect: "/browser",
-  },
-  {
-    path: "/internal-browser",
-    redirect: "/browser",
-  },
-  {
     path: "/modes",
     name: "workspace-modes",
     component: () => import("../views/WorkspaceModesView.vue"),
@@ -335,10 +308,6 @@ const router = createRouter({
 
 // Workspace Mode Guard: Check if destination route is allowed in active mode
 router.beforeEach((to, from, next) => {
-  if (to.path !== from.path) {
-    startNavLoading();
-  }
-
   const currentMode = getActiveModeId();
   // Professional mode unlocks all features
   if (currentMode === 'professional') {
@@ -361,12 +330,7 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-router.afterEach(() => {
-  finishNavLoading();
-});
-
 router.onError((error) => {
-  finishNavLoading();
   const isChunkLoadFailed =
     error.name === 'ChunkLoadError' ||
     error.name === 'SyntaxError' ||
