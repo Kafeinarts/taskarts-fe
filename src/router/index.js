@@ -255,6 +255,36 @@ const routes = [
   {
     path: "/insights",
     redirect: "/productivity-insights",
+  },
+  {
+    path: "/job-tracker",
+    name: "job-tracker",
+    component: () => import("../views/JobTrackerView.vue"),
+  },
+  {
+    path: "/jobs",
+    redirect: "/job-tracker",
+  },
+  {
+    path: "/lamaran",
+    redirect: "/job-tracker",
+  },
+  {
+    path: "/lamaran-kerja",
+    redirect: "/job-tracker",
+  },
+  {
+    path: "/medium-draft",
+    name: "medium-draft",
+    component: () => import("../views/MediumDraftView.vue"),
+  },
+  {
+    path: "/medium",
+    redirect: "/medium-draft",
+  },
+  {
+    path: "/drafts",
+    redirect: "/medium-draft",
   }
 ];
 

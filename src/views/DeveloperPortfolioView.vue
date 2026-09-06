@@ -37,41 +37,76 @@
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="hero" class="section-padding min-vh-100 d-flex align-items-center position-relative overflow-hidden bg-soft-blue">
+    <!-- Hero Section (Persona 5 Royal Battle Style with Persona 3 Reload Bright Blue) -->
+    <section id="hero" class="section-padding min-vh-100 d-flex align-items-center position-relative overflow-hidden p3r-battle-hero">
+      <!-- Persona 3 Reload Ambient Diagonal Grid Background -->
+      <div class="p3r-grid-overlay"></div>
+      <div class="p3r-diagonal-stripe"></div>
+
       <div class="container text-center position-relative z-1 pt-5">
+        <!-- Persona Battle Status Badge -->
+        <div class="gsap-hero-el mb-3">
+          <div class="persona-badge d-inline-flex align-items-center gap-2">
+            <span class="p3r-pulse-dot"></span>
+            <span class="p3r-tag-bold">RELOAD // BATTLE SYSTEM ENGAGED</span>
+            <span class="badge bg-white text-dark fw-extrabold rounded-0 px-2 py-0.5">LV.99 ARCHITECT</span>
+          </div>
+        </div>
+
         <div class="gsap-hero-el">
-          <div class="brutal-box d-inline-block bg-white px-4 py-2 mb-4" style="transform: rotate(3deg);">
-            <h5 class="m-0 fw-bold fs-5 text-dark">{{ t('hero_role') }}</h5>
+          <div class="p3r-role-pill mb-3">
+            <span class="text-uppercase fw-extrabold tracking-wider">{{ t('hero_role') }}</span>
           </div>
         </div>
         
-        <div class="gsap-hero-el">
-          <h1 class="skew-title brutal-box bg-main-blue text-white mx-auto d-table text-wrap">
-            ARIF PERMANA<br>PUTRASURYANA
-          </h1>
+        <!-- P5 Dynamic Angled Title Cutout with P3 Reload Electric Blue -->
+        <div class="gsap-hero-el my-3">
+          <div class="p5-battle-title-wrap mx-auto">
+            <h1 class="p5-battle-title">
+              ARIF PERMANA
+            </h1>
+            <h1 class="p5-battle-title p5-title-secondary">
+              PUTRASURYANA
+            </h1>
+          </div>
         </div>
         
-        <div class="row justify-content-center mt-4 gsap-hero-el">
+        <!-- Mission Statement / Persona Quote -->
+        <div class="row justify-content-center mt-3 gsap-hero-el">
           <div class="col-md-9 col-lg-8">
-            <p class="fs-5 fw-bold bg-white brutal-box p-3 p-md-4 text-dark shadow-sm">
-              {{ t('hero_quote') }}
-            </p>
+            <div class="p3r-quote-card">
+              <div class="p3r-quote-label">
+                <i class="bi bi-chat-square-quote-fill me-1"></i> PHILOSOPHY
+              </div>
+              <p class="fs-5 fw-bold mb-0 text-dark">
+                {{ t('hero_quote') }}
+              </p>
+            </div>
           </div>
         </div>
         
         <div class="mt-4 gsap-hero-el">
-          <span class="bg-cyan text-dark px-4 py-2.5 fw-bold fs-4 brutal-box d-inline-block border-4" style="transform: rotate(-3deg);">
-            CRAFTED BY ITSMEBROARIF ⚡
+          <span class="p3r-callout-ribbon">
+            <i class="bi bi-lightning-charge-fill me-1"></i> ALL-OUT DEVELOPMENT // ITSMEBROARIF
           </span>
         </div>
 
+        <!-- Persona 5 Battle Command Wheel / Action Buttons -->
         <div class="mt-5 gsap-hero-el d-flex flex-wrap justify-content-center gap-3">
-          <a href="#about" class="brutal-btn bg-dark-accent fs-5 px-4 py-3 text-white">
-            <span>{{ t('hero_btn') }}</span> <i class="bi bi-arrow-down ms-2"></i>
+          <a href="#app-showcase" class="p5-battle-cmd-btn p5-cmd-attack">
+            <span class="cmd-icon">⚔️</span>
+            <span class="cmd-name">ATTACK // PORTFOLIO</span>
+            <i class="bi bi-chevron-right ms-1"></i>
           </a>
-          <a href="#app-showcase" class="brutal-btn bg-main-blue fs-5 px-4 py-3 text-white">
-            <span>{{ t('hero_app_btn') }}</span> <i class="bi bi-cpu-fill ms-2"></i>
+          <a href="#about" class="p5-battle-cmd-btn p5-cmd-persona">
+            <span class="cmd-icon">🔮</span>
+            <span class="cmd-name">PERSONA // ABOUT ME</span>
+            <i class="bi bi-chevron-right ms-1"></i>
+          </a>
+          <a href="#contact" class="p5-battle-cmd-btn p5-cmd-item">
+            <span class="cmd-icon">⚡</span>
+            <span class="cmd-name">CONTACT // HIRE ME</span>
+            <i class="bi bi-arrow-up-right ms-1"></i>
           </a>
         </div>
       </div>
@@ -1341,15 +1376,18 @@ export default {
 
 .developer-portfolio-page {
   font-family: 'Space Grotesk', sans-serif;
-  --bg-color: #ffffff;
-  --text-color: #303030;
-  --border-color: #303030;
-  --accent-main-blue: #1269cc;
-  --accent-cyan: #51eefc;
-  --accent-soft-blue: #6d9ac7;
-  --border-width: 4px;
-  --shadow-solid: 6px 6px 0px var(--border-color);
-  --shadow-hover: 3px 3px 0px var(--border-color);
+  --bg-color: #f8fafc;
+  --text-color: #0f172a;
+  --border-color: #0f172a;
+  --accent-main-blue: #0284c7;
+  --accent-cyan: #00e5ff;
+  --accent-soft-blue: #e0f2fe;
+  --p3r-electric-blue: #00d2ff;
+  --p3r-azure: #0ea5e9;
+  --p3r-deep-navy: #0b1329;
+  --border-width: 3px;
+  --shadow-solid: 5px 5px 0px #0284c7;
+  --shadow-hover: 2px 2px 0px #0284c7;
 
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -1357,6 +1395,174 @@ export default {
   overflow-x: hidden;
   margin: -1rem -1rem;
   padding: 0;
+}
+
+/* Persona 3 Reload & Persona 5 Royal Battle Hero */
+.p3r-battle-hero {
+  background: linear-gradient(135deg, #090d16 0%, #0c1c38 40%, #0369a1 85%, #00d2ff 100%);
+  color: #ffffff;
+}
+
+.p3r-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-size: 36px 36px;
+  background-image: linear-gradient(to right, rgba(0, 210, 255, 0.08) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 210, 255, 0.08) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+.p3r-diagonal-stripe {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 140%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(0, 229, 255, 0.08) 45%, rgba(14, 165, 233, 0.12) 50%, transparent 55%);
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.persona-badge {
+  background: #000000;
+  border: 2px solid var(--accent-cyan);
+  padding: 6px 14px;
+  transform: skewX(-10deg);
+  box-shadow: 4px 4px 0px var(--accent-cyan);
+}
+
+.p3r-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+  animation: p3rPulse 1.5s infinite;
+}
+
+@keyframes p3rPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.p3r-tag-bold {
+  color: var(--accent-cyan);
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+}
+
+.p3r-role-pill {
+  display: inline-block;
+  background: #ffffff;
+  color: #0b1329;
+  padding: 6px 20px;
+  font-weight: 900;
+  transform: skewX(-8deg);
+  box-shadow: 4px 4px 0px #0284c7;
+}
+
+/* Persona 5 Battle Slanted Title Cutout */
+.p5-battle-title-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  transform: rotate(-2deg);
+}
+
+.p5-battle-title {
+  display: inline-block;
+  margin: 0 auto;
+  font-size: clamp(2rem, 6vw, 4.2rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  background: #000000;
+  color: #ffffff;
+  border: 3px solid #ffffff;
+  transform: skewX(-12deg);
+  box-shadow: 6px 6px 0px var(--accent-cyan);
+  letter-spacing: -1px;
+}
+
+.p5-title-secondary {
+  background: var(--accent-cyan);
+  color: #0b1329;
+  border-color: #000000;
+  box-shadow: 6px 6px 0px #0284c7;
+}
+
+.p3r-quote-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #000000;
+  padding: 18px 24px;
+  transform: skewX(-4deg);
+  box-shadow: 5px 5px 0px #00d2ff;
+  position: relative;
+}
+
+.p3r-quote-label {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.7rem;
+  padding: 2px 10px;
+  letter-spacing: 1px;
+}
+
+.p3r-callout-ribbon {
+  display: inline-block;
+  background: var(--accent-cyan);
+  color: #0b1329;
+  font-weight: 900;
+  font-size: 1.1rem;
+  padding: 8px 22px;
+  border: 3px solid #000000;
+  transform: rotate(-1.5deg) skewX(-6deg);
+  box-shadow: 4px 4px 0px #ffffff;
+}
+
+/* Persona 5 Battle Command Menu Action Buttons */
+.p5-battle-cmd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transform: skewX(-12deg);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 3px solid #000000;
+  position: relative;
+}
+
+.p5-cmd-attack {
+  background: #0284c7;
+  color: #ffffff !important;
+  box-shadow: 5px 5px 0px var(--accent-cyan);
+}
+
+.p5-cmd-persona {
+  background: #00e5ff;
+  color: #0b1329 !important;
+  box-shadow: 5px 5px 0px #ffffff;
+}
+
+.p5-cmd-item {
+  background: #ffffff;
+  color: #0b1329 !important;
+  box-shadow: 5px 5px 0px #0284c7;
+}
+
+.p5-battle-cmd-btn:hover {
+  transform: skewX(-12deg) translate(3px, 3px);
+  box-shadow: 1px 1px 0px #000000;
 }
 
 #portfolio-canvas-container {
@@ -1367,7 +1573,7 @@ export default {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.25;
 }
 
 /* Neo brutalism styling elements */
@@ -1406,9 +1612,9 @@ export default {
 }
 
 .bg-main-blue { background-color: var(--accent-main-blue) !important; color: #ffffff !important; }
-.bg-cyan { background-color: var(--accent-cyan) !important; color: var(--text-color) !important; }
+.bg-cyan { background-color: var(--accent-cyan) !important; color: #0b1329 !important; }
 .bg-soft-blue { background-color: var(--accent-soft-blue) !important; color: var(--text-color) !important; }
-.bg-dark-accent { background-color: var(--text-color) !important; color: #ffffff !important; }
+.bg-dark-accent { background-color: var(--p3r-deep-navy) !important; color: #ffffff !important; }
 .text-main-blue { color: var(--accent-main-blue) !important; }
 .text-cyan { color: var(--accent-cyan) !important; }
 

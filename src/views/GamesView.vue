@@ -169,6 +169,9 @@ import TicTacToe3D from '@/components/games/TicTacToe3D.vue';
 import Pong3D from '@/components/games/Pong3D.vue';
 import Memory3D from '@/components/games/Memory3D.vue';
 import SpeedClicker from '@/components/games/SpeedClicker.vue';
+import Tank3D from '@/components/games/Tank3D.vue';
+import TowerAttack3D from '@/components/games/TowerAttack3D.vue';
+import WarkopSimulator3D from '@/components/games/WarkopSimulator3D.vue';
 
 export default {
   name: 'GamesView',
@@ -181,16 +184,58 @@ export default {
     TicTacToe3D,
     Pong3D,
     Memory3D,
-    SpeedClicker
+    SpeedClicker,
+    Tank3D,
+    TowerAttack3D,
+    WarkopSimulator3D
   },
   setup() {
     const route = useRoute();
     const searchQuery = ref('');
     const selectedCategory = ref('Semua');
 
-    const categories = ['Semua', '3D Arcade', 'Reflex', 'Strategy', 'Brain'];
+    const categories = ['Semua', '3D Arcade', 'Reflex', 'Strategy', 'Brain', 'Simulation'];
 
     const games = ref([
+      {
+        id: 'tank-3d',
+        title: '3D Tank',
+        icon: '🛡️',
+        category: '3D Arcade',
+        description: 'Kendalikan tank baja 3D dengan meriam balistik. Hancurkan menara radar dan bunker musuh!',
+        controls: {
+          keyboard: 'W/A/S/D atau Tombol Panah untuk gerak, Spasi untuk tembak, R isi peluru',
+          mouse: 'Klik Kiri untuk menembak meriam tank',
+          touch: 'D-pad arah di kiri bawah & tombol tembak di kanan'
+        },
+        component: Tank3D
+      },
+      {
+        id: 'tower-attack',
+        title: 'Petualang Mas (Tower Attack)',
+        icon: '⚔️',
+        category: 'Strategy',
+        description: 'Serbu benteng dan menara kerajaan musuh bersama Sang Petualang Mas dengan Keris Emas & Panah Sakti!',
+        controls: {
+          keyboard: 'Spasi / Klik untuk serang, Tombol 1, 2, 3 untuk jurus sakti',
+          mouse: 'Klik menara musuh untuk meluncurkan serangan pedang',
+          touch: 'Ketuk layar / tombol jurus di bawah'
+        },
+        component: TowerAttack3D
+      },
+      {
+        id: 'warkop-3d',
+        title: 'Warkop Simulator 3D',
+        icon: '☕',
+        category: 'Simulation',
+        description: 'Simulasi Abang Warkop Indonesia 3D! Buat Kopi Tubruk, Kopi Susu, Es Teh, Indomie & Gorengan renyah.',
+        controls: {
+          keyboard: 'Klik mouse pada bahan resep',
+          mouse: 'Klik bahan-bahan pesanan lalu klik Sajikan Pesanan',
+          touch: 'Sentuh bahan makanan & tombol sajikan'
+        },
+        component: WarkopSimulator3D
+      },
       {
         id: 'cyber-racer',
         title: '3D Cyber Racer',
