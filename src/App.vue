@@ -3,6 +3,9 @@
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
+    <!-- Global Workspace Mode Selector Modal (Ctrl+M) -->
+    <ModeSelectorModal :is-open="isModeModalOpen" @close="isModeModalOpen = false" />
+
     <!-- Desktop Material Navigation Drawer -->
     <aside :class="['sidebar-nav', { collapsed: isCollapsed, 'sidebar-hidden': isSidebarHidden }]">
       <!-- Sidebar Brand Header (Pure Typography Without Logo Image) -->
@@ -225,6 +228,20 @@
             <i class="bi bi-exclamation-triangle-fill fs-6"></i>
           </router-link>
 
+          <!-- Workspace Mode Pill Button (Ctrl+M) -->
+          <button 
+            @click="isModeModalOpen = true" 
+            class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
+            :title="'Mode: ' + currentModeConfig.title + ' (Tekan Ctrl+M untuk ganti mode)'"
+            style="font-size: 11.5px; height: 32px; width: auto;"
+          >
+            <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: currentModeConfig.materialColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
+            <span class="fw-bold d-none d-sm-inline" :style="{ color: currentModeConfig.materialDark }">
+              {{ currentModeConfig.shortName }}
+            </span>
+            <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1 ms-0.5 border d-none d-md-inline" style="font-size: 9px; font-family: inherit;">Ctrl+M</kbd>
+          </button>
+
           <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
           <button 
             @click="toggleBluePinkMode" 
@@ -297,6 +314,20 @@
                 style="font-size: 13px;"
               />
             </div>
+          </div>
+
+          <!-- Mobile Workspace Mode Strip -->
+          <div class="p-2.5 rounded-3 mb-3 d-flex align-items-center justify-content-between border" :style="{ backgroundColor: currentModeConfig.materialLight, borderColor: currentModeConfig.materialAccent }">
+            <div class="d-flex align-items-center gap-2">
+              <i :class="currentModeConfig.icon" :style="{ color: currentModeConfig.materialColor }" class="fs-5"></i>
+              <div>
+                <div class="fw-bold small" :style="{ color: currentModeConfig.materialDark }">{{ currentModeConfig.title }}</div>
+                <div class="text-muted" style="font-size: 10.5px;">{{ currentModeConfig.badge }} • Ctrl+M</div>
+              </div>
+            </div>
+            <button @click="isModeModalOpen = true; mobileDrawer = false" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 small fw-bold border shadow-xs">
+              Ganti
+            </button>
           </div>
 
           <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
@@ -391,20 +422,24 @@ import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
+import ModeSelectorModal from './components/ModeSelectorModal.vue';
 import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
 import { isStorageFull } from './utils/storageManager';
+import { getModeConfig, filterNavGroupsByMode } from './utils/workspaceModes';
 
 export default {
   name: 'App',
   components: {
     AppNotifications,
-    DukungDevModal
+    DukungDevModal,
+    ModeSelectorModal
   },
   setup() {
     const store = useStore();
     const route = useRoute();
     const isCollapsed = ref(false);
     const isSidebarHidden = ref(localStorage.getItem('ft_sidebar_hidden') === 'true');
+    const isModeModalOpen = ref(false);
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
     const sidebarSearch = ref('');
@@ -439,6 +474,8 @@ export default {
     const isBudgetExceeded = computed(() => store.getters.isBudgetExceeded);
     const themeMode = computed(() => store.getters.getThemeMode);
     const accentColor = computed(() => store.getters.getAccentColor);
+    const currentWorkspaceMode = computed(() => store.getters.getWorkspaceMode || 'professional');
+    const currentModeConfig = computed(() => getModeConfig(currentWorkspaceMode.value));
 
     // Grouped navigation definition for structured elegant presentation
     const navGroups = [
@@ -490,6 +527,7 @@ export default {
       {
         title: 'SISTEM & PANDUAN',
         items: [
+          { to: '/modes', label: 'Mode Workspace', icon: 'bi-sliders2', color: '#009688', badgeText: 'Ctrl+M', badgeClass: 'bg-primary text-white' },
           { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white' },
           { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb' },
           { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2' },
@@ -498,11 +536,13 @@ export default {
       }
     ];
 
-    // Reactive filter when user types in sidebar search box
+    // Reactive filter when user types in sidebar search box and active mode
     const filteredNavGroups = computed(() => {
+      // First filter by active workspace mode
+      const modeFiltered = filterNavGroupsByMode(navGroups, currentWorkspaceMode.value);
       const q = sidebarSearch.value.trim().toLowerCase();
-      if (!q) return navGroups;
-      return navGroups
+      if (!q) return modeFiltered;
+      return modeFiltered
         .map(g => ({
           ...g,
           items: g.items.filter(item =>
@@ -545,7 +585,9 @@ export default {
       '/storage': { title: 'Storage & Kapasitas Local Storage', icon: 'bi-hdd-stack-fill' },
       '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
       '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },
-      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' }
+      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' },
+      '/modes': { title: 'Pilih Mode Workspace', icon: 'bi-sliders2' },
+      '/workspace-modes': { title: 'Pilih Mode Workspace', icon: 'bi-sliders2' }
     };
 
     const currentPageTitle = computed(() => {
@@ -592,8 +634,15 @@ export default {
       applyThemeToBody(newVal);
     }, { immediate: true });
 
-    // Keyboard shortcut handler (Ctrl+B / Cmd+B for sidebar toggle, Ctrl+K / Cmd+K for search)
+    // Keyboard shortcut handler (Ctrl+B sidebar, Ctrl+M mode selector, Ctrl+K search)
     const handleKeydown = (e) => {
+      // Ctrl+M or Cmd+M: Toggle Workspace Mode Selector Modal
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'm' || e.code === 'KeyM')) {
+        e.preventDefault();
+        isModeModalOpen.value = !isModeModalOpen.value;
+        return;
+      }
+
       // Ctrl+B or Cmd+B: Toggle Sidebar Total Visibility
       if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'b' || e.code === 'KeyB')) {
         e.preventDefault();
@@ -795,6 +844,9 @@ export default {
       accentColor,
       isPinkMode,
       isStorageFullState,
+      isModeModalOpen,
+      currentWorkspaceMode,
+      currentModeConfig,
       toggleBluePinkMode,
       toggleThemeMode
     };

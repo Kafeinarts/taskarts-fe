@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import { getActiveModeId, isRouteAllowedInMode, getModeConfig } from "../utils/workspaceModes";
 
 const routes = [
   {
@@ -285,6 +286,15 @@ const routes = [
   {
     path: "/drafts",
     redirect: "/medium-draft",
+  },
+  {
+    path: "/modes",
+    name: "workspace-modes",
+    component: () => import("../views/WorkspaceModesView.vue"),
+  },
+  {
+    path: "/workspace-modes",
+    redirect: "/modes",
   }
 ];
 
@@ -294,6 +304,30 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 };
   }
+});
+
+// Workspace Mode Guard: Check if destination route is allowed in active mode
+router.beforeEach((to, from, next) => {
+  const currentMode = getActiveModeId();
+  // Professional mode unlocks all features
+  if (currentMode === 'professional') {
+    return next();
+  }
+
+  // Check if destination path is permitted in the current mode
+  if (!isRouteAllowedInMode(to.path, currentMode)) {
+    const modeConfig = getModeConfig(currentMode);
+    return next({
+      path: '/modes',
+      query: {
+        restricted: 'true',
+        from: to.path,
+        mode: modeConfig.title
+      }
+    });
+  }
+
+  next();
 });
 
 router.onError((error) => {

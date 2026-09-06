@@ -804,6 +804,7 @@ export default createStore({
       aiModel: loadLocal('ft_aiModel', 'gemini-1.5-flash'),
       themeMode: loadLocal('ft_themeMode', 'light'), // Persisted theme mode
       accentColor: loadLocal('ft_accentColor', '#2563eb'), // default Material blue
+      workspaceMode: loadLocal('ft_workspace_mode', 'professional'), // Persisted workspace mode (simple, professional, sekretaris, bendahara, developer, kreatif)
       budgetThreshold: loadLocal('ft_budgetThreshold', 5000000), // Default budget threshold: Rp 5.000.000
       welcomeBanner: loadLocal('ft_welcomeBanner', {
         title: 'Selamat Datang, Rekan Kerja!',
@@ -985,6 +986,7 @@ export default createStore({
     getAiModel: (state) => state.aiModel,
     getThemeMode: (state) => state.themeMode,
     getAccentColor: (state) => state.accentColor,
+    getWorkspaceMode: (state) => state.workspaceMode || 'professional',
     getBudgetThreshold: (state) => state.budgetThreshold,
     getMyBusiness: (state) => state.myBusiness,
     getWelcomeBanner: (state) => state.welcomeBanner || { title: 'Selamat Datang, Rekan Kerja!', subtitle: 'Pusat kendali produktivitas & organizer karir karyawan Anda: kelola tugas (5 view modes), proyek kantor, arus kas, dan invoice.' },
@@ -1058,6 +1060,10 @@ export default createStore({
     SET_ACCENT_COLOR(state, color) {
       state.accentColor = color;
       saveLocal('ft_accentColor', state.accentColor);
+    },
+    SET_WORKSPACE_MODE(state, mode) {
+      state.workspaceMode = mode;
+      saveLocal('ft_workspace_mode', state.workspaceMode);
     },
 
     // Contacts
@@ -1946,6 +1952,9 @@ export default createStore({
     },
     setAccentColor({ commit }, color) {
       commit('SET_ACCENT_COLOR', color);
+    },
+    setWorkspaceMode({ commit }, mode) {
+      commit('SET_WORKSPACE_MODE', mode);
     },
 
     addContact({ commit }, contact) {
