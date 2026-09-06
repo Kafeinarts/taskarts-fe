@@ -1292,7 +1292,7 @@ export default {
 
       // Media & Hiburan
       { id: 'diary', title: 'Diary & Jurnal', category: 'media', icon: 'bi-book-half', to: '/diary', bgGradient: 'linear-gradient(135deg, #ca8a04, #a16207)' },
-      { id: 'videos', title: 'Video Sync', category: 'media', icon: 'bi-play-btn-fill', to: '/videos', bgGradient: 'linear-gradient(135deg, #dc2626, #991b1b)' },
+      { id: 'videos', title: 'Upload Media', category: 'media', icon: 'bi-collection-play-fill', to: '/videos', bgGradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
       { id: 'games', title: '3D Games', category: 'media', icon: 'bi-controller', to: '/games', bgGradient: 'linear-gradient(135deg, #9333ea, #7e22ce)' },
       { id: 'mood', title: 'Kamera Mood', category: 'media', icon: 'bi-emoji-smile-fill', to: '/mood', bgGradient: 'linear-gradient(135deg, #f43f5e, #e11d48)' },
 

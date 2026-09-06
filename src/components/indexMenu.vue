@@ -16,8 +16,8 @@
           <p class="mb-0 text-white-50">Kelola tugas harian, proyek pekerjaan, keuangan, invoice, dan agenda karir karyawan dalam satu platform terorganisir.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <router-link to="/videos" class="btn btn-danger fw-bold rounded-3 px-3 py-2 shadow-sm border border-light">
-            <i class="bi bi-play-circle-fill me-1"></i> Tonton & Upload Video
+          <router-link to="/videos" class="btn btn-primary fw-bold rounded-3 px-3 py-2 shadow-sm border border-light">
+            <i class="bi bi-collection-play-fill me-1"></i> Upload Media & Player
           </router-link>
           <router-link to="/invoice" class="btn btn-light text-primary fw-semibold rounded-3 px-3 py-2 shadow-sm">
             <i class="bi bi-receipt me-1"></i> Buat Invoice

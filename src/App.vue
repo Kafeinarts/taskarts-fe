@@ -408,7 +408,7 @@ export default {
           { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48' },
           { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb' },
           { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669' },
-          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white' }
+          { to: '/videos', label: 'Upload Media', icon: 'bi-collection-play-fill', color: '#0284c7', badgeText: 'Player', badgeClass: 'bg-primary text-white' }
         ]
       },
       {
@@ -479,7 +479,7 @@ export default {
       '/camera': { title: 'Kamera Scan Dokumen', icon: 'bi-camera-fill' },
       '/surat': { title: 'Surat Generator Resmi', icon: 'bi-file-earmark-richtext-fill' },
       '/cv': { title: 'CV & Resume Builder ATS', icon: 'bi-person-vcard-fill' },
-      '/videos': { title: 'Tonton & Sync Video Hub', icon: 'bi-play-btn-fill' },
+      '/videos': { title: 'Upload Media & Player', icon: 'bi-collection-play-fill' },
       '/contacts': { title: 'Kontak Tim & Broadcast WA', icon: 'bi-person-lines-fill' },
       '/chat-ai': { title: 'Live Chat AI Assistant', icon: 'bi-robot' },
       '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
