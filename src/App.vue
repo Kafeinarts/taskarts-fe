@@ -4,7 +4,7 @@
     <AppNotifications />
 
     <!-- Desktop Material Navigation Drawer -->
-    <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
+    <aside :class="['sidebar-nav', { collapsed: isCollapsed, 'sidebar-hidden': isSidebarHidden }]">
       <!-- Sidebar Brand Header (Pure Typography Without Logo Image) -->
       <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
         <router-link to="/" class="text-decoration-none d-flex flex-column overflow-hidden flex-grow-1" v-if="!isCollapsed">
@@ -24,9 +24,14 @@
           </router-link>
         </div>
 
-        <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-          <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
-        </button>
+        <div class="d-flex align-items-center gap-1">
+          <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
+          </button>
+          <button v-if="!isCollapsed" class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="toggleSidebarVisibility" title="Sembunyikan Total (Ctrl+B)">
+            <i class="bi bi-layout-sidebar-inset-reverse fs-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Quick Search Bar (When Expanded) -->
@@ -123,7 +128,7 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div :class="['main-content', { expanded: isCollapsed }]">
+    <div :class="['main-content', { expanded: isCollapsed, 'sidebar-hidden': isSidebarHidden }]">
       <!-- Material Design 3 Top App Bar Header -->
       <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
         <div class="d-flex align-items-center gap-2">
@@ -148,14 +153,34 @@
             <i class="bi bi-list fs-5"></i>
           </button>
 
-          <!-- DESKTOP: Sidebar collapse toggle -->
-          <button
-            class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
-            @click="isCollapsed = !isCollapsed"
-            :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
-          >
-            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
-          </button>
+          <!-- DESKTOP: Sidebar collapse / restore toggle (Ctrl+B) -->
+          <template v-if="!isSidebarHidden">
+            <button
+              class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
+              @click="isCollapsed = !isCollapsed"
+              :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
+            >
+              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
+              @click="toggleSidebarVisibility"
+              title="Sembunyikan Sidebar Total (Ctrl+B)"
+            >
+              <i class="bi bi-layout-sidebar-inset-reverse"></i>
+            </button>
+          </template>
+          <template v-else>
+            <button
+              class="btn btn-sm btn-primary d-none d-md-flex align-items-center gap-1.5 rounded-pill px-3 py-1.5 me-1 shadow-sm"
+              @click="toggleSidebarVisibility"
+              title="Tampilkan Kembali Sidebar (Ctrl+B)"
+            >
+              <i class="bi bi-layout-sidebar-inset"></i>
+              <span class="small fw-bold">Buka Sidebar</span>
+              <kbd class="badge bg-white text-dark py-0.5 px-1.5 border ms-1" style="font-size: 10px; font-family: inherit;">Ctrl+B</kbd>
+            </button>
+          </template>
           
           <!-- Dynamic Breadcrumb / Page Title Badge -->
           <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
@@ -379,10 +404,30 @@ export default {
     const store = useStore();
     const route = useRoute();
     const isCollapsed = ref(false);
+    const isSidebarHidden = ref(localStorage.getItem('ft_sidebar_hidden') === 'true');
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
     const sidebarSearch = ref('');
     const isStorageFullState = ref(isStorageFull());
+
+    const toggleSidebarVisibility = () => {
+      if (window.innerWidth <= 768) {
+        mobileDrawer.value = !mobileDrawer.value;
+        return;
+      }
+      isSidebarHidden.value = !isSidebarHidden.value;
+      try {
+        localStorage.setItem('ft_sidebar_hidden', isSidebarHidden.value ? 'true' : 'false');
+      } catch (e) {}
+
+      store.dispatch('showNotification', {
+        type: 'info',
+        title: isSidebarHidden.value ? 'Sidebar Disembunyikan (Ctrl+B)' : 'Sidebar Ditampilkan (Ctrl+B)',
+        message: isSidebarHidden.value
+          ? 'Sidebar navigasi disembunyikan total. Tekan Ctrl+B lagi untuk memunculkannya.'
+          : 'Sidebar navigasi kembali ditampilkan.'
+      });
+    };
 
     const updateStorageState = () => {
       isStorageFullState.value = isStorageFull();
@@ -547,15 +592,31 @@ export default {
       applyThemeToBody(newVal);
     }, { immediate: true });
 
-    // Keyboard shortcut handler (Ctrl+K or Cmd+K)
+    // Keyboard shortcut handler (Ctrl+B / Cmd+B for sidebar toggle, Ctrl+K / Cmd+K for search)
     const handleKeydown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      // Ctrl+B or Cmd+B: Toggle Sidebar Total Visibility
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'b' || e.code === 'KeyB')) {
         e.preventDefault();
-        const searchEl = document.querySelector('.search-input');
-        if (searchEl) {
-          searchEl.focus();
-          searchEl.select();
+        toggleSidebarVisibility();
+        return;
+      }
+
+      // Ctrl+K or Cmd+K: Focus Search Input
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.code === 'KeyK')) {
+        e.preventDefault();
+        if (isSidebarHidden.value) {
+          isSidebarHidden.value = false;
+          try {
+            localStorage.setItem('ft_sidebar_hidden', 'false');
+          } catch (err) {}
         }
+        setTimeout(() => {
+          const searchEl = document.querySelector('.search-input');
+          if (searchEl) {
+            searchEl.focus();
+            searchEl.select();
+          }
+        }, 50);
       }
     };
 
@@ -718,6 +779,8 @@ export default {
     return {
       route,
       isCollapsed,
+      isSidebarHidden,
+      toggleSidebarVisibility,
       mobileDrawer,
       showDukungModal,
       sidebarSearch,
@@ -1485,13 +1548,20 @@ body {
   background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
-  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease;
+  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, background-color 0.3s ease;
   z-index: 1040;
   border-right: 1px solid var(--sidebar-border);
 }
 
 .sidebar-nav.collapsed {
   width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-nav.sidebar-hidden {
+  transform: translateX(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 .sidebar-brand {
@@ -1719,6 +1789,10 @@ body {
 
 .main-content.expanded {
   margin-left: var(--sidebar-collapsed-width);
+}
+
+.main-content.sidebar-hidden {
+  margin-left: 0 !important;
 }
 
 .top-header {
