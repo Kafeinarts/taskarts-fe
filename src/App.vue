@@ -1,31 +1,26 @@
 <template>
-  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
+  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled' || themeMode === 'coffee') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', themeMode === 'coffee' ? 'coffee-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
     <!-- Desktop Material Navigation Drawer -->
     <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
-      <!-- Sidebar Brand Header -->
+      <!-- Sidebar Brand Header (Pure Typography Without Logo Image) -->
       <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
-        <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
-          <div class="brand-icon-wrapper shadow-sm">
-            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
-          </div>
-          <div class="lh-1 text-truncate">
-            <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
-              RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span>
+        <router-link to="/" class="text-decoration-none d-flex flex-column overflow-hidden flex-grow-1" v-if="!isCollapsed">
+          <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
+            RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span>
+          </span>
+          <div class="d-flex align-items-center gap-1.5 mt-1">
+            <span class="brand-badge-kafeinarts">
+              <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
             </span>
-            <div class="d-flex align-items-center gap-1.5 mt-1">
-              <span class="brand-badge-kafeinarts">
-                <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
-              </span>
-            </div>
           </div>
         </router-link>
 
-        <div v-else class="mx-auto">
-          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="RajinKerja.id By Kafeinarts">
-            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+        <div v-else class="mx-auto text-center py-1">
+          <router-link to="/" class="text-decoration-none fw-extrabold fs-5 brand-title" title="RajinKerja.id By Kafeinarts">
+            <span class="text-app">RK</span><span class="brand-accent" :style="{ color: accentColor }">.</span>
           </router-link>
         </div>
 
@@ -218,14 +213,15 @@
             </span>
           </button>
 
-          <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
+          <!-- Theme Switcher Button (Light / Dark / Coffee / OLED True Black) -->
           <button 
             @click="toggleThemeMode" 
             class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
-            :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
+            :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk Coffee Mode)' : (themeMode === 'coffee' ? 'Mode Coffee Gelap (Klik untuk True Black OLED)' : 'True Black OLED (Klik untuk Mode Terang)'))"
           >
             <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
             <i v-else-if="themeMode === 'dark'" class="bi bi-moon-stars-fill text-info fs-6"></i>
+            <i v-else-if="themeMode === 'coffee'" class="bi bi-cup-hot-fill fs-6" style="color: #f59e0b;"></i>
             <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
           </button>
 
@@ -255,14 +251,9 @@
       <transition name="drawer-slide">
         <div class="mobile-drawer p-3" v-if="mobileDrawer">
           <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <div class="brand-icon-wrapper shadow-sm">
-                <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
-              </div>
-              <div class="lh-1">
-                <span class="fw-bold fs-5 text-app">RajinKerja.id</span>
-                <small class="brand-badge-kafeinarts d-block mt-0.5">By Kafeinarts</small>
-              </div>
+            <div class="d-flex flex-column">
+              <span class="fw-bold fs-5 text-app">RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span></span>
+              <small class="brand-badge-kafeinarts d-block mt-0.5"><i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts</small>
             </div>
             <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
               <i class="bi bi-x-lg"></i>
@@ -531,9 +522,13 @@ export default {
     });
 
     const applyThemeToBody = (mode) => {
-      document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'dark-mode');
+      document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'coffee-theme', 'dark-mode');
 
-      if (mode === 'oled') {
+      if (mode === 'coffee') {
+        document.body.classList.add('coffee-theme', 'dark-theme', 'dark-mode');
+        document.body.style.backgroundColor = '#17100b';
+        document.body.style.color = '#fffbeb';
+      } else if (mode === 'oled') {
         document.body.classList.add('oled-theme', 'dark-mode');
         document.body.style.backgroundColor = '#000000';
         document.body.style.color = '#ffffff';
@@ -679,7 +674,7 @@ export default {
 
     // Keep document attributes & styles in sync with theme and accent color
     watch(themeMode, (mode) => {
-      const isDark = mode === 'dark' || mode === 'oled';
+      const isDark = mode === 'dark' || mode === 'oled' || mode === 'coffee';
       document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
       if (isDark) {
         document.documentElement.classList.add('dark-mode', 'dark-theme');
@@ -695,6 +690,13 @@ export default {
         document.documentElement.classList.remove('oled-theme');
         document.body.classList.remove('oled-theme');
       }
+      if (mode === 'coffee') {
+        document.documentElement.classList.add('coffee-theme');
+        document.body.classList.add('coffee-theme');
+      } else {
+        document.documentElement.classList.remove('coffee-theme');
+        document.body.classList.remove('coffee-theme');
+      }
     }, { immediate: true });
 
     watch(accentColor, (color) => {
@@ -707,7 +709,8 @@ export default {
     const toggleThemeMode = () => {
       let next = 'light';
       if (themeMode.value === 'light') next = 'dark';
-      else if (themeMode.value === 'dark') next = 'oled';
+      else if (themeMode.value === 'dark') next = 'coffee';
+      else if (themeMode.value === 'coffee') next = 'oled';
       else next = 'light';
       store.dispatch('setThemeMode', next);
     };
@@ -829,6 +832,27 @@ html, body, #app, .app-container {
   --sidebar-divider: #27272a;
   --sidebar-header-color: #71717a;
   --sidebar-border: #27272a;
+}
+
+/* Coffee Dark Mode Theme Variables (Warm Dark Roast Espresso with Rich Crema) */
+.coffee-theme {
+  --bg-app: #160f0a;
+  --bg-surface: #221710;
+  --bg-card: #221710;
+  --bg-input: #2e1e15;
+  --bg-hover: rgba(245, 158, 11, 0.12);
+  --text-main: #fffbeb;
+  --text-sub: #e2cca6;
+  --border-color: #4a3221;
+
+  --sidebar-bg: #1c130d;
+  --sidebar-text: #e2cca6;
+  --sidebar-hover-bg: #2b1c12;
+  --sidebar-active-bg: var(--primary-color, #d97706);
+  --sidebar-active-text: #ffffff;
+  --sidebar-divider: #4a3221;
+  --sidebar-header-color: #c49e79;
+  --sidebar-border: #4a3221;
 }
 
 body {
@@ -1175,6 +1199,186 @@ body {
 
 .oled-theme .btn-light:hover {
   background-color: #292929 !important;
+}
+
+/* =========================================================
+   Coffee Dark Mode Specific Overrides (Warm Espresso, Caramel & High Contrast)
+   ========================================================= */
+.coffee-theme,
+.coffee-theme body,
+.coffee-theme .app-container,
+.coffee-theme .main-content {
+  background-color: #160f0a !important;
+  color: #fffbeb !important;
+}
+
+.coffee-theme .sidebar-nav,
+.coffee-theme .mobile-drawer,
+.coffee-theme .top-header,
+.coffee-theme .mobile-bottom-bar {
+  background-color: #1c130d !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .sidebar-brand {
+  border-bottom-color: #4a3221 !important;
+}
+
+.coffee-theme h1, .coffee-theme h2, .coffee-theme h3,
+.coffee-theme h4, .coffee-theme h5, .coffee-theme h6,
+.coffee-theme .h1, .coffee-theme .h2, .coffee-theme .h3,
+.coffee-theme .h4, .coffee-theme .h5, .coffee-theme .h6,
+.coffee-theme .card-title, .coffee-theme .modal-title,
+.coffee-theme .offcanvas-title {
+  color: #fffbeb !important;
+}
+
+.coffee-theme .text-dark,
+.coffee-theme .text-black,
+.coffee-theme .text-body,
+.coffee-theme .text-main,
+.coffee-theme .text-app,
+.coffee-theme strong:not(.badge *):not(.badge),
+.coffee-theme b {
+  color: #fffbeb !important;
+}
+
+.coffee-theme .text-muted,
+.coffee-theme .text-secondary,
+.coffee-theme .text-sub,
+.coffee-theme small.text-muted,
+.coffee-theme .small.text-muted,
+.coffee-theme .text-body-secondary {
+  color: #e2cca6 !important;
+}
+
+.coffee-theme label,
+.coffee-theme .form-label,
+.coffee-theme .col-form-label {
+  color: #fce7cf !important;
+}
+
+.coffee-theme .bg-white,
+.coffee-theme .card:not(.pwa-pure-black-card),
+.coffee-theme .content-card,
+.coffee-theme .modal-content,
+.coffee-theme .dropdown-menu,
+.coffee-theme .accordion-item,
+.coffee-theme .offcanvas,
+.coffee-theme .offcanvas-body,
+.coffee-theme .list-group-item {
+  background-color: #221710 !important;
+  border-color: #4a3221 !important;
+  color: #fffbeb !important;
+}
+
+.coffee-theme .card-header,
+.coffee-theme .card-footer,
+.coffee-theme .modal-header,
+.coffee-theme .modal-footer {
+  background-color: #1c130d !important;
+  border-color: #4a3221 !important;
+  color: #fffbeb !important;
+}
+
+.coffee-theme .bg-light,
+.coffee-theme .bg-body-tertiary,
+.coffee-theme .bg-body-secondary,
+.coffee-theme .preview-box,
+.coffee-theme .search-input-group {
+  background-color: #2d1e15 !important;
+  color: #fffbeb !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .form-control,
+.coffee-theme .form-select,
+.coffee-theme textarea {
+  background-color: #2b1d14 !important;
+  color: #fffbeb !important;
+  border-color: #5c3f2b !important;
+}
+
+.coffee-theme .form-control::placeholder,
+.coffee-theme textarea::placeholder {
+  color: #bfa38a !important;
+  opacity: 1 !important;
+}
+
+.coffee-theme .form-control:focus,
+.coffee-theme .form-select:focus,
+.coffee-theme textarea:focus {
+  background-color: #352319 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 0.25rem rgba(217, 119, 6, 0.3) !important;
+}
+
+.coffee-theme .input-group-text {
+  background-color: #2b1d14 !important;
+  color: #e2cca6 !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .border,
+.coffee-theme .border-top,
+.coffee-theme .border-bottom,
+.coffee-theme .border-start,
+.coffee-theme .border-end,
+.coffee-theme .border-2 {
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .btn-white,
+.coffee-theme .btn-light {
+  background-color: #2d1e15 !important;
+  color: #fffbeb !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .btn-white:hover,
+.coffee-theme .btn-light:hover {
+  background-color: #3b281d !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+}
+
+.coffee-theme .table {
+  color: #fffbeb !important;
+  --bs-table-bg: transparent;
+  --bs-table-color: #fffbeb;
+  --bs-table-hover-bg: rgba(217, 119, 6, 0.12);
+  --bs-table-hover-color: #ffffff;
+  --bs-table-border-color: #4a3221;
+}
+
+.coffee-theme .table th {
+  background-color: #1c130d !important;
+  color: #fffbeb !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .table td {
+  color: #fce7cf !important;
+  border-color: #4a3221 !important;
+}
+
+.coffee-theme .badge.bg-light {
+  background-color: #2d1e15 !important;
+  color: #fffbeb !important;
+  border: 1px solid #4a3221 !important;
+}
+
+.coffee-theme .badge.bg-white {
+  background-color: #221710 !important;
+  color: #fffbeb !important;
+  border: 1px solid #4a3221 !important;
+}
+
+.coffee-theme .brand-badge-kafeinarts {
+  background-color: rgba(217, 119, 6, 0.18) !important;
+  color: #fcd34d !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
 }
 
 /* =========================================================
