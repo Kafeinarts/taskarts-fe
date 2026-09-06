@@ -1,422 +1,305 @@
 <template>
-  <div class="q-pa-md calendar-container" data-aos="fade-up">
-    <!-- Header Card (Material Design 3) -->
-    <q-card flat bordered class="bg-white rounded-borders q-pa-md q-mb-md shadow-1">
-      <div class="row items-center justify-between q-col-gutter-md">
-        <div class="col-12 col-md-6">
-          <div class="row items-center q-gutter-x-sm q-mb-xs">
-            <q-badge color="primary" text-color="white" rounded label="Agenda & Kalender" class="q-px-sm q-py-xs text-weight-bold" />
-            <q-badge color="red-1" text-color="negative" rounded label="🇮🇩 Tanggal Merah Indonesia" class="q-px-sm q-py-xs text-weight-bold" />
-            <q-badge color="grey-3" text-color="grey-9" rounded label="Material Design 3" class="q-px-sm q-py-xs" />
+  <div class="container-fluid p-0" data-aos="fade-up">
+    <!-- PAGE 1: MAIN MONTHLY CALENDAR VIEW -->
+    <div v-if="pageMode === 'calendar'">
+      <!-- Header Banner -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-warning-subtle text-warning-emphasis fw-semibold px-3 py-2 rounded-pill">Agenda & Reminders</span>
           </div>
-          <div class="text-h5 text-weight-bold text-grey-9 q-mb-xs">📅 Kalender, Agenda & Pengingat</div>
-          <div class="text-caption text-grey-7">
-            Kelola agenda meeting, deadline proyek/tugas harian, dan pantau hari libur nasional Indonesia.
-          </div>
+          <h2 class="fw-bold mb-1 text-dark">📅 Calendar, Timed Events & Reminders</h2>
+          <p class="text-muted mb-0">Kelola agenda meeting jam, pengingat, deadline proyek, dan tanggal jatuh tempo invoice.</p>
         </div>
-
-        <div class="col-12 col-md-6 text-right">
-          <div class="row justify-end items-center q-gutter-sm">
-            <q-btn flat round dense icon="chevron_left" color="grey-8" @click="changeMonth(-1)" />
-            <span class="text-subtitle1 text-weight-bold text-grey-9 q-px-sm text-center min-w-160">
-              {{ monthYearLabel }}
-            </span>
-            <q-btn flat round dense icon="chevron_right" color="grey-8" @click="changeMonth(1)" />
-            <q-btn
-              outline
-              color="grey-7"
-              label="Hari Ini"
-              no-caps
-              dense
-              class="q-px-sm rounded-borders"
-              @click="goToToday"
-            />
-            <q-btn
-              unelevated
-              color="primary"
-              icon="add"
-              label="Tambah Agenda"
-              no-caps
-              class="rounded-borders text-weight-bold"
-              @click="openAddEventModal()"
-            />
-          </div>
-        </div>
-      </div>
-    </q-card>
-
-    <!-- Legend Bar -->
-    <q-card flat bordered class="bg-white rounded-borders q-pa-sm q-mb-md shadow-1">
-      <div class="row items-center q-gutter-x-md q-gutter-y-xs text-caption">
-        <span class="text-weight-bold text-grey-8">Keterangan:</span>
-        <span class="row items-center"><q-badge color="red-1" text-color="negative" label="🇮🇩 Tanggal Merah" class="q-mr-xs text-weight-bold" /> Hari Libur Nasional</span>
-        <span class="row items-center"><q-badge color="blue-1" text-color="primary" label="Meeting" class="q-mr-xs text-weight-bold" /> Agenda Jam</span>
-        <span class="row items-center"><q-badge color="amber-1" text-color="amber-10" label="Deadline Task" class="q-mr-xs text-weight-bold" /> Tugas Harian</span>
-        <span class="row items-center"><q-badge color="cyan-1" text-color="secondary" label="Proyek" class="q-mr-xs text-weight-bold" /> Deadline Proyek</span>
-        <span class="row items-center"><q-badge color="purple-1" text-color="purple-9" label="Invoice" class="q-mr-xs text-weight-bold" /> Jatuh Tempo</span>
-      </div>
-    </q-card>
-
-    <!-- Calendar Grid Card -->
-    <q-card flat bordered class="bg-white rounded-borders q-pa-md shadow-1 q-mb-md">
-      <!-- Days of Week Header -->
-      <div class="calendar-grid-header text-center text-weight-bold q-pb-sm border-bottom">
-        <div
-          v-for="(day, idx) in weekDays"
-          :key="day"
-          :class="idx === 0 ? 'text-negative' : 'text-grey-7'"
-          class="q-py-xs text-subtitle2"
-        >
-          {{ day }}
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-secondary px-3 rounded-3" @click="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
+          <span class="fw-bold fs-5 text-dark px-2 min-w-160 text-center">{{ monthYearLabel }}</span>
+          <button class="btn btn-outline-secondary px-3 rounded-3" @click="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
+          <button class="btn btn-primary px-3 py-2 rounded-3 fw-semibold ms-2" @click="openAddEventForm()">
+            <i class="bi bi-calendar-plus me-1"></i> Tambah Event
+          </button>
         </div>
       </div>
 
-      <!-- Calendar Days Body -->
-      <div class="calendar-grid-body q-pt-sm">
-        <div
-          v-for="(cell, idx) in calendarCells"
-          :key="idx"
-          class="calendar-cell q-pa-xs rounded-borders cursor-pointer"
-          :class="[
-            cell.currentMonth ? 'cell-active' : 'cell-inactive opacity-50',
-            cell.isToday ? 'border-today shadow-1' : 'border-cell',
-            cell.holidayInfo.isRedDate ? 'bg-red-0' : ''
-          ]"
-          @click="openDayDetail(cell)"
-        >
-          <!-- Top Row: Date Number & Badges -->
-          <div class="row items-center justify-between no-wrap q-mb-xs">
-            <span
-              class="text-caption text-weight-bold"
-              :class="cell.holidayInfo.isRedDate ? 'text-negative text-weight-bolder fs-13' : (cell.isToday ? 'text-primary' : (cell.currentMonth ? 'text-grey-9' : 'text-grey-5'))"
-            >
-              {{ cell.dayNum }}
-            </span>
-            <div class="row items-center q-gutter-xs">
-              <q-badge v-if="cell.isToday" color="primary" label="HARI INI" rounded class="text-micro" />
-              <q-icon
-                v-if="cell.holidayInfo.isHoliday"
-                name="flag"
-                color="negative"
-                size="13px"
-                title="Hari Libur Nasional"
-              />
-            </div>
-          </div>
+      <!-- Calendar Legend Bar -->
+      <div class="d-flex flex-wrap align-items-center gap-3 bg-white p-3 rounded-4 shadow-sm border mb-3">
+        <span class="small fw-bold text-muted me-2">Kategori Event:</span>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"><i class="bi bi-clock-fill me-1"></i>Timed Event / Meeting</span>
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1"><i class="bi bi-check2-square me-1"></i>Deadline Task</span>
+        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1"><i class="bi bi-folder me-1"></i>Deadline Proyek</span>
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><i class="bi bi-receipt me-1"></i>Jatuh Tempo Invoice</span>
+      </div>
 
-          <!-- Holiday Name Tag if any -->
-          <div v-if="cell.holidayInfo.isHoliday" class="holiday-pill q-px-xs q-py-none rounded-borders text-micro ellipsis q-mb-xs">
-            🇮🇩 {{ cell.holidayInfo.holidayName }}
-          </div>
+      <!-- Calendar Grid -->
+      <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <!-- Days Header -->
+        <div class="calendar-grid-header text-center fw-bold text-muted small mb-2 border-bottom pb-2">
+          <div v-for="day in weekDays" :key="day" class="p-1">{{ day }}</div>
+        </div>
 
-          <!-- Scheduled Items for Date -->
-          <div class="column q-gutter-y-xs overflow-hidden">
-            <!-- Timed Events -->
-            <div
-              v-for="e in getEventsForDate(cell.dateStr)"
-              :key="e.id"
-              class="event-chip bg-blue-1 text-primary q-px-xs rounded-borders text-micro ellipsis row items-center justify-between"
-            >
-              <span class="ellipsis"><q-icon name="schedule" size="10px" class="q-mr-xs" />{{ e.startTime }} {{ e.title }}</span>
-              <span v-if="e.reminder && e.reminder !== 'None'">🔔</span>
+        <!-- Days Cells -->
+        <div class="calendar-grid-body">
+          <div
+            v-for="(cell, idx) in calendarCells"
+            :key="idx"
+            class="calendar-cell p-2 border rounded-3 cursor-pointer cell-hover"
+            :class="[
+              cell.currentMonth ? 'cell-active' : 'cell-inactive opacity-50',
+              cell.isToday ? 'border-primary border-2 shadow-sm' : ''
+            ]"
+            @click="openDayDetail(cell)"
+          >
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-bold" :class="cell.isToday ? 'text-primary fs-6' : (cell.currentMonth ? 'text-dark' : 'text-muted opacity-50')">
+                {{ cell.dayNum }}
+              </span>
+              <span v-if="cell.isToday" class="badge bg-primary style-mini">HARI INI</span>
             </div>
 
-            <!-- Tasks -->
-            <div
-              v-for="t in getTasksForDate(cell.dateStr)"
-              :key="t.id"
-              class="event-chip bg-amber-1 text-amber-10 q-px-xs rounded-borders text-micro ellipsis"
-            >
-              <q-icon name="task_alt" size="10px" class="q-mr-xs" />{{ t.name }}
-            </div>
+            <!-- Items on this date -->
+            <div class="d-flex flex-column gap-1 overflow-hidden">
+              <!-- Timed Events -->
+              <div
+                v-for="e in getEventsForDate(cell.dateStr)"
+                :key="e.id"
+                class="p-1 rounded bg-primary-subtle text-primary fw-semibold style-event d-flex align-items-center justify-content-between"
+              >
+                <span class="text-truncate"><i class="bi bi-clock-fill me-1"></i>{{ e.startTime }} {{ e.title }}</span>
+                <span v-if="e.reminder && e.reminder !== 'None'" class="badge bg-primary text-white p-0 px-1 style-mini ms-1" title="Reminder set">🔔</span>
+              </div>
 
-            <!-- Projects -->
-            <div
-              v-for="p in getProjectsForDate(cell.dateStr)"
-              :key="p.id"
-              class="event-chip bg-cyan-1 text-secondary q-px-xs rounded-borders text-micro ellipsis"
-            >
-              <q-icon name="folder" size="10px" class="q-mr-xs" />{{ p.projectTitle }}
-            </div>
+              <!-- Tasks -->
+              <div v-for="t in getTasksForDate(cell.dateStr)" :key="t.id" class="p-1 rounded bg-warning-subtle text-warning-emphasis style-event text-truncate">
+                <i class="bi bi-check2-square me-1"></i>{{ t.name }}
+              </div>
 
-            <!-- Invoices -->
-            <div
-              v-for="inv in getInvoicesForDate(cell.dateStr)"
-              :key="inv.id"
-              class="event-chip bg-purple-1 text-purple-9 q-px-xs rounded-borders text-micro ellipsis"
-            >
-              <q-icon name="receipt" size="10px" class="q-mr-xs" />{{ inv.invoiceNumber }}
+              <!-- Projects -->
+              <div v-for="p in getProjectsForDate(cell.dateStr)" :key="p.id" class="p-1 rounded bg-info-subtle text-info-emphasis style-event text-truncate">
+                <i class="bi bi-folder me-1"></i>{{ p.projectTitle }}
+              </div>
+
+              <!-- Invoices -->
+              <div v-for="inv in getInvoicesForDate(cell.dateStr)" :key="inv.id" class="p-1 rounded bg-danger-subtle text-danger style-event text-truncate">
+                <i class="bi bi-receipt me-1"></i>{{ inv.invoiceNumber }}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </q-card>
+    </div>
 
-    <!-- DAY DETAIL PANEL / MODAL (No Modal Blocking, Clean Quasar Dialog) -->
-    <q-dialog v-model="showDayDetailModal">
-      <q-card style="width: 580px; max-width: 95vw;" class="rounded-borders">
-        <q-card-section class="row items-center justify-between border-bottom q-pb-sm">
-          <div>
-            <div class="text-caption text-weight-bold text-primary">Detail Agenda Tanggal</div>
-            <div class="text-h6 text-weight-bold text-grey-9">
-              {{ formatFullDate(selectedCell?.dateStr) }}
+    <!-- In-Page Panel Detail Tanggal & Form Agenda (No Modal Overlay) -->
+    <div v-if="showDayDetailModal" id="dayDetailPanel" class="card border-0 shadow rounded-4 bg-white p-4 my-4 animate-scale">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <div>
+          <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-1">
+            <i class="bi bi-calendar-event me-1"></i> Detail Agenda Tanggal
+          </span>
+          <h4 class="fw-bold text-dark mb-0" v-if="selectedCell">{{ formatFullDate(selectedCell.dateStr) }}</h4>
+        </div>
+        <button class="btn-close" @click="showDayDetailModal = false" title="Tutup Detail Tanggal"></button>
+      </div>
+
+      <div v-if="selectedCell">
+        <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-3 border">
+          <span class="fw-bold text-dark small"><i class="bi bi-clock-fill text-primary me-1"></i> {{ getEventsForDate(selectedCell.dateStr).length }} Event Terjadwal</span>
+          <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" @click="openAddEventModal(selectedCell.dateStr)">
+            <i class="bi bi-plus-lg me-1"></i> Tambah Agenda
+          </button>
+        </div>
+
+        <!-- List of events -->
+        <div v-if="getEventsForDate(selectedCell.dateStr).length > 0" class="d-flex flex-column gap-2 mb-3">
+          <div v-for="e in getEventsForDate(selectedCell.dateStr)" :key="e.id" class="p-3 bg-white border rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+            <div>
+              <span class="badge bg-primary text-white me-2">{{ e.startTime || 'All Day' }}</span>
+              <strong class="text-dark">{{ e.title }}</strong>
+              <small class="text-muted d-block" v-if="e.notes">{{ e.notes }}</small>
+            </div>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-primary rounded-circle p-1" @click="editEvent(e)"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger rounded-circle p-1" @click="deleteEvent(e.id)"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
+        </div>
 
-        <!-- Holiday Banner in Day Detail -->
-        <q-banner
-          v-if="selectedCell?.holidayInfo?.isHoliday"
-          rounded
-          class="bg-red-1 text-negative q-ma-md border-red-soft"
-          dense
-        >
-          <template v-slot:avatar>
-            <q-icon name="celebration" color="negative" />
-          </template>
-          <div class="text-weight-bold text-body2">
-            🇮🇩 Hari Libur Nasional: {{ selectedCell.holidayInfo.holidayName }}
-          </div>
-          <div class="text-caption text-grey-7">
-            Tanggal Merah resmi Republik Indonesia (SKB 3 Menteri).
-          </div>
-        </q-banner>
+        <!-- Tasks & Projects on this day -->
+        <div v-if="getTasksForDate(selectedCell.dateStr).length > 0" class="p-3 bg-warning-subtle text-warning-emphasis rounded-3 border mb-3 small">
+          <strong>📋 Deadline Task:</strong>
+          <ul class="mb-0 ps-3">
+            <li v-for="t in getTasksForDate(selectedCell.dateStr)" :key="t.id">{{ t.name }}</li>
+          </ul>
+        </div>
+      </div>
 
-        <q-card-section class="q-pt-xs">
-          <div class="row items-center justify-between bg-grey-1 q-pa-sm rounded-borders q-mb-sm">
-            <span class="text-caption text-weight-bold text-grey-8">
-              {{ getEventsForDate(selectedCell?.dateStr).length }} Event Terjadwal
-            </span>
-            <q-btn
-              unelevated
-              color="primary"
-              icon="add"
-              label="+ Tambah Agenda"
-              no-caps
-              dense
-              size="sm"
-              class="q-px-sm text-weight-bold"
-              @click="openAddEventModal(selectedCell?.dateStr)"
-            />
-          </div>
+      <div class="d-flex justify-content-end border-top pt-3">
+        <button class="btn btn-secondary rounded-pill px-4" @click="showDayDetailModal = false">Tutup Detail</button>
+      </div>
+    </div>
 
-          <!-- List of Timed Events -->
-          <div v-if="getEventsForDate(selectedCell?.dateStr).length > 0" class="q-gutter-y-xs q-mb-md">
-            <q-card
-              v-for="e in getEventsForDate(selectedCell?.dateStr)"
-              :key="e.id"
-              flat
-              bordered
-              class="q-pa-sm rounded-borders bg-white"
-            >
-              <div class="row items-center justify-between">
-                <div>
-                  <div class="row items-center q-gutter-x-xs">
-                    <q-badge color="primary" :label="e.startTime || 'All Day'" class="text-weight-bold" />
-                    <span class="text-weight-bold text-body2 text-grey-9">{{ e.title }}</span>
-                  </div>
-                  <div v-if="e.notes" class="text-caption text-grey-7 q-mt-xs">{{ e.notes }}</div>
-                </div>
-                <div class="row q-gutter-xs">
-                  <q-btn flat round dense icon="edit" size="sm" color="primary" @click="editEvent(e)" />
-                  <q-btn flat round dense icon="delete" size="sm" color="negative" @click="deleteEvent(e.id)" />
-                </div>
-              </div>
-            </q-card>
-          </div>
-          <div v-else class="text-caption text-grey-6 text-italic q-pa-sm text-center">
-            Belum ada agenda manual pada tanggal ini.
-          </div>
-
-          <!-- Tasks on this day -->
-          <div v-if="getTasksForDate(selectedCell?.dateStr).length > 0" class="bg-amber-1 text-amber-10 q-pa-sm rounded-borders q-mb-sm">
-            <div class="text-caption text-weight-bold q-mb-xs">📋 Deadline Tugas Harian:</div>
-            <div v-for="t in getTasksForDate(selectedCell?.dateStr)" :key="t.id" class="text-caption">
-              • {{ t.name }}
+    <!-- PAGE 3: ADD / EDIT EVENT FORM FULL NEW PAGE VIEW (HALAMAN BARU) -->
+    <div v-else-if="pageMode === 'event-form'">
+      <div class="bg-white p-4 rounded-4 shadow-sm border mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-bold d-flex align-items-center gap-2" @click="cancelEventForm">
+              <i class="bi bi-arrow-left fs-5"></i>
+              <span>Kembali ke Kalender</span>
+            </button>
+            <div class="border-start ps-3">
+              <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-1">
+                <i class="bi bi-pencil-square me-1"></i> Form Halaman Baru
+              </span>
+              <h3 class="fw-extrabold text-dark mb-0">{{ isEditingEvent ? 'Edit Agenda Meeting' : 'Buat Event / Agenda Baru' }}</h3>
+              <p class="text-muted small mb-0" v-if="eventForm.date">Tanggal Dipilih: <strong>{{ formatFullDate(eventForm.date) }}</strong></p>
             </div>
           </div>
 
-          <!-- Projects on this day -->
-          <div v-if="getProjectsForDate(selectedCell?.dateStr).length > 0" class="bg-cyan-1 text-secondary q-pa-sm rounded-borders q-mb-sm">
-            <div class="text-caption text-weight-bold q-mb-xs">📁 Deadline Proyek:</div>
-            <div v-for="p in getProjectsForDate(selectedCell?.dateStr)" :key="p.id" class="text-caption">
-              • {{ p.projectTitle }}
+          <button v-if="eventForm.date && (getEventsForDate(eventForm.date).length > 0 || getTasksForDate(eventForm.date).length > 0)" class="btn btn-outline-primary rounded-3 px-3 py-2 fw-bold" @click="pageMode = 'day-detail'">
+            <i class="bi bi-calendar-week me-1"></i> Lihat Agenda Tanggal Ini ({{ getEventsForDate(eventForm.date).length }})
+          </button>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Main Form -->
+        <div :class="eventForm.date && (getEventsForDate(eventForm.date).length > 0 || getTasksForDate(eventForm.date).length > 0) ? 'col-lg-8' : 'col-12'">
+          <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+            <form @submit.prevent="saveEvent" class="row g-4">
+              <div class="col-md-8">
+                <label class="form-label fw-bold text-dark fs-6">Judul Agenda / Meeting <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg border-2 fs-5 rounded-3 fw-bold" v-model="eventForm.title" placeholder="Contoh: Demo Project Klien Q3" required />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark fs-6">Tanggal Agenda <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg border-2 rounded-3" v-model="eventForm.date" required />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Jam Mulai</label>
+                <input type="time" class="form-control form-control-lg border-2 rounded-3" v-model="eventForm.startTime" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Jam Selesai</label>
+                <input type="time" class="form-control form-control-lg border-2 rounded-3" v-model="eventForm.endTime" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Kategori Agenda</label>
+                <select class="form-select form-select-lg border-2 rounded-3" v-model="eventForm.category">
+                  <option value="Meeting">Meeting / Client Call</option>
+                  <option value="Milestone">Milestone Proyek</option>
+                  <option value="Reminder">Pengingat Penting</option>
+                  <option value="Personal">Personal / Rutinitas</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Pengingat / Reminder</label>
+                <select class="form-select form-select-lg border-2 rounded-3" v-model="eventForm.reminder">
+                  <option value="None">Tanpa Pengingat</option>
+                  <option value="15m">15 Menit Sebelum</option>
+                  <option value="30m">30 Menit Sebelum</option>
+                  <option value="1h">1 Jam Sebelum</option>
+                  <option value="1d">1 Hari Sebelum</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold text-dark small">Catatan / Detail Agenda</label>
+                <textarea class="form-control border-2 rounded-3 p-3" rows="4" v-model="eventForm.notes" placeholder="Lokasi, link Zoom, agenda pembahasan, atau catatan pendukung..."></textarea>
+              </div>
+
+              <div class="col-12 d-flex justify-content-end gap-3 pt-4 border-top">
+                <button type="button" class="btn btn-light rounded-3 px-4 py-2.5 fw-semibold border" @click="cancelEventForm">Batal</button>
+                <button type="submit" class="btn btn-primary rounded-3 px-5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 fs-6">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>Simpan Agenda Meeting</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Sidebar list if events exist on this date -->
+        <div v-if="eventForm.date && (getEventsForDate(eventForm.date).length > 0 || getTasksForDate(eventForm.date).length > 0)" class="col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 bg-white p-4 h-100">
+            <h6 class="fw-bold text-dark border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
+              <span><i class="bi bi-calendar2-check text-primary me-2"></i>Agenda Pada Tanggal Ini</span>
+              <span class="badge bg-primary-subtle text-primary">{{ getEventsForDate(eventForm.date).length }} Event</span>
+            </h6>
+
+            <div class="d-flex flex-column gap-2 overflow-auto" style="max-height: 420px;">
+              <div v-for="e in getEventsForDate(eventForm.date)" :key="e.id" class="p-3 bg-light rounded-3 border">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="badge bg-primary style-mini"><i class="bi bi-clock me-1"></i>{{ e.startTime }}</span>
+                  <span class="badge bg-secondary style-mini">{{ e.category }}</span>
+                </div>
+                <div class="fw-bold text-dark small mb-1">{{ e.title }}</div>
+                <div class="text-muted style-mini" v-if="e.notes">{{ e.notes }}</div>
+              </div>
+
+              <div v-for="t in getTasksForDate(eventForm.date)" :key="t.id" class="p-3 bg-warning-subtle rounded-3 border border-warning-subtle">
+                <span class="badge bg-warning text-dark style-mini mb-1">Deadline Task</span>
+                <div class="fw-bold text-dark small">{{ t.name }}</div>
+              </div>
             </div>
           </div>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+        </div>
+      </div>
+    </div>
 
-    <!-- MANUAL ADD/EDIT EVENT MODAL (Quasar Dialog) -->
-    <q-dialog v-model="showEventFormModal" persistent>
-      <q-card style="width: 540px; max-width: 95vw;" class="rounded-borders">
-        <q-card-section class="row items-center justify-between border-bottom q-pb-sm">
-          <div class="text-h6 text-weight-bold text-grey-9">
-            {{ isEditingEvent ? 'Edit Agenda / Event' : 'Tambah Agenda Baru' }}
+    <!-- Sleek Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+      <div v-if="toast.show" class="toast align-items-center text-white bg-dark border-0 show shadow-lg rounded-3" role="alert">
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>{{ toast.message }}</span>
           </div>
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section class="q-pt-sm">
-          <q-form @submit.prevent="saveEvent">
-            <div class="q-gutter-y-sm">
-              <!-- Event Title -->
-              <q-input
-                v-model="eventForm.title"
-                outlined
-                dense
-                label="Judul Agenda / Meeting *"
-                placeholder="Contoh: Diskusi Scope Project dengan Klien A"
-                :error="!!formError"
-                :error-message="formError"
-              />
-
-              <!-- Event Date -->
-              <q-input
-                v-model="eventForm.date"
-                outlined
-                dense
-                type="date"
-                label="Tanggal Agenda *"
-              />
-
-              <!-- Holiday check indicator in form -->
-              <div v-if="currentFormHoliday.isHoliday" class="bg-red-1 text-negative text-caption q-pa-xs rounded-borders row items-center">
-                <q-icon name="flag" class="q-mr-xs" />
-                <span>Tanggal ini adalah <strong>🇮🇩 {{ currentFormHoliday.holidayName }}</strong> (Tanggal Merah).</span>
-              </div>
-
-              <!-- Time Row -->
-              <div class="row q-col-gutter-sm">
-                <div class="col-6">
-                  <q-input
-                    v-model="eventForm.startTime"
-                    outlined
-                    dense
-                    label="Jam Mulai"
-                    placeholder="09:00"
-                  />
-                </div>
-                <div class="col-6">
-                  <q-input
-                    v-model="eventForm.endTime"
-                    outlined
-                    dense
-                    label="Jam Selesai"
-                    placeholder="10:00"
-                  />
-                </div>
-              </div>
-
-              <!-- Quick Time Presets -->
-              <div class="row items-center q-gutter-xs">
-                <span class="text-caption text-grey-7">Preset Jam:</span>
-                <q-btn outline dense size="sm" color="grey-8" label="09:00" no-caps @click="eventForm.startTime = '09:00'; eventForm.endTime = '10:00'" />
-                <q-btn outline dense size="sm" color="grey-8" label="13:30" no-caps @click="eventForm.startTime = '13:30'; eventForm.endTime = '14:30'" />
-                <q-btn outline dense size="sm" color="grey-8" label="16:00" no-caps @click="eventForm.startTime = '16:00'; eventForm.endTime = '17:00'" />
-                <q-btn outline dense size="sm" color="grey-8" label="All Day" no-caps @click="eventForm.startTime = 'All Day'; eventForm.endTime = ''" />
-              </div>
-
-              <!-- Category & Reminder -->
-              <div class="row q-col-gutter-sm">
-                <div class="col-6">
-                  <q-select
-                    v-model="eventForm.category"
-                    :options="['Meeting', 'Panggilan Klien', 'Review Desain', 'Deadline', 'Rutin', 'Pribadi']"
-                    outlined
-                    dense
-                    label="Kategori Agenda"
-                  />
-                </div>
-                <div class="col-6">
-                  <q-select
-                    v-model="eventForm.reminder"
-                    :options="[
-                      { label: 'Tanpa Pengingat', value: 'None' },
-                      { label: '15 Menit Sebelumnya', value: '15m' },
-                      { label: '30 Menit Sebelumnya', value: '30m' },
-                      { label: '1 Jam Sebelumnya', value: '1h' },
-                      { label: '1 Hari Sebelumnya', value: '1d' }
-                    ]"
-                    emit-value
-                    map-options
-                    outlined
-                    dense
-                    label="Notifikasi Pengingat"
-                  />
-                </div>
-              </div>
-
-              <!-- Notes -->
-              <q-input
-                v-model="eventForm.notes"
-                outlined
-                dense
-                type="textarea"
-                rows="2"
-                label="Catatan / Link Zoom / Lokasi (opsional)"
-              />
-
-              <div class="row justify-end q-gutter-sm q-mt-md">
-                <q-btn flat label="Batal" color="grey-7" v-close-popup no-caps />
-                <q-btn
-                  unelevated
-                  color="primary"
-                  :label="isEditingEvent ? 'Simpan Perubahan' : 'Tambah Agenda'"
-                  type="submit"
-                  no-caps
-                  class="text-weight-bold"
-                />
-              </div>
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" @click="toast.show = false"></button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
-import { useQuasar } from 'quasar';
-import Swal from 'sweetalert2';
-import { getIndonesianHolidayInfo } from '../utils/indonesianHolidays';
 
 export default {
   name: 'CalendarView',
   setup() {
     const store = useStore();
-    const $q = useQuasar();
-
     const currentDate = ref(new Date());
-    const weekDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-    const monthYearLabel = computed(() => {
-      return currentDate.value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    });
-
-    const changeMonth = (delta) => {
-      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + delta, 1);
-    };
-
-    const goToToday = () => {
-      currentDate.value = new Date();
-    };
-
-    const tasks = computed(() => store.getters.getTasks || []);
-    const projects = computed(() => store.getters.getProjects || []);
-    const invoices = computed(() => store.getters.getInvoices || []);
-    const events = computed(() => store.getters.getEvents || []);
-
-    // Selection & Modals
+    // Page modes: 'calendar' (main grid view), 'day-detail' (detail date page), 'event-form' (add/edit form page)
+    const pageMode = ref('calendar');
     const selectedCell = ref(null);
     const showDayDetailModal = ref(false);
-    const showEventFormModal = ref(false);
     const isEditingEvent = ref(false);
     const editingEventId = ref(null);
-    const formError = ref('');
+
+    const openDayDetail = (cell) => {
+      selectedCell.value = cell;
+      showDayDetailModal.value = true;
+    };
+
+    const openAddEventModal = (dateStr) => {
+      showDayDetailModal.value = false;
+      openAddEventForm(dateStr);
+    };
+
+    const toast = ref({ show: false, message: '' });
+
+    const showToast = (msg) => {
+      toast.value.message = msg;
+      toast.value.show = true;
+      setTimeout(() => (toast.value.show = false), 3000);
+    };
 
     const eventForm = ref({
       title: '',
@@ -428,9 +311,81 @@ export default {
       notes: ''
     });
 
-    const currentFormHoliday = computed(() => {
-      return getIndonesianHolidayInfo(eventForm.value.date);
+    const weekDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    const monthYearLabel = computed(() => {
+      return currentDate.value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     });
+
+    const changeMonth = (delta) => {
+      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + delta, 1);
+    };
+
+    const tasks = computed(() => store.getters.getTasks);
+    const projects = computed(() => store.getters.getProjects);
+    const invoices = computed(() => store.getters.getInvoices);
+    const events = computed(() => store.getters.getEvents);
+
+    const openAddEventForm = (dateStr = null) => {
+      isEditingEvent.value = false;
+      editingEventId.value = null;
+      eventForm.value = {
+        title: '',
+        date: dateStr || (selectedCell.value ? selectedCell.value.dateStr : new Date().toISOString().split('T')[0]),
+        startTime: '09:00',
+        endTime: '10:00',
+        category: 'Meeting',
+        reminder: '30m',
+        notes: ''
+      };
+      pageMode.value = 'event-form';
+    };
+
+    const editEvent = (ev) => {
+      isEditingEvent.value = true;
+      editingEventId.value = ev.id;
+      eventForm.value = { ...ev };
+      pageMode.value = 'event-form';
+    };
+
+    const saveEvent = () => {
+      if (!eventForm.value.title || !eventForm.value.title.trim()) {
+        showToast('Judul agenda tidak boleh kosong.');
+        return;
+      }
+
+      if (isEditingEvent.value) {
+        store.dispatch('updateEvent', { ...eventForm.value, id: editingEventId.value });
+        showToast('Agenda berhasil diperbarui!');
+      } else {
+        store.dispatch('addEvent', eventForm.value);
+        showToast('Agenda baru berhasil ditambahkan!');
+      }
+
+      if (selectedCell.value) {
+        pageMode.value = 'day-detail';
+      } else {
+        pageMode.value = 'calendar';
+      }
+    };
+
+    const cancelEventForm = () => {
+      if (selectedCell.value) {
+        pageMode.value = 'day-detail';
+      } else {
+        pageMode.value = 'calendar';
+      }
+    };
+
+    const deleteEvent = (id) => {
+      store.dispatch('deleteEvent', id);
+      showToast('Agenda dihapus.');
+    };
+
+    const goToMainCalendar = () => {
+      pageMode.value = 'calendar';
+      selectedCell.value = null;
+    };
 
     const calendarCells = computed(() => {
       const year = currentDate.value.getFullYear();
@@ -446,13 +401,11 @@ export default {
       const prevMonthLastDay = new Date(year, month, 0).getDate();
       for (let i = startDayOfWeek - 1; i >= 0; i--) {
         const d = new Date(year, month - 1, prevMonthLastDay - i);
-        const iso = d.toISOString().split('T')[0];
         cells.push({
           dayNum: d.getDate(),
-          dateStr: iso,
+          dateStr: d.toISOString().split('T')[0],
           currentMonth: false,
-          isToday: false,
-          holidayInfo: getIndonesianHolidayInfo(iso)
+          isToday: false
         });
       }
 
@@ -465,23 +418,20 @@ export default {
           dayNum: day,
           dateStr: dateStr,
           currentMonth: true,
-          isToday: dateStr === todayStr,
-          holidayInfo: getIndonesianHolidayInfo(dateStr)
+          isToday: dateStr === todayStr
         });
       }
 
-      // Remaining cells
+      // Remaining cells to complete grid
       const totalSoFar = cells.length;
       const needed = 35 - totalSoFar > 0 ? 35 - totalSoFar : (42 - totalSoFar > 0 ? 42 - totalSoFar : 0);
       for (let i = 1; i <= needed; i++) {
         const d = new Date(year, month + 1, i);
-        const iso = d.toISOString().split('T')[0];
         cells.push({
           dayNum: d.getDate(),
-          dateStr: iso,
+          dateStr: d.toISOString().split('T')[0],
           currentMonth: false,
-          isToday: false,
-          holidayInfo: getIndonesianHolidayInfo(iso)
+          isToday: false
         });
       }
 
@@ -489,101 +439,23 @@ export default {
     });
 
     const getEventsForDate = (dateStr) => {
-      if (!dateStr) return [];
       return events.value.filter(e => e.date === dateStr);
     };
 
     const getTasksForDate = (dateStr) => {
-      if (!dateStr) return [];
       return tasks.value.filter(t => t.deadline === dateStr);
     };
 
     const getProjectsForDate = (dateStr) => {
-      if (!dateStr) return [];
       return projects.value.filter(p => p.deadline === dateStr);
     };
 
     const getInvoicesForDate = (dateStr) => {
-      if (!dateStr) return [];
       return invoices.value.filter(i => i.dueDate === dateStr);
     };
 
-    const openDayDetail = (cell) => {
-      selectedCell.value = cell;
-      showDayDetailModal.value = true;
-    };
-
-    const openAddEventModal = (dateStr = null) => {
-      isEditingEvent.value = false;
-      editingEventId.value = null;
-      formError.value = '';
-      const chosenDate = dateStr || (selectedCell.value ? selectedCell.value.dateStr : new Date().toISOString().split('T')[0]);
-      eventForm.value = {
-        title: '',
-        date: chosenDate,
-        startTime: '09:00',
-        endTime: '10:00',
-        category: 'Meeting',
-        reminder: '30m',
-        notes: ''
-      };
-      showEventFormModal.value = true;
-    };
-
-    const editEvent = (ev) => {
-      isEditingEvent.value = true;
-      editingEventId.value = ev.id;
-      formError.value = '';
-      eventForm.value = { ...ev };
-      showEventFormModal.value = true;
-    };
-
-    const saveEvent = () => {
-      if (!eventForm.value.title || !eventForm.value.title.trim()) {
-        formError.value = 'Judul agenda wajib diisi!';
-        return;
-      }
-      formError.value = '';
-
-      if (isEditingEvent.value) {
-        store.dispatch('updateEvent', { ...eventForm.value, id: editingEventId.value });
-        $q.notify({
-          type: 'positive',
-          message: 'Agenda berhasil diperbarui!',
-          position: 'top-right'
-        });
-      } else {
-        store.dispatch('addEvent', eventForm.value);
-        $q.notify({
-          type: 'positive',
-          message: 'Agenda baru berhasil ditambahkan!',
-          position: 'top-right'
-        });
-      }
-
-      showEventFormModal.value = false;
-    };
-
-    const deleteEvent = (id) => {
-      Swal.fire({
-        title: 'Hapus Agenda?',
-        text: 'Agenda ini akan dihapus dari kalender.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.dispatch('deleteEvent', id);
-          $q.notify({
-            type: 'info',
-            message: 'Agenda telah dihapus.',
-            position: 'top-right'
-          });
-        }
-      });
+    const toggleTask = (id) => {
+      store.dispatch('toggleTask', id);
     };
 
     const formatFullDate = (dateStr) => {
@@ -598,27 +470,28 @@ export default {
 
     return {
       weekDays,
-      currentDate,
       monthYearLabel,
       changeMonth,
-      goToToday,
       calendarCells,
       getEventsForDate,
       getTasksForDate,
       getProjectsForDate,
       getInvoicesForDate,
+      pageMode,
       selectedCell,
       showDayDetailModal,
-      showEventFormModal,
+      openAddEventModal,
       isEditingEvent,
       eventForm,
-      formError,
-      currentFormHoliday,
-      openDayDetail,
-      openAddEventModal,
+      toast,
+      openAddEventForm,
       editEvent,
       saveEvent,
+      cancelEventForm,
       deleteEvent,
+      openDayDetail,
+      goToMainCalendar,
+      toggleTask,
       formatFullDate
     };
   }
@@ -626,72 +499,49 @@ export default {
 </script>
 
 <style scoped>
-.calendar-container {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
 .calendar-grid-header,
 .calendar-grid-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .calendar-cell {
   min-height: 110px;
-  transition: all 0.15s ease;
-  background-color: #ffffff;
+  transition: all 0.2s ease;
 }
 
-.border-cell {
-  border: 1px solid #e2e8f0;
+.cell-active {
+  background-color: var(--bg-surface, #ffffff);
 }
 
-.border-cell:hover {
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+.cell-inactive {
+  background-color: var(--bg-app, #f8fafc);
 }
 
-.border-today {
-  border: 2px solid #2563eb !important;
+.cell-hover:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.bg-red-0 {
-  background-color: #fff5f5 !important;
-}
-
-.border-red-soft {
-  border: 1px solid #fecaca;
-}
-
-.holiday-pill {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  font-weight: 700;
-  font-size: 10px;
-  line-height: 1.3;
-}
-
-.event-chip {
-  font-size: 10.5px;
-  line-height: 1.4;
+.style-event {
+  font-size: 11px;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.text-micro {
-  font-size: 9.5px;
+.style-mini {
+  font-size: 9px;
 }
 
-.fs-13 {
-  font-size: 13px;
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .min-w-160 {
   min-width: 160px;
 }
-
-.border-bottom {
-  border-bottom: 1px solid #e2e8f0;
-}
 </style>
+

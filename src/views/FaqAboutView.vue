@@ -225,8 +225,6 @@
                 Gunakan tombol shortcut keyboard untuk berpindah dan mengekspor dokumen dalam hitungan detik:
               </p>
               <ul class="small text-muted lh-lg mb-0 ps-3">
-                <li><kbd>Ctrl</kbd> + <kbd>B</kbd> : Sembunyikan (hide) sidebar total atau tampilkan kembali untuk workspace ultra lega.</li>
-                <li><kbd>Ctrl</kbd> + <kbd>K</kbd> : Cari cepat menu atau filter fitur di sidebar navigasi.</li>
                 <li><kbd>Ctrl</kbd> + <kbd>P</kbd> : Cetak langsung / Export PDF pada CV Builder, Surat, & Invoice.</li>
                 <li><kbd>Alt</kbd> + <kbd>N</kbd> : Buka Quick Capture Scratchpad untuk mencatat ide cepat.</li>
                 <li><kbd>Alt</kbd> + <kbd>K</kbd> : Buka Kamera & Scan Dokumen instan.</li>
