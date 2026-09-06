@@ -302,6 +302,19 @@ const routes = [
     redirect: "/medium-draft",
   },
   {
+    path: "/browser",
+    name: "browser",
+    component: () => import("../views/BrowserResearchView.vue"),
+  },
+  {
+    path: "/research-browser",
+    redirect: "/browser",
+  },
+  {
+    path: "/internal-browser",
+    redirect: "/browser",
+  },
+  {
     path: "/modes",
     name: "workspace-modes",
     component: () => import("../views/WorkspaceModesView.vue"),

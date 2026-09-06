@@ -128,6 +128,25 @@
           <!-- Three.js Canvas Container -->
           <div ref="threeCanvasContainer" class="col three-container relative-position"></div>
 
+          <!-- Floating 3D Hover Tooltip HUD -->
+          <transition name="fade">
+            <div
+              v-if="hovered3DNode"
+              class="hover-3d-tooltip position-absolute pointer-events-none p-2.5 rounded-3 bg-dark text-white shadow-lg border border-primary border-opacity-50"
+              :style="{ top: hoverTooltipPos.y + 'px', left: hoverTooltipPos.x + 'px', transform: 'translate(-50%, -125%)', zIndex: 25 }"
+            >
+              <div class="d-flex align-items-center gap-1.5 mb-1">
+                <i :class="hovered3DNode.type === 'day' ? 'bi bi-calendar3 text-info' : 'bi bi-folder-fill text-warning'"></i>
+                <strong class="small">{{ hovered3DNode.title }}</strong>
+                <span class="badge bg-primary text-white ms-auto" style="font-size: 10px;">{{ hovered3DNode.rate }}% Selesai</span>
+              </div>
+              <div class="d-flex justify-content-between gap-3 text-white-50" style="font-size: 11px;">
+                <span>Tugas: <strong class="text-white">{{ hovered3DNode.completed }}/{{ hovered3DNode.total }}</strong></span>
+                <span v-if="hovered3DNode.moodScore">Mood: {{ hovered3DNode.moodEmoji }} {{ hovered3DNode.moodScore }}</span>
+              </div>
+            </div>
+          </transition>
+
           <!-- Floating 3D Detail Sidebar / HUD Card -->
           <transition name="slide-fade">
             <div
@@ -375,6 +394,9 @@ export default {
     const interactiveMeshes = [];
     const isAutoRotating = ref(false);
     const selected3DNode = ref(null);
+    const hovered3DNode = ref(null);
+    const hoverTooltipPos = ref({ x: 0, y: 0 });
+    let currentHoveredMesh = null;
 
     const initThreeScene = () => {
       if (!threeCanvasContainer.value) return;
@@ -567,6 +589,54 @@ export default {
       const raycaster = new THREE.Raycaster();
       const mouse = new THREE.Vector2();
 
+      const onPointerMove = (event) => {
+        if (!renderer?.domElement) return;
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        hoverTooltipPos.value = {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(interactiveMeshes, false);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0].object;
+          if (currentHoveredMesh !== hit) {
+            if (currentHoveredMesh?.material?.emissive) {
+              currentHoveredMesh.material.emissive.setHex(0x000000);
+            }
+            currentHoveredMesh = hit;
+            if (currentHoveredMesh?.material?.emissive) {
+              currentHoveredMesh.material.emissive.setHex(0x0284c7);
+            }
+          }
+          hovered3DNode.value = hit.userData;
+          renderer.domElement.style.cursor = 'pointer';
+        } else {
+          if (currentHoveredMesh?.material?.emissive) {
+            currentHoveredMesh.material.emissive.setHex(0x000000);
+          }
+          currentHoveredMesh = null;
+          hovered3DNode.value = null;
+          renderer.domElement.style.cursor = 'default';
+        }
+      };
+
+      const onPointerLeave = () => {
+        if (currentHoveredMesh?.material?.emissive) {
+          currentHoveredMesh.material.emissive.setHex(0x000000);
+        }
+        currentHoveredMesh = null;
+        hovered3DNode.value = null;
+        if (renderer?.domElement) {
+          renderer.domElement.style.cursor = 'default';
+        }
+      };
+
       const onClickOrTap = (event) => {
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -586,6 +656,8 @@ export default {
         }
       };
 
+      container.addEventListener('pointermove', onPointerMove);
+      container.addEventListener('pointerleave', onPointerLeave);
       container.addEventListener('click', onClickOrTap);
     };
 
@@ -817,6 +889,8 @@ export default {
       peakProductivityDay,
       totalLogsCount,
       selected3DNode,
+      hovered3DNode,
+      hoverTooltipPos,
       isAutoRotating,
       toggleAutoRotate,
       resetCamera,
@@ -827,6 +901,15 @@ export default {
 </script>
 
 <style scoped>
+.hover-3d-tooltip {
+  pointer-events: none;
+  min-width: 220px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  transition: opacity 0.15s ease;
+}
+
 .insights-container {
   max-width: 1400px;
   margin: 0 auto;

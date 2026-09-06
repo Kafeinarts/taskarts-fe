@@ -504,6 +504,7 @@ export default {
         title: 'WORKSPACE & PROYEK',
         items: [
           { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb' },
+          { to: '/browser', label: 'Browser & Riset', icon: 'bi-compass-fill', color: '#0284c7', badgeText: 'MultiTab', badgeClass: 'bg-info text-dark' },
           { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white' },
           { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white' },
           { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark' },
@@ -579,6 +580,7 @@ export default {
     // Dynamic Title & Icon based on Active Route
     const routeTitles = {
       '/': { title: 'Dashboard Executive', icon: 'bi-grid-1x2-fill' },
+      '/browser': { title: 'Browser Riset & Multi-Tab', icon: 'bi-compass-fill' },
       '/job-tracker': { title: 'Simpan Lamaran Kerja (Glints/LinkedIn)', icon: 'bi-briefcase-fill' },
       '/medium-draft': { title: 'Medium Draft & Story Builder', icon: 'bi-medium' },
       '/todo': { title: 'To-Do & Kanban OS', icon: 'bi-kanban-fill' },
