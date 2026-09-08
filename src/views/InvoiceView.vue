@@ -251,6 +251,26 @@
 
       <!-- Professional Printable Invoice Preview (Right) -->
       <div class="col-lg-7">
+        <!-- Interactive Typo Notice Bar -->
+        <div class="alert alert-primary py-2 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 no-print border-primary border-opacity-25 bg-primary-subtle shadow-sm">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">
+              <i class="bi bi-pencil-square me-1"></i> Edit Typo Langsung
+            </span>
+            <span class="small text-dark fw-semibold">
+              Klik teks di preview invoice untuk perbaiki typo secara langsung.
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span v-if="lastInvoiceAutoSaveTime" class="small text-success fw-bold d-flex align-items-center gap-1">
+              <i class="bi bi-check2-circle"></i> Draft ({{ lastInvoiceAutoSaveTime }})
+            </span>
+            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" @click="saveInvoiceToStore">
+              <i class="bi bi-floppy me-1"></i> Simpan
+            </button>
+          </div>
+        </div>
+
         <div
           class="card border-0 shadow-lg rounded-4 p-5 invoice-paper transition-all"
           :class="invoice.paperTheme === 'dark' ? 'bg-dark text-white' : 'bg-white text-dark'"
@@ -278,17 +298,49 @@
                 </div>
 
                 <div>
-                  <h3 class="fw-extrabold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ myBusiness.name }}</h3>
-                  <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.tagline }}</p>
+                  <h3
+                    class="fw-extrabold mb-0 inv-editable"
+                    contenteditable="true"
+                    spellcheck="false"
+                    title="Klik untuk ubah nama bisnis"
+                    @blur="onDirectBusinessEdit('name', $event)"
+                    :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
+                  >{{ myBusiness.name }}</h3>
+                  <p
+                    class="small mb-0 inv-editable"
+                    contenteditable="true"
+                    spellcheck="false"
+                    title="Klik untuk ubah tagline"
+                    @blur="onDirectBusinessEdit('tagline', $event)"
+                    :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'"
+                  >{{ myBusiness.tagline }}</p>
                 </div>
               </div>
-              <small class="d-block mt-1" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.email }} • {{ myBusiness.phone }}</small>
+              <small class="d-block mt-1" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">
+                <span class="inv-editable" contenteditable="true" spellcheck="false" @blur="onDirectBusinessEdit('email', $event)">{{ myBusiness.email }}</span> • 
+                <span class="inv-editable" contenteditable="true" spellcheck="false" @blur="onDirectBusinessEdit('phone', $event)">{{ myBusiness.phone }}</span>
+              </small>
             </div>
 
             <div class="text-end">
               <span class="badge bg-primary text-white text-uppercase px-3 py-2 rounded-pill fs-6 mb-2">INVOICE</span>
-              <h5 class="fw-bold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.invoiceNumber }}</h5>
-              <small :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'" class="d-block">Status: <strong class="text-success">{{ invoice.status || 'Unpaid' }}</strong></small>
+              <h5
+                class="fw-bold mb-0 inv-editable"
+                contenteditable="true"
+                spellcheck="false"
+                title="Klik untuk koreksi nomor invoice"
+                @blur="onDirectInvoiceEdit('invoiceNumber', $event)"
+                :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
+              >{{ invoice.invoiceNumber }}</h5>
+              <small :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'" class="d-block mt-1">Status: 
+                <strong
+                  class="text-success inv-editable"
+                  contenteditable="true"
+                  spellcheck="false"
+                  title="Klik untuk ganti status (misal Paid / Lunas)"
+                  @blur="onDirectInvoiceEdit('status', $event)"
+                >{{ invoice.status || 'Unpaid' }}</strong>
+              </small>
             </div>
           </div>
 
@@ -296,9 +348,30 @@
           <div class="row mb-4">
             <div class="col-6">
               <span class="small text-uppercase fw-bold d-block" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Diterbitkan Untuk:</span>
-              <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
-              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientEmail">{{ invoice.clientEmail }}</p>
-              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientAddress">{{ invoice.clientAddress }}</p>
+              <h6
+                class="fw-bold mb-1 inv-editable"
+                contenteditable="true"
+                spellcheck="false"
+                title="Klik untuk perbaiki nama klien"
+                @blur="onDirectInvoiceEdit('clientName', $event)"
+                :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
+              >{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
+              <p
+                class="small mb-0 inv-editable"
+                contenteditable="true"
+                spellcheck="false"
+                title="Klik untuk perbaiki email klien"
+                @blur="onDirectInvoiceEdit('clientEmail', $event)"
+                :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'"
+              >{{ invoice.clientEmail || 'email@klien.com' }}</p>
+              <p
+                class="small mb-0 inv-editable"
+                contenteditable="true"
+                spellcheck="false"
+                title="Klik untuk perbaiki alamat klien"
+                @blur="onDirectInvoiceEdit('clientAddress', $event)"
+                :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'"
+              >{{ invoice.clientAddress || 'Alamat Klien' }}</p>
             </div>
 
             <div class="col-6 text-end">
@@ -329,10 +402,21 @@
                 <tr v-for="(item, idx) in invoice.items" :key="idx">
                   <td>{{ idx + 1 }}</td>
                   <td>
-                    <div class="fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ item.nama || 'Layanan Freelance' }}</div>
+                    <div
+                      class="fw-bold inv-editable"
+                      contenteditable="true"
+                      spellcheck="false"
+                      title="Klik untuk edit nama layanan/pekerjaan"
+                      @blur="onDirectItemEdit(idx, 'nama', $event)"
+                      :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
+                    >{{ item.nama || 'Layanan Freelance' }}</div>
                   </td>
-                  <td class="text-center fw-semibold">{{ item.quantity || 1 }}</td>
-                  <td class="text-end">{{ formatCurrency(item.biaya) }}</td>
+                  <td class="text-center fw-semibold">
+                    <span class="inv-editable px-1" contenteditable="true" spellcheck="false" @blur="onDirectItemEdit(idx, 'quantity', $event)">{{ item.quantity || 1 }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="inv-editable px-1" contenteditable="true" spellcheck="false" @blur="onDirectItemPriceEdit(idx, $event)">{{ formatCurrency(item.biaya) }}</span>
+                  </td>
                   <td class="text-end fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ formatCurrency(item.quantity * item.biaya) }}</td>
                 </tr>
               </tbody>
@@ -366,7 +450,14 @@
           <!-- Payment Notes Footer -->
           <div class="border-top pt-3" :class="invoice.paperTheme === 'dark' ? 'border-secondary' : ''">
             <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">Instruksi Pembayaran & Rekening Bank:</h6>
-            <p class="small mb-0 style-notes" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ invoice.notes }}</p>
+            <p
+              class="small mb-0 style-notes inv-editable p-1 rounded"
+              contenteditable="true"
+              spellcheck="false"
+              title="Klik untuk perbaiki catatan atau nomor rekening bank"
+              @blur="onDirectInvoiceEdit('notes', $event)"
+              :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'"
+            >{{ invoice.notes }}</p>
           </div>
         </div>
       </div>
@@ -620,6 +711,49 @@ export default {
       });
     };
 
+    const lastInvoiceAutoSaveTime = ref('');
+
+    const triggerInvoiceAutoSave = () => {
+      const now = new Date();
+      lastInvoiceAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      // update invoice in store if already present or update local draft
+      if (invoice.value.id) {
+        store.dispatch('updateInvoice', invoice.value);
+      }
+    };
+
+    const onDirectInvoiceEdit = (field, e) => {
+      if (!e || !e.target) return;
+      const val = e.target.innerText ? e.target.innerText.trim() : '';
+      invoice.value[field] = val;
+      triggerInvoiceAutoSave();
+    };
+
+    const onDirectBusinessEdit = (field, e) => {
+      if (!e || !e.target) return;
+      const val = e.target.innerText ? e.target.innerText.trim() : '';
+      myBusiness.value[field] = val;
+    };
+
+    const onDirectItemEdit = (idx, field, e) => {
+      if (!e || !e.target || !invoice.value.items[idx]) return;
+      const val = e.target.innerText ? e.target.innerText.trim() : '';
+      if (field === 'quantity') {
+        invoice.value.items[idx].quantity = Math.max(1, parseInt(val) || 1);
+      } else {
+        invoice.value.items[idx][field] = val;
+      }
+      triggerInvoiceAutoSave();
+    };
+
+    const onDirectItemPriceEdit = (idx, e) => {
+      if (!e || !e.target || !invoice.value.items[idx]) return;
+      const raw = e.target.innerText.replace(/[^0-9]/g, '');
+      const parsed = parseInt(raw) || 0;
+      invoice.value.items[idx].biaya = parsed;
+      triggerInvoiceAutoSave();
+    };
+
     const saveInvoiceToStore = () => {
       errors.value = {};
       if (!invoice.value.invoiceNumber || !invoice.value.invoiceNumber.trim()) {
@@ -641,6 +775,8 @@ export default {
       if (Object.keys(errors.value).length > 0) return;
 
       store.dispatch('addInvoice', invoice.value);
+      const now = new Date();
+      lastInvoiceAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       showToastMsg('Invoice berhasil disimpan ke riwayat database!');
     };
 
@@ -990,13 +1126,40 @@ export default {
       invoiceJsonInput,
       exportInvoiceJson,
       triggerImportInvoiceJson,
-      onInvoiceJsonSelected
+      onInvoiceJsonSelected,
+      lastInvoiceAutoSaveTime,
+      onDirectInvoiceEdit,
+      onDirectBusinessEdit,
+      onDirectItemEdit,
+      onDirectItemPriceEdit
     };
   }
 };
 </script>
 
 <style scoped>
+.inv-editable {
+  outline: none;
+  cursor: text;
+  transition: all 0.15s ease;
+  border-radius: 4px;
+}
+.inv-editable:hover {
+  background-color: rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 1.5px rgba(37, 99, 235, 0.3);
+}
+.inv-editable:focus {
+  background-color: rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.6);
+}
+@media print {
+  .inv-editable:hover,
+  .inv-editable:focus {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
 .invoice-paper {
   min-height: 680px;
   transition: all 0.25s ease;

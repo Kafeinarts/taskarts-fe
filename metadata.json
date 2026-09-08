@@ -1,6 +1,6 @@
 {
-  "name": "RajinKerja.id",
-  "description": "Platform pengorganisir pekerjaan, tugas harian, proyek kantor, keuangan, dan produktivitas karyawan & profesional.",
+  "name": "Taskarts",
+  "description": "Taskarts - The art of getting things done. Platform produktivitas harian, manajemen tugas, kas keuangan freelance, browser riset, dan invoice profesional.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

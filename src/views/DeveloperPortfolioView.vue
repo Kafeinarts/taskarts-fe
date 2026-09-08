@@ -1,26 +1,32 @@
 <template>
-  <div class="developer-portfolio-page persona-battle-theme">
+  <div class="developer-portfolio-page" :class="[ portfolioTheme === 'omori' ? 'omori-theme-mode' : 'persona-battle-theme p3r-classic-mode' ]">
     <!-- 3D WebGL Canvas Container -->
     <div id="portfolio-canvas-container" ref="canvasContainer"></div>
 
-    <!-- Anime Halftone & Speedlines Overlays -->
-    <div class="manga-speedlines"></div>
-    <div class="halftone-dot-grid"></div>
+    <!-- Anime Halftone & Speedlines Overlays (Classic Mode) -->
+    <div v-if="portfolioTheme === 'classic'" class="manga-speedlines"></div>
+    <div v-if="portfolioTheme === 'classic'" class="halftone-dot-grid"></div>
+
+    <!-- OMORI Floating Vignette & Sketch Doodles (OMORI Mode) -->
+    <div v-if="portfolioTheme === 'omori'" class="omori-lightbulb-dangle">
+      <div class="omori-bulb-cord"></div>
+      <div class="omori-bulb-glow"><i class="bi bi-lightbulb-fill"></i></div>
+    </div>
 
     <!-- Persona Battle Top HUD Header -->
     <header class="persona-hud-bar fixed-top d-flex justify-content-between align-items-center px-3 px-md-4 py-2">
       <!-- Left: Protagonist & Battle Status -->
       <div class="d-flex align-items-center gap-3">
         <a href="#hero" class="hud-brand text-decoration-none">
-          <span class="hud-slash-badge">RELOAD</span>
+          <span class="hud-slash-badge">{{ portfolioTheme === 'omori' ? 'WHITE SPACE' : 'RELOAD' }}</span>
           <strong class="hud-title text-white">ITSMEBROARIF</strong>
         </a>
 
-        <!-- HP & SP Bars in Header -->
+        <!-- HP & SP / JUICE Bars in Header -->
         <div class="d-none d-lg-flex align-items-center gap-3 ms-2">
           <div class="hud-meter-wrap">
             <div class="d-flex justify-content-between text-monospace small fw-bold">
-              <span class="text-danger">HP</span>
+              <span class="text-danger">{{ portfolioTheme === 'omori' ? 'HEART' : 'HP' }}</span>
               <span class="text-white">999 / 999</span>
             </div>
             <div class="hud-bar-bg">
@@ -29,7 +35,7 @@
           </div>
           <div class="hud-meter-wrap">
             <div class="d-flex justify-content-between text-monospace small fw-bold">
-              <span class="text-info">SP</span>
+              <span class="text-info">{{ portfolioTheme === 'omori' ? 'JUICE' : 'SP' }}</span>
               <span class="text-white">580 / 580</span>
             </div>
             <div class="hud-bar-bg">
@@ -40,15 +46,44 @@
       </div>
 
       <!-- Center: Battle OST / Sound Indicator -->
-      <div class="d-none d-md-flex align-items-center gap-2 bg-dark bg-opacity-75 px-3 py-1.5 rounded-pill border border-primary border-opacity-50">
-        <span class="eq-pulse-dot"></span>
-        <span class="text-white small fw-bold text-truncate" style="max-width: 280px;">
-          🎵 MASS DESTRUCTION // PERSONA 3 RELOAD BATTLE
+      <div class="d-none d-md-flex align-items-center gap-2 bg-dark bg-opacity-75 px-3 py-1.5 rounded-pill border border-secondary border-opacity-50">
+        <span class="eq-pulse-dot" :class="{ 'bg-light': portfolioTheme === 'omori' }"></span>
+        <span class="text-white small fw-bold text-truncate" style="max-width: 320px;">
+          <template v-if="portfolioTheme === 'classic'">
+            🎵 MASS DESTRUCTION // PERSONA 3 RELOAD BATTLE
+          </template>
+          <template v-else>
+            💡 DUET // OMORI DARK WHITE SPACE MEMORY
+          </template>
         </span>
       </div>
 
-      <!-- Right: Lang & Navigation -->
+      <!-- Right: Theme Mode Switcher + Lang & Action -->
       <div class="d-flex align-items-center gap-2">
+        <!-- Theme Mode Switcher: Classic P3R vs OMORI -->
+        <div class="theme-mode-switch-group d-flex align-items-center bg-black bg-opacity-75 p-1 rounded-pill border border-secondary border-opacity-50">
+          <button 
+            type="button" 
+            class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold text-uppercase d-flex align-items-center gap-1.5 transition-all"
+            :class="portfolioTheme === 'classic' ? 'btn-primary text-white shadow-sm' : 'text-white-50 border-0 bg-transparent'"
+            @click="setPortfolioTheme('classic')"
+            title="Persona 3 Reload Classic Battle Theme (Vibrant Blue)"
+          >
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span class="d-none d-sm-inline">Classic P3R</span>
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold text-uppercase d-flex align-items-center gap-1.5 transition-all"
+            :class="portfolioTheme === 'omori' ? 'btn-light text-dark shadow-sm' : 'text-white-50 border-0 bg-transparent'"
+            @click="setPortfolioTheme('omori')"
+            title="OMORI Dark White Space Handwritten Theme"
+          >
+            <i class="bi bi-lightbulb-fill"></i>
+            <span class="d-none d-sm-inline">OMORI (Dark)</span>
+          </button>
+        </div>
+
         <div class="d-flex gap-1">
           <button class="p3-lang-btn" :class="{ active: currentLang === 'id' }" @click="setLanguage('id')">ID</button>
           <button class="p3-lang-btn" :class="{ active: currentLang === 'en' }" @click="setLanguage('en')">EN</button>
@@ -56,7 +91,7 @@
         </div>
 
         <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-bold d-none d-sm-inline-flex align-items-center gap-1" @click="triggerAllOutAttack">
-          <span class="text-warning">★</span> ALL-OUT ATTACK
+          <span class="text-warning">★</span> {{ portfolioTheme === 'omori' ? 'RELEASE ENERGY' : 'ALL-OUT ATTACK' }}
         </button>
       </div>
     </header>
@@ -783,11 +818,31 @@ export default {
     const activeCategory = ref('all');
     const activeSkillFilter = ref('all');
     const showAllOutAttack = ref(false);
+    const portfolioTheme = ref(localStorage.getItem('taskarts_portfolio_theme') || 'classic');
 
     // 3D Three.js variables
     let scene, camera, renderer, animationFrameId;
     let icoWire, torusWire, sphereWire;
     let mouseX = 0, mouseY = 0;
+
+    const setPortfolioTheme = (theme) => {
+      portfolioTheme.value = theme;
+      localStorage.setItem('taskarts_portfolio_theme', theme);
+      updateThreeColors();
+    };
+
+    const updateThreeColors = () => {
+      if (!icoWire || !torusWire || !sphereWire) return;
+      if (portfolioTheme.value === 'omori') {
+        icoWire.material.color.setHex(0xffffff);
+        torusWire.material.color.setHex(0xaaaaaa);
+        sphereWire.material.color.setHex(0x333333);
+      } else {
+        icoWire.material.color.setHex(0x0066ff);
+        torusWire.material.color.setHex(0x00d2ff);
+        sphereWire.material.color.setHex(0x1e3a8a);
+      }
+    };
 
     const onMouseMove = (event) => {
       mouseX = (event.clientX - window.innerWidth / 2) * 0.005;
@@ -862,6 +917,7 @@ export default {
         renderer.render(scene, camera);
       };
 
+      updateThreeColors();
       animate();
     };
 
@@ -1134,6 +1190,8 @@ export default {
     return {
       canvasContainer,
       currentLang,
+      portfolioTheme,
+      setPortfolioTheme,
       activeCategory,
       activeSkillFilter,
       personaSkills,
@@ -1642,5 +1700,102 @@ export default {
 .all-out-fade-enter-from, .all-out-fade-leave-to {
   opacity: 0;
   transform: scale(1.1);
+}
+
+/* =========================================================================
+   OMORI DARK THEME MODE (WHITE SPACE / HANDWRITTEN NOTEBOOK AESTHETIC)
+   ========================================================================= */
+.omori-theme-mode {
+  font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif !important;
+  background-color: #08080a !important;
+  color: #f3f4f6 !important;
+}
+
+.omori-theme-mode h1,
+.omori-theme-mode h2,
+.omori-theme-mode h3,
+.omori-theme-mode h4,
+.omori-theme-mode h5,
+.omori-theme-mode h6,
+.omori-theme-mode .hud-title,
+.omori-theme-mode .p3r-cutout-title,
+.omori-theme-mode .skill-name {
+  font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif !important;
+  letter-spacing: 1px !important;
+}
+
+/* Hand-drawn borders for OMORI cards */
+.omori-theme-mode .persona-quest-card,
+.omori-theme-mode .p3r-quote-battle-card,
+.omori-theme-mode .p3r-skill-slot,
+.omori-theme-mode .showcase-item-card,
+.omori-theme-mode .hud-bar-bg,
+.omori-theme-mode .aoa-content-box {
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+  background: #111114 !important;
+  box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.25) !important;
+  transform: none !important;
+}
+
+.omori-theme-mode .p3r-slanted-title-left,
+.omori-theme-mode .p3r-slanted-title-right,
+.omori-theme-mode .card-tilt-left,
+.omori-theme-mode .card-tilt-right {
+  transform: none !important;
+}
+
+.omori-theme-mode .p3r-cutout-title {
+  color: #ffffff !important;
+  text-shadow: 3px 3px 0px #222 !important;
+  font-weight: 700 !important;
+}
+
+.omori-theme-mode .p3r-accent-title {
+  color: #e2e8f0 !important;
+  -webkit-text-stroke: 1px #ffffff !important;
+}
+
+.omori-theme-mode .btn {
+  font-family: 'Patrick Hand', cursive, sans-serif !important;
+  font-size: 1.1rem !important;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+}
+
+/* OMORI Hanging Black Lightbulb in White Space */
+.omori-lightbulb-dangle {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;
+  pointer-events: none;
+  animation: bulbSwing 4s ease-in-out infinite alternate;
+}
+
+.omori-bulb-cord {
+  width: 2px;
+  height: 60px;
+  background: #ffffff;
+  margin: 0 auto;
+  opacity: 0.8;
+}
+
+.omori-bulb-glow {
+  color: #ffffff;
+  font-size: 22px;
+  text-align: center;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85));
+}
+
+@keyframes bulbSwing {
+  0% { transform: translateX(-50%) rotate(-4deg); }
+  100% { transform: translateX(-50%) rotate(4deg); }
+}
+
+.theme-mode-switch-group button {
+  cursor: pointer;
+  border: none;
+  font-size: 11px;
 }
 </style>
