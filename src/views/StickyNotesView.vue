@@ -92,13 +92,14 @@
             <button
               v-for="c in colorOptions"
               :key="c.code"
-              class="btn btn-sm rounded-pill px-3 d-flex align-items-center gap-1"
+              class="btn btn-sm rounded-pill px-2.5 d-flex align-items-center justify-content-center"
               :class="selectedColor === c.code ? 'border-2 border-dark shadow-sm' : 'border'"
               :style="{ backgroundColor: c.code, color: '#000' }"
+              :title="c.name"
+              :aria-label="c.name"
               @click="selectedColor = c.code"
             >
-              <span>{{ c.name }}</span>
-              <span class="badge bg-white text-dark rounded-circle px-1" style="font-size: 10px;">
+              <span class="badge bg-white text-dark rounded-pill px-2 py-0.5 fw-bold" style="font-size: 11px;">
                 {{ getNotesCountByColor(c.code) }}
               </span>
             </button>

@@ -770,32 +770,12 @@
           </div>
 
           <!-- Document Info Strip (no-print) -->
-          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-1.5 rounded-2 bg-white border mb-2 text-muted no-print" style="font-size: 11.5px;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-1.5 rounded-2 bg-white border mb-3 text-muted no-print" style="font-size: 11.5px;">
             <div>
               <i class="bi bi-aspect-ratio text-primary me-1"></i> <strong>Kertas:</strong> {{ currentPaperInfo.name }} ({{ currentPaperInfo.widthMm }} × {{ currentPaperInfo.heightMm }} mm) • {{ letter.paperOrientation === 'landscape' ? 'Mendatar (Landscape)' : 'Tegak (Portrait)' }}
             </div>
             <div>
               <i class="bi bi-arrows-collapse text-secondary me-1"></i> <strong>Jarak Margin:</strong> Atas {{ letter.marginTop || 20 }}mm • Bawah {{ letter.marginBottom || 20 }}mm • Kiri {{ letter.marginLeft || 25 }}mm • Kanan {{ letter.marginRight || 20 }}mm
-            </div>
-          </div>
-
-          <!-- Interactive A4 Typo Editor & Contenteditable Notice Bar (no-print) -->
-          <div class="alert alert-primary py-2 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 no-print border-primary border-opacity-25 bg-primary-subtle shadow-sm">
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">
-                <i class="bi bi-pencil-square me-1"></i> Edit Typo Langsung di Kertas A4
-              </span>
-              <span class="small text-dark fw-semibold">
-                Klik teks di lembar surat untuk langsung memperbaiki kata / typo.
-              </span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span v-if="lastAutoSaveTime" class="small text-success fw-bold d-flex align-items-center gap-1">
-                <i class="bi bi-check2-circle"></i> Draft tersimpan ({{ lastAutoSaveTime }})
-              </span>
-              <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" @click="saveLetter(false)">
-                <i class="bi bi-floppy me-1"></i> Simpan Draft
-              </button>
             </div>
           </div>
 
@@ -826,46 +806,16 @@
                   <img :src="currentLogoSrc" :style="{ height: (letter.kopLogoHeight || 60) + 'px', maxWidth: '140px', objectFit: 'contain' }" alt="Logo Kop" />
                 </div>
                 <div class="kop-text-wrapper flex-grow-1 text-center">
-                  <h3
-                    class="fw-extrabold mb-0 tracking-wide text-uppercase a4-direct-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk edit instansi/perusahaan"
-                    @blur="onDirectFieldEdit('kopName', $event)"
-                    style="letter-spacing: 1px; font-size: 1.25rem;"
-                  >
+                  <h3 class="fw-extrabold mb-0 tracking-wide text-uppercase" style="letter-spacing: 1px; font-size: 1.25rem;">
                     {{ letter.kopName || 'PT RAJINKERJA GLOBAL INDONESIA' }}
                   </h3>
-                  <div
-                    v-if="letter.kopSubname"
-                    class="fw-bold text-secondary small text-uppercase mb-0.5 a4-direct-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk edit sub-judul kop"
-                    @blur="onDirectFieldEdit('kopSubname', $event)"
-                    style="letter-spacing: 0.5px;"
-                  >
+                  <div v-if="letter.kopSubname" class="fw-bold text-secondary small text-uppercase mb-0.5" style="letter-spacing: 0.5px;">
                     {{ letter.kopSubname }}
                   </div>
-                  <p
-                    class="small text-muted mb-0 lh-sm a4-direct-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk edit alamat kop"
-                    @blur="onDirectFieldEdit('kopAddress', $event)"
-                    style="font-size: 0.78rem;"
-                  >
+                  <p class="small text-muted mb-0 lh-sm" style="font-size: 0.78rem;">
                     {{ letter.kopAddress || 'Jl. Jend. Sudirman No. 88, Jakarta Selatan | Telp: (021) 555-1234' }}
                   </p>
-                  <p
-                    v-if="letter.kopContact"
-                    class="small text-muted mb-0 lh-sm a4-direct-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk edit kontak kop"
-                    @blur="onDirectFieldEdit('kopContact', $event)"
-                    style="font-size: 0.78rem;"
-                  >
+                  <p v-if="letter.kopContact" class="small text-muted mb-0 lh-sm" style="font-size: 0.78rem;">
                     {{ letter.kopContact }}
                   </p>
                 </div>
@@ -881,61 +831,64 @@
             <!-- Letter Metadata (Tanggal & Nomor) -->
             <div class="d-flex justify-content-between align-items-baseline mb-4">
               <div>
-                <div><strong>Nomor:</strong> <span class="a4-direct-editable px-1" contenteditable="true" spellcheck="false" title="Klik untuk perbaiki nomor surat" @blur="onDirectFieldEdit('number', $event)">{{ letter.number || '001/SK/RK/VIII/2026' }}</span></div>
-                <div v-if="letter.attachment"><strong>Lampiran:</strong> <span class="a4-direct-editable px-1" contenteditable="true" spellcheck="false" title="Klik untuk edit lampiran" @blur="onDirectFieldEdit('attachment', $event)">{{ letter.attachment }}</span></div>
-                <div><strong>Perihal:</strong> <span class="a4-direct-editable px-1" contenteditable="true" spellcheck="false" title="Klik untuk perbaiki perihal" @blur="onDirectFieldEdit('subject', $event)">{{ letter.subject || 'Surat Penawaran Kerjasama' }}</span></div>
+                <div><strong>Nomor:</strong> {{ letter.number || '001/SK/RK/VIII/2026' }}</div>
+                <div v-if="letter.attachment"><strong>Lampiran:</strong> {{ letter.attachment }}</div>
+                <div><strong>Perihal:</strong> {{ letter.subject || 'Surat Penawaran Kerjasama' }}</div>
               </div>
               <div class="text-end">
-                <div><span class="a4-direct-editable px-1" contenteditable="true" spellcheck="false" title="Klik untuk ubah kota" @blur="onDirectFieldEdit('city', $event)">{{ letter.city || 'Jakarta' }}</span>, {{ formattedDate }}</div>
+                <div>{{ letter.city || 'Jakarta' }}, {{ formattedDate }}</div>
               </div>
             </div>
 
             <!-- Recipient Block -->
             <div class="mb-4">
               <div>Kepada Yth.</div>
-              <strong class="a4-direct-editable d-inline-block" contenteditable="true" spellcheck="false" title="Klik untuk ubah nama penerima" @blur="onDirectFieldEdit('recipientName', $event)">{{ letter.recipientName || 'Bapak / Ibu Pimpinan' }}</strong>
-              <div v-if="letter.recipientTitle" class="a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah jabatan penerima" @blur="onDirectFieldEdit('recipientTitle', $event)">{{ letter.recipientTitle }}</div>
-              <div class="a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah alamat penerima" @blur="onDirectFieldEdit('recipientAddress', $event)">{{ letter.recipientAddress || 'Di Tempat' }}</div>
+              <strong>{{ letter.recipientName || 'Bapak / Ibu Pimpinan' }}</strong>
+              <div v-if="letter.recipientTitle">{{ letter.recipientTitle }}</div>
+              <div>{{ letter.recipientAddress || 'Di Tempat' }}</div>
             </div>
 
             <!-- Salutation & Body -->
             <div class="mb-4">
-              <p class="mb-3 a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah salam pembuka" @blur="onDirectFieldEdit('salutation', $event)">{{ letter.salutation || 'Dengan hormat,' }}</p>
-              
-              <!-- Direct Editable Body Container for Instant Typo Correction -->
-              <div
-                class="a4-direct-editable-body p-2 rounded"
-                contenteditable="true"
-                spellcheck="false"
-                title="Klik langsung di sini untuk memperbaiki typo atau mengetik isi surat"
-                @blur="onDirectBodyEdit($event)"
-                :style="{
-                  textAlign: 'justify',
-                  whiteSpace: 'pre-line',
-                  lineHeight: '1.65',
-                  minHeight: '100px'
-                }"
-              >{{ letter.bodyContent || (bodyParagraphs.length > 0 ? bodyParagraphs.join('\n\n') : '') }}</div>
+              <p class="mb-3">{{ letter.salutation || 'Dengan hormat,' }}</p>
+              <div v-if="bodyParagraphs.length > 0" class="d-flex flex-column gap-2">
+                <div
+                  v-for="(para, idx) in bodyParagraphs"
+                  :key="idx"
+                  class="lh-base text-dark"
+                  :style="{
+                    textAlign: 'justify',
+                    textIndent: isListParagraph(para) ? '0' : '2rem',
+                    whiteSpace: 'pre-line',
+                    marginBottom: '0.75rem'
+                  }"
+                >
+                  {{ para }}
+                </div>
+              </div>
+              <div v-else class="lh-base text-muted fst-italic">
+                (Isi surat masih kosong...)
+              </div>
             </div>
 
             <!-- Closing & Signatures -->
             <div class="d-flex mt-5 pt-3 no-break" :class="{ 'justify-content-end': letter.signaturePosition === 'right', 'justify-content-start': letter.signaturePosition === 'left', 'justify-content-center': letter.signaturePosition === 'center' }">
               <div class="text-center" style="min-width: 220px;">
-                <p class="mb-2 a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah salam penutup" @blur="onDirectFieldEdit('closing', $event)">{{ letter.closing || 'Hormat Kami,' }}</p>
+                <p class="mb-2">{{ letter.closing || 'Hormat Kami,' }}</p>
                 <div v-if="letter.signatureImage" class="my-1">
                   <img :src="letter.signatureImage" style="max-height: 65px; object-fit: contain;" alt="Tanda Tangan" />
                 </div>
                 <div v-else style="height: 60px;"></div>
-                <strong class="d-block border-bottom border-dark pb-1 text-uppercase a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk perbaiki nama penandatangan" @blur="onDirectFieldEdit('signerName', $event)">{{ letter.signerName || 'Arif Permana, S.Kom' }}</strong>
-                <span class="small text-muted d-block mt-1 a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah jabatan penandatangan" @blur="onDirectFieldEdit('signerTitle', $event)">{{ letter.signerTitle || 'Direktur Utama' }}</span>
-                <span v-if="letter.signerNip" class="small text-muted d-block a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk ubah NIP" @blur="onDirectFieldEdit('signerNip', $event)" style="font-size: 11px;">{{ letter.signerNip }}</span>
+                <strong class="d-block border-bottom border-dark pb-1 text-uppercase">{{ letter.signerName || 'Arif Permana, S.Kom' }}</strong>
+                <span class="small text-muted d-block mt-1">{{ letter.signerTitle || 'Direktur Utama' }}</span>
+                <span v-if="letter.signerNip" class="small text-muted d-block" style="font-size: 11px;">{{ letter.signerNip }}</span>
               </div>
             </div>
 
             <!-- Tembusan / CC (Optional) -->
             <div v-if="letter.ccText && letter.ccText.trim()" class="mt-4 pt-3 border-top small text-muted no-break">
               <strong>Tembusan:</strong>
-              <div class="white-space-pre-line a4-direct-editable" contenteditable="true" spellcheck="false" title="Klik untuk perbaiki tembusan" @blur="onDirectFieldEdit('ccText', $event)">{{ letter.ccText }}</div>
+              <div class="white-space-pre-line">{{ letter.ccText }}</div>
             </div>
           </div>
 
@@ -2359,51 +2312,6 @@ export default {
       });
     };
 
-    const lastAutoSaveTime = ref('');
-
-    const triggerAutoSave = () => {
-      const now = new Date();
-      lastAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const isExisting = currentDraftId.value;
-      const idToUse = isExisting ? currentDraftId.value : 'surat_' + Date.now();
-      const nowIso = now.toISOString();
-
-      const suratObj = {
-        id: idToUse,
-        title: letter.value.subject || 'Surat Resmi',
-        recipient: suratMode.value === 'bulk' ? `Massal (${bulkRecipients.value.length} Penerima)` : (letter.value.recipientName || 'Penerima'),
-        date: letter.value.date,
-        number: letter.value.number,
-        mode: suratMode.value,
-        status: 'Draft Tersimpan',
-        data: JSON.parse(JSON.stringify(letter.value)),
-        bulkRecipients: JSON.parse(JSON.stringify(bulkRecipients.value)),
-        updatedAt: nowIso
-      };
-
-      if (isExisting) {
-        store.dispatch('updateSurat', suratObj);
-      } else {
-        suratObj.createdAt = nowIso;
-        store.dispatch('addSurat', suratObj);
-        currentDraftId.value = idToUse;
-      }
-    };
-
-    const onDirectFieldEdit = (field, e) => {
-      if (!e || !e.target) return;
-      const val = e.target.innerText ? e.target.innerText.trim() : '';
-      letter.value[field] = val;
-      triggerAutoSave();
-    };
-
-    const onDirectBodyEdit = (e) => {
-      if (!e || !e.target) return;
-      const val = e.target.innerText || '';
-      letter.value.bodyContent = val;
-      triggerAutoSave();
-    };
-
     const saveLetter = (saveAsNew = false) => {
       const isExisting = !saveAsNew && currentDraftId.value;
       const idToUse = isExisting ? currentDraftId.value : 'surat_' + Date.now();
@@ -2429,9 +2337,6 @@ export default {
         store.dispatch('addSurat', suratObj);
         currentDraftId.value = idToUse;
       }
-
-      const now = new Date();
-      lastAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
       sendOnDeviceNotification('Surat Berhasil Disimpan', {
         body: `Dokumen "${letter.value.subject}" berhasil disimpan ke sistem arsip persuratan.`
@@ -2709,56 +2614,13 @@ export default {
       suratJsonInput,
       exportSuratJson,
       triggerImportSuratJson,
-      onSuratJsonSelected,
-      lastAutoSaveTime,
-      onDirectFieldEdit,
-      onDirectBodyEdit
+      onSuratJsonSelected
     };
   }
 };
 </script>
 
 <style scoped>
-.a4-direct-editable {
-  outline: none;
-  transition: all 0.18s ease;
-  cursor: text;
-  border-radius: 4px;
-}
-.a4-direct-editable:hover {
-  background-color: rgba(37, 99, 235, 0.08);
-  box-shadow: 0 0 0 1.5px rgba(37, 99, 235, 0.35);
-}
-.a4-direct-editable:focus {
-  background-color: rgba(37, 99, 235, 0.12);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.6);
-}
-.a4-direct-editable-body {
-  outline: none;
-  transition: all 0.18s ease;
-  cursor: text;
-  border: 1px dashed transparent;
-}
-.a4-direct-editable-body:hover {
-  background-color: rgba(37, 99, 235, 0.04);
-  border-color: rgba(37, 99, 235, 0.3);
-}
-.a4-direct-editable-body:focus {
-  background-color: rgba(37, 99, 235, 0.07);
-  border-color: rgba(37, 99, 235, 0.6);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-}
-@media print {
-  .a4-direct-editable:hover,
-  .a4-direct-editable:focus,
-  .a4-direct-editable-body:hover,
-  .a4-direct-editable-body:focus {
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border-color: transparent !important;
-  }
-}
-
 .preview-desk-workbench {
   background-color: #334155;
   background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);

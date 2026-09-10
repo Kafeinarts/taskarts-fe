@@ -394,7 +394,7 @@
 
           <div class="row g-3">
             <!-- Option 1: Light Mode -->
-            <div class="col-md-6 col-xl-3">
+            <div class="col-md-4">
               <div 
                 class="p-3.5 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
                 :class="themeMode === 'light' ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
@@ -421,7 +421,7 @@
             </div>
 
             <!-- Option 2: Dark Slate Mode -->
-            <div class="col-md-6 col-xl-3">
+            <div class="col-md-4">
               <div 
                 class="p-3.5 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
                 :class="themeMode === 'dark' ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
@@ -447,37 +447,8 @@
               </div>
             </div>
 
-            <!-- Option 3: Coffee Dark Mode (Baru) -->
-            <div class="col-md-6 col-xl-3">
-              <div 
-                class="p-3.5 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
-                :class="themeMode === 'coffee' ? 'border-warning bg-warning bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
-                @click="selectTheme('coffee')"
-                style="cursor: pointer;"
-              >
-                <div>
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge rounded-pill px-2.5 py-1 fw-bold text-white shadow-xs" style="background-color: #854d0e;">
-                      ☕ Coffee Mode
-                    </span>
-                    <i v-if="themeMode === 'coffee'" class="bi bi-check-circle-fill text-warning fs-5"></i>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Coffee Dark Mode</h6>
-                  <p class="small text-muted mb-0" style="font-size: 0.82rem;">Aksen coklat kopi espresso gelap (#160f0a) hangat & nyaman di mata, dengan teks krim kontras tinggi yang super jelas terbaca.</p>
-                </div>
-                <div class="mt-3 p-2 rounded-3 border d-flex align-items-center justify-content-between" style="background-color: #221710; border-color: #4a3221 !important;">
-                  <small class="fw-bold" style="font-size: 11px; color: #fffbeb;">Preview Espresso</small>
-                  <div class="d-flex gap-1">
-                    <span class="rounded-circle border" style="width: 14px; height: 14px; background-color: #160f0a; border-color: #4a3221;"></span>
-                    <span class="rounded-circle border" style="width: 14px; height: 14px; background-color: #854d0e; border-color: #4a3221;"></span>
-                    <span class="rounded-circle border" style="width: 14px; height: 14px; background-color: #fffbeb; border-color: #4a3221;"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Option 4: OLED True Black Mode -->
-            <div class="col-md-6 col-xl-3">
+            <!-- Option 3: OLED True Black Mode -->
+            <div class="col-md-4">
               <div 
                 class="p-3.5 rounded-4 border-2 transition-all position-relative h-100 d-flex flex-column justify-content-between"
                 :class="themeMode === 'oled' ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-secondary-subtle bg-light'"
@@ -1073,10 +1044,9 @@ export default {
       const modeNames = {
         light: 'Mode Terang (Light)',
         dark: 'Mode Gelap Slate (Dark)',
-        coffee: 'Coffee Dark Mode (Espresso Warm)',
         oled: 'True Black OLED (Pure #000000)'
       };
-      sendOnDeviceNotification('☕ Mode Tampilan Diperbarui', {
+      sendOnDeviceNotification('🌙 Mode Tampilan Diperbarui', {
         body: `Tema tampilan berhasil diubah ke ${modeNames[mode] || mode}.`,
         type: 'success'
       });
@@ -1085,12 +1055,10 @@ export default {
     const accentPalette = [
       { name: 'Blue Mode (Royal Blue)', hex: '#2563eb' },
       { name: 'Pink Mode (Sakura Pink)', hex: '#ec4899' },
-      { name: 'Caramel Crema (Espresso)', hex: '#d97706' },
-      { name: 'Warm Amber', hex: '#f59e0b' },
-      { name: 'Warm Mocha', hex: '#854d0e' },
       { name: 'Emerald Green', hex: '#10b981' },
       { name: 'Deep Purple', hex: '#7c3aed' },
       { name: 'Crimson Rose', hex: '#e11d48' },
+      { name: 'Warm Amber', hex: '#f59e0b' },
       { name: 'Indigo Blue', hex: '#3f51b5' },
       { name: 'Teal Cyan', hex: '#0d9488' }
     ];

@@ -172,25 +172,6 @@
 
       <!-- FORM 1: ITEM RAB -->
       <form v-if="formType === 'rab'" @submit.prevent="saveRabItem">
-        <!-- Quick Preset Templates Bar -->
-        <div class="mb-3 p-2.5 bg-light rounded-3 border">
-          <div class="small fw-bold text-dark mb-1.5 d-flex align-items-center gap-1">
-            <i class="bi bi-lightning-charge-fill text-warning"></i>
-            <span>Template Cepat (1-Klik Isi Form Otomatis):</span>
-          </div>
-          <div class="d-flex flex-wrap gap-1.5">
-            <button
-              v-for="(p, pIdx) in rabPresets"
-              :key="pIdx"
-              type="button"
-              class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 small fw-semibold bg-white"
-              @click="applyRabPreset(p)"
-            >
-              + {{ p.name }}
-            </button>
-          </div>
-        </div>
-
         <div class="row g-3">
           <div class="col-12 col-md-8">
             <label class="form-label fw-semibold">Nama Item Kegiatan / Pengadaan <span class="text-danger">*</span></label>
@@ -254,25 +235,6 @@
 
       <!-- FORM 2: INCOME / PEMASUKAN -->
       <form v-else-if="formType === 'income'" @submit.prevent="saveIncome">
-        <!-- Quick Preset Templates Bar for Income -->
-        <div class="mb-3 p-2.5 bg-light rounded-3 border">
-          <div class="small fw-bold text-dark mb-1.5 d-flex align-items-center gap-1">
-            <i class="bi bi-wallet2 text-success"></i>
-            <span>Preset Sumber Dana (1-Klik Isi Form):</span>
-          </div>
-          <div class="d-flex flex-wrap gap-1.5">
-            <button
-              v-for="(p, pIdx) in incomePresets"
-              :key="pIdx"
-              type="button"
-              class="btn btn-xs btn-outline-success rounded-pill px-2.5 py-1 small fw-semibold bg-white"
-              @click="applyIncomePreset(p)"
-            >
-              + {{ p.sumber_dana }}
-            </button>
-          </div>
-        </div>
-
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold">Sumber Dana / Donatur <span class="text-danger">*</span></label>
@@ -944,35 +906,6 @@ export default {
       return 'border-danger';
     });
 
-    const rabPresets = [
-      { name: 'Konsumsi & Snack Panitia', satuan: 'porsi', qty: 25, harga_satuan: 35000, status: 'Rencana', catatan: 'Makan siang & snack box' },
-      { name: 'Sewa Venue & Sound System', satuan: 'hari', qty: 1, harga_satuan: 1500000, status: 'Rencana', catatan: 'Paket sound 5000 watt + mic wireless' },
-      { name: 'Honorarium Narasumber / MC', satuan: 'orang', qty: 1, harga_satuan: 1000000, status: 'Rencana', catatan: 'Honor pembicara sesi utama' },
-      { name: 'Spanduk & Banner Publikasi', satuan: 'buah', qty: 2, harga_satuan: 150000, status: 'Rencana', catatan: 'Ukuran 3x1 meter outdoor flexi' },
-      { name: 'Transportasi & Operasional', satuan: 'paket', qty: 1, harga_satuan: 300000, status: 'Rencana', catatan: 'BBM & biaya tol panitia' }
-    ];
-
-    const incomePresets = [
-      { sumber_dana: 'Kas Utama Organisasi / Internal', nominal: 2500000, keterangan: 'Alokasi dana awal kas internal' },
-      { sumber_dana: 'Sponsor / Mitra Perusahaan', nominal: 5000000, keterangan: 'Sponsorship kegiatan' },
-      { sumber_dana: 'Iuran Peserta / Donasi Sukarela', nominal: 1000000, keterangan: 'Iuran pendaftaran atau partisipasi' }
-    ];
-
-    const applyRabPreset = (preset) => {
-      rabForm.value.nama_item = preset.name;
-      rabForm.value.satuan = preset.satuan;
-      rabForm.value.qty = preset.qty;
-      rabForm.value.harga_satuan = preset.harga_satuan;
-      rabForm.value.catatan = preset.catatan;
-      rabForm.value.status = preset.status;
-    };
-
-    const applyIncomePreset = (preset) => {
-      incomeForm.value.sumber_dana = preset.sumber_dana;
-      incomeForm.value.nominal = preset.nominal;
-      incomeForm.value.keterangan = preset.keterangan;
-    };
-
     const openForm = (type) => {
       formType.value = type;
       editingId.value = null;
@@ -1565,10 +1498,6 @@ export default {
       editIncome,
       editExpense,
       onSelectRabItem,
-      rabPresets,
-      incomePresets,
-      applyRabPreset,
-      applyIncomePreset,
       
       saveRabItem,
       saveIncome,

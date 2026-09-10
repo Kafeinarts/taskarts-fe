@@ -1,63 +1,37 @@
 <template>
-  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled' || themeMode === 'coffee') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', themeMode === 'coffee' ? 'coffee-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
-    <!-- Top Route Loading Progress Bar (Blue or Pink based on theme) -->
-    <div
-      v-if="isNavigating || navProgress > 0"
-      class="global-top-progress-bar"
-      :class="isPinkMode ? 'pink-progress-bar' : 'blue-progress-bar'"
-      :style="{ width: navProgress + '%' }"
-    ></div>
-
-    <!-- Global Page Navigation Loading Spinner Overlay -->
-    <transition name="fade">
-      <div v-if="isNavigating" class="global-route-loader-overlay">
-        <div class="loader-spinner-card d-flex align-items-center gap-2.5 shadow-lg">
-          <div class="spinner-border spinner-border-sm" :class="isPinkMode ? 'text-danger' : 'text-primary'" role="status" style="width: 1.3rem; height: 1.3rem; border-width: 0.18rem;">
-            <span class="visually-hidden">Memuat halaman...</span>
-          </div>
-          <span class="small fw-bold text-main">Memuat Halaman...</span>
-        </div>
-      </div>
-    </transition>
-
+  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
-    <!-- Global Workspace Mode Selector Modal (Ctrl+M) -->
-    <ModeSelectorModal :is-open="isModeModalOpen" @close="isModeModalOpen = false" />
-
     <!-- Desktop Material Navigation Drawer -->
-    <aside :class="['sidebar-nav', { collapsed: isCollapsed, 'sidebar-hidden': isSidebarHidden }]">
-      <!-- Sidebar Brand Header (Pure Typography Without Logo Image) -->
+    <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
+      <!-- Sidebar Brand Header -->
       <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
-        <router-link to="/" class="text-decoration-none d-flex flex-column overflow-hidden flex-grow-1" v-if="!isCollapsed">
-          <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
-            Task<span class="brand-accent" :style="{ color: accentColor }">arts</span>
-          </span>
-          <div class="d-flex align-items-center gap-1.5 mt-0.5">
-            <small class="text-sub d-block font-monospace" style="font-size: 10px; letter-spacing: 0.1px;">The art of getting things done</small>
+        <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
+          <div class="brand-icon-wrapper shadow-sm">
+            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
           </div>
-          <div class="d-flex align-items-center gap-1 mt-0.5">
-            <span class="brand-badge-kafeinarts">
-              <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
+          <div class="lh-1 text-truncate">
+            <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
+              RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span>
             </span>
+            <div class="d-flex align-items-center gap-1.5 mt-1">
+              <span class="brand-badge-kafeinarts">
+                <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
+              </span>
+            </div>
           </div>
         </router-link>
 
-        <div v-else class="mx-auto text-center py-1">
-          <router-link to="/" class="text-decoration-none fw-extrabold fs-5 brand-title" title="Taskarts - The art of getting things done">
-            <span class="text-app">T</span><span class="brand-accent" :style="{ color: accentColor }">A</span>
+        <div v-else class="mx-auto">
+          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="RajinKerja.id By Kafeinarts">
+            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
           </router-link>
         </div>
 
-        <div class="d-flex align-items-center gap-1">
-          <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
-          </button>
-          <button v-if="!isCollapsed" class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="toggleSidebarVisibility" title="Sembunyikan Total (Ctrl+B)">
-            <i class="bi bi-layout-sidebar-inset-reverse fs-5"></i>
-          </button>
-        </div>
+        <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+          <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
+        </button>
       </div>
 
       <!-- Quick Search Bar (When Expanded) -->
@@ -154,7 +128,7 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div :class="['main-content', { expanded: isCollapsed, 'sidebar-hidden': isSidebarHidden }]">
+    <div :class="['main-content', { expanded: isCollapsed }]">
       <!-- Material Design 3 Top App Bar Header -->
       <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
         <div class="d-flex align-items-center gap-2">
@@ -179,37 +153,28 @@
             <i class="bi bi-list fs-5"></i>
           </button>
 
-          <!-- DESKTOP: Sidebar collapse / restore toggle (Ctrl+B) -->
-          <template v-if="!isSidebarHidden">
-            <button
-              class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
-              @click="isCollapsed = !isCollapsed"
-              :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
-            >
-              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
-            </button>
-            <button
-              class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
-              @click="toggleSidebarVisibility"
-              title="Sembunyikan Sidebar Total (Ctrl+B)"
-            >
-              <i class="bi bi-layout-sidebar-inset-reverse"></i>
-            </button>
-          </template>
-          <template v-else>
-            <button
-              class="btn btn-sm btn-primary d-none d-md-flex align-items-center gap-1.5 rounded-pill px-3 py-1.5 me-1 shadow-sm"
-              @click="toggleSidebarVisibility"
-              title="Tampilkan Kembali Sidebar (Ctrl+B)"
-            >
-              <i class="bi bi-layout-sidebar-inset"></i>
-              <span class="small fw-bold">Buka Sidebar</span>
-              <kbd class="badge bg-white text-dark py-0.5 px-1.5 border ms-1" style="font-size: 10px; font-family: inherit;">Ctrl+B</kbd>
-            </button>
-          </template>
+          <!-- DESKTOP: Sidebar collapse toggle -->
+          <button
+            class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
+            @click="isCollapsed = !isCollapsed"
+            :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
+          >
+            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
+          </button>
           
-          <!-- Current Page Indicator Badge -->
+          <!-- Dynamic Breadcrumb / Page Title Badge -->
           <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
+            <!-- Desktop Back-to-home Breadcrumb link -->
+            <router-link
+              v-if="route.path !== '/'"
+              to="/"
+              class="d-none d-md-inline text-sub text-decoration-none hover-primary small fw-semibold breadcrumb-home-link"
+              title="Ke Dashboard Home"
+            >
+              <i class="bi bi-house-door me-1"></i>Home
+            </router-link>
+            <span v-if="route.path !== '/'" class="d-none d-md-inline text-muted small opacity-50">/</span>
+
             <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
             <span class="fw-bold text-app fs-6 page-title-text text-truncate" style="max-width: 220px;">
               {{ currentPageTitle }}
@@ -217,113 +182,63 @@
           </div>
         </div>
 
-        <!-- Center: Quick Command/Search Bar Pill (Desktop) -->
-        <div class="d-none d-lg-flex align-items-center justify-content-center flex-grow-1 mx-3" style="max-width: 320px;">
-          <button 
-            @click="triggerGlobalSearch"
-            class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 w-100 d-flex align-items-center justify-content-between text-sub shadow-none hover-bg-subtle"
-            title="Cari menu & fitur (Ctrl+K)"
-          >
-            <span class="d-flex align-items-center gap-2 small">
-              <i class="bi bi-search text-muted"></i>
-              <span class="text-muted">Cari menu & fitur...</span>
-            </span>
-            <kbd class="badge bg-secondary-subtle text-secondary border px-1.5 py-0.5" style="font-size: 9px;">Ctrl+K</kbd>
-          </button>
-        </div>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Quick Capture Launcher -->
+          <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub" title="Quick Capture (Catatan & Alarm)">
+            <i class="bi bi-lightning-charge-fill text-warning"></i>
+            <span class="small fw-semibold">Quick Capture</span>
+            <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
+          </router-link>
 
-        <!-- Right Side: Streamlined, Uncluttered Action Controls -->
-        <div class="d-flex align-items-center gap-1.5">
-          <!-- Workspace Mode Pill Button (Ctrl+M) -->
-          <button 
-            @click="isModeModalOpen = true" 
-            class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
-            :title="'Mode: ' + currentModeConfig.title + ' (Tekan Ctrl+M untuk ganti mode)'"
-            style="font-size: 11.5px; height: 32px; width: auto;"
-          >
-            <span class="rounded-circle d-inline-block" :style="{ width: '9px', height: '9px', backgroundColor: currentModeConfig.materialColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
-            <span class="fw-bold d-none d-sm-inline" :style="{ color: currentModeConfig.materialDark }">
-              {{ currentModeConfig.shortName }}
-            </span>
-            <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1 ms-0.5 border d-none d-md-inline" style="font-size: 9px; font-family: inherit;">Ctrl+M</kbd>
-          </button>
+          <!-- Quick Camera Shortcut Button -->
+          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
+            <i class="bi bi-camera-fill text-secondary fs-6"></i>
+          </router-link>
 
-          <!-- Quick Tools Dropdown Menu (Camera, Mood Tracker, Quick Capture, Storage, Finance Status) -->
-          <div class="dropdown">
-            <button 
-              class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn position-relative" 
-              type="button" 
-              id="quickToolsDropdown" 
-              data-bs-toggle="dropdown" 
-              aria-expanded="false" 
-              title="Akses Cepat Alat & Pintasan"
-            >
-              <i class="bi bi-grid-3x3-gap-fill text-secondary fs-6"></i>
-              <span v-if="isBudgetExceeded || isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border rounded-3 p-2" aria-labelledby="quickToolsDropdown" style="min-width: 250px;">
-              <li class="dropdown-header text-uppercase fw-bold small pb-1 text-muted" style="font-size: 10px;">Pintasan & Utilitas</li>
-              <li>
-                <router-link to="/quick-capture" class="dropdown-item rounded-2 py-1.5 d-flex align-items-center gap-2">
-                  <i class="bi bi-lightning-charge-fill text-warning"></i>
-                  <span class="small fw-semibold">Quick Capture</span>
-                  <span class="badge bg-warning-subtle text-dark ms-auto" style="font-size: 10px;">⚡ Catat</span>
-                </router-link>
-              </li>
-              <li>
-                <router-link to="/camera" class="dropdown-item rounded-2 py-1.5 d-flex align-items-center gap-2">
-                  <i class="bi bi-camera-fill text-info"></i>
-                  <span class="small fw-semibold">Scan Dokumen & Kamera</span>
-                </router-link>
-              </li>
-              <li>
-                <router-link to="/mood" class="dropdown-item rounded-2 py-1.5 d-flex align-items-center gap-2">
-                  <i class="bi bi-emoji-smile-fill text-danger"></i>
-                  <span class="small fw-semibold">Kamera Mood & Alarm</span>
-                </router-link>
-              </li>
-              <li><hr class="dropdown-divider my-1"></li>
-              <li>
-                <router-link to="/finance" class="dropdown-item rounded-2 py-1.5 d-flex align-items-center gap-2" :class="{ 'text-danger fw-bold': isBudgetExceeded }">
-                  <i :class="isBudgetExceeded ? 'bi bi-exclamation-triangle-fill text-danger' : 'bi bi-wallet2 text-success'"></i>
-                  <span class="small fw-semibold">Status Anggaran</span>
-                  <span v-if="isBudgetExceeded" class="badge bg-danger text-white ms-auto" style="font-size: 9px;">Over Limit!</span>
-                </router-link>
-              </li>
-              <li>
-                <router-link to="/storage" class="dropdown-item rounded-2 py-1.5 d-flex align-items-center gap-2">
-                  <i class="bi bi-hdd-stack-fill text-primary"></i>
-                  <span class="small fw-semibold">Kapasitas Storage</span>
-                  <span v-if="isStorageFullState" class="badge bg-danger text-white ms-auto" style="font-size: 9px;">Penuh</span>
-                </router-link>
-              </li>
-            </ul>
-          </div>
+          <!-- Quick Mood Tracker & Alarm Shortcut Button -->
+          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
+            <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
+          </router-link>
+
+          <!-- Budget Alert Warning if exceeded -->
+          <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
+            <i class="bi bi-exclamation-triangle-fill fs-6"></i>
+          </router-link>
 
           <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
           <button 
             @click="toggleBluePinkMode" 
             class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
-            :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk Blue Mode)' : 'Mode Blue Aktif (Klik untuk Pink Mode)'"
+            :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)' : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'"
             style="font-size: 11.5px; height: 32px; width: auto;"
           >
-            <span class="rounded-circle d-inline-block" :style="{ width: '9px', height: '9px', backgroundColor: accentColor }"></span>
-            <span class="fw-bold d-none d-md-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
+            <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: accentColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
+            <span class="fw-bold d-none d-sm-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
               {{ isPinkMode ? '🌸 Pink' : '🔵 Blue' }}
             </span>
           </button>
 
-          <!-- Theme Switcher Button (Light / Dark / Coffee / OLED True Black) -->
+          <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
           <button 
             @click="toggleThemeMode" 
             class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
-            :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk Coffee Mode)' : (themeMode === 'coffee' ? 'Mode Coffee Gelap (Klik untuk True Black OLED)' : 'True Black OLED (Klik untuk Mode Terang)'))"
+            :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
           >
             <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
             <i v-else-if="themeMode === 'dark'" class="bi bi-moon-stars-fill text-info fs-6"></i>
-            <i v-else-if="themeMode === 'coffee'" class="bi bi-cup-hot-fill fs-6" style="color: #f59e0b;"></i>
             <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
           </button>
+
+          <!-- Storage Link -->
+          <router-link
+            to="/storage"
+            class="btn btn-sm border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn position-relative"
+            :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
+            title="Kapasitas & Kuota Storage"
+          >
+            <i class="bi bi-hdd-stack-fill fs-6" :class="isStorageFullState ? 'text-white' : 'text-primary'"></i>
+            <span v-if="isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+          </router-link>
 
           <!-- Preferences Link -->
           <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
@@ -331,70 +246,6 @@
           </router-link>
         </div>
       </header>
-
-      <!-- Multi-Tab Bar (Seamless SPA Multi-Tab System) -->
-      <div class="spa-multi-tab-bar border-bottom d-flex align-items-center px-2 py-1 gap-1 overflow-x-auto no-scrollbar">
-        <div 
-          v-for="tab in activeSpaTabs" 
-          :key="tab.path"
-          class="spa-tab-item d-flex align-items-center gap-1.5 px-3 py-1.5 rounded-3 cursor-pointer user-select-none transition-all"
-          :class="{ 'spa-tab-active': route.path === tab.path }"
-          @click="switchSpaTab(tab.path)"
-          :title="tab.title"
-        >
-          <i :class="tab.icon" class="spa-tab-icon" style="font-size: 13px;"></i>
-          <span class="spa-tab-title small fw-semibold text-truncate" style="max-width: 140px;">{{ tab.title }}</span>
-          <button 
-            type="button" 
-            class="btn btn-link p-0 text-muted spa-tab-close rounded-circle d-flex align-items-center justify-content-center"
-            @click.stop="closeSpaTab(tab.path)"
-            title="Tutup Tab"
-            v-if="activeSpaTabs.length > 1"
-          >
-            <i class="bi bi-x" style="font-size: 14px;"></i>
-          </button>
-        </div>
-
-        <!-- Tab Controls (Close Others) -->
-        <div class="ms-auto d-flex align-items-center gap-1 ps-2">
-          <button 
-            v-if="activeSpaTabs.length > 1" 
-            class="btn btn-xs btn-ghost text-muted py-1 px-2 rounded-2 small"
-            @click="closeOtherTabs"
-            title="Tutup tab lain selain yang aktif"
-            style="font-size: 11px;"
-          >
-            <i class="bi bi-x-circle me-1"></i> Tutup Lainnya
-          </button>
-        </div>
-      </div>
-
-      <!-- Content Breadcrumb Pathway (Pathway Depth Indicator) -->
-      <div class="spa-breadcrumb-bar px-3 px-md-4 py-1.5 border-bottom d-flex align-items-center justify-content-between">
-        <nav aria-label="breadcrumb" class="small">
-          <ol class="breadcrumb mb-0 align-items-center">
-            <li class="breadcrumb-item">
-              <router-link to="/" class="text-decoration-none text-sub hover-primary d-inline-flex align-items-center gap-1">
-                <i class="bi bi-house-door-fill" style="font-size: 11.5px;"></i>
-                <span>Home</span>
-              </router-link>
-            </li>
-            <li v-if="currentBreadcrumbGroup" class="breadcrumb-item text-sub opacity-75">
-              <span>{{ currentBreadcrumbGroup }}</span>
-            </li>
-            <li class="breadcrumb-item active fw-bold text-main" aria-current="page">
-              <i :class="currentPageIcon" class="me-1" style="font-size: 11px;"></i>
-              {{ currentPageTitle }}
-            </li>
-          </ol>
-        </nav>
-
-        <div class="d-none d-sm-flex align-items-center gap-2">
-          <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill" style="font-size: 10px;">
-            <i class="bi bi-shield-check text-success me-1"></i> Taskarts OS v2.5
-          </span>
-        </div>
-      </div>
 
       <!-- Mobile Offcanvas Drawer -->
       <transition name="overlay-fade">
@@ -404,10 +255,14 @@
       <transition name="drawer-slide">
         <div class="mobile-drawer p-3" v-if="mobileDrawer">
           <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
-            <div class="d-flex flex-column">
-              <span class="fw-bold fs-5 text-app">Task<span class="brand-accent" :style="{ color: accentColor }">arts</span></span>
-              <small class="text-sub font-monospace d-block" style="font-size: 10px;">The art of getting things done</small>
-              <small class="brand-badge-kafeinarts d-block mt-0.5"><i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts</small>
+            <div class="d-flex align-items-center gap-2">
+              <div class="brand-icon-wrapper shadow-sm">
+                <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+              </div>
+              <div class="lh-1">
+                <span class="fw-bold fs-5 text-app">RajinKerja.id</span>
+                <small class="brand-badge-kafeinarts d-block mt-0.5">By Kafeinarts</small>
+              </div>
             </div>
             <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
               <i class="bi bi-x-lg"></i>
@@ -426,20 +281,6 @@
                 style="font-size: 13px;"
               />
             </div>
-          </div>
-
-          <!-- Mobile Workspace Mode Strip -->
-          <div class="p-2.5 rounded-3 mb-3 d-flex align-items-center justify-content-between border" :style="{ backgroundColor: currentModeConfig.materialLight, borderColor: currentModeConfig.materialAccent }">
-            <div class="d-flex align-items-center gap-2">
-              <i :class="currentModeConfig.icon" :style="{ color: currentModeConfig.materialColor }" class="fs-5"></i>
-              <div>
-                <div class="fw-bold small" :style="{ color: currentModeConfig.materialDark }">{{ currentModeConfig.title }}</div>
-                <div class="text-muted" style="font-size: 10.5px;">{{ currentModeConfig.badge }} • Ctrl+M</div>
-              </div>
-            </div>
-            <button @click="isModeModalOpen = true; mobileDrawer = false" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 small fw-bold border shadow-xs">
-              Ganti
-            </button>
           </div>
 
           <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
@@ -531,52 +372,26 @@
 <script>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
-import ModeSelectorModal from './components/ModeSelectorModal.vue';
 import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
 import { isStorageFull } from './utils/storageManager';
-import { getModeConfig, filterNavGroupsByMode } from './utils/workspaceModes';
-import { isNavigating, navProgress } from './utils/pageLoader';
 
 export default {
   name: 'App',
   components: {
     AppNotifications,
-    DukungDevModal,
-    ModeSelectorModal
+    DukungDevModal
   },
   setup() {
     const store = useStore();
     const route = useRoute();
-    const router = useRouter();
     const isCollapsed = ref(false);
-    const isSidebarHidden = ref(localStorage.getItem('ft_sidebar_hidden') === 'true');
-    const isModeModalOpen = ref(false);
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
     const sidebarSearch = ref('');
     const isStorageFullState = ref(isStorageFull());
-
-    const toggleSidebarVisibility = () => {
-      if (window.innerWidth <= 768) {
-        mobileDrawer.value = !mobileDrawer.value;
-        return;
-      }
-      isSidebarHidden.value = !isSidebarHidden.value;
-      try {
-        localStorage.setItem('ft_sidebar_hidden', isSidebarHidden.value ? 'true' : 'false');
-      } catch (e) {}
-
-      store.dispatch('showNotification', {
-        type: 'info',
-        title: isSidebarHidden.value ? 'Sidebar Disembunyikan (Ctrl+B)' : 'Sidebar Ditampilkan (Ctrl+B)',
-        message: isSidebarHidden.value
-          ? 'Sidebar navigasi disembunyikan total. Tekan Ctrl+B lagi untuk memunculkannya.'
-          : 'Sidebar navigasi kembali ditampilkan.'
-      });
-    };
 
     const updateStorageState = () => {
       isStorageFullState.value = isStorageFull();
@@ -588,8 +403,6 @@ export default {
     const isBudgetExceeded = computed(() => store.getters.isBudgetExceeded);
     const themeMode = computed(() => store.getters.getThemeMode);
     const accentColor = computed(() => store.getters.getAccentColor);
-    const currentWorkspaceMode = computed(() => store.getters.getWorkspaceMode || 'professional');
-    const currentModeConfig = computed(() => getModeConfig(currentWorkspaceMode.value));
 
     // Grouped navigation definition for structured elegant presentation
     const navGroups = [
@@ -597,7 +410,6 @@ export default {
         title: 'WORKSPACE & PROYEK',
         items: [
           { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb' },
-          { to: '/browser', label: 'Browser & Riset', icon: 'bi-compass-fill', color: '#0284c7', badgeText: 'MultiTab', badgeClass: 'bg-info text-dark' },
           { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white' },
           { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white' },
           { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark' },
@@ -605,7 +417,7 @@ export default {
           { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48' },
           { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb' },
           { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669' },
-          { to: '/videos', label: 'Upload Media', icon: 'bi-collection-play-fill', color: '#0284c7', badgeText: 'Player', badgeClass: 'bg-primary text-white' }
+          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white' }
         ]
       },
       {
@@ -621,7 +433,6 @@ export default {
           { to: '/finance', label: 'Keuangan & Tracker', icon: 'bi-wallet2', color: '#2563eb', badge: () => isBudgetExceeded.value ? 'Over Budget' : null, badgeClass: 'bg-danger text-white' },
           { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', badgeText: 'NEW', badgeClass: 'bg-success text-white' },
           { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
-          { to: '/pos', label: 'POS & Katalog Freelance', icon: 'bi-shop-window', color: '#0284c7', badgeText: 'WA', badgeClass: 'bg-info text-dark' },
           { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706' }
         ]
       },
@@ -643,7 +454,6 @@ export default {
       {
         title: 'SISTEM & PANDUAN',
         items: [
-          { to: '/modes', label: 'Mode Workspace', icon: 'bi-sliders2', color: '#009688', badgeText: 'Ctrl+M', badgeClass: 'bg-primary text-white' },
           { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white' },
           { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb' },
           { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2' },
@@ -652,13 +462,11 @@ export default {
       }
     ];
 
-    // Reactive filter when user types in sidebar search box and active mode
+    // Reactive filter when user types in sidebar search box
     const filteredNavGroups = computed(() => {
-      // First filter by active workspace mode
-      const modeFiltered = filterNavGroupsByMode(navGroups, currentWorkspaceMode.value);
       const q = sidebarSearch.value.trim().toLowerCase();
-      if (!q) return modeFiltered;
-      return modeFiltered
+      if (!q) return navGroups;
+      return navGroups
         .map(g => ({
           ...g,
           items: g.items.filter(item =>
@@ -673,7 +481,6 @@ export default {
     // Dynamic Title & Icon based on Active Route
     const routeTitles = {
       '/': { title: 'Dashboard Executive', icon: 'bi-grid-1x2-fill' },
-      '/browser': { title: 'Browser Riset & Multi-Tab', icon: 'bi-compass-fill' },
       '/job-tracker': { title: 'Simpan Lamaran Kerja (Glints/LinkedIn)', icon: 'bi-briefcase-fill' },
       '/medium-draft': { title: 'Medium Draft & Story Builder', icon: 'bi-medium' },
       '/todo': { title: 'To-Do & Kanban OS', icon: 'bi-kanban-fill' },
@@ -681,13 +488,12 @@ export default {
       '/camera': { title: 'Kamera Scan Dokumen', icon: 'bi-camera-fill' },
       '/surat': { title: 'Surat Generator Resmi', icon: 'bi-file-earmark-richtext-fill' },
       '/cv': { title: 'CV & Resume Builder ATS', icon: 'bi-person-vcard-fill' },
-      '/videos': { title: 'Upload Media & Player', icon: 'bi-collection-play-fill' },
+      '/videos': { title: 'Tonton & Sync Video Hub', icon: 'bi-play-btn-fill' },
       '/contacts': { title: 'Kontak Tim & Broadcast WA', icon: 'bi-person-lines-fill' },
       '/chat-ai': { title: 'Live Chat AI Assistant', icon: 'bi-robot' },
       '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
       '/rab': { title: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill' },
       '/invoice': { title: 'Invoice Generator (PDF)', icon: 'bi-receipt' },
-      '/pos': { title: 'Katalog & POS Freelance (WA)', icon: 'bi-shop-window' },
       '/sql': { title: 'SQL Data Export & Runner', icon: 'bi-database-fill-gear' },
       '/productivity-insights': { title: 'Productivity Insights (D3.js)', icon: 'bi-bar-chart-line-fill' },
       '/quick-capture': { title: 'Quick Capture & Alarms', icon: 'bi-lightning-charge-fill' },
@@ -703,9 +509,7 @@ export default {
       '/storage': { title: 'Storage & Kapasitas Local Storage', icon: 'bi-hdd-stack-fill' },
       '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
       '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },
-      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' },
-      '/modes': { title: 'Pilih Mode Workspace', icon: 'bi-sliders2' },
-      '/workspace-modes': { title: 'Pilih Mode Workspace', icon: 'bi-sliders2' }
+      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' }
     };
 
     const currentPageTitle = computed(() => {
@@ -714,7 +518,7 @@ export default {
       for (const key of Object.keys(routeTitles)) {
         if (key !== '/' && path.startsWith(key)) return routeTitles[key].title;
       }
-      return 'Taskarts';
+      return 'RajinKerja.id';
     });
 
     const currentPageIcon = computed(() => {
@@ -726,120 +530,10 @@ export default {
       return 'bi-app-indicator';
     });
 
-    // Content Breadcrumbs Category Detection
-    const currentBreadcrumbGroup = computed(() => {
-      const path = route.path;
-      for (const group of navGroups) {
-        if (group.items.some(item => item.to === path || (item.to !== '/' && path.startsWith(item.to)))) {
-          return group.title;
-        }
-      }
-      return '';
-    });
-
-    // SPA Multi-Tab System
-    const activeSpaTabs = ref([]);
-
-    const loadSavedTabs = () => {
-      try {
-        const saved = JSON.parse(localStorage.getItem('taskarts_open_tabs') || '[]');
-        if (Array.isArray(saved) && saved.length > 0) {
-          activeSpaTabs.value = saved;
-        } else {
-          activeSpaTabs.value = [{ path: '/', title: 'Dashboard', icon: 'bi-grid-1x2-fill' }];
-        }
-      } catch (e) {
-        activeSpaTabs.value = [{ path: '/', title: 'Dashboard', icon: 'bi-grid-1x2-fill' }];
-      }
-    };
-
-    const saveSpaTabs = () => {
-      try {
-        localStorage.setItem('taskarts_open_tabs', JSON.stringify(activeSpaTabs.value));
-      } catch (e) {}
-    };
-
-    const switchSpaTab = (path) => {
-      if (route.path !== path) {
-        router.push(path);
-      }
-    };
-
-    const closeSpaTab = (path) => {
-      if (activeSpaTabs.value.length <= 1) {
-        activeSpaTabs.value = [{ path: '/', title: 'Dashboard', icon: 'bi-grid-1x2-fill' }];
-        saveSpaTabs();
-        if (route.path !== '/') router.push('/');
-        return;
-      }
-      const idx = activeSpaTabs.value.findIndex(t => t.path === path);
-      if (idx !== -1) {
-        const wasActive = route.path === path;
-        activeSpaTabs.value.splice(idx, 1);
-        saveSpaTabs();
-        if (wasActive) {
-          const nextTab = activeSpaTabs.value[Math.max(0, idx - 1)];
-          router.push(nextTab.path);
-        }
-      }
-    };
-
-    const closeOtherTabs = () => {
-      const current = activeSpaTabs.value.find(t => t.path === route.path);
-      if (current) {
-        activeSpaTabs.value = [current];
-      } else {
-        activeSpaTabs.value = [{
-          path: route.path,
-          title: (currentPageTitle.value || 'Page').split('(')[0].trim(),
-          icon: currentPageIcon.value || 'bi-window'
-        }];
-      }
-      saveSpaTabs();
-    };
-
-    const triggerGlobalSearch = () => {
-      if (isSidebarHidden.value) {
-        isSidebarHidden.value = false;
-        try {
-          localStorage.setItem('ft_sidebar_hidden', 'false');
-        } catch (e) {}
-      }
-      setTimeout(() => {
-        const el = document.querySelector('.search-input');
-        if (el) {
-          el.focus();
-          el.select();
-        }
-      }, 60);
-    };
-
-    // Auto-register current route into active tabs
-    watch(() => route.path, (newPath) => {
-      if (!newPath) return;
-      const found = activeSpaTabs.value.find(t => t.path === newPath);
-      if (!found) {
-        const meta = routeTitles[newPath] || {
-          title: currentPageTitle.value || 'Page',
-          icon: currentPageIcon.value || 'bi-window'
-        };
-        activeSpaTabs.value.push({
-          path: newPath,
-          title: meta.title.split('(')[0].replace(/OS|Builder|Generator/g, '').trim(),
-          icon: meta.icon
-        });
-        saveSpaTabs();
-      }
-    }, { immediate: true });
-
     const applyThemeToBody = (mode) => {
-      document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'coffee-theme', 'dark-mode');
+      document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'dark-mode');
 
-      if (mode === 'coffee') {
-        document.body.classList.add('coffee-theme', 'dark-theme', 'dark-mode');
-        document.body.style.backgroundColor = '#17100b';
-        document.body.style.color = '#fffbeb';
-      } else if (mode === 'oled') {
+      if (mode === 'oled') {
         document.body.classList.add('oled-theme', 'dark-mode');
         document.body.style.backgroundColor = '#000000';
         document.body.style.color = '#ffffff';
@@ -858,45 +552,21 @@ export default {
       applyThemeToBody(newVal);
     }, { immediate: true });
 
-    // Keyboard shortcut handler (Ctrl+B sidebar, Ctrl+M mode selector, Ctrl+K search)
+    // Keyboard shortcut handler (Ctrl+K or Cmd+K)
     const handleKeydown = (e) => {
-      // Ctrl+M or Cmd+M: Toggle Workspace Mode Selector Modal
-      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'm' || e.code === 'KeyM')) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        isModeModalOpen.value = !isModeModalOpen.value;
-        return;
-      }
-
-      // Ctrl+B or Cmd+B: Toggle Sidebar Total Visibility
-      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'b' || e.code === 'KeyB')) {
-        e.preventDefault();
-        toggleSidebarVisibility();
-        return;
-      }
-
-      // Ctrl+K or Cmd+K: Focus Search Input
-      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.code === 'KeyK')) {
-        e.preventDefault();
-        if (isSidebarHidden.value) {
-          isSidebarHidden.value = false;
-          try {
-            localStorage.setItem('ft_sidebar_hidden', 'false');
-          } catch (err) {}
+        const searchEl = document.querySelector('.search-input');
+        if (searchEl) {
+          searchEl.focus();
+          searchEl.select();
         }
-        setTimeout(() => {
-          const searchEl = document.querySelector('.search-input');
-          if (searchEl) {
-            searchEl.focus();
-            searchEl.select();
-          }
-        }, 50);
       }
     };
 
     onMounted(() => {
       applyThemeToBody(themeMode.value);
       window.addEventListener('keydown', handleKeydown);
-      loadSavedTabs();
 
       // Clean up legacy monolithic snapshot from localStorage to release quota back to app
       cleanLegacyLocalStorageSnapshot();
@@ -1009,7 +679,7 @@ export default {
 
     // Keep document attributes & styles in sync with theme and accent color
     watch(themeMode, (mode) => {
-      const isDark = mode === 'dark' || mode === 'oled' || mode === 'coffee';
+      const isDark = mode === 'dark' || mode === 'oled';
       document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
       if (isDark) {
         document.documentElement.classList.add('dark-mode', 'dark-theme');
@@ -1025,13 +695,6 @@ export default {
         document.documentElement.classList.remove('oled-theme');
         document.body.classList.remove('oled-theme');
       }
-      if (mode === 'coffee') {
-        document.documentElement.classList.add('coffee-theme');
-        document.body.classList.add('coffee-theme');
-      } else {
-        document.documentElement.classList.remove('coffee-theme');
-        document.body.classList.remove('coffee-theme');
-      }
     }, { immediate: true });
 
     watch(accentColor, (color) => {
@@ -1044,8 +707,7 @@ export default {
     const toggleThemeMode = () => {
       let next = 'light';
       if (themeMode.value === 'light') next = 'dark';
-      else if (themeMode.value === 'dark') next = 'coffee';
-      else if (themeMode.value === 'coffee') next = 'oled';
+      else if (themeMode.value === 'dark') next = 'oled';
       else next = 'light';
       store.dispatch('setThemeMode', next);
     };
@@ -1053,8 +715,6 @@ export default {
     return {
       route,
       isCollapsed,
-      isSidebarHidden,
-      toggleSidebarVisibility,
       mobileDrawer,
       showDukungModal,
       sidebarSearch,
@@ -1068,71 +728,15 @@ export default {
       themeMode,
       accentColor,
       isPinkMode,
-      isNavigating,
-      navProgress,
       isStorageFullState,
-      isModeModalOpen,
-      currentWorkspaceMode,
-      currentModeConfig,
       toggleBluePinkMode,
-      toggleThemeMode,
-      activeSpaTabs,
-      switchSpaTab,
-      closeSpaTab,
-      closeOtherTabs,
-      currentBreadcrumbGroup,
-      triggerGlobalSearch
+      toggleThemeMode
     };
   }
 };
 </script>
 
 <style>
-/* Global Top Route Loading Progress Bar */
-.global-top-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3.5px;
-  z-index: 9999999;
-  transition: width 0.18s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.blue-progress-bar {
-  background: linear-gradient(90deg, #2563eb 0%, #0284c7 60%, #38bdf8 100%);
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.7);
-}
-
-.pink-progress-bar {
-  background: linear-gradient(90deg, #db2777 0%, #ec4899 60%, #f43f5e 100%);
-  box-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
-}
-
-/* Floating Page Navigation Spinner Overlay */
-.global-route-loader-overlay {
-  position: fixed;
-  top: 14px;
-  right: 18px;
-  z-index: 9999998;
-  pointer-events: none;
-}
-
-.loader-spinner-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  padding: 7px 16px;
-  border-radius: 999px;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.dark-theme .loader-spinner-card {
-  background: rgba(24, 24, 27, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-}
-
 /* Global Anti-Horizontal Scroll & Mobile Constraints */
 html, body, #app, .app-container {
   max-width: 100vw !important;
@@ -1225,27 +829,6 @@ html, body, #app, .app-container {
   --sidebar-divider: #27272a;
   --sidebar-header-color: #71717a;
   --sidebar-border: #27272a;
-}
-
-/* Coffee Dark Mode Theme Variables (Warm Dark Roast Espresso with Rich Crema) */
-.coffee-theme {
-  --bg-app: #160f0a;
-  --bg-surface: #221710;
-  --bg-card: #221710;
-  --bg-input: #2e1e15;
-  --bg-hover: rgba(245, 158, 11, 0.12);
-  --text-main: #fffbeb;
-  --text-sub: #e2cca6;
-  --border-color: #4a3221;
-
-  --sidebar-bg: #1c130d;
-  --sidebar-text: #e2cca6;
-  --sidebar-hover-bg: #2b1c12;
-  --sidebar-active-bg: var(--primary-color, #d97706);
-  --sidebar-active-text: #ffffff;
-  --sidebar-divider: #4a3221;
-  --sidebar-header-color: #c49e79;
-  --sidebar-border: #4a3221;
 }
 
 body {
@@ -1524,146 +1107,6 @@ body {
 }
 
 /* =========================================================
-   SPA Multi-Tab System & Pathway Breadcrumb Styling
-   ========================================================= */
-.spa-multi-tab-bar {
-  background-color: var(--bg-surface);
-  border-color: var(--border-color) !important;
-  min-height: 40px;
-}
-
-.spa-tab-item {
-  background-color: var(--bg-input);
-  color: var(--text-sub);
-  border: 1px solid var(--border-color);
-  font-size: 12.5px;
-  white-space: nowrap;
-  transition: all 0.15s ease-in-out;
-}
-
-.spa-tab-item:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-main);
-  border-color: var(--primary-color);
-}
-
-.spa-tab-item.spa-tab-active {
-  background-color: var(--primary-color) !important;
-  color: #ffffff !important;
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
-}
-
-.spa-tab-item.spa-tab-active .spa-tab-icon {
-  color: #ffffff !important;
-}
-
-.spa-tab-item.spa-tab-active .spa-tab-close {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.spa-tab-item.spa-tab-active .spa-tab-close:hover {
-  color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.25);
-}
-
-.spa-tab-close {
-  width: 18px;
-  height: 18px;
-  line-height: 1;
-  text-decoration: none;
-  opacity: 0.7;
-}
-
-.spa-tab-close:hover {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.08);
-}
-
-.spa-breadcrumb-bar {
-  background-color: var(--bg-app);
-  border-color: var(--border-color) !important;
-  font-size: 12px;
-}
-
-.spa-breadcrumb-bar .breadcrumb-item + .breadcrumb-item::before {
-  content: "›";
-  color: var(--text-sub);
-  font-size: 14px;
-  padding: 0 6px;
-}
-
-/* =========================================================
-   Quasar 2 Deep Dark Mode & High-Contrast Overrides
-   ========================================================= */
-.dark-mode .q-card, .dark-theme .q-card,
-.dark-mode .q-table__card, .dark-theme .q-table__card,
-.dark-mode .q-dialog .q-card, .dark-theme .q-dialog .q-card {
-  background-color: var(--bg-surface) !important;
-  color: #f1f5f9 !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .q-card.bg-white, .dark-theme .q-card.bg-white {
-  background-color: var(--bg-surface) !important;
-  color: #f1f5f9 !important;
-}
-
-.dark-mode .text-grey-9, .dark-theme .text-grey-9,
-.dark-mode .text-grey-8, .dark-theme .text-grey-8,
-.dark-mode .text-grey-10, .dark-theme .text-grey-10 {
-  color: #f8fafc !important;
-}
-
-.dark-mode .text-grey-7, .dark-theme .text-grey-7,
-.dark-mode .text-grey-6, .dark-theme .text-grey-6 {
-  color: #94a3b8 !important;
-}
-
-.dark-mode .bg-grey-1, .dark-theme .bg-grey-1,
-.dark-mode .bg-grey-2, .dark-theme .bg-grey-2,
-.dark-mode .bg-grey-3, .dark-theme .bg-grey-3 {
-  background-color: var(--bg-input) !important;
-  color: #f1f5f9 !important;
-}
-
-.dark-mode .q-field__control, .dark-theme .q-field__control {
-  background-color: var(--bg-input) !important;
-  color: #ffffff !important;
-}
-
-.dark-mode .q-field__native, .dark-theme .q-field__native,
-.dark-mode .q-field__prefix, .dark-theme .q-field__prefix,
-.dark-mode .q-field__suffix, .dark-theme .q-field__suffix {
-  color: #ffffff !important;
-}
-
-.dark-mode .q-field__label, .dark-theme .q-field__label {
-  color: #94a3b8 !important;
-}
-
-.dark-mode .q-item, .dark-theme .q-item {
-  color: #f1f5f9 !important;
-}
-
-.dark-mode .q-item--active, .dark-theme .q-item--active {
-  background-color: rgba(37, 99, 235, 0.2) !important;
-  color: #93c5fd !important;
-}
-
-.dark-mode .q-tab, .dark-theme .q-tab {
-  color: #94a3b8 !important;
-}
-
-.dark-mode .q-tab--active, .dark-theme .q-tab--active {
-  color: #38bdf8 !important;
-}
-
-.dark-mode .q-separator, .dark-theme .q-separator {
-  background-color: var(--border-color) !important;
-}
-
-/* =========================================================
    True Black OLED Specific Overrides (Pure #000000 Power Saving)
    ========================================================= */
 .oled-theme,
@@ -1732,186 +1175,6 @@ body {
 
 .oled-theme .btn-light:hover {
   background-color: #292929 !important;
-}
-
-/* =========================================================
-   Coffee Dark Mode Specific Overrides (Warm Espresso, Caramel & High Contrast)
-   ========================================================= */
-.coffee-theme,
-.coffee-theme body,
-.coffee-theme .app-container,
-.coffee-theme .main-content {
-  background-color: #160f0a !important;
-  color: #fffbeb !important;
-}
-
-.coffee-theme .sidebar-nav,
-.coffee-theme .mobile-drawer,
-.coffee-theme .top-header,
-.coffee-theme .mobile-bottom-bar {
-  background-color: #1c130d !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .sidebar-brand {
-  border-bottom-color: #4a3221 !important;
-}
-
-.coffee-theme h1, .coffee-theme h2, .coffee-theme h3,
-.coffee-theme h4, .coffee-theme h5, .coffee-theme h6,
-.coffee-theme .h1, .coffee-theme .h2, .coffee-theme .h3,
-.coffee-theme .h4, .coffee-theme .h5, .coffee-theme .h6,
-.coffee-theme .card-title, .coffee-theme .modal-title,
-.coffee-theme .offcanvas-title {
-  color: #fffbeb !important;
-}
-
-.coffee-theme .text-dark,
-.coffee-theme .text-black,
-.coffee-theme .text-body,
-.coffee-theme .text-main,
-.coffee-theme .text-app,
-.coffee-theme strong:not(.badge *):not(.badge),
-.coffee-theme b {
-  color: #fffbeb !important;
-}
-
-.coffee-theme .text-muted,
-.coffee-theme .text-secondary,
-.coffee-theme .text-sub,
-.coffee-theme small.text-muted,
-.coffee-theme .small.text-muted,
-.coffee-theme .text-body-secondary {
-  color: #e2cca6 !important;
-}
-
-.coffee-theme label,
-.coffee-theme .form-label,
-.coffee-theme .col-form-label {
-  color: #fce7cf !important;
-}
-
-.coffee-theme .bg-white,
-.coffee-theme .card:not(.pwa-pure-black-card),
-.coffee-theme .content-card,
-.coffee-theme .modal-content,
-.coffee-theme .dropdown-menu,
-.coffee-theme .accordion-item,
-.coffee-theme .offcanvas,
-.coffee-theme .offcanvas-body,
-.coffee-theme .list-group-item {
-  background-color: #221710 !important;
-  border-color: #4a3221 !important;
-  color: #fffbeb !important;
-}
-
-.coffee-theme .card-header,
-.coffee-theme .card-footer,
-.coffee-theme .modal-header,
-.coffee-theme .modal-footer {
-  background-color: #1c130d !important;
-  border-color: #4a3221 !important;
-  color: #fffbeb !important;
-}
-
-.coffee-theme .bg-light,
-.coffee-theme .bg-body-tertiary,
-.coffee-theme .bg-body-secondary,
-.coffee-theme .preview-box,
-.coffee-theme .search-input-group {
-  background-color: #2d1e15 !important;
-  color: #fffbeb !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .form-control,
-.coffee-theme .form-select,
-.coffee-theme textarea {
-  background-color: #2b1d14 !important;
-  color: #fffbeb !important;
-  border-color: #5c3f2b !important;
-}
-
-.coffee-theme .form-control::placeholder,
-.coffee-theme textarea::placeholder {
-  color: #bfa38a !important;
-  opacity: 1 !important;
-}
-
-.coffee-theme .form-control:focus,
-.coffee-theme .form-select:focus,
-.coffee-theme textarea:focus {
-  background-color: #352319 !important;
-  color: #ffffff !important;
-  border-color: #d97706 !important;
-  box-shadow: 0 0 0 0.25rem rgba(217, 119, 6, 0.3) !important;
-}
-
-.coffee-theme .input-group-text {
-  background-color: #2b1d14 !important;
-  color: #e2cca6 !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .border,
-.coffee-theme .border-top,
-.coffee-theme .border-bottom,
-.coffee-theme .border-start,
-.coffee-theme .border-end,
-.coffee-theme .border-2 {
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .btn-white,
-.coffee-theme .btn-light {
-  background-color: #2d1e15 !important;
-  color: #fffbeb !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .btn-white:hover,
-.coffee-theme .btn-light:hover {
-  background-color: #3b281d !important;
-  color: #ffffff !important;
-  border-color: #d97706 !important;
-}
-
-.coffee-theme .table {
-  color: #fffbeb !important;
-  --bs-table-bg: transparent;
-  --bs-table-color: #fffbeb;
-  --bs-table-hover-bg: rgba(217, 119, 6, 0.12);
-  --bs-table-hover-color: #ffffff;
-  --bs-table-border-color: #4a3221;
-}
-
-.coffee-theme .table th {
-  background-color: #1c130d !important;
-  color: #fffbeb !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .table td {
-  color: #fce7cf !important;
-  border-color: #4a3221 !important;
-}
-
-.coffee-theme .badge.bg-light {
-  background-color: #2d1e15 !important;
-  color: #fffbeb !important;
-  border: 1px solid #4a3221 !important;
-}
-
-.coffee-theme .badge.bg-white {
-  background-color: #221710 !important;
-  color: #fffbeb !important;
-  border: 1px solid #4a3221 !important;
-}
-
-.coffee-theme .brand-badge-kafeinarts {
-  background-color: rgba(217, 119, 6, 0.18) !important;
-  color: #fcd34d !important;
-  border-color: rgba(217, 119, 6, 0.35) !important;
 }
 
 /* =========================================================
@@ -2018,20 +1281,13 @@ body {
   background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
-  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, background-color 0.3s ease;
+  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease;
   z-index: 1040;
   border-right: 1px solid var(--sidebar-border);
 }
 
 .sidebar-nav.collapsed {
   width: var(--sidebar-collapsed-width);
-}
-
-.sidebar-nav.sidebar-hidden {
-  transform: translateX(-100%) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
 }
 
 .sidebar-brand {
@@ -2259,10 +1515,6 @@ body {
 
 .main-content.expanded {
   margin-left: var(--sidebar-collapsed-width);
-}
-
-.main-content.sidebar-hidden {
-  margin-left: 0 !important;
 }
 
 .top-header {

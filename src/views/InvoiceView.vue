@@ -39,39 +39,9 @@
       <div class="col-lg-5 no-print">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold text-dark mb-0">
-              <i class="bi bi-pencil-square text-primary me-2"></i>{{ invoice.id ? 'Edit Faktur Invoice' : 'Form Editor Invoice' }}
-            </h5>
-            <div class="d-flex align-items-center gap-1.5">
-              <button v-if="invoice.id" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 fw-semibold" @click="resetToNewInvoice">
-                <i class="bi bi-plus-lg me-1"></i> Form Baru
-              </button>
-              <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 small" @click="showBulkItemBox = !showBulkItemBox">
-                <i class="bi bi-list-task me-1"></i> {{ showBulkItemBox ? 'Tutup Bulk' : 'Bulk Input' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Active Editing Notice Banner -->
-          <div v-if="invoice.id" class="alert alert-info py-2 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 border-info border-opacity-25 bg-info-subtle shadow-xs">
-            <div>
-              <div class="small fw-bold text-dark d-flex align-items-center gap-1.5">
-                <i class="bi bi-pencil-fill text-primary"></i>
-                <span>Sedang Mengedit: <strong>{{ invoice.invoiceNumber }}</strong></span>
-              </div>
-              <div class="d-flex align-items-center gap-1.5 mt-1">
-                <span class="badge rounded-pill fw-bold" :class="invoice.source === 'pos' ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-300'">
-                  <i :class="invoice.source === 'pos' ? 'bi bi-shop me-1' : 'bi bi-pencil-square me-1'"></i>
-                  {{ invoice.source === 'pos' ? 'Asal: POS Kasir' : 'Asal: Manual' }}
-                </span>
-                <span class="badge rounded-pill fw-semibold" :class="getInvoiceStatusBadgeClass(invoice.status)">
-                  <i :class="getInvoiceStatusIcon(invoice.status)"></i>
-                  {{ formatInvoiceStatusLabel(invoice.status) }}
-                </span>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" @click="resetToNewInvoice">
-              <i class="bi bi-file-earmark-plus me-1"></i> Buat Baru
+            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-pencil-square text-primary me-2"></i>Form Editor Invoice</h5>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 small" @click="showBulkItemBox = !showBulkItemBox">
+              <i class="bi bi-list-task me-1"></i> {{ showBulkItemBox ? 'Tutup Bulk Item' : 'Bulk Input Item' }}
             </button>
           </div>
 
@@ -188,26 +158,6 @@
               </select>
             </div>
 
-            <!-- Status Dokumen & Asal / Sumber Fixed Badges in Form -->
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Status Dokumen Invoice</label>
-              <select class="form-select" v-model="invoice.status">
-                <option value="Draft">Belum Dikirim (Draft)</option>
-                <option value="Terkirim">Sudah Dikirim</option>
-                <option value="Lunas">Lunas (Paid)</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Asal / Sumber Pembuatan</label>
-              <div class="pt-1">
-                <span class="badge rounded-pill px-3 py-2 fw-bold d-inline-flex align-items-center gap-1.5" :class="invoice.source === 'pos' ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-300'">
-                  <i :class="invoice.source === 'pos' ? 'bi bi-shop' : 'bi bi-pencil-square'"></i>
-                  <span>{{ invoice.source === 'pos' ? 'Berasal dari POS Kasir' : 'Dibuat Manual' }}</span>
-                </span>
-              </div>
-            </div>
-
             <div class="col-md-6">
               <label class="form-label small fw-bold">Tanggal Terbit <span class="text-danger">*</span></label>
               <input
@@ -290,19 +240,10 @@
               <textarea class="form-control" rows="2" v-model="invoice.notes"></textarea>
             </div>
 
-            <div class="col-12 d-flex flex-column gap-2">
-              <button type="submit" class="btn btn-success w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-xs">
-                <i class="bi bi-save-fill"></i>
-                <span>{{ invoice.id ? 'Perbarui Perubahan Invoice' : 'Simpan Invoice Baru ke Database' }}</span>
+            <div class="col-12">
+              <button type="submit" class="btn btn-success w-100 py-2 rounded-3 fw-semibold">
+                <i class="bi bi-save me-1"></i> Simpan Invoice ke Database
               </button>
-              <div v-if="invoice.id" class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-primary rounded-pill py-1.5 flex-fill fw-semibold small" @click="saveAsNewCopy">
-                  <i class="bi bi-copy me-1"></i> Simpan Sebagai Salinan Baru
-                </button>
-                <button type="button" class="btn btn-outline-secondary rounded-pill py-1.5 flex-fill fw-semibold small" @click="resetToNewInvoice">
-                  <i class="bi bi-file-earmark-plus me-1"></i> Form Baru
-                </button>
-              </div>
             </div>
           </form>
         </div>
@@ -310,26 +251,6 @@
 
       <!-- Professional Printable Invoice Preview (Right) -->
       <div class="col-lg-7">
-        <!-- Interactive Typo Notice Bar -->
-        <div class="alert alert-primary py-2 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 no-print border-primary border-opacity-25 bg-primary-subtle shadow-sm">
-          <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">
-              <i class="bi bi-pencil-square me-1"></i> Edit Typo Langsung
-            </span>
-            <span class="small text-dark fw-semibold">
-              Klik teks di preview invoice untuk perbaiki typo secara langsung.
-            </span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <span v-if="lastInvoiceAutoSaveTime" class="small text-success fw-bold d-flex align-items-center gap-1">
-              <i class="bi bi-check2-circle"></i> Draft ({{ lastInvoiceAutoSaveTime }})
-            </span>
-            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" @click="saveInvoiceToStore">
-              <i class="bi bi-floppy me-1"></i> Simpan
-            </button>
-          </div>
-        </div>
-
         <div
           class="card border-0 shadow-lg rounded-4 p-5 invoice-paper transition-all"
           :class="invoice.paperTheme === 'dark' ? 'bg-dark text-white' : 'bg-white text-dark'"
@@ -357,57 +278,17 @@
                 </div>
 
                 <div>
-                  <h3
-                    class="fw-extrabold mb-0 inv-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk ubah nama bisnis"
-                    @blur="onDirectBusinessEdit('name', $event)"
-                    :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
-                  >{{ myBusiness.name }}</h3>
-                  <p
-                    class="small mb-0 inv-editable"
-                    contenteditable="true"
-                    spellcheck="false"
-                    title="Klik untuk ubah tagline"
-                    @blur="onDirectBusinessEdit('tagline', $event)"
-                    :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'"
-                  >{{ myBusiness.tagline }}</p>
+                  <h3 class="fw-extrabold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ myBusiness.name }}</h3>
+                  <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.tagline }}</p>
                 </div>
               </div>
-              <small class="d-block mt-1" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">
-                <span class="inv-editable" contenteditable="true" spellcheck="false" @blur="onDirectBusinessEdit('email', $event)">{{ myBusiness.email }}</span> • 
-                <span class="inv-editable" contenteditable="true" spellcheck="false" @blur="onDirectBusinessEdit('phone', $event)">{{ myBusiness.phone }}</span>
-              </small>
+              <small class="d-block mt-1" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ myBusiness.email }} • {{ myBusiness.phone }}</small>
             </div>
 
             <div class="text-end">
-              <div class="d-flex align-items-center justify-content-end gap-1.5 mb-2">
-                <span class="badge bg-primary text-white text-uppercase px-3 py-1.5 rounded-pill fs-6">INVOICE</span>
-                <!-- Fixed Origin Badge -->
-                <span class="badge rounded-pill px-2.5 py-1 fw-bold" :class="invoice.source === 'pos' ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-300'">
-                  <i :class="invoice.source === 'pos' ? 'bi bi-shop me-1' : 'bi bi-pencil-square me-1'"></i>
-                  {{ invoice.source === 'pos' ? 'POS' : 'Manual' }}
-                </span>
-              </div>
-              <h5
-                class="fw-bold mb-0 inv-editable"
-                contenteditable="true"
-                spellcheck="false"
-                title="Klik untuk koreksi nomor invoice"
-                @blur="onDirectInvoiceEdit('invoiceNumber', $event)"
-                :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
-              >{{ invoice.invoiceNumber }}</h5>
-              <div :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'" class="d-flex align-items-center justify-content-end gap-1.5 mt-1.5">
-                <span class="small">Status Dokumen:</span>
-                <span
-                  class="badge rounded-pill fw-semibold px-2.5 py-1"
-                  :class="getInvoiceStatusBadgeClass(invoice.status)"
-                >
-                  <i :class="getInvoiceStatusIcon(invoice.status)"></i>
-                  {{ formatInvoiceStatusLabel(invoice.status) }}
-                </span>
-              </div>
+              <span class="badge bg-primary text-white text-uppercase px-3 py-2 rounded-pill fs-6 mb-2">INVOICE</span>
+              <h5 class="fw-bold mb-0" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.invoiceNumber }}</h5>
+              <small :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'" class="d-block">Status: <strong class="text-success">{{ invoice.status || 'Unpaid' }}</strong></small>
             </div>
           </div>
 
@@ -415,30 +296,9 @@
           <div class="row mb-4">
             <div class="col-6">
               <span class="small text-uppercase fw-bold d-block" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">Diterbitkan Untuk:</span>
-              <h6
-                class="fw-bold mb-1 inv-editable"
-                contenteditable="true"
-                spellcheck="false"
-                title="Klik untuk perbaiki nama klien"
-                @blur="onDirectInvoiceEdit('clientName', $event)"
-                :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
-              >{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
-              <p
-                class="small mb-0 inv-editable"
-                contenteditable="true"
-                spellcheck="false"
-                title="Klik untuk perbaiki email klien"
-                @blur="onDirectInvoiceEdit('clientEmail', $event)"
-                :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'"
-              >{{ invoice.clientEmail || 'email@klien.com' }}</p>
-              <p
-                class="small mb-0 inv-editable"
-                contenteditable="true"
-                spellcheck="false"
-                title="Klik untuk perbaiki alamat klien"
-                @blur="onDirectInvoiceEdit('clientAddress', $event)"
-                :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'"
-              >{{ invoice.clientAddress || 'Alamat Klien' }}</p>
+              <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ invoice.clientName || 'Nama Klien / Perusahaan' }}</h6>
+              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientEmail">{{ invoice.clientEmail }}</p>
+              <p class="small mb-0" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-secondary'" v-if="invoice.clientAddress">{{ invoice.clientAddress }}</p>
             </div>
 
             <div class="col-6 text-end">
@@ -469,21 +329,10 @@
                 <tr v-for="(item, idx) in invoice.items" :key="idx">
                   <td>{{ idx + 1 }}</td>
                   <td>
-                    <div
-                      class="fw-bold inv-editable"
-                      contenteditable="true"
-                      spellcheck="false"
-                      title="Klik untuk edit nama layanan/pekerjaan"
-                      @blur="onDirectItemEdit(idx, 'nama', $event)"
-                      :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'"
-                    >{{ item.nama || 'Layanan Freelance' }}</div>
+                    <div class="fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ item.nama || 'Layanan Freelance' }}</div>
                   </td>
-                  <td class="text-center fw-semibold">
-                    <span class="inv-editable px-1" contenteditable="true" spellcheck="false" @blur="onDirectItemEdit(idx, 'quantity', $event)">{{ item.quantity || 1 }}</span>
-                  </td>
-                  <td class="text-end">
-                    <span class="inv-editable px-1" contenteditable="true" spellcheck="false" @blur="onDirectItemPriceEdit(idx, $event)">{{ formatCurrency(item.biaya) }}</span>
-                  </td>
+                  <td class="text-center fw-semibold">{{ item.quantity || 1 }}</td>
+                  <td class="text-end">{{ formatCurrency(item.biaya) }}</td>
                   <td class="text-end fw-bold" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">{{ formatCurrency(item.quantity * item.biaya) }}</td>
                 </tr>
               </tbody>
@@ -517,14 +366,7 @@
           <!-- Payment Notes Footer -->
           <div class="border-top pt-3" :class="invoice.paperTheme === 'dark' ? 'border-secondary' : ''">
             <h6 class="fw-bold mb-1" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">Instruksi Pembayaran & Rekening Bank:</h6>
-            <p
-              class="small mb-0 style-notes inv-editable p-1 rounded"
-              contenteditable="true"
-              spellcheck="false"
-              title="Klik untuk perbaiki catatan atau nomor rekening bank"
-              @blur="onDirectInvoiceEdit('notes', $event)"
-              :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'"
-            >{{ invoice.notes }}</p>
+            <p class="small mb-0 style-notes" :class="invoice.paperTheme === 'dark' ? 'text-light opacity-75' : 'text-muted'">{{ invoice.notes }}</p>
           </div>
         </div>
       </div>
@@ -532,96 +374,17 @@
 
     <!-- Saved Invoices History Section -->
     <div class="card border-0 shadow-sm rounded-4 bg-white mb-4 no-print" v-if="savedInvoices.length > 0">
-      <div class="card-header bg-transparent border-bottom p-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-          <div>
-            <div class="d-flex align-items-center gap-2">
-              <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Riwayat Invoice Tersimpan</h5>
-              <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fw-bold px-2.5 py-1">
-                {{ savedInvoices.length }} Total
-              </span>
-            </div>
-            <span class="text-muted small">Semua invoice (baik dari POS maupun Manual) tersimpan rapi dan dapat diedit sewaktu-waktu.</span>
-          </div>
-
-          <div v-if="selectedIds.length > 0" class="d-flex gap-2 align-items-center">
-            <span class="small fw-bold text-primary me-2">{{ selectedIds.length }} terpilih</span>
-            <button class="btn btn-sm btn-danger rounded-pill px-3" @click="bulkDelete">
-              <i class="bi bi-trash-fill me-1"></i> Hapus Terpilih
-            </button>
-          </div>
-        </div>
-
-        <!-- Filter Tabs & Search Bar -->
-        <div class="row g-2 mt-3 align-items-center">
-          <div class="col-lg-7">
-            <div class="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 category-pill-strip">
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'all' ? 'btn-primary' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'all'"
-              >
-                Semua ({{ savedInvoices.length }})
-              </button>
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'draft' ? 'btn-warning text-dark' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'draft'"
-              >
-                Belum Dikirim / Draft ({{ countDraft }})
-              </button>
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'sent' ? 'btn-info text-dark' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'sent'"
-              >
-                Sudah Dikirim ({{ countSent }})
-              </button>
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'paid' ? 'btn-success' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'paid'"
-              >
-                Lunas ({{ countPaid }})
-              </button>
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'pos' ? 'btn-purple text-white' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'pos'"
-              >
-                <i class="bi bi-shop me-1"></i> Dari POS ({{ countPos }})
-              </button>
-              <button
-                class="btn btn-sm rounded-pill px-3 py-1 text-nowrap fw-semibold"
-                :class="invoiceFilterTab === 'manual' ? 'btn-secondary' : 'btn-outline-secondary bg-light'"
-                @click="invoiceFilterTab = 'manual'"
-              >
-                <i class="bi bi-pencil-square me-1"></i> Manual ({{ countManual }})
-              </button>
-            </div>
-          </div>
-
-          <div class="col-lg-5">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text bg-light text-muted border-end-0 rounded-start-pill">
-                <i class="bi bi-search"></i>
-              </span>
-              <input
-                v-model="invoiceSearchQuery"
-                type="text"
-                class="form-control border-start-0 rounded-end-pill"
-                placeholder="Cari No. Invoice / Nama Klien / Item..."
-              />
-            </div>
-          </div>
+      <div class="card-header bg-transparent border-bottom p-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Riwayat Invoice Tersimpan</h5>
+        <div v-if="selectedIds.length > 0" class="d-flex gap-2 align-items-center">
+          <span class="small fw-bold text-primary me-2">{{ selectedIds.length }} terpilih</span>
+          <button class="btn btn-sm btn-danger rounded-pill px-3" @click="bulkDelete">
+            <i class="bi bi-trash-fill me-1"></i> Hapus Terpilih
+          </button>
         </div>
       </div>
-
       <div class="card-body p-0">
-        <div v-if="filteredSavedInvoices.length === 0" class="p-4 text-center text-muted small">
-          Tidak ada invoice yang sesuai dengan filter atau pencarian Anda.
-        </div>
-        <div v-else class="table-responsive">
+        <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
@@ -629,52 +392,28 @@
                   <input type="checkbox" class="form-check-input" :checked="isAllSelected" @change="toggleSelectAll" />
                 </th>
                 <th>No. Invoice</th>
-                <th>Asal / Sumber</th>
-                <th>Status Dokumen</th>
                 <th>Klien</th>
                 <th>Tanggal Terbit</th>
                 <th>Jatuh Tempo</th>
-                <th>Total Tagihan</th>
+                <th>Total</th>
                 <th class="text-end pe-4">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="inv in filteredSavedInvoices" :key="inv.id">
+              <tr v-for="inv in savedInvoices" :key="inv.id">
                 <td class="text-center">
                   <input type="checkbox" class="form-check-input" :value="inv.id" v-model="selectedIds" />
                 </td>
                 <td class="fw-bold text-primary">{{ inv.invoiceNumber }}</td>
-                <td>
-                  <!-- Fixed Origin Badge -->
-                  <span class="badge rounded-pill fw-bold px-2.5 py-1" :class="inv.source === 'pos' ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-300'">
-                    <i :class="inv.source === 'pos' ? 'bi bi-shop me-1' : 'bi bi-pencil-square me-1'"></i>
-                    {{ inv.source === 'pos' ? 'POS' : 'Manual' }}
-                  </span>
-                </td>
-                <td>
-                  <!-- Quick Status Selector / Toggle -->
-                  <select
-                    class="form-select form-select-sm rounded-pill fw-semibold py-0.5 ps-2 pe-4"
-                    :class="getInvoiceStatusBadgeClass(inv.status)"
-                    style="font-size: 11.5px; width: auto; display: inline-block;"
-                    :value="inv.status || 'Draft'"
-                    @change="quickChangeStatus(inv, $event.target.value)"
-                    title="Ubah status invoice secara instan"
-                  >
-                    <option value="Draft">Belum Dikirim (Draft)</option>
-                    <option value="Terkirim">Sudah Dikirim</option>
-                    <option value="Lunas">Lunas</option>
-                  </select>
-                </td>
                 <td>{{ inv.clientName || 'Klien Umum' }}</td>
                 <td>{{ formatDate(inv.issueDate) }}</td>
                 <td>{{ formatDate(inv.dueDate) }}</td>
                 <td class="fw-bold text-success">{{ formatCurrency(calcTotal(inv)) }}</td>
                 <td class="text-end pe-4">
                   <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" @click="loadInvoice(inv)">
-                    <i class="bi bi-pencil-square me-1"></i> Edit
+                    <i class="bi bi-eye me-1"></i> Tampilkan
                   </button>
-                  <button class="btn btn-sm btn-light text-danger rounded-circle" @click="deleteSingleInvoice(inv.id)" title="Hapus Invoice">
+                  <button class="btn btn-sm btn-light text-danger rounded-circle" @click="deleteSingleInvoice(inv.id)">
                     <i class="bi bi-trash-fill"></i>
                   </button>
                 </td>
@@ -764,12 +503,6 @@ export default {
     };
 
     onMounted(() => {
-      if (route.query.id) {
-        const found = savedInvoices.value.find(i => String(i.id) === String(route.query.id));
-        if (found) {
-          loadInvoice(found);
-        }
-      }
       if (route.query.clientName) {
         invoice.value.clientName = route.query.clientName;
         invoice.value.clientEmail = route.query.clientEmail || '';
@@ -846,127 +579,7 @@ export default {
 
     const loadInvoice = (inv) => {
       invoice.value = JSON.parse(JSON.stringify(inv));
-      if (!invoice.value.status) invoice.value.status = 'Draft';
-      if (!invoice.value.source) invoice.value.source = 'manual';
       showToastMsg(`Invoice ${inv.invoiceNumber} dimuat ke editor.`);
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-    };
-
-    const resetToNewInvoice = () => {
-      invoice.value = {
-        invoiceNumber: 'INV-' + new Date().getFullYear() + '-' + String(Math.floor(100 + Math.random() * 900)),
-        issueDate: new Date().toISOString().split('T')[0],
-        dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-        clientName: '',
-        clientEmail: '',
-        clientAddress: '',
-        currency: 'IDR',
-        status: 'Draft',
-        source: 'manual',
-        logoType: 'kafeinarts',
-        logoOutlineMode: 'auto',
-        logoSize: 58,
-        customLogoUrl: '',
-        paperTheme: 'light',
-        items: [
-          { nama: '', quantity: 1, biaya: 0 }
-        ],
-        taxPercent: 0,
-        discount: 0,
-        notes: ''
-      };
-      showToastMsg('Form siap untuk invoice baru.');
-    };
-
-    const saveAsNewCopy = () => {
-      errors.value = {};
-      if (!invoice.value.invoiceNumber || !invoice.value.invoiceNumber.trim()) {
-        errors.value.invoiceNumber = 'Nomor invoice wajib diisi!';
-      }
-      if (Object.keys(errors.value).length > 0) return;
-
-      const newNumber = invoice.value.invoiceNumber.includes('-COPY')
-        ? invoice.value.invoiceNumber + '1'
-        : invoice.value.invoiceNumber + '-COPY';
-
-      const copyPayload = {
-        ...JSON.parse(JSON.stringify(invoice.value)),
-        id: undefined,
-        invoiceNumber: newNumber,
-        status: 'Draft',
-        source: invoice.value.source || 'manual'
-      };
-
-      store.dispatch('addInvoice', copyPayload);
-      invoice.value.id = undefined;
-      invoice.value.invoiceNumber = newNumber;
-      showToastMsg(`Salinan invoice ${newNumber} berhasil disimpan sebagai baru!`);
-    };
-
-    const quickChangeStatus = (inv, newStatus) => {
-      store.dispatch('updateInvoice', {
-        ...inv,
-        status: newStatus
-      });
-      showToastMsg(`Status ${inv.invoiceNumber} diubah ke: ${formatInvoiceStatusLabel(newStatus)}`);
-    };
-
-    // Filter and Search for Saved Invoices
-    const invoiceFilterTab = ref('all'); // 'all' | 'draft' | 'sent' | 'paid' | 'pos' | 'manual'
-    const invoiceSearchQuery = ref('');
-
-    const filteredSavedInvoices = computed(() => {
-      let list = [...savedInvoices.value];
-
-      if (invoiceFilterTab.value === 'draft') {
-        list = list.filter(i => i.status === 'Draft' || !i.status);
-      } else if (invoiceFilterTab.value === 'sent') {
-        list = list.filter(i => i.status === 'Terkirim');
-      } else if (invoiceFilterTab.value === 'paid') {
-        list = list.filter(i => i.status === 'Lunas');
-      } else if (invoiceFilterTab.value === 'pos') {
-        list = list.filter(i => i.source === 'pos');
-      } else if (invoiceFilterTab.value === 'manual') {
-        list = list.filter(i => i.source !== 'pos');
-      }
-
-      if (invoiceSearchQuery.value.trim()) {
-        const q = invoiceSearchQuery.value.toLowerCase().trim();
-        list = list.filter(i =>
-          (i.invoiceNumber && i.invoiceNumber.toLowerCase().includes(q)) ||
-          (i.clientName && i.clientName.toLowerCase().includes(q)) ||
-          (i.items && i.items.some(item => item.nama && item.nama.toLowerCase().includes(q)))
-        );
-      }
-
-      return list;
-    });
-
-    const countDraft = computed(() => savedInvoices.value.filter(i => i.status === 'Draft' || !i.status).length);
-    const countSent = computed(() => savedInvoices.value.filter(i => i.status === 'Terkirim').length);
-    const countPaid = computed(() => savedInvoices.value.filter(i => i.status === 'Lunas').length);
-    const countPos = computed(() => savedInvoices.value.filter(i => i.source === 'pos').length);
-    const countManual = computed(() => savedInvoices.value.filter(i => i.source !== 'pos').length);
-
-    const getInvoiceStatusBadgeClass = (status) => {
-      if (status === 'Draft' || !status) return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
-      if (status === 'Terkirim') return 'bg-info-subtle text-info-emphasis border border-info-subtle';
-      if (status === 'Lunas') return 'bg-success-subtle text-success-emphasis border border-success-subtle';
-      return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    };
-
-    const getInvoiceStatusIcon = (status) => {
-      if (status === 'Draft' || !status) return 'bi bi-hourglass-split me-1';
-      if (status === 'Terkirim') return 'bi bi-send-check me-1';
-      if (status === 'Lunas') return 'bi bi-check-all me-1';
-      return 'bi bi-file-earmark me-1';
-    };
-
-    const formatInvoiceStatusLabel = (status) => {
-      if (status === 'Draft' || !status) return 'Belum Dikirim (Draft)';
-      if (status === 'Terkirim') return 'Sudah Dikirim';
-      if (status === 'Lunas') return 'Lunas';
-      return status;
     };
 
     const deleteSingleInvoice = (id) => {
@@ -1007,49 +620,6 @@ export default {
       });
     };
 
-    const lastInvoiceAutoSaveTime = ref('');
-
-    const triggerInvoiceAutoSave = () => {
-      const now = new Date();
-      lastInvoiceAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      // update invoice in store if already present or update local draft
-      if (invoice.value.id) {
-        store.dispatch('updateInvoice', invoice.value);
-      }
-    };
-
-    const onDirectInvoiceEdit = (field, e) => {
-      if (!e || !e.target) return;
-      const val = e.target.innerText ? e.target.innerText.trim() : '';
-      invoice.value[field] = val;
-      triggerInvoiceAutoSave();
-    };
-
-    const onDirectBusinessEdit = (field, e) => {
-      if (!e || !e.target) return;
-      const val = e.target.innerText ? e.target.innerText.trim() : '';
-      myBusiness.value[field] = val;
-    };
-
-    const onDirectItemEdit = (idx, field, e) => {
-      if (!e || !e.target || !invoice.value.items[idx]) return;
-      const val = e.target.innerText ? e.target.innerText.trim() : '';
-      if (field === 'quantity') {
-        invoice.value.items[idx].quantity = Math.max(1, parseInt(val) || 1);
-      } else {
-        invoice.value.items[idx][field] = val;
-      }
-      triggerInvoiceAutoSave();
-    };
-
-    const onDirectItemPriceEdit = (idx, e) => {
-      if (!e || !e.target || !invoice.value.items[idx]) return;
-      const raw = e.target.innerText.replace(/[^0-9]/g, '');
-      const parsed = parseInt(raw) || 0;
-      invoice.value.items[idx].biaya = parsed;
-      triggerInvoiceAutoSave();
-    };
-
     const saveInvoiceToStore = () => {
       errors.value = {};
       if (!invoice.value.invoiceNumber || !invoice.value.invoiceNumber.trim()) {
@@ -1070,22 +640,8 @@ export default {
 
       if (Object.keys(errors.value).length > 0) return;
 
-      const payload = {
-        ...invoice.value,
-        status: invoice.value.status || 'Draft',
-        source: invoice.value.source || 'manual'
-      };
-
-      if (invoice.value.id) {
-        store.dispatch('updateInvoice', payload);
-        showToastMsg(`Invoice ${invoice.value.invoiceNumber} berhasil diperbarui!`);
-      } else {
-        store.dispatch('addInvoice', payload);
-        showToastMsg('Invoice baru berhasil disimpan ke database!');
-      }
-
-      const now = new Date();
-      lastInvoiceAutoSaveTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      store.dispatch('addInvoice', invoice.value);
+      showToastMsg('Invoice berhasil disimpan ke riwayat database!');
     };
 
     const formatCurrency = (amount) => {
@@ -1405,14 +961,6 @@ export default {
     return {
       myBusiness,
       savedInvoices,
-      filteredSavedInvoices,
-      invoiceFilterTab,
-      invoiceSearchQuery,
-      countDraft,
-      countSent,
-      countPaid,
-      countPos,
-      countManual,
       invoice,
       toast,
       errors,
@@ -1429,12 +977,6 @@ export default {
       totalAmount,
       calcTotal,
       loadInvoice,
-      resetToNewInvoice,
-      saveAsNewCopy,
-      quickChangeStatus,
-      getInvoiceStatusBadgeClass,
-      getInvoiceStatusIcon,
-      formatInvoiceStatusLabel,
       deleteSingleInvoice,
       bulkDelete,
       saveInvoiceToStore,
@@ -1448,40 +990,13 @@ export default {
       invoiceJsonInput,
       exportInvoiceJson,
       triggerImportInvoiceJson,
-      onInvoiceJsonSelected,
-      lastInvoiceAutoSaveTime,
-      onDirectInvoiceEdit,
-      onDirectBusinessEdit,
-      onDirectItemEdit,
-      onDirectItemPriceEdit
+      onInvoiceJsonSelected
     };
   }
 };
 </script>
 
 <style scoped>
-.inv-editable {
-  outline: none;
-  cursor: text;
-  transition: all 0.15s ease;
-  border-radius: 4px;
-}
-.inv-editable:hover {
-  background-color: rgba(37, 99, 235, 0.08);
-  box-shadow: 0 0 0 1.5px rgba(37, 99, 235, 0.3);
-}
-.inv-editable:focus {
-  background-color: rgba(37, 99, 235, 0.12);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.6);
-}
-@media print {
-  .inv-editable:hover,
-  .inv-editable:focus {
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-}
-
 .invoice-paper {
   min-height: 680px;
   transition: all 0.25s ease;

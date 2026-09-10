@@ -1,739 +1,254 @@
 <template>
-  <div class="developer-portfolio-page" :class="[ portfolioTheme === 'omori' ? 'omori-theme-mode' : 'persona-battle-theme p3r-classic-mode' ]">
+  <div class="developer-portfolio-page">
     <!-- 3D WebGL Canvas Container -->
     <div id="portfolio-canvas-container" ref="canvasContainer"></div>
 
-    <!-- Anime Halftone & Speedlines Overlays (Classic Mode) -->
-    <div v-if="portfolioTheme === 'classic'" class="manga-speedlines"></div>
-    <div v-if="portfolioTheme === 'classic'" class="halftone-dot-grid"></div>
-
-    <!-- OMORI Floating Vignette & Sketch Doodles (OMORI Mode) -->
-    <div v-if="portfolioTheme === 'omori'" class="omori-lightbulb-dangle">
-      <div class="omori-bulb-cord"></div>
-      <div class="omori-bulb-glow"><i class="bi bi-lightbulb-fill"></i></div>
-    </div>
-
-    <!-- Persona Battle Top HUD Header -->
-    <header class="persona-hud-bar fixed-top d-flex justify-content-between align-items-center px-3 px-md-4 py-2">
-      <!-- Left: Protagonist & Battle Status -->
-      <div class="d-flex align-items-center gap-3">
-        <a href="#hero" class="hud-brand text-decoration-none">
-          <span class="hud-slash-badge">{{ portfolioTheme === 'omori' ? 'WHITE SPACE' : 'RELOAD' }}</span>
-          <strong class="hud-title text-white">ITSMEBROARIF</strong>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top brutal-navbar">
+      <div class="container-fluid px-3 px-md-4">
+        <a class="navbar-brand fw-bold text-uppercase fs-4 border border-dark border-3 px-2 bg-main-blue text-white shadow-sm" href="#hero" style="transform: rotate(-2deg);">
+          🚀 ITSMEBROARIF
         </a>
-
-        <!-- HP & SP / JUICE Bars in Header -->
-        <div class="d-none d-lg-flex align-items-center gap-3 ms-2">
-          <div class="hud-meter-wrap">
-            <div class="d-flex justify-content-between text-monospace small fw-bold">
-              <span class="text-danger">{{ portfolioTheme === 'omori' ? 'HEART' : 'HP' }}</span>
-              <span class="text-white">999 / 999</span>
-            </div>
-            <div class="hud-bar-bg">
-              <div class="hud-bar-fill bg-danger" style="width: 100%;"></div>
-            </div>
+        
+        <div class="d-flex align-items-center gap-2 gap-md-3">
+          <!-- Language Switcher -->
+          <div class="d-flex gap-1">
+            <button class="lang-btn" :class="{ active: currentLang === 'id' }" @click="setLanguage('id')">ID</button>
+            <button class="lang-btn" :class="{ active: currentLang === 'en' }" @click="setLanguage('en')">EN</button>
+            <button class="lang-btn" :class="{ active: currentLang === 'jp' }" @click="setLanguage('jp')">JP</button>
           </div>
-          <div class="hud-meter-wrap">
-            <div class="d-flex justify-content-between text-monospace small fw-bold">
-              <span class="text-info">{{ portfolioTheme === 'omori' ? 'JUICE' : 'SP' }}</span>
-              <span class="text-white">580 / 580</span>
-            </div>
-            <div class="hud-bar-bg">
-              <div class="hud-bar-fill bg-info" style="width: 100%;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Center: Battle OST / Sound Indicator -->
-      <div class="d-none d-md-flex align-items-center gap-2 bg-dark bg-opacity-75 px-3 py-1.5 rounded-pill border border-secondary border-opacity-50">
-        <span class="eq-pulse-dot" :class="{ 'bg-light': portfolioTheme === 'omori' }"></span>
-        <span class="text-white small fw-bold text-truncate" style="max-width: 320px;">
-          <template v-if="portfolioTheme === 'classic'">
-            🎵 MASS DESTRUCTION // PERSONA 3 RELOAD BATTLE
-          </template>
-          <template v-else>
-            💡 DUET // OMORI DARK WHITE SPACE MEMORY
-          </template>
-        </span>
-      </div>
-
-      <!-- Right: Theme Mode Switcher + Lang & Action -->
-      <div class="d-flex align-items-center gap-2">
-        <!-- Theme Mode Switcher: Classic P3R vs OMORI -->
-        <div class="theme-mode-switch-group d-flex align-items-center bg-black bg-opacity-75 p-1 rounded-pill border border-secondary border-opacity-50">
-          <button 
-            type="button" 
-            class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold text-uppercase d-flex align-items-center gap-1.5 transition-all"
-            :class="portfolioTheme === 'classic' ? 'btn-primary text-white shadow-sm' : 'text-white-50 border-0 bg-transparent'"
-            @click="setPortfolioTheme('classic')"
-            title="Persona 3 Reload Classic Battle Theme (Vibrant Blue)"
-          >
-            <i class="bi bi-lightning-charge-fill"></i>
-            <span class="d-none d-sm-inline">Classic P3R</span>
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold text-uppercase d-flex align-items-center gap-1.5 transition-all"
-            :class="portfolioTheme === 'omori' ? 'btn-light text-dark shadow-sm' : 'text-white-50 border-0 bg-transparent'"
-            @click="setPortfolioTheme('omori')"
-            title="OMORI Dark White Space Handwritten Theme"
-          >
-            <i class="bi bi-lightbulb-fill"></i>
-            <span class="d-none d-sm-inline">OMORI (Dark)</span>
+          <button class="navbar-toggler brutal-box p-1 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#devNavMenu">
+            <span class="navbar-toggler-icon"></span>
           </button>
         </div>
 
-        <div class="d-flex gap-1">
-          <button class="p3-lang-btn" :class="{ active: currentLang === 'id' }" @click="setLanguage('id')">ID</button>
-          <button class="p3-lang-btn" :class="{ active: currentLang === 'en' }" @click="setLanguage('en')">EN</button>
-          <button class="p3-lang-btn" :class="{ active: currentLang === 'jp' }" @click="setLanguage('jp')">JP</button>
+        <div class="collapse navbar-collapse" id="devNavMenu">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-bold fs-6 text-uppercase text-center mt-3 mt-lg-0 gap-1">
+            <li class="nav-item"><a class="nav-link text-dark" href="#hero">{{ t('nav_home') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#about">{{ t('nav_about') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#app-showcase">{{ t('nav_system') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#services">{{ t('nav_services') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#experiences">{{ t('nav_journey') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#projects">{{ t('nav_projects') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#faq">{{ t('nav_faq') }}</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="#contact">{{ t('nav_contact') }}</a></li>
+          </ul>
         </div>
-
-        <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-bold d-none d-sm-inline-flex align-items-center gap-1" @click="triggerAllOutAttack">
-          <span class="text-warning">★</span> {{ portfolioTheme === 'omori' ? 'RELEASE ENERGY' : 'ALL-OUT ATTACK' }}
-        </button>
       </div>
-    </header>
+    </nav>
 
-    <!-- Hero Section (Persona 3 Reload Vibrant Electric Blue & 3D Diagonal Slanted Battle Stage) -->
-    <section id="hero" class="min-vh-100 d-flex align-items-center position-relative overflow-hidden pt-5">
-      <div class="container position-relative z-1 pt-5 text-center">
-        <!-- Battle Phase & Status Indicator -->
-        <div class="gsap-hero-el mb-3 d-inline-block">
-          <div class="p3r-battle-phase-pill">
-            <span class="phase-badge bg-primary text-white">TURN 01</span>
-            <span class="phase-title text-white">PROTAGONIST ACTION PHASE // BATTLE ENGAGED</span>
-            <span class="phase-tag bg-cyan text-dark">1 MORE!</span>
+    <!-- Hero Section (Persona 5 Royal Battle Style with Persona 3 Reload Bright Blue) -->
+    <section id="hero" class="section-padding min-vh-100 d-flex align-items-center position-relative overflow-hidden p3r-battle-hero">
+      <!-- Persona 3 Reload Ambient Diagonal Grid Background -->
+      <div class="p3r-grid-overlay"></div>
+      <div class="p3r-diagonal-stripe"></div>
+
+      <div class="container text-center position-relative z-1 pt-5">
+        <!-- Persona Battle Status Badge -->
+        <div class="gsap-hero-el mb-3">
+          <div class="persona-badge d-inline-flex align-items-center gap-2">
+            <span class="p3r-pulse-dot"></span>
+            <span class="p3r-tag-bold">RELOAD // BATTLE SYSTEM ENGAGED</span>
+            <span class="badge bg-white text-dark fw-extrabold rounded-0 px-2 py-0.5">LV.99 ARCHITECT</span>
           </div>
         </div>
 
-        <!-- 3D Angled Hero Titles -->
-        <div class="gsap-hero-el my-2">
-          <div class="p3r-hero-3d-stage mx-auto">
-            <div class="p3r-slanted-title-left">
-              <h1 class="p3r-cutout-title">ARIF PERMANA</h1>
-            </div>
-            <div class="p3r-slanted-title-right">
-              <h1 class="p3r-cutout-title p3r-accent-title">PUTRASURYANA</h1>
-            </div>
-          </div>
-        </div>
-
-        <!-- Role Badge -->
-        <div class="gsap-hero-el mt-3">
-          <div class="p3r-role-banner d-inline-block">
-            <i class="bi bi-cpu-fill text-info me-2"></i>
+        <div class="gsap-hero-el">
+          <div class="p3r-role-pill mb-3">
             <span class="text-uppercase fw-extrabold tracking-wider">{{ t('hero_role') }}</span>
           </div>
         </div>
-
-        <!-- Persona Quote / Battle Philosophy -->
-        <div class="row justify-content-center mt-4 gsap-hero-el">
+        
+        <!-- P5 Dynamic Angled Title Cutout with P3 Reload Electric Blue -->
+        <div class="gsap-hero-el my-3">
+          <div class="p5-battle-title-wrap mx-auto">
+            <h1 class="p5-battle-title">
+              ARIF PERMANA
+            </h1>
+            <h1 class="p5-battle-title p5-title-secondary">
+              PUTRASURYANA
+            </h1>
+          </div>
+        </div>
+        
+        <!-- Mission Statement / Persona Quote -->
+        <div class="row justify-content-center mt-3 gsap-hero-el">
           <div class="col-md-9 col-lg-8">
-            <div class="p3r-quote-battle-card">
-              <div class="quote-header d-flex justify-content-between align-items-center mb-2">
-                <span class="badge bg-primary text-white px-2.5 py-1 text-uppercase fw-bold">
-                  <i class="bi bi-shield-shaded me-1"></i> PHILOSOPHY // TACTICS
-                </span>
-                <span class="text-info text-monospace small">LV.99 ARCHITECT</span>
+            <div class="p3r-quote-card">
+              <div class="p3r-quote-label">
+                <i class="bi bi-chat-square-quote-fill me-1"></i> PHILOSOPHY
               </div>
-              <p class="fs-5 fw-bold mb-0 text-white" style="line-height: 1.6;">
+              <p class="fs-5 fw-bold mb-0 text-dark">
                 {{ t('hero_quote') }}
               </p>
             </div>
           </div>
         </div>
+        
+        <div class="mt-4 gsap-hero-el">
+          <span class="p3r-callout-ribbon">
+            <i class="bi bi-lightning-charge-fill me-1"></i> ALL-OUT DEVELOPMENT // ITSMEBROARIF
+          </span>
+        </div>
 
-        <!-- Persona Battle Command Dial / Slanted 3D Wheel -->
-        <div class="gsap-hero-el mt-5">
-          <h5 class="text-info fw-bold text-uppercase mb-3 tracking-wider">
-            [ SELECT BATTLE COMMAND ]
-          </h5>
-          <div class="p3-battle-command-wheel d-flex flex-wrap justify-content-center gap-3">
-            <a href="#skills" class="p3-cmd-pill cmd-skills" @click.prevent="scrollToSection('skills')">
-              <span class="cmd-icon">🔮</span>
-              <div class="text-start">
-                <strong class="d-block text-uppercase">SKILLS</strong>
-                <small class="text-white-50">Arsenal Kemampuan</small>
-              </div>
-            </a>
-
-            <a href="#experience" class="p3-cmd-pill cmd-exp" @click.prevent="scrollToSection('experience')">
-              <span class="cmd-icon">📜</span>
-              <div class="text-start">
-                <strong class="d-block text-uppercase">EXPERIENCE</strong>
-                <small class="text-white-50">Quest & Dungeons</small>
-              </div>
-            </a>
-
-            <a href="#profile" class="p3-cmd-pill cmd-profile" @click.prevent="scrollToSection('profile')">
-              <span class="cmd-icon">👤</span>
-              <div class="text-start">
-                <strong class="d-block text-uppercase">PROFILE</strong>
-                <small class="text-white-50">Status Protagonist</small>
-              </div>
-            </a>
-
-            <button class="p3-cmd-pill cmd-attack" @click="triggerAllOutAttack">
-              <span class="cmd-icon">⚔️</span>
-              <div class="text-start">
-                <strong class="d-block text-uppercase text-warning">ALL-OUT ATTACK</strong>
-                <small class="text-white-50">Finisher Move!</small>
-              </div>
-            </button>
-          </div>
+        <!-- Persona 5 Battle Command Wheel / Action Buttons -->
+        <div class="mt-5 gsap-hero-el d-flex flex-wrap justify-content-center gap-3">
+          <a href="#app-showcase" class="p5-battle-cmd-btn p5-cmd-attack">
+            <span class="cmd-icon">⚔️</span>
+            <span class="cmd-name">ATTACK // PORTFOLIO</span>
+            <i class="bi bi-chevron-right ms-1"></i>
+          </a>
+          <a href="#about" class="p5-battle-cmd-btn p5-cmd-persona">
+            <span class="cmd-icon">🔮</span>
+            <span class="cmd-name">PERSONA // ABOUT ME</span>
+            <i class="bi bi-chevron-right ms-1"></i>
+          </a>
+          <a href="#contact" class="p5-battle-cmd-btn p5-cmd-item">
+            <span class="cmd-icon">⚡</span>
+            <span class="cmd-name">CONTACT // HIRE ME</span>
+            <i class="bi bi-arrow-up-right ms-1"></i>
+          </a>
         </div>
       </div>
     </section>
 
     <!-- Marquee Banner -->
-    <div class="persona-marquee">
-      <div class="persona-marquee-inner">
-        ⚡ ARIF PERMANA • PERSONA: KAISAR CODING • VUE 3 ARCHITECT • LARAVEL MASTER • UI/UX NEOBRUTALISM • THREE.JS 3D • ITSMEBROARIF •
-        ⚡ ARIF PERMANA • PERSONA: KAISAR CODING • VUE 3 ARCHITECT • LARAVEL MASTER • UI/UX NEOBRUTALISM • THREE.JS 3D • ITSMEBROARIF •
+    <div class="marquee">
+      <div class="marquee-content">
+        ARIF PERMANA • VUE.JS • LARAVEL • UI/UX DESIGN • FULLSTACK ENGINEER • GOLANG • REACT • FIGMA • ITSMEBROARIF • RAJINKERJA.ID •
+        ARIF PERMANA • VUE.JS • LARAVEL • UI/UX DESIGN • FULLSTACK ENGINEER • GOLANG • REACT • FIGMA • ITSMEBROARIF • RAJINKERJA.ID •
       </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- SECTION 1: 👤 PROFIL PENGGUNA (PROTAGONIST STATUS CARD)                    -->
-    <!-- ========================================================================= -->
-    <section id="profile" class="section-padding py-5 position-relative">
+    <!-- About Section -->
+    <section id="about" class="section-padding bg-white py-5">
       <div class="container my-4">
-        <!-- Section Title Bar with 3D Slant -->
-        <div class="section-header-slant text-center mb-5">
-          <span class="badge bg-primary text-white px-3 py-1.5 rounded-0 fw-bold text-uppercase fs-6">
-            [ PERSONA STATUS & ATTRIBUTES ]
-          </span>
-          <h2 class="display-5 fw-extrabold text-white text-uppercase mt-2">
-            PROFIL PENGGUNA <span class="text-info">// PROTAGONIST</span>
-          </h2>
-          <p class="text-white-50 fw-semibold">Kartu status tempur, arcana, dan radar atribut sang arsitek sistem digital.</p>
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-main-blue text-white fs-1">{{ t('about_title') }}</h2>
         </div>
-
-        <div class="row g-4 align-items-stretch">
-          <!-- Left Column: Angled 3D Character Card (Miring Kiri) -->
-          <div class="col-lg-5">
-            <div class="card-tilt-left h-100">
-              <div class="persona-char-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden">
-                <!-- Arcana & Level Header -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span class="badge bg-warning text-dark fw-bold px-3 py-1.5 rounded-0 border border-dark">
-                    ARCANA: XXI - THE WORLD
-                  </span>
-                  <span class="badge bg-danger text-white fw-bold px-3 py-1.5 rounded-0">
-                    LV.99 ARCHITECT
-                  </span>
-                </div>
-
-                <!-- Protagonist Portrait Frame -->
-                <div class="char-photo-wrap position-relative mx-auto my-3">
-                  <div class="char-photo-border"></div>
-                  <img src="https://miro.medium.com/v2/resize:fit:2400/1*99hHL9XJ7EzQeC6RB5_Qiw.jpeg" alt="Arif Permana" class="char-photo" />
-                  <div class="char-persona-tag">
-                    <small class="d-block text-white-50">SUMMON PERSONA</small>
-                    <strong class="text-info fs-6">KAISAR CODING</strong>
-                  </div>
-                </div>
-
-                <!-- Codename & Identity -->
-                <div class="text-center mt-2">
-                  <h3 class="fw-extrabold text-white text-uppercase mb-1 tracking-wider">
-                    ARIF PERMANA P.
-                  </h3>
-                  <p class="text-info fw-bold mb-3">
-                    <i class="bi bi-terminal-fill me-1"></i> CODENAME: <span class="text-white">ITSMEBROARIF</span>
-                  </p>
-                  <div class="p-2.5 bg-dark bg-opacity-75 border border-primary border-opacity-50 text-white small text-start mb-3">
-                    <div><i class="bi bi-geo-alt-fill text-info me-2"></i> Depok, Jawa Barat, Indonesia</div>
-                    <div><i class="bi bi-briefcase-fill text-warning me-2"></i> Status: <span class="badge bg-success text-white">READY TO WORK 🔥</span></div>
-                    <div><i class="bi bi-envelope-fill text-danger me-2"></i> aripstrike@gmail.com</div>
-                    <div><i class="bi bi-whatsapp text-success me-2"></i> +62-858-1704-8266</div>
-                  </div>
-                </div>
-
-                <!-- Social Link / Confidant Ranks -->
-                <div class="confidant-box p-3 bg-black bg-opacity-50 border border-secondary border-opacity-25 mt-auto">
-                  <h6 class="text-info fw-bold small text-uppercase mb-2">
-                    <i class="bi bi-stars me-1"></i> CONFIDANT SOCIAL LINKS
-                  </h6>
-                  <div class="d-flex flex-column gap-1.5 small text-white-50">
-                    <div class="d-flex justify-content-between">
-                      <span>Kafeinarts Studio</span>
-                      <span class="text-warning fw-bold">RANK 10 [MAX]</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <span>Open Source Community</span>
-                      <span class="text-info fw-bold">RANK 9</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <span>Enterprise Client Partners</span>
-                      <span class="text-warning fw-bold">RANK 10 [MAX]</span>
-                    </div>
-                  </div>
-                </div>
+        
+        <div class="row align-items-center g-4 g-lg-5">
+          <div class="col-lg-5 gsap-slide-right">
+            <div class="position-relative mx-auto max-w-400">
+              <div class="brutal-box bg-cyan position-absolute w-100 h-100" style="top: 16px; left: 16px; z-index: 0;"></div>
+              <img src="https://miro.medium.com/v2/resize:fit:2400/1*99hHL9XJ7EzQeC6RB5_Qiw.jpeg" alt="Arif Permana Photo" class="brutal-box position-relative w-100 obj-fit-cover shadow-sm" style="height: 440px; z-index: 1;" />
+              <div class="position-absolute brutal-box bg-white p-3 text-center shadow-sm" style="bottom: -20px; right: -15px; z-index: 2; transform: rotate(-5deg);">
+                <h4 class="fw-bold mb-0 text-uppercase fs-5 text-main-blue">{{ t('about_status_title') }}</h4>
+                <span class="badge bg-cyan brutal-box text-dark fs-6 mt-1 px-3 py-2 border-2 border-dark">{{ t('about_status_val') }}</span>
               </div>
             </div>
           </div>
-
-          <!-- Right Column: Combat Attributes Radar & Bio (Miring Kanan) -->
-          <div class="col-lg-7">
-            <div class="card-tilt-right h-100">
-              <div class="persona-stats-card p-4 p-md-5 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center border-bottom border-primary border-opacity-50 pb-3 mb-4">
-                  <div>
-                    <h4 class="fw-extrabold text-white text-uppercase mb-0">
-                      COMBAT RADAR & BIO
-                    </h4>
-                    <small class="text-info">Analisis Kemampuan & Kekuatan Protagonist</small>
-                  </div>
-                  <span class="badge bg-primary text-white px-3 py-2 fw-bold">
-                    COMBAT RATING: S+
-                  </span>
-                </div>
-
-                <!-- Bio Description -->
-                <p class="text-white fs-6 fw-semibold mb-4" style="line-height: 1.7;">
-                  {{ t('about_desc1') }}
-                </p>
-                <p class="text-white-50 fs-6 mb-4" style="line-height: 1.7;">
-                  {{ t('about_desc2') }}
-                </p>
-
-                <!-- Attribute Stat Meters -->
-                <h5 class="text-uppercase text-white fw-bold mb-3 d-flex align-items-center gap-2">
-                  <i class="bi bi-bar-chart-fill text-warning"></i> PARAMETER COMBAT STATS
-                </h5>
-
-                <div class="stat-meters-list d-flex flex-column gap-3 mb-4">
-                  <!-- STR -->
-                  <div>
-                    <div class="d-flex justify-content-between text-monospace fw-bold text-white small mb-1">
-                      <span><strong class="text-danger me-2">STR</strong> HARDCORE CODING & ARCHITECTURE</span>
-                      <span class="text-danger">96 / 100</span>
-                    </div>
-                    <div class="stat-track">
-                      <div class="stat-fill bg-danger" style="width: 96%;"></div>
-                    </div>
-                  </div>
-
-                  <!-- MAG -->
-                  <div>
-                    <div class="d-flex justify-content-between text-monospace fw-bold text-white small mb-1">
-                      <span><strong class="text-info me-2">MAG</strong> UI/UX AESTHETICS & ANIMATION</span>
-                      <span class="text-info">98 / 100</span>
-                    </div>
-                    <div class="stat-track">
-                      <div class="stat-fill bg-info" style="width: 98%;"></div>
-                    </div>
-                  </div>
-
-                  <!-- END -->
-                  <div>
-                    <div class="d-flex justify-content-between text-monospace fw-bold text-white small mb-1">
-                      <span><strong class="text-success me-2">END</strong> DEBUGGING & SYSTEM RESILIENCE</span>
-                      <span class="text-success">94 / 100</span>
-                    </div>
-                    <div class="stat-track">
-                      <div class="stat-fill bg-success" style="width: 94%;"></div>
-                    </div>
-                  </div>
-
-                  <!-- AGI -->
-                  <div>
-                    <div class="d-flex justify-content-between text-monospace fw-bold text-white small mb-1">
-                      <span><strong class="text-warning me-2">AGI</strong> RAPID SPRINT & FAST PROTOTYPING</span>
-                      <span class="text-warning">97 / 100</span>
-                    </div>
-                    <div class="stat-track">
-                      <div class="stat-fill bg-warning" style="width: 97%;"></div>
-                    </div>
-                  </div>
-
-                  <!-- LUK -->
-                  <div>
-                    <div class="d-flex justify-content-between text-monospace fw-bold text-white small mb-1">
-                      <span><strong class="text-primary me-2">LUK</strong> INNOVATION & CREATIVE VISION</span>
-                      <span class="text-primary">92 / 100</span>
-                    </div>
-                    <div class="stat-track">
-                      <div class="stat-fill bg-primary" style="width: 92%;"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Action Button in Profile -->
-                <div class="mt-auto d-flex flex-wrap gap-2 pt-3 border-top border-secondary border-opacity-25">
-                  <a href="https://wa.me/6285817048266" target="_blank" class="btn btn-primary fw-bold px-4 py-2 rounded-0 shadow-sm">
-                    <i class="bi bi-whatsapp me-1"></i> Rekrut / Hubungi WA
-                  </a>
-                  <a href="https://github.com/itsmebroarif" target="_blank" class="btn btn-outline-light fw-bold px-4 py-2 rounded-0">
-                    <i class="bi bi-github me-1"></i> GitHub Profile
-                  </a>
-                  <a href="https://linkedin.com/in/arif-permana-putrasuryana-121b761b9" target="_blank" class="btn btn-outline-info fw-bold px-4 py-2 rounded-0">
-                    <i class="bi bi-linkedin me-1"></i> LinkedIn
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- SECTION 2: 🔮 SKILLS ARSENAL (PERSONA BATTLE SKILLS TREE)                 -->
-    <!-- ========================================================================= -->
-    <section id="skills" class="section-padding py-5 position-relative bg-navy-grid">
-      <div class="container my-4">
-        <!-- Section Header with 3D Slant -->
-        <div class="section-header-slant text-center mb-5">
-          <span class="badge bg-info text-dark px-3 py-1.5 rounded-0 fw-bold text-uppercase fs-6">
-            [ PERSONA COMBAT SKILLS DECK ]
-          </span>
-          <h2 class="display-5 fw-extrabold text-white text-uppercase mt-2">
-            SKILLS ARSENAL <span class="text-primary">// TACTICAL SPELLS</span>
-          </h2>
-          <p class="text-white-50 fw-semibold">Daftar jurus teknologi, biaya SP, dan daya komputasi yang siap diluncurkan di medan produksi.</p>
           
-          <!-- Element Filter Tabs -->
-          <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
-            <button 
-              class="p3-filter-btn" 
-              :class="{ active: activeSkillFilter === 'all' }" 
-              @click="activeSkillFilter = 'all'"
-            >
-              Semua Skills ({{ personaSkills.length }})
-            </button>
-            <button 
-              class="p3-filter-btn" 
-              :class="{ active: activeSkillFilter === 'magic' }" 
-              @click="activeSkillFilter = 'magic'"
-            >
-              ⚡ Magic / Framework
-            </button>
-            <button 
-              class="p3-filter-btn" 
-              :class="{ active: activeSkillFilter === 'physical' }" 
-              @click="activeSkillFilter = 'physical'"
-            >
-              🔥 Physical / Backend
-            </button>
-            <button 
-              class="p3-filter-btn" 
-              :class="{ active: activeSkillFilter === 'support' }" 
-              @click="activeSkillFilter = 'support'"
-            >
-              🛡️ Support / DevOps
-            </button>
+          <div class="col-lg-7 gsap-slide-left">
+            <div class="brutal-box bg-soft-blue p-4 p-md-5">
+              <h3 class="fw-bold border-bottom border-dark border-4 pb-2 mb-4 text-uppercase bg-white d-inline-block px-3 py-1 brutal-box fs-4">{{ t('about_subtitle') }}</h3>
+              
+              <div class="fs-5 fw-bold mb-3 text-dark" style="line-height: 1.6;">
+                {{ t('about_desc1') }}
+              </div>
+              <div class="fs-5 fw-bold mb-4 text-dark" style="line-height: 1.6;">
+                {{ t('about_desc2') }}
+              </div>
+
+              <div class="d-flex flex-column gap-2 fw-bold fs-6 mt-4 p-3 bg-white brutal-box" style="transform: rotate(1deg);">
+                <div><i class="bi bi-geo-alt-fill me-2 text-main-blue"></i> <span>{{ t('about_city') }}</span></div>
+                <div><i class="bi bi-envelope-fill me-2 text-main-blue"></i> Email: aripstrike@gmail.com</div>
+                <div><i class="bi bi-telephone-fill me-2 text-main-blue"></i> Phone / WA: +62-858-1704-8266</div>
+                <div><i class="bi bi-github me-2 text-main-blue"></i> Github: github.com/itsmebroarif</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 3D Alternating Miring Kanan-Kiri Skills Grid -->
-        <div class="row g-4">
-          <div 
-            v-for="(skill, index) in filteredSkills" 
-            :key="skill.id" 
-            class="col-md-6 col-lg-4"
+        <!-- Technical Arsenal -->
+        <div class="row mt-5 pt-4 gsap-stagger-skills">
+          <h3 class="fw-bold text-center text-uppercase text-white mb-4">
+            <span class="bg-dark-accent px-4 py-2 brutal-box fs-3">{{ t('skills_title') }}</span>
+          </h3>
+          
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="brutal-box bg-white p-4 h-100">
+              <h4 class="fw-bold border-bottom border-dark border-3 pb-2 text-main-blue fs-5">🌐 Web & App</h4>
+              <p class="mt-3 fw-bold text-dark fs-6 mb-0">HTML5, CSS3, JS (ES6+), Vue.js, React, Bootstrap 5, Tailwind CSS, Livewire, PHP, Laravel, Node.js, Golang, Python, Electron.js</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="brutal-box bg-cyan p-4 h-100">
+              <h4 class="fw-bold border-bottom border-dark border-3 pb-2 text-dark fs-5">🗄️ Database & Tools</h4>
+              <p class="mt-3 fw-bold text-dark fs-6 mb-0">MySQL, MariaDB, PostgreSQL, Git, GitHub, GitLab, REST API, WebSockets, NPM, Composer, Docker, Three.js</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="brutal-box bg-main-blue p-4 h-100 text-white">
+              <h4 class="fw-bold border-bottom border-white border-3 pb-2 text-cyan fs-5">🎨 UI/UX Design</h4>
+              <p class="mt-3 fw-bold text-white fs-6 mb-0">Figma, Adobe XD, Photoshop, Illustrator, Affinity Designer, Canva, Wireframing, Neobrutalism Design, Prototyping</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="brutal-box bg-soft-blue p-4 h-100">
+              <h4 class="fw-bold border-bottom border-dark border-3 pb-2 text-dark fs-5">🎥 Media & OS</h4>
+              <p class="mt-3 fw-bold text-dark fs-6 mb-0">Premiere Pro, CapCut, Sony Vegas, MS Office Suite, Windows 11, macOS, Linux (Ubuntu, Arch Linux, Nginx, Apache)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- System & Architectural Views Showcase Section -->
+    <section id="app-showcase" class="section-padding bg-soft-blue border-top border-4 border-dark">
+      <div class="container my-4">
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-main-blue text-white fs-1">{{ t('sys_showcase_title') }}</h2>
+          <p class="fw-bold fs-5 text-dark mt-2 bg-white d-inline-block px-3 py-1 brutal-box">
+            {{ t('sys_showcase_sub') }}
+          </p>
+        </div>
+
+        <!-- Filter tabs for views showcase -->
+        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+          <button 
+            v-for="cat in showcaseCategories" 
+            :key="cat.id" 
+            class="brutal-btn py-2 px-3 fs-6"
+            :class="activeCategory === cat.id ? 'bg-dark-accent text-white' : 'bg-white text-dark'"
+            @click="activeCategory = cat.id"
           >
-            <!-- Alternating 3D tilt: odd items tilt left, even items tilt right -->
-            <div :class="index % 2 === 0 ? 'card-tilt-left' : 'card-tilt-right'" class="h-100">
-              <div class="persona-skill-card p-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <!-- Element & SP Cost Header -->
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="badge px-3 py-1.5 rounded-0 fw-bold border border-white border-opacity-25" :class="skill.elementBadgeClass">
-                      {{ skill.elementIcon }} {{ skill.elementName }}
-                    </span>
-                    <span class="text-monospace fw-bold text-info fs-6">
-                      {{ skill.spCost }} SP
-                    </span>
-                  </div>
-
-                  <!-- Skill Title & Level -->
-                  <h4 class="fw-extrabold text-white text-uppercase mb-1 fs-5">
-                    {{ skill.title }}
-                  </h4>
-                  <div class="d-flex align-items-center gap-2 mb-3">
-                    <span class="badge bg-dark border border-secondary text-warning fw-semibold small">
-                      MASTERY: {{ skill.mastery }}
-                    </span>
-                    <span class="text-white-50 small text-monospace">PWR: {{ skill.power }}/100</span>
-                  </div>
-
-                  <!-- Description -->
-                  <p class="text-white-50 small fw-semibold mb-3" style="line-height: 1.6;">
-                    {{ skill.description }}
-                  </p>
-                </div>
-
-                <!-- Skill Power Bar -->
-                <div class="mt-auto pt-3 border-top border-secondary border-opacity-25">
-                  <div class="d-flex justify-content-between text-monospace text-white-50 small mb-1">
-                    <span>EFFECTIVENESS</span>
-                    <span class="text-info">{{ skill.power }}%</span>
-                  </div>
-                  <div class="stat-track">
-                    <div class="stat-fill" :class="skill.barClass" :style="{ width: skill.power + '%' }"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- SECTION 3: 📜 EXPERIENCE & DUNGEON QUEST TIMELINE                         -->
-    <!-- ========================================================================= -->
-    <section id="experience" class="section-padding py-5 position-relative">
-      <div class="container my-4">
-        <!-- Section Title Bar with 3D Slant -->
-        <div class="section-header-slant text-center mb-5">
-          <span class="badge bg-warning text-dark px-3 py-1.5 rounded-0 fw-bold text-uppercase fs-6">
-            [ DUNGEON QUESTS & BATTLE LOGS ]
-          </span>
-          <h2 class="display-5 fw-extrabold text-white text-uppercase mt-2">
-            EXPERIENCE JOURNEY <span class="text-warning">// QUEST CLEARS</span>
-          </h2>
-          <p class="text-white-50 fw-semibold">Jejak pertempuran menaklukkan sistem klien, perbaikan bug darurat, dan pengembangan skala enterprise.</p>
-
-          <!-- Total EXP Bar -->
-          <div class="p3r-exp-total-card max-w-600 mx-auto mt-4 p-3 bg-dark bg-opacity-75 border border-warning border-opacity-50">
-            <div class="d-flex justify-content-between align-items-center text-monospace text-white small fw-bold mb-2">
-              <span class="text-warning"><i class="bi bi-trophy-fill me-1"></i> TOTAL EXP ACCUMULATED</span>
-              <span>984,250 / 1,000,000 EXP (LV.99 ARCHITECT)</span>
-            </div>
-            <div class="stat-track" style="height: 10px;">
-              <div class="stat-fill bg-warning" style="width: 98.4%;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3D Alternating Miring Kanan Kiri Quest Timeline -->
-        <div class="row g-4">
-          <!-- Quest 1: Sintesa Persada Teknologi (Tilt Left) -->
-          <div class="col-lg-6">
-            <div class="card-tilt-left h-100">
-              <div class="persona-quest-card p-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="badge bg-primary text-white fw-bold px-2.5 py-1 rounded-0">
-                    2026 - PRESENT // MAIN QUEST
-                  </span>
-                  <span class="badge bg-success text-white fw-bold px-2.5 py-1 rounded-0">
-                    BOSS CLEARED
-                  </span>
-                </div>
-                <h4 class="fw-extrabold text-white text-uppercase mb-1 fs-5">
-                  Fullstack Web Engineer
-                </h4>
-                <h6 class="text-info fw-bold mb-3">@Sintesa Persada Teknologi (IT Vendor)</h6>
-                
-                <p class="text-white-50 small mb-3 fw-semibold">
-                  {{ t('exp_sintesa_desc') }}
-                </p>
-
-                <div class="bg-black bg-opacity-50 p-3 border border-secondary border-opacity-25 rounded-0 small text-white mb-3">
-                  <strong class="text-warning d-block mb-1">🎯 Quest Milestones:</strong>
-                  <ul class="mb-0 ps-3 text-white-50" style="line-height: 1.6;">
-                    <li><strong>Highlight:</strong> App Klinik Sintasi (Medica-Nexus SIMRS).</li>
-                    <li><strong>Frontend (Vue 2 + Quasar v1):</strong> Modul Lab, Riwayat Pasien, redesign UI.</li>
-                    <li><strong>Backend (Laravel 9 + PHP 8.1):</strong> Controller, REST API, Print Resep A5, UGD checkout.</li>
-                  </ul>
-                </div>
-
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                  <span class="text-monospace text-info small">+50,000 EXP</span>
-                  <span class="badge bg-dark text-white border border-primary">REWARD: ENTERPRISE SHIELD</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quest 2: Ayasylfiette & Sadaraga (Tilt Right) -->
-          <div class="col-lg-6">
-            <div class="card-tilt-right h-100">
-              <div class="persona-quest-card p-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="badge bg-info text-dark fw-bold px-2.5 py-1 rounded-0">
-                    2025 - 2026 // CO-OP QUEST
-                  </span>
-                  <span class="badge bg-success text-white fw-bold px-2.5 py-1 rounded-0">
-                    BOSS CLEARED
-                  </span>
-                </div>
-                <h4 class="fw-extrabold text-white text-uppercase mb-1 fs-5">
-                  Fullstack Web Engineer
-                </h4>
-                <h6 class="text-info fw-bold mb-3">@Ayasylfiette & @Sadaraga</h6>
-                
-                <p class="text-white-50 small mb-3 fw-semibold">
-                  Pengembangan platform e-commerce aset Vtuber serta platform serving hasil lari marathon internasional.
-                </p>
-
-                <div class="bg-black bg-opacity-50 p-3 border border-secondary border-opacity-25 rounded-0 small text-white mb-3">
-                  <strong class="text-warning d-block mb-1">🎯 Quest Milestones:</strong>
-                  <ul class="mb-0 ps-3 text-white-50" style="line-height: 1.6;">
-                    <li>{{ t('exp_aya_1') }}</li>
-                    <li>{{ t('exp_sada_1') }}</li>
-                    <li>Sistem berbasis C# untuk kebutuhan BIB Checking pelari.</li>
-                    <li>Tech Stack: Laravel 13, CodeIgniter 3, Tailwind CSS 3.</li>
-                  </ul>
-                </div>
-
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                  <span class="text-monospace text-info small">+45,000 EXP</span>
-                  <span class="badge bg-dark text-white border border-info">REWARD: HIGH-VELOCITY BLADE</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quest 3: Kafeinarts & Global Training (Tilt Left) -->
-          <div class="col-lg-6">
-            <div class="card-tilt-left h-100">
-              <div class="persona-quest-card p-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="badge bg-primary text-white fw-bold px-2.5 py-1 rounded-0">
-                    2023 - 2025 // GUILD MASTER
-                  </span>
-                  <span class="badge bg-success text-white fw-bold px-2.5 py-1 rounded-0">
-                    COMPLETED
-                  </span>
-                </div>
-                <h4 class="fw-extrabold text-white text-uppercase mb-1 fs-5">
-                  Lead Front-End Trainer & Founder
-                </h4>
-                <h6 class="text-info fw-bold mb-3">@Kafeinarts & Rumah Coding</h6>
-                
-                <p class="text-white-50 small mb-3 fw-semibold">
-                  Membimbing puluhan calon engineer menguasai Vue.js, Laravel MVC, REST API, serta arsitektur antarmuka digital.
-                </p>
-
-                <div class="bg-black bg-opacity-50 p-3 border border-secondary border-opacity-25 rounded-0 small text-white mb-3">
-                  <strong class="text-warning d-block mb-1">🎯 Quest Milestones:</strong>
-                  <ul class="mb-0 ps-3 text-white-50" style="line-height: 1.6;">
-                    <li>Mengajar HTML5, CSS3, JavaScript ES6+, Vue.js, Bootstrap & Tailwind.</li>
-                    <li>Mentor Laravel: Blade, MVC, Object Oriented Programming, CRUD API.</li>
-                    <li>Digital Speaker di Young On Top & Tech Blogger di Medium.</li>
-                  </ul>
-                </div>
-
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                  <span class="text-monospace text-info small">+60,000 EXP</span>
-                  <span class="badge bg-dark text-white border border-primary">REWARD: MENTOR EMPEROR BADGE</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quest 4: Multi-Role Quests & Academy (Tilt Right) -->
-          <div class="col-lg-6">
-            <div class="card-tilt-right h-100">
-              <div class="persona-quest-card p-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="badge bg-warning text-dark fw-bold px-2.5 py-1 rounded-0">
-                    ACADEMY & GLOBAL MISSIONS
-                  </span>
-                  <span class="badge bg-success text-white fw-bold px-2.5 py-1 rounded-0">
-                    CLEARED
-                  </span>
-                </div>
-                <h4 class="fw-extrabold text-white text-uppercase mb-1 fs-5">
-                  Global Remote Roles & Training
-                </h4>
-                <h6 class="text-info fw-bold mb-3">Multiple Missions & Certifications</h6>
-                
-                <p class="text-white-50 small mb-3 fw-semibold">
-                  Ekspansi internasional dan bootcamp fondasi algoritma.
-                </p>
-
-                <div class="bg-black bg-opacity-50 p-3 border border-secondary border-opacity-25 rounded-0 small text-white mb-3">
-                  <strong class="text-warning d-block mb-1">🎯 Quest Milestones:</strong>
-                  <ul class="mb-0 ps-3 text-white-50" style="line-height: 1.6;">
-                    <li><strong>Hangang Solution (KR):</strong> Vue.js Game Dev learning community.</li>
-                    <li><strong>Konpyūtā no himitsu (JP):</strong> Website kursus komputer direct WA.</li>
-                    <li><strong>FreeCodeCamp US:</strong> Javascript Algorithms & Data Structures.</li>
-                    <li><strong>SMK Taruna Bhakti Depok:</strong> Rekayasa Perangkat Lunak.</li>
-                  </ul>
-                </div>
-
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                  <span class="text-monospace text-info small">+80,000 EXP</span>
-                  <span class="badge bg-dark text-white border border-warning">REWARD: GRANDMASTER SCROLL</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- SECTION 4: SHOWCASE ARSITEKTUR APP & VIEWS                                -->
-    <!-- ========================================================================= -->
-    <section id="app-showcase" class="section-padding py-5 position-relative bg-navy-grid">
-      <div class="container my-4">
-        <div class="section-header-slant text-center mb-5">
-          <span class="badge bg-primary text-white px-3 py-1.5 rounded-0 fw-bold text-uppercase fs-6">
-            [ ARSITEKTUR SISTEM RAJINKERJA.ID ]
-          </span>
-          <h2 class="display-5 fw-extrabold text-white text-uppercase mt-2">
-            APP ARCHITECTURE <span class="text-info">// SYSTEM BREAKDOWN</span>
-          </h2>
-          <p class="text-white-50 fw-semibold">{{ t('sys_showcase_sub') }}</p>
-
-          <!-- Filter tabs -->
-          <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
-            <button 
-              v-for="cat in showcaseCategories" 
-              :key="cat.id" 
-              class="p3-filter-btn"
-              :class="{ active: activeCategory === cat.id }"
-              @click="activeCategory = cat.id"
-            >
-              {{ cat.icon }} {{ cat.name }}
-            </button>
-          </div>
+            {{ cat.icon }} {{ cat.name }}
+          </button>
         </div>
 
         <div class="row g-4">
           <div 
-            v-for="(view, idx) in filteredShowcaseViews" 
+            v-for="view in filteredShowcaseViews" 
             :key="view.id" 
-            class="col-lg-6 col-xl-4"
+            class="col-lg-6 col-xl-4 gsap-card"
           >
-            <div :class="idx % 2 === 0 ? 'card-tilt-left' : 'card-tilt-right'" class="h-100">
-              <div class="persona-skill-card p-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-3">
-                    <span class="badge bg-primary text-white fw-bold px-2 py-1 rounded-0">{{ view.categoryName }}</span>
-                    <router-link :to="view.route" class="btn btn-sm btn-outline-info rounded-0 border-2">
-                      <i class="bi bi-box-arrow-up-right me-1"></i> Buka View
-                    </router-link>
-                  </div>
+            <div class="brutal-box bg-white p-4 h-100 d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-center border-bottom border-dark border-3 pb-2 mb-3">
+                <span class="badge bg-main-blue text-white fw-bold px-2.5 py-1 brutal-box fs-6">{{ view.categoryName }}</span>
+                <router-link :to="view.route" class="btn btn-sm btn-outline-dark fw-bold rounded-0 border-2">
+                  <i class="bi bi-box-arrow-up-right me-1"></i> Buka View
+                </router-link>
+              </div>
 
-                  <h4 class="fw-bold text-uppercase text-white d-flex align-items-center gap-2 mb-2 fs-5">
-                    <i :class="view.icon" class="text-info fs-4"></i>
-                    {{ view.title }}
-                  </h4>
+              <h4 class="fw-bold text-uppercase text-dark d-flex align-items-center gap-2 mb-2 fs-5">
+                <i :class="view.icon" class="text-main-blue fs-4"></i>
+                {{ view.title }}
+              </h4>
 
-                  <p class="text-white-50 small mb-3" style="line-height: 1.6;">
-                    {{ view.description }}
-                  </p>
+              <p class="fw-bold text-dark small mb-3 flex-grow-1" style="line-height: 1.5;">
+                {{ view.description }}
+              </p>
 
-                  <div class="bg-black bg-opacity-50 p-2.5 rounded-0 border border-secondary border-opacity-25 mb-3">
-                    <div class="text-info small fw-bold mb-1"><i class="bi bi-cpu-fill me-1"></i> Tech Components:</div>
-                    <div class="text-white-50 small">{{ view.techSpec }}</div>
-                  </div>
-                </div>
+              <div class="bg-light p-3 rounded-0 border border-dark border-2 mb-3">
+                <div class="fw-bold text-uppercase small text-muted mb-1"><i class="bi bi-cpu-fill me-1 text-primary"></i> Tech Components & Logic:</div>
+                <div class="fw-bold text-dark small">{{ view.techSpec }}</div>
+              </div>
 
-                <div class="d-flex flex-wrap gap-1 mt-auto pt-2 border-top border-secondary border-opacity-25">
-                  <span v-for="(tag, tIdx) in view.tags" :key="tIdx" class="badge bg-dark text-info border border-info border-opacity-25 small">
-                    #{{ tag }}
-                  </span>
-                </div>
+              <div class="d-flex flex-wrap gap-1 mt-auto">
+                <span v-for="(tag, idx) in view.tags" :key="idx" class="badge bg-cyan text-dark border border-dark fw-bold small">
+                  #{{ tag }}
+                </span>
               </div>
             </div>
           </div>
@@ -741,62 +256,417 @@
       </div>
     </section>
 
-    <!-- Bank Address Cards -->
-    <section class="py-4">
+    <!-- Services Section -->
+    <section id="services" class="section-padding bg-cyan border-top border-4 border-dark">
       <div class="container">
-        <BankAddressCards />
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-white text-dark fs-1">{{ t('services_title') }}</h2>
+          <p class="fw-bold fs-4 text-dark mt-3">{{ t('services_subtitle') }}</p>
+        </div>
+        
+        <div class="row g-4 mt-2">
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-laptop fs-1 text-main-blue"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_web_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_web_desc') }}</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-phone fs-1 text-primary"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_mob_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_mob_desc') }}</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-server fs-1 text-main-blue"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_be_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_be_desc') }}</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-motherboard fs-1 text-primary"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_hw_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_hw_desc') }}</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-cloud-check fs-1 text-main-blue"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_cloud_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_cloud_desc') }}</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 gsap-card">
+            <div class="brutal-box bg-white p-4 h-100 text-dark">
+              <i class="bi bi-shield-lock fs-1 text-primary"></i>
+              <h4 class="fw-bold text-uppercase mt-3">{{ t('srv_sec_title') }}</h4>
+              <p class="fw-bold">{{ t('srv_sec_desc') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience & Education Section -->
+    <section id="experiences" class="section-padding bg-white border-top border-4 border-dark">
+      <div class="container">
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-main-blue text-white fs-1">{{ t('journey_title') }}</h2>
+        </div>
+
+        <!-- Education & Certifications Row -->
+        <div class="row mb-5 pb-5 border-bottom border-4 border-dark">
+          <div class="col-md-6 mb-4 gsap-slide-right">
+            <div class="brutal-box bg-soft-blue p-4 h-100">
+              <h3 class="fw-bold text-uppercase mb-4 bg-white text-dark px-3 py-1 d-inline-block border-dark border-3 border fs-4">{{ t('edu_title') }}</h3>
+              <ul class="list-unstyled fw-bold">
+                <li class="mb-3 border-bottom border-2 border-dark pb-2">
+                  <h5 class="fw-bold mb-1 fs-5 text-dark">Freecodecamp, US (2022-2024)</h5>
+                  <span class="text-dark fs-6">{{ t('edu_desc1') }}</span>
+                </li>
+                <li class="mb-3 border-bottom border-2 border-dark pb-2">
+                  <h5 class="fw-bold mb-1 fs-5 text-dark">SMK Taruna Bhakti Depok (2019-2022)</h5>
+                  <span class="text-dark fs-6">{{ t('edu_desc2') }}</span>
+                </li>
+                <li class="mb-3">
+                  <h5 class="fw-bold mb-1 fs-5 text-dark">SMP Yapemri Depok (2016-2019)</h5>
+                  <span class="text-dark fs-6">{{ t('edu_desc3') }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4 gsap-slide-left">
+            <div class="brutal-box bg-main-blue p-4 h-100 text-white">
+              <h3 class="fw-bold text-uppercase mb-4 bg-cyan text-dark px-3 py-1 d-inline-block border-dark border-3 border fs-4">{{ t('cert_title') }}</h3>
+              <div class="d-flex flex-column gap-3 fw-bold">
+                <a href="https://arifpermana.vercel.app/assets/img/certificate/arif-javascript-belajarbareng.pdf" target="_blank" class="brutal-box bg-white text-dark p-3 text-decoration-none hover-up shadow-sm">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Javascript Course Contributor</span>
+                    <i class="bi bi-arrow-up-right-square-fill fs-4 text-main-blue"></i>
+                  </div>
+                  <div class="text-secondary small mt-1">12 April 2025</div>
+                </a>
+                <a href="https://arifpermana.vercel.app/assets/img/certificate/arif-golang.pdf" target="_blank" class="brutal-box bg-white text-dark p-3 text-decoration-none hover-up shadow-sm">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Golang Course Contributor</span>
+                    <i class="bi bi-arrow-up-right-square-fill fs-4 text-main-blue"></i>
+                  </div>
+                  <div class="text-secondary small mt-1">15 Maret 2025</div>
+                </a>
+                <a href="https://arifpermana.vercel.app/assets/img/certificate/arif-flutter.pdf" target="_blank" class="brutal-box bg-white text-dark p-3 text-decoration-none hover-up shadow-sm">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Flutter Course Contributor</span>
+                    <i class="bi bi-arrow-up-right-square-fill fs-4 text-main-blue"></i>
+                  </div>
+                  <div class="text-secondary small mt-1">21 Desember 2024</div>
+                </a>
+                <a href="https://www.freecodecamp.org/certification/itsmebroarif801/javascript-algorithms-and-data-structures-v8" target="_blank" class="brutal-box bg-white text-dark p-3 text-decoration-none hover-up shadow-sm">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">JS Algorithm & Data Structure</span>
+                    <i class="bi bi-arrow-up-right-square-fill fs-4 text-main-blue"></i>
+                  </div>
+                  <div class="text-secondary small mt-1">16 Juli 2024 (US)</div>
+                </a>
+                <a href="https://www.freecodecamp.org/certification/itsmebroarif801/responsive-web-design" target="_blank" class="brutal-box bg-white text-dark p-3 text-decoration-none hover-up shadow-sm">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Responsive Web Design</span>
+                    <i class="bi bi-arrow-up-right-square-fill fs-4 text-main-blue"></i>
+                  </div>
+                  <div class="text-secondary small mt-1">16 Juli 2024 (US)</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organizations Highlight -->
+        <div class="row mb-5 justify-content-center gsap-pop">
+          <div class="col-12">
+            <div class="org-banner p-4 text-center">
+              <div class="brutal-box bg-white d-inline-block px-4 py-3 shadow-sm">
+                <h2 class="fw-bold mb-0 text-main-blue text-uppercase fs-3">
+                  <i class="bi bi-diagram-3-fill me-2"></i> <span>{{ t('org_title') }}</span>
+                </h2>
+                <p class="fs-5 fw-bold mt-2 mb-0 text-dark">
+                  Belajar Bareng <span class="badge bg-main-blue border border-2 border-dark text-white ms-1">Technical Architect</span> 
+                  <span class="d-none d-md-inline px-2">||</span>
+                  Karang Taruna UNIT 28 Bojong Lio <span class="badge bg-cyan border border-2 border-dark text-dark ms-1">Ketua</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Experience Timeline -->
+        <h3 class="fw-bold text-center text-uppercase mb-5 fs-2">{{ t('exp_title') }}</h3>
+        <div class="timeline">
+          
+          <!-- Sintesa Persada Teknologi -->
+          <div class="timeline-item left-item gsap-timeline">
+            <div class="brutal-box bg-main-blue p-4 text-white shadow-sm">
+              <span class="badge bg-cyan brutal-box text-dark fs-6 mb-2 border-2 border-dark">2026 - Present</span>
+              <h4 class="fw-bold text-uppercase fs-5">Fullstack Web Engineer</h4>
+              <h5 class="text-cyan fw-bold border-bottom border-white pb-2 fs-6">@Sintesa Persada Teknologi (IT Vendor)</h5>
+              <p class="fw-bold text-white mb-2 fs-6">{{ t('exp_sintesa_desc') }}</p>
+              <ul class="mb-0 fw-bold ps-3 mt-2 small" style="line-height: 1.6;">
+                <li><strong>Highlight Project:</strong> App Klinik Sintasi (Medica-Nexus).</li>
+                <li><strong>Frontend (Vue 2 + Quasar v1):</strong> Develop fitur baru, redesign halaman (Lab, Riwayat Pasien), refaktor komponen, fix bug UI.</li>
+                <li><strong>Backend (Laravel 9 + PHP 8.1):</strong> Buat/ubah endpoint API, fix logic controller, maintain services.</li>
+                <li><strong>Database:</strong> MySQL (mapping tabel, query analisis).</li>
+                <li><strong>Key Delivery:</strong> Validasi Anamnesa/CPPT, Checkout UGD, Print Resep Obat A5, CRUD Tarif Lab, dan Dokumentasi Teknis.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Ayasylfiette -->
+          <div class="timeline-item right-item gsap-timeline">
+            <div class="brutal-box bg-white p-4 text-dark shadow-sm">
+              <span class="badge bg-dark-accent brutal-box text-white fs-6 mb-2">2026</span>
+              <h4 class="fw-bold text-uppercase fs-5">Web Developer</h4>
+              <h5 class="text-main-blue fw-bold border-bottom border-dark pb-2 fs-6">@Ayasylfiette</h5>
+              <ul class="mb-0 fw-bold ps-3 small" style="line-height: 1.6;">
+                <li>{{ t('exp_aya_1') }}</li>
+                <li>{{ t('exp_aya_2') }}</li>
+                <li>{{ t('exp_aya_3') }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sadaraga -->
+          <div class="timeline-item left-item gsap-timeline">
+            <div class="brutal-box bg-soft-blue p-4 text-dark shadow-sm">
+              <span class="badge bg-dark-accent brutal-box text-white fs-6 mb-2">2025</span>
+              <h4 class="fw-bold text-uppercase fs-5">Fullstack Web Engineer</h4>
+              <h5 class="text-main-blue fw-bold border-bottom border-dark pb-2 fs-6">@Sadaraga (IT Vendor)</h5>
+              <ul class="mb-0 fw-bold ps-3 mt-2 small" style="line-height: 1.6;">
+                <li>{{ t('exp_sada_1') }}</li>
+                <li><strong>Tech Stack Backend:</strong> Laravel 13 & CodeIgniter 3.</li>
+                <li><strong>Tech Stack Frontend:</strong> Tailwind CSS 3 (Landing Page Development).</li>
+                <li>{{ t('exp_sada_4') }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Warkop Galaxy -->
+          <div class="timeline-item right-item gsap-timeline">
+            <div class="brutal-box bg-cyan p-4 text-dark shadow-sm">
+              <span class="badge bg-dark-accent brutal-box text-white fs-6 mb-2">2025</span>
+              <h4 class="fw-bold text-uppercase fs-5">Web Builder</h4>
+              <h5 class="text-main-blue fw-bold border-bottom border-dark pb-2 fs-6">@Warkop Galaxy Jati asri</h5>
+              <ul class="mb-0 fw-bold ps-3 mt-2 small" style="line-height: 1.6;">
+                <li>{{ t('exp_warkop_1') }}</li>
+                <li>{{ t('exp_warkop_2') }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Konpyuta -->
+          <div class="timeline-item left-item gsap-timeline">
+            <div class="brutal-box bg-white p-4 text-dark shadow-sm">
+              <span class="badge bg-main-blue brutal-box text-white fs-6 mb-2">2025</span>
+              <h4 class="fw-bold text-uppercase fs-5">Laravel Developer</h4>
+              <h5 class="text-main-blue fw-bold border-bottom border-dark pb-2 fs-6">@Konpyūtā no himitsu (JP)</h5>
+              <ul class="mb-0 fw-bold ps-3 mt-2 small" style="line-height: 1.6;">
+                <li>{{ t('exp_kon_1') }}</li>
+                <li>{{ t('exp_kon_2') }}</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Hangang & Multiple roles -->
+          <div class="timeline-item right-item gsap-timeline">
+            <div class="brutal-box bg-main-blue p-4 text-white shadow-sm">
+              <span class="badge bg-cyan brutal-box text-dark fs-6 mb-2 border-2 border-dark">2025 - 2021</span>
+              <h4 class="fw-bold text-uppercase fs-5">Various Roles</h4>
+              <h5 class="text-cyan fw-bold border-bottom border-white pb-2 fs-6">Multiple Companies</h5>
+              <ul class="mb-0 fw-bold ps-3 mt-2 small" style="line-height: 1.6;">
+                <li><strong>Vue Js Dev @Hangang Solution (KR):</strong> Situs & forum belajar game dev.</li>
+                <li><strong>Website Builder @Amie Jaya Motor:</strong> Situs statis dealer Yamaha.</li>
+                <li><strong>Digital Speaker @Young On Top:</strong> Edukasi periklanan digital & analisis market.</li>
+                <li><strong>Front-End Trainer @Kafeinarts:</strong> Mengajar HTML, CSS, JS, Vue, Bootstrap.</li>
+                <li><strong>Laravel Mentor @Rumah Coding:</strong> Mengajar Blade, MVC, OOP, CRUD.</li>
+                <li><strong>Remote Laravel Dev @Hallotrans:</strong> Maintenance web app & tim remote.</li>
+                <li><strong>Tech Blogger @Medium:</strong> Review hardware/software & IT education.</li>
+                <li><strong>Backend Dev @PT. Spero:</strong> Mengelola REST API & kolaborasi frontend.</li>
+                <li><strong>Fullstack Dev @Guepedia:</strong> Pengembangan aplikasi berbasis Laravel & Vue.js.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase Projects Section -->
+    <section id="projects" class="section-padding bg-soft-blue border-top border-4 border-dark">
+      <div class="container">
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-white text-dark fs-1">SHOWCASE & PROYEK</h2>
+        </div>
+        
+        <div class="row g-4 mt-2">
+          <div class="col-xl-4 col-md-6 gsap-card">
+            <div class="card brutal-box bg-white h-100 p-0 text-dark">
+              <div class="card-body p-4 d-flex flex-column">
+                <span class="badge bg-dark-accent fs-6 mb-3 brutal-box px-3 py-2 text-white">e-rekap.vercel.app</span>
+                <h3 class="card-title fw-bold text-uppercase mb-3 fs-4">📊 E-Rekap</h3>
+                <div class="pt-2 border-top border-3 border-dark mt-auto fw-bold fs-6">
+                  {{ t('proj_erekap') }}
+                </div>
+              </div>
+              <a href="https://e-rekap.vercel.app/" target="_blank" class="brutal-btn bg-main-blue text-center text-white border-top border-0 border-dark border-4 fs-5" style="border-top-style: solid !important;">
+                Launch App <i class="bi bi-box-arrow-up-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 gsap-card">
+            <div class="card brutal-box bg-white h-100 p-0 text-dark">
+              <div class="card-body p-4 d-flex flex-column">
+                <span class="badge bg-dark-accent fs-6 mb-3 brutal-box px-3 py-2 text-white">17anbojonglio.vercel.app</span>
+                <h3 class="card-title fw-bold text-uppercase mb-3 fs-4">🎉 17an Bojonglio</h3>
+                <div class="pt-2 border-top border-3 border-dark mt-auto fw-bold fs-6">
+                  {{ t('proj_17an') }}
+                </div>
+              </div>
+              <a href="https://17anbojonglio.vercel.app/" target="_blank" class="brutal-btn bg-cyan text-center text-dark border-top border-0 border-dark border-4 fs-5" style="border-top-style: solid !important;">
+                Launch App <i class="bi bi-box-arrow-up-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 gsap-card">
+            <div class="card brutal-box bg-white h-100 p-0 text-dark">
+              <div class="card-body p-4 d-flex flex-column">
+                <span class="badge bg-dark-accent fs-6 mb-3 brutal-box px-3 py-2 text-white">rajinkerja-id.vercel.app</span>
+                <h3 class="card-title fw-bold text-uppercase mb-3 fs-4">💼 Rajin Kerja ID</h3>
+                <div class="pt-2 border-top border-3 border-dark mt-auto fw-bold fs-6">
+                  {{ t('proj_rajin') }}
+                </div>
+              </div>
+              <a href="https://rajinkerja-id.vercel.app/" target="_blank" class="brutal-btn bg-soft-blue text-center text-dark border-top border-0 border-dark border-4 fs-5" style="border-top-style: solid !important;">
+                Launch App <i class="bi bi-box-arrow-up-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="section-padding bg-white border-top border-4 border-dark">
+      <div class="container">
+        <div class="text-center mb-5 gsap-pop">
+          <h2 class="skew-title brutal-box bg-main-blue text-white fs-1">FAQ</h2>
+        </div>
+        
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="accordion" id="brutalAccordion">
+              
+              <div v-for="i in 10" :key="i" class="accordion-item brutal-box mb-3 bg-white text-dark gsap-slide-up">
+                <h2 class="accordion-header">
+                  <button 
+                    class="accordion-button bg-soft-blue text-dark fw-bold fs-5 p-4 border-0 rounded-0" 
+                    :class="{ collapsed: activeFaq !== i }"
+                    type="button" 
+                    @click="activeFaq = activeFaq === i ? 0 : i"
+                    style="box-shadow: none;"
+                  >
+                    {{ t('faq_q' + i) }}
+                  </button>
+                </h2>
+                <div :class="['accordion-collapse collapse', { show: activeFaq === i }]" class="border-top border-3 border-dark">
+                  <div class="accordion-body p-4 fw-bold fs-6 bg-white" style="line-height: 1.6;">
+                    {{ t('faq_a' + i) }}
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bank Address & Dukung Dev Section -->
+    <section id="dukung-dev" class="section-padding bg-soft-blue position-relative border-top border-4 border-dark">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="text-center mb-4">
+              <span class="badge bg-main-blue text-white px-3 py-1.5 fs-6 fw-bold border border-2 border-dark mb-2 shadow-xs">
+                ☕ SUPPORT THE CREATOR
+              </span>
+              <h2 class="skew-title brutal-box bg-white text-dark fs-1 d-table mx-auto">
+                DUKUNG PENGEMBANG
+              </h2>
+              <p class="fs-6 fw-bold text-muted max-w-600 mx-auto">
+                Dukung terus inovasi dan riset pengembangan software open-ecosystem & Local-First melalui donasi Bank atau E-Wallet langsung.
+              </p>
+            </div>
+            <BankAddressCards />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact WhatsApp Section -->
+    <section id="contact" class="section-padding bg-cyan position-relative border-top border-4 border-dark">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="brutal-box bg-white p-4 p-md-5 gsap-pop position-relative shadow-lg">
+              <div class="brutal-box bg-main-blue position-absolute" style="width: 40px; height: 40px; top: -20px; right: -20px; transform: rotate(15deg);"></div>
+              
+              <h2 class="fw-bold fs-2 text-uppercase text-center mb-4 skew-title bg-main-blue text-white mx-auto d-table">
+                {{ t('contact_title_raw') }} <i class="bi bi-chat-heart-fill text-cyan"></i>
+              </h2>
+              
+              <form @submit.prevent="submitWaForm">
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <label class="fw-bold text-uppercase fs-6 mb-2 text-dark">{{ t('form_name') }}</label>
+                    <input type="text" v-model="waForm.name" class="form-control brutal-box p-3 fs-6" placeholder="John Doe" required />
+                  </div>
+                  <div class="col-md-6 mb-4">
+                    <label class="fw-bold text-uppercase fs-6 mb-2 text-dark">{{ t('form_company') }}</label>
+                    <input type="text" v-model="waForm.company" class="form-control brutal-box p-3 fs-6" placeholder="PT. XYZ / Personal" required />
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="fw-bold text-uppercase fs-6 mb-2 text-dark">{{ t('form_msg') }}</label>
+                  <textarea v-model="waForm.message" class="form-control brutal-box p-3 fs-6" rows="4" placeholder="Halo Mas Arif, saya ingin berkonsultasi..." required></textarea>
+                </div>
+                <button type="submit" class="brutal-btn w-100 bg-main-blue fs-5 p-3 mt-2 text-white border-dark border-4">
+                  <span>{{ t('form_btn') }}</span> <i class="bi bi-send-fill ms-2 text-cyan"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="persona-footer py-5 border-top border-primary border-opacity-50 text-center position-relative overflow-hidden">
+    <footer class="bg-dark-accent text-center py-5 border-top border-4 border-dark position-relative overflow-hidden">
       <div class="container position-relative z-1 text-white">
         <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
-          <a href="https://itsmebroarif.medium.com" target="_blank" class="p3-social-btn"><i class="bi bi-medium fs-4"></i></a>
-          <a href="https://www.instagram.com/eexxvvn/" target="_blank" class="p3-social-btn"><i class="bi bi-instagram fs-4"></i></a>
-          <a href="https://linkedin.com/in/arif-permana-putrasuryana-121b761b9" target="_blank" class="p3-social-btn"><i class="bi bi-linkedin fs-4"></i></a>
-          <a href="https://wa.me/6285817048266" target="_blank" class="p3-social-btn"><i class="bi bi-whatsapp fs-4"></i></a>
+          <a href="https://itsmebroarif.medium.com" target="_blank" class="social-btn brutal-box bg-white text-dark brutal-btn px-3 py-2"><i class="bi bi-medium fs-4"></i></a>
+          <a href="https://www.instagram.com/eexxvvn/" target="_blank" class="social-btn brutal-box bg-cyan text-dark brutal-btn px-3 py-2"><i class="bi bi-instagram fs-4"></i></a>
+          <a href="https://linkedin.com/in/arif-permana-putrasuryana-121b761b9" target="_blank" class="social-btn brutal-box bg-main-blue text-white brutal-btn px-3 py-2"><i class="bi bi-linkedin fs-4"></i></a>
+          <a href="https://wa.me/6285817048266" target="_blank" class="social-btn brutal-box bg-soft-blue text-dark brutal-btn px-3 py-2"><i class="bi bi-whatsapp fs-4"></i></a>
         </div>
         
-        <p class="mb-2 fw-bold text-uppercase fs-5 text-info">© 2026 KAFEINARTS STUDIO • ALL-OUT DEVELOPMENT</p>
-        <p class="mb-0 text-white-50">DESIGNED & ARCHITECTED BY <strong class="text-white">ARIF PERMANA (ITSMEBROARIF)</strong></p>
+        <p class="mb-3 fw-bold fs-4 text-uppercase skew-title bg-cyan d-inline-block text-dark px-3 py-1">© 2026 KAFEINARTS.</p>
+        <p class="mb-0 fw-bold fs-5 text-uppercase">DEVELOPED & DESIGNED BY <span class="text-cyan">ITSMEBROARIF</span></p>
       </div>
     </footer>
-
-    <!-- ========================================================================= -->
-    <!-- CINEMATIC ALL-OUT ATTACK FINISHER MODAL / OVERLAY                         -->
-    <!-- ========================================================================= -->
-    <transition name="all-out-fade">
-      <div class="all-out-attack-overlay" v-if="showAllOutAttack" @click="showAllOutAttack = false">
-        <div class="aoa-backdrop"></div>
-        <div class="aoa-slash-line aoa-slash-1"></div>
-        <div class="aoa-slash-line aoa-slash-2"></div>
-
-        <div class="aoa-content-box text-center text-white" @click.stop>
-          <div class="aoa-top-tag mb-2">
-            <span>FINISHING TOUCH // PRODUCTION DEPLOY</span>
-          </div>
-
-          <h1 class="aoa-big-title">ALL-OUT ATTACK!</h1>
-          
-          <div class="aoa-quote-banner my-3 p-3">
-            <h3 class="fw-extrabold text-uppercase mb-1 text-warning">
-              "THE BATTLE IS FINISHED! CODE HAS BEEN DEPLOYED TO PRODUCTION!"
-            </h3>
-            <p class="mb-0 text-info fw-bold">ARIF PERMANA PUTRASURYANA • PROTAGONIST VICTORY</p>
-          </div>
-
-          <div class="d-flex justify-content-center gap-3 mt-4">
-            <a href="https://wa.me/6285817048266" target="_blank" class="btn btn-warning text-dark fw-bold px-4 py-2.5 rounded-0 shadow-lg">
-              <i class="bi bi-whatsapp me-1"></i> Mulai Proyek Bersama
-            </a>
-            <button class="btn btn-outline-light fw-bold px-4 py-2.5 rounded-0" @click="showAllOutAttack = false">
-              Kembali ke Arena
-            </button>
-          </div>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -815,34 +685,19 @@ export default {
   setup() {
     const canvasContainer = ref(null);
     const currentLang = ref('id');
+    const activeFaq = ref(1);
     const activeCategory = ref('all');
-    const activeSkillFilter = ref('all');
-    const showAllOutAttack = ref(false);
-    const portfolioTheme = ref(localStorage.getItem('taskarts_portfolio_theme') || 'classic');
+
+    const waForm = reactive({
+      name: '',
+      company: '',
+      message: ''
+    });
 
     // 3D Three.js variables
     let scene, camera, renderer, animationFrameId;
     let icoWire, torusWire, sphereWire;
     let mouseX = 0, mouseY = 0;
-
-    const setPortfolioTheme = (theme) => {
-      portfolioTheme.value = theme;
-      localStorage.setItem('taskarts_portfolio_theme', theme);
-      updateThreeColors();
-    };
-
-    const updateThreeColors = () => {
-      if (!icoWire || !torusWire || !sphereWire) return;
-      if (portfolioTheme.value === 'omori') {
-        icoWire.material.color.setHex(0xffffff);
-        torusWire.material.color.setHex(0xaaaaaa);
-        sphereWire.material.color.setHex(0x333333);
-      } else {
-        icoWire.material.color.setHex(0x0066ff);
-        torusWire.material.color.setHex(0x00d2ff);
-        sphereWire.material.color.setHex(0x1e3a8a);
-      }
-    };
 
     const onMouseMove = (event) => {
       mouseX = (event.clientX - window.innerWidth / 2) * 0.005;
@@ -868,9 +723,9 @@ export default {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       canvasContainer.value.appendChild(renderer.domElement);
 
-      const matMainBlue = new THREE.LineBasicMaterial({ color: 0x0066ff, linewidth: 2 });
-      const matCyan = new THREE.LineBasicMaterial({ color: 0x00d2ff, linewidth: 2 });
-      const matDark = new THREE.LineBasicMaterial({ color: 0x1e3a8a, linewidth: 1, transparent: true, opacity: 0.25 });
+      const matMainBlue = new THREE.LineBasicMaterial({ color: 0x1269cc, linewidth: 2 });
+      const matCyan = new THREE.LineBasicMaterial({ color: 0x51eefc, linewidth: 2 });
+      const matDark = new THREE.LineBasicMaterial({ color: 0x303030, linewidth: 1, transparent: true, opacity: 0.15 });
 
       const icoGeometry = new THREE.IcosahedronGeometry(8, 0);
       icoWire = new THREE.LineSegments(new THREE.WireframeGeometry(icoGeometry), matMainBlue);
@@ -882,7 +737,7 @@ export default {
       torusWire.position.set(-18, -12, -10);
       scene.add(torusWire);
 
-      const sphereWireGeo = new THREE.SphereGeometry(22, 10, 10);
+      const sphereWireGeo = new THREE.SphereGeometry(20, 8, 8);
       sphereWire = new THREE.LineSegments(new THREE.WireframeGeometry(sphereWireGeo), matDark);
       scene.add(sphereWire);
 
@@ -917,154 +772,292 @@ export default {
         renderer.render(scene, camera);
       };
 
-      updateThreeColors();
       animate();
     };
 
-    // Persona Battle Skills Deck
-    const personaSkills = [
-      {
-        id: 'sk1',
-        title: 'Zio Fullstack: Vue 3 & Composition',
-        type: 'magic',
-        elementName: 'ZIO / ELEC',
-        elementIcon: '⚡',
-        elementBadgeClass: 'bg-primary text-white',
-        spCost: 18,
-        power: 96,
-        mastery: 'LV.MAX',
-        barClass: 'bg-info',
-        description: 'Serangan petir reaktif instan dengan Vue 3 Composition API, Pinia/Vuex state persistence, dan rendering komponen tanpa jeda.'
-      },
-      {
-        id: 'sk2',
-        title: 'Agi Controller: Laravel 11 REST API',
-        type: 'physical',
-        elementName: 'AGI / FIRE',
-        elementIcon: '🔥',
-        elementBadgeClass: 'bg-danger text-white',
-        spCost: 22,
-        power: 94,
-        mastery: 'LV.94',
-        barClass: 'bg-danger',
-        description: 'Tebasan api backend berdaya rusak tinggi: Eloquent ORM, migrasi database, autentikasi JWT/Sanctum, dan perakitan RESTful API kokoh.'
-      },
-      {
-        id: 'sk3',
-        title: 'Bufu Matrix: Three.js & 3D WebGL',
-        type: 'magic',
-        elementName: 'BUFU / ICE',
-        elementIcon: '❄️',
-        elementBadgeClass: 'bg-info text-dark',
-        spCost: 30,
-        power: 90,
-        mastery: 'LV.88',
-        barClass: 'bg-info',
-        description: 'Membekukan antarmuka datar menjadi stage 3D interaktif dinamis dengan Three.js, pencahayaan matematis, dan orbit interaktif.'
-      },
-      {
-        id: 'sk4',
-        title: 'Garu Aesthetic: Neobrutalism UI/UX',
-        type: 'magic',
-        elementName: 'GARU / WIND',
-        elementIcon: '🌪️',
-        elementBadgeClass: 'bg-success text-white',
-        spCost: 16,
-        power: 98,
-        mastery: 'LV.MAX',
-        barClass: 'bg-success',
-        description: 'Badai visual berkecepatan tinggi: Figma design system, tipografi presisi, Tailwind utility, dan arsitektur responsif bebas cela.'
-      },
-      {
-        id: 'sk5',
-        title: 'Megidolaon: Cloud Architecture',
-        type: 'magic',
-        elementName: 'ALMIGHTY / MEGIN',
-        elementIcon: '🌟',
-        elementBadgeClass: 'bg-warning text-dark',
-        spCost: 55,
-        power: 100,
-        mastery: 'LV.MAX',
-        barClass: 'bg-warning',
-        description: 'Jurus tertinggi pamungkas: integrasi database MySQL/PostgreSQL, VPS Nginx deployment, containerization, dan scale-out sistem.'
-      },
-      {
-        id: 'sk6',
-        title: 'Tarukaja Shield: CI/CD & Performance',
-        type: 'support',
-        elementName: 'SUPPORT / BUFF',
-        elementIcon: '🛡️',
-        elementBadgeClass: 'bg-secondary text-white',
-        spCost: 14,
-        power: 92,
-        mastery: 'LV.90',
-        barClass: 'bg-secondary',
-        description: 'Buff pertahanan seluruh tim: Git branching workflow, code review ketat, optimasi bundle Vite, dan automated deployment pipelines.'
-      },
-      {
-        id: 'sk7',
-        title: 'Samarecarm: Bug Hunt & Refactoring',
-        type: 'support',
-        elementName: 'REVIVE / HEAL',
-        elementIcon: '🔮',
-        elementBadgeClass: 'bg-info text-dark',
-        spCost: 20,
-        power: 97,
-        mastery: 'LV.96',
-        barClass: 'bg-info',
-        description: 'Membangkitkan kembali codebase warisan (legacy) yang rusak, mengeliminasi memory leaks, dan memperbaiki error controller hingga pulih 100%.'
-      },
-      {
-        id: 'sk8',
-        title: 'Mazio Sprint: Electron & Desktop App',
-        type: 'physical',
-        elementName: 'PHYSICAL / DESK',
-        elementIcon: '⚡',
-        elementBadgeClass: 'bg-primary text-white',
-        spCost: 26,
-        power: 89,
-        mastery: 'LV.88',
-        barClass: 'bg-primary',
-        description: 'Membangun aplikasi lintas platform desktop (Windows/Mac/Linux) dengan integrasi hardware, printer thermal pos, dan file system lokal.'
-      }
-    ];
+    onMounted(() => {
+      initThreeCanvas();
 
-    const filteredSkills = computed(() => {
-      if (activeSkillFilter.value === 'all') return personaSkills;
-      return personaSkills.filter(s => s.type === activeSkillFilter.value);
+      // GSAP Animations
+      try {
+        gsap.from('.gsap-hero-el', {
+          y: 80,
+          opacity: 0,
+          duration: 1,
+          stagger: 0.15,
+          ease: 'power3.out'
+        });
+      } catch (e) {
+        console.warn('GSAP init notice:', e);
+      }
     });
 
-    // Translation dictionary
+    onUnmounted(() => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (renderer && renderer.domElement) {
+        renderer.domElement.remove();
+      }
+    });
+
+    const setLanguage = (lang) => {
+      currentLang.value = lang;
+    };
+
+    // Dictionary of translations
     const translations = {
       id: {
-        hero_role: "FULLSTACK WEB DEV & UI/UX ARCHITECT",
+        nav_home: "Beranda",
+        nav_about: "Tentang",
+        nav_system: "Arsitektur App",
+        nav_services: "Layanan",
+        nav_journey: "Perjalanan",
+        nav_projects: "Proyek",
+        nav_faq: "FAQ",
+        nav_contact: "Kontak",
+        hero_role: "FULLSTACK WEB DEV & UI/UX DESIGNER",
         hero_quote: "\"Inovatif dan bekerja dengan tenggat waktu, merancang dan mengembangkan solusi digital yang berpusat pada pengguna, mulai dari konsep awal hingga hasil akhir yang sempurna.\"",
+        hero_btn: "Jelajahi Ceritaku",
+        hero_app_btn: "Lihat Arsitektur App",
+        about_title: "TENTANG SAYA",
+        about_status_title: "STATUS",
+        about_status_val: "READY TO WORK 🔥",
+        about_subtitle: "Sang Arsitek Digital 💻",
         about_desc1: "Saya adalah seorang full stack web developer berbakat dan berpengalaman. Saya ahli dalam pengembangan web dan aplikasi, termasuk front-end dan back-end. Dengan keahlian di berbagai teknologi Vue.js, Laravel, dan ahli didalam administrasi basis data menggunakan MySQL, saya mampu menciptakan solusi digital yang inovatif dan efisien.",
         about_desc2: "Selain itu, saya juga seorang UI/UX Designer yang berfokus pada menciptakan antarmuka pengguna yang menarik, intuitif, dan memberikan pengalaman optimal. Kombinasi ini membuat saya mampu menghasilkan solusi digital yang tidak hanya fungsional tetapi juga estetis dan user-friendly.",
+        about_city: "Kota: Depok, Jawa Barat",
+        skills_title: "Technical Arsenal",
+        sys_showcase_title: "ARSITEKTUR & KOMPONEN APP",
         sys_showcase_sub: "Analisis mendalam per tiap view dan komponen yang membangun sistem RajinKerja.id",
+        services_title: "LAYANAN",
+        services_subtitle: "Solusi digital inovatif untuk kebutuhan bisnis Anda.",
+        srv_web_title: "Pengembangan Web",
+        srv_web_desc: "Membangun situs web modern dan responsif dengan teknologi Vue, React, & Laravel terbaru.",
+        srv_mob_title: "Pengembangan Mobile",
+        srv_mob_desc: "Menciptakan aplikasi mobile yang ramah pengguna untuk platform Android dan iOS.",
+        srv_be_title: "Pengembangan Backend",
+        srv_be_desc: "Menyediakan solusi backend yang kuat, aman, dan skalabel (Node.js, Golang, PHP).",
+        srv_hw_title: "Ahli Hardware",
+        srv_hw_desc: "Memelihara dan melakukan instalasi hardware dengan keahlian serta ketelitian tinggi.",
+        srv_cloud_title: "Cloud Development",
+        srv_cloud_desc: "Menawarkan layanan integrasi cloud yang andal untuk infrastruktur bisnis Anda.",
+        srv_sec_title: "Keamanan Sistem",
+        srv_sec_desc: "Mengimplementasikan solusi jaringan yang aman dan efisien untuk infrastruktur Anda.",
+        journey_title: "PERJALANAN & RESUME",
+        edu_title: "🎓 Pendidikan",
+        cert_title: "🏆 Sertifikasi",
+        edu_desc1: "Fokus bootcamp algoritma javascript, struktur data, dan responsive web design.",
+        edu_desc2: "Rekayasa Perangkat Lunak. Berfokus pada pengembangan Laravel dan Vue.js PWA.",
+        edu_desc3: "Basic Computer Science & HTML/CSS Otodidak.",
+        org_title: "ORGANISASI",
+        exp_title: "PENGALAMAN KERJA",
         exp_sintesa_desc: "Mengelola ekosistem sistem informasi Rumah Sakit, Puskesmas, dan Klinik.",
         exp_aya_1: "Membuat website untuk penjualan assets vtuber.",
-        exp_sada_1: "Mengembangkan website pendaftaran marathon & platform serving result hasil lari peserta."
+        exp_aya_2: "Membuat Fitur Terkoneksi Dengan E-commerce.",
+        exp_aya_3: "Mengintegrasikan ke WhatsApp untuk konsultasi dan pemesanan.",
+        exp_sada_1: "Mengembangkan website pendaftaran marathon & platform serving result hasil lari peserta.",
+        exp_sada_4: "Membuat sistem berbasis C# Untuk kebutuhan BIB Checking.",
+        exp_warkop_1: "Mengembangkan website dan periklanan berbasis web.",
+        exp_warkop_2: "Memberikan akses visibilitas di Google.",
+        exp_kon_1: "Mengembangkan website kursus komputer dengan integrasi direct WA.",
+        exp_kon_2: "Ikut serta dalam pengembangan materi ilmu komputer.",
+        proj_erekap: "Aplikasi web (SPA) untuk rekapitulasi data digital yang cepat dan otomatis.",
+        proj_17an: "Platform manajemen event dan pendaftaran lomba untuk kemerdekaan RI.",
+        proj_rajin: "Portal HR profesional untuk absen, pelacakan jam kerja, dan manajemen tugas.",
+        faq_q1: "Apakah Arif menerima project freelance / kolaborasi?",
+        faq_a1: "Tentu saja! Mengingat status saya 'Ready To Work', saya sangat terbuka untuk proyek pembuatan Website, aplikasi backend, hingga desain grafis (UI/UX).",
+        faq_q2: "Tech Stack apa yang paling utama digunakan?",
+        faq_a2: "Saya sangat mahir menggunakan ekosistem Vue.js (termasuk Quasar) di frontend, dan ekosistem Laravel (PHP) atau Golang di backend.",
+        faq_q3: "Bisa membuat UI/UX design dari awal sebelum coding?",
+        faq_a3: "Ya! Saya menggunakan Figma dan Adobe Suite untuk merancang antarmuka (UI/UX) sebelum masuk ke tahap pengembangan (coding) untuk memastikan desain sesuai ekspektasi.",
+        faq_q4: "Berapa lama estimasi waktu pengerjaan 1 website?",
+        faq_a4: "Sangat bergantung pada kompleksitas fitur. Landing page biasa memakan waktu 3-7 hari. Namun sistem skala besar (seperti SIMRS/Portal HR) butuh waktu berminggu-minggu hingga berbulan-bulan.",
+        faq_q5: "Apakah menerima maintenance / refactoring website lama?",
+        faq_a5: "Tentu, dengan pengalaman mengelola sistem klinik dan marathon, saya terbiasa melakukan refactoring kode lama, memperbaiki bug UI, dan optimasi query database.",
+        faq_q6: "Bagaimana sistem pembayaran untuk project freelance?",
+        faq_a6: "Umumnya menggunakan sistem Termin. Down Payment (DP) 50% di awal sebelum project dimulai, dan pelunasan 50% setelah project diserahkan atau live.",
+        faq_q7: "Apakah bisa membantu setup Server / VPS untuk deployment?",
+        faq_a7: "Bisa! Saya memiliki keahlian di lingkungan Linux (Ubuntu, dll) untuk setup VPS, konfigurasi web server (Nginx/Apache), dan deployment arsitektur Cloud.",
+        faq_q8: "Berdomisili di mana? Apakah bersedia WFO (Work From Office)?",
+        faq_a8: "Saya berbasis di Depok, Jawa Barat. Saya memprioritaskan pekerjaan Remote / WFA, namun sangat terbuka untuk skema Hybrid (WFO beberapa hari) jika lokasinya terjangkau.",
+        faq_q9: "Apa kelebihan menggunakan kombinasi Vue.js dan Laravel?",
+        faq_a9: "Kombinasi ini menjamin keamanan backend tingkat tinggi (Laravel) sekaligus pengalaman pengguna yang instan tanpa loading lama di sisi frontend (Vue.js SPA).",
+        faq_q10: "Apakah klien akan mendapatkan Source Code secara penuh?",
+        faq_a10: "Tentu, seluruh repository dan Source Code sepenuhnya menjadi milik klien setelah tahap pelunasan project selesai, lengkap dengan dokumentasi.",
+        contact_title_raw: "MARI TERHUBUNG",
+        form_name: "Nama Anda",
+        form_company: "Instansi / Perusahaan",
+        form_msg: "Pesan Anda",
+        form_btn: "KIRIM VIA WHATSAPP"
       },
       en: {
-        hero_role: "FULLSTACK WEB DEV & UI/UX ARCHITECT",
+        nav_home: "Home",
+        nav_about: "About",
+        nav_system: "App Architecture",
+        nav_services: "Services",
+        nav_journey: "Journey",
+        nav_projects: "Projects",
+        nav_faq: "FAQ",
+        nav_contact: "Contact",
+        hero_role: "FULLSTACK WEB DEV & UI/UX DESIGNER",
         hero_quote: "\"Innovative and working with deadlines, designing and developing user-centric digital solutions from initial concept to a perfect final result.\"",
+        hero_btn: "Discover My Story",
+        hero_app_btn: "View App Architecture",
+        about_title: "ABOUT ME",
+        about_status_title: "STATUS",
+        about_status_val: "READY TO WORK 🔥",
+        about_subtitle: "The Digital Architect 💻",
         about_desc1: "I am a talented and experienced full stack web developer. I excel in web and application development, covering both front-end and back-end. With expertise in Vue.js, Laravel, and solid database administration using MySQL, I create innovative and efficient digital solutions.",
         about_desc2: "Additionally, I am a UI/UX Designer focused on creating attractive, intuitive, and optimal user interfaces. This combination allows me to deliver digital solutions that are functional, aesthetically pleasing, and user-friendly.",
+        about_city: "City: Depok, West Java",
+        skills_title: "Technical Arsenal",
+        sys_showcase_title: "APP ARCHITECTURE & VIEWS SHOWCASE",
         sys_showcase_sub: "In-depth breakdown of every view and component building RajinKerja.id OS",
+        services_title: "SERVICES",
+        services_subtitle: "Innovative digital solutions for your business needs.",
+        srv_web_title: "Web Development",
+        srv_web_desc: "Building modern and responsive websites with the latest Vue, React, & Laravel tech.",
+        srv_mob_title: "Mobile Development",
+        srv_mob_desc: "Creating user-friendly mobile applications for Android and iOS platforms.",
+        srv_be_title: "Backend Development",
+        srv_be_desc: "Providing robust, secure, and scalable backend solutions (Node.js, Golang, PHP).",
+        srv_hw_title: "Hardware Expert",
+        srv_hw_desc: "Maintaining and installing hardware with high expertise and precision.",
+        srv_cloud_title: "Cloud Development",
+        srv_cloud_desc: "Offering reliable cloud integration services for your business infrastructure.",
+        srv_sec_title: "System Security",
+        srv_sec_desc: "Implementing secure and efficient network solutions for your infrastructure.",
+        journey_title: "JOURNEY & RESUME",
+        edu_title: "🎓 Education",
+        cert_title: "🏆 Certifications",
+        edu_desc1: "Focused on Javascript algorithms, data structures, and responsive web design.",
+        edu_desc2: "Software Engineering. Focused on Laravel and Vue.js PWA development.",
+        edu_desc3: "Basic Computer Science & self-taught HTML/CSS.",
+        org_title: "ORGANIZATIONS",
+        exp_title: "WORK EXPERIENCES",
         exp_sintesa_desc: "Managing information system ecosystems for Hospitals and Clinics.",
         exp_aya_1: "Created a website for selling vtuber assets.",
-        exp_sada_1: "Developed a marathon registration website & runner results serving platform."
+        exp_aya_2: "Built features connected to E-commerce.",
+        exp_aya_3: "Integrated WhatsApp for consultation and ordering.",
+        exp_sada_1: "Developed a marathon registration website & runner results serving platform.",
+        exp_sada_4: "Created a C#-based system for BIB Checking needs.",
+        exp_warkop_1: "Developed website and web-based advertising.",
+        exp_warkop_2: "Provided Google search visibility access.",
+        exp_kon_1: "Developed a computer course website with direct WA integration.",
+        exp_kon_2: "Participated in developing computer science materials.",
+        proj_erekap: "A web application (SPA) for fast and automated digital data recapitulation.",
+        proj_17an: "Event management and competition registration platform for Independence Day.",
+        proj_rajin: "Professional HR portal for attendance, work hour tracking, and task management.",
+        faq_q1: "Does Arif accept freelance / collaboration projects?",
+        faq_a1: "Absolutely! Given my 'Ready To Work' status, I am very open to Website creation, backend apps, and graphic design (UI/UX) projects.",
+        faq_q2: "What is your main Tech Stack?",
+        faq_a2: "I am highly proficient with the Vue.js ecosystem (including Quasar) on the frontend, and Laravel (PHP) or Golang on the backend.",
+        faq_q3: "Can you create UI/UX designs from scratch before coding?",
+        faq_a3: "Yes! I use Figma and Adobe Suite to design interfaces before moving to the development phase.",
+        faq_q4: "What is the estimated time to build 1 website?",
+        faq_a4: "It depends on complexity. Landing pages take 3-7 days. Large-scale systems take weeks to months.",
+        faq_q5: "Do you accept maintenance / refactoring of old websites?",
+        faq_a5: "Certainly, I am accustomed to refactoring old code, fixing UI bugs, and optimizing databases.",
+        faq_q6: "How does the payment system work for freelance projects?",
+        faq_a6: "Term system. 50% Down Payment upfront before the project starts, and the remaining 50% upon handover.",
+        faq_q7: "Can you help set up Servers / VPS for deployment?",
+        faq_a7: "Yes! I am skilled in Linux environments for VPS setup, web servers, and Cloud architecture deployment.",
+        faq_q8: "Where are you based? Are you willing to WFO?",
+        faq_a8: "Based in Depok. Prioritize Remote/WFA, but open to Hybrid if the location is accessible.",
+        faq_q9: "What are the benefits of using Vue.js and Laravel together?",
+        faq_a9: "Guarantees top-tier backend security (Laravel) along with instant, seamless frontend UX without slow loading (Vue SPA).",
+        faq_q10: "Will the client get the full Source Code?",
+        faq_a10: "Yes, the entire repository and Source Code are fully owned by the client after full payment.",
+        contact_title_raw: "LET'S CONNECT",
+        form_name: "Your Name",
+        form_company: "Company / Personal",
+        form_msg: "Your Message",
+        form_btn: "SEND VIA WHATSAPP"
       },
       jp: {
-        hero_role: "フルスタックエンジニア & UI/UXアーキテクト",
+        nav_home: "ホーム",
+        nav_about: "私について",
+        nav_system: "アプリ構造",
+        nav_services: "サービス",
+        nav_journey: "経歴",
+        nav_projects: "プロジェクト",
+        nav_faq: "FAQ",
+        nav_contact: "連絡先",
+        hero_role: "フルスタックエンジニア & UI/UXデザイナー",
         hero_quote: "「納期を守り、ユーザー中心のデジタルソリューションを初期の構想から完璧な最終結果まで設計・開発します。」",
+        hero_btn: "ストーリーを見る",
+        hero_app_btn: "アプリ構造を見る",
+        about_title: "私について",
+        about_status_title: "ステータス",
+        about_status_val: "就業可能 🔥",
+        about_subtitle: "デジタルアーキテクト 💻",
         about_desc1: "私は才能豊かで経験豊富なフルスタックウェブ開発者です。フロントエンドとバックエンドの両方を網羅するウェブおよびアプリ開発を得意としています。Vue.js、Laravelなどの技術やMySQLデータベース管理の専門知識を活かし、革新的で効率的なソリューションを作成します。",
         about_desc2: "さらに、魅力的で直感的なUI/UXの設計に焦点を当てたデザイナーでもあります。この組み合わせにより、機能的であるだけでなく、美しくユーザーフレンドリーなデジタルソリューションを提供できます。",
+        about_city: "都市: 西ジャワ州、デポック",
+        skills_title: "技術スタック",
+        sys_showcase_title: "アプリの構造と各画面の解説",
         sys_showcase_sub: "RajinKerja.id OSを構築する各コンポーネントとViewの完全分析",
+        services_title: "サービス",
+        services_subtitle: "ビジネスニーズに向けた革新的なデジタルソリューション。",
+        srv_web_title: "ウェブ開発",
+        srv_web_desc: "最新のVue、React、Laravel技術を使用したモダンでレスポンシブなウェブサイトの構築。",
+        srv_mob_title: "モバイル開発",
+        srv_mob_desc: "AndroidおよびiOS向けの使いやすいモバイルアプリの作成。",
+        srv_be_title: "バックエンド開発",
+        srv_be_desc: "堅牢で安全、かつスケーラブルなバックエンドソリューションの提供。",
+        srv_hw_title: "ハードウェアエキスパート",
+        srv_hw_desc: "高い専門知識と精度でのハードウェアの保守とインストール。",
+        srv_cloud_title: "クラウド開発",
+        srv_cloud_desc: "ビジネスインフラ向けの信頼できるクラウド統合サービスの提供。",
+        srv_sec_title: "システムセキュリティ",
+        srv_sec_desc: "インフラ向けの安全で効率的なネットワークソリューションの実装。",
+        journey_title: "経歴と履歴書",
+        edu_title: "🎓 教育",
+        cert_title: "🏆 資格",
+        edu_desc1: "Javascriptアルゴリズム、データ構造、レスポンシブウェブデザインに焦点を当てたブートキャンプ。",
+        edu_desc2: "ソフトウェアエンジニアリング。LaravelおよびVue.js PWA開発に特化。",
+        edu_desc3: "独学による基礎的なコンピュータサイエンスとHTML/CSS。",
+        org_title: "所属組織",
+        exp_title: "職務経歴",
         exp_sintesa_desc: "病院やクリニック向けの情報システムエコシステムの管理。",
         exp_aya_1: "Vtuberアセット販売用のウェブサイト作成。",
-        exp_sada_1: "マラソン登録ウェブサイトおよびランナー結果提供プラットフォームの開発。"
+        exp_aya_2: "Eコマースに接続された機能の構築。",
+        exp_aya_3: "相談や注文のためのWhatsApp統合。",
+        exp_sada_1: "マラソン登録ウェブサイトおよびランナー結果提供プラットフォームの開発。",
+        exp_sada_4: "BIBチェック用のC#ベースのシステム作成。",
+        exp_warkop_1: "ウェブサイトおよびウェブベースの広告開発。",
+        exp_warkop_2: "Google検索での可視性アクセスを提供。",
+        exp_kon_1: "直接WA統合を伴うコンピュータコースウェブサイトの開発。",
+        exp_kon_2: "コンピュータサイエンス教材の開発に参加。",
+        proj_erekap: "自動化されたデジタルデータ集計のための超高速ウェブアプリ(SPA)。",
+        proj_17an: "独立記念日のためのイベント管理および競技参加登録プラットフォーム。",
+        proj_rajin: "勤怠、労働時間追跡、タスク管理のためのプロの人事ポータル。",
+        faq_q1: "フリーランスやコラボレーションの案件は受けていますか？",
+        faq_a1: "はい！「就業可能」な状態ですので、ウェブサイト作成やUI/UXデザインの案件を大歓迎しています。",
+        faq_q2: "メインの技術スタックは何ですか？",
+        faq_a2: "フロントエンドではVue.js（Quasar含む）、バックエンドではLaravel（PHP）やGolangに非常に精通しています。",
+        faq_q3: "コーディング前にゼロからUI/UXデザインを作成できますか？",
+        faq_a3: "はい！開発段階に入る前に、FigmaとAdobe Suiteを使用してインターフェースを設計します。",
+        faq_q4: "1つのウェブサイトを構築するのにどれくらい時間がかかりますか？",
+        faq_a4: "複雑さによります。ランディングページは3〜7日。大規模システムは数週間から数ヶ月かかります。",
+        faq_q5: "古いウェブサイトの保守やリファクタリングは受けていますか？",
+        faq_a5: "もちろん、古いコードのリファクタリング、UIのバグ修正、データベースの最適化には慣れています。",
+        faq_q6: "フリーランスのプロジェクトの支払いシステムはどうなっていますか？",
+        faq_a6: "分割払いです。プロジェクト開始前に50％の頭金、納品時に残り50％となります。",
+        faq_q7: "展開のためのサーバー/VPSのセットアップは手伝ってもらえますか？",
+        faq_a7: "はい！VPSのセットアップやクラウドインフラの構築など、Linux環境に熟練しています。",
+        faq_q8: "拠点はどこですか？オフィス出社（WFO）は可能ですか？",
+        faq_a8: "デポックを拠点としています。リモート作業を優先しますが、アクセス可能であればハイブリッドも歓迎します。",
+        faq_q9: "Vue.jsとLaravelを一緒に使うメリットは何ですか？",
+        faq_a9: "Laravelによる高いバックエンドセキュリティと、Vue SPAによるロード時間のない高速なフロントエンド体験を保証します。",
+        faq_q10: "クライアントはソースコードを完全に受け取ることができますか？",
+        faq_a10: "はい。全額支払い後、リポジトリとソースコードは完全にクライアントの所有となります。",
+        contact_title_raw: "連絡しましょう",
+        form_name: "お名前",
+        form_company: "会社名 / 個人",
+        form_msg: "メッセージ",
+        form_btn: "WHATSAPPで送信"
       }
     };
 
@@ -1075,16 +1068,13 @@ export default {
       return translations.id[key] || key;
     };
 
-    const setLanguage = (lang) => {
-      currentLang.value = lang;
-    };
-
-    // Showcase views
+    // Showcase categories & views breakdown
     const showcaseCategories = [
       { id: 'all', name: 'Semua Views', icon: '⚡' },
       { id: 'workflow', name: 'Workflow & Proyek', icon: '📌' },
-      { id: 'media', name: 'Media & Pemutar', icon: '🎵' },
+      { id: 'team', name: 'Tim & Chat', icon: '👥' },
       { id: 'finance', name: 'Keuangan & Data', icon: '💰' },
+      { id: 'agenda', name: 'Agenda & Habit', icon: '📅' },
       { id: 'system', name: 'System & Tools', icon: '⚙️' }
     ];
 
@@ -1112,15 +1102,70 @@ export default {
         tags: ['Kanban', 'DragDrop', 'Filter', 'LocalStorage']
       },
       {
-        id: 'videos',
-        category: 'media',
-        categoryName: 'Media & Pemutar',
-        route: '/videos',
-        icon: 'bi bi-collection-play-fill',
-        title: 'UploadMediaView (Upload & Media Player)',
-        description: 'Player musik dan video serba bisa dengan playlist manager terintegrasi. Upload berkas audio/video lokal, sinkronisasi link YouTube, dan putar langsung di browser dengan visualizer vinyl animasi.',
-        techSpec: 'HTML5 Audio/Video Context, Dynamic Playlist Array, Drag & Drop Upload, ObjectURL Resolver',
-        tags: ['MediaPlayer', 'MusicPlayer', 'Playlists', 'VideoHub']
+        id: 'project',
+        category: 'workflow',
+        categoryName: 'Workflow & Proyek',
+        route: '/project',
+        icon: 'bi bi-folder-fill',
+        title: 'projectManagement (Proyek & Kontrak)',
+        description: 'Sistem pelacakan siklus proyek, anggaran kontrak client, milestoning timeline, penetapan anggota tim, hingga persentase pencapaian progress proyek.',
+        techSpec: 'Dynamic Milestone Calculators, Multi-status Pipeline, Currency Formatters',
+        tags: ['Projects', 'Milestones', 'Pipeline', 'ClientContract']
+      },
+      {
+        id: 'camera',
+        category: 'workflow',
+        categoryName: 'Workflow & Proyek',
+        route: '/camera',
+        icon: 'bi bi-camera-fill',
+        title: 'CameraScannerView (Kamera & OCR Scan)',
+        description: 'Scanner dokumen digital berbasis WebRTC kamera browser. Mampu menangkap foto dokumen, mengaplikasikan filter grayscale/contrast, dan menyimpannya sebagai catatan terlampir.',
+        techSpec: 'navigator.mediaDevices.getUserMedia, HTML5 Canvas 2D Context, DataURL Converter',
+        tags: ['WebRTC', 'CameraAPI', 'CanvasFilter', 'DocScanner']
+      },
+      {
+        id: 'surat',
+        category: 'workflow',
+        categoryName: 'Workflow & Proyek',
+        route: '/surat',
+        icon: 'bi bi-file-earmark-text-fill',
+        title: 'SuratBuilderView (Surat Generator & WA Export)',
+        description: 'Pembuat surat resmi otomatis lengkap dengan Kop Surat, tanggal dinamis, format penandatangan, ekspor PDF/Print instan, serta fitur pengiriman pesan teks langsung ke WhatsApp Kontak Tim.',
+        techSpec: 'Vue Reactive Form Engine, CSS Print Breakpoint Stylesheet, wa.me URL Formatter & Contact Picker',
+        tags: ['SuratGenerator', 'PrintPDF', 'WhatsAppExport', 'KopSurat']
+      },
+      {
+        id: 'cv',
+        category: 'workflow',
+        categoryName: 'Workflow & Proyek',
+        route: '/cv',
+        icon: 'bi bi-person-vcard-fill',
+        title: 'CvBuilderView (ATS CV & Resume Builder)',
+        description: 'Perakit resume profesional ATS-friendly & Creative CV. Dilengkapi live preview interaktif, preset template tata letak, input riwayat kerja, pendidikan, dan tombol cetak siap kerja.',
+        techSpec: 'A4 Page Paper Layout CSS, Live Reactive Data Binding, Dynamic Skill Pill Renderer',
+        tags: ['CVBuilder', 'ATSResume', 'LivePreview', 'A4PaperCSS']
+      },
+      {
+        id: 'contacts',
+        category: 'team',
+        categoryName: 'Tim & Komunikasi',
+        route: '/contacts',
+        icon: 'bi bi-person-lines-fill',
+        title: 'ContactsView (Kontak Tim & Broadcast WA)',
+        description: 'Buku alamat digital terpusat untuk tim internal dan client luar. Memungkinkan pencarian cepat, pengelompokan divisi, serta Broadcast WhatsApp dengan template pesan khusus.',
+        techSpec: 'Vuex Contacts Module, Phone Normalizer (08 -> 628), Dynamic Search Matrix',
+        tags: ['AddressBook', 'WABroadcast', 'TeamMembers', 'ClientDirectory']
+      },
+      {
+        id: 'chat-ai',
+        category: 'team',
+        categoryName: 'Tim & Komunikasi',
+        route: '/chat-ai',
+        icon: 'bi bi-robot',
+        title: 'LiveChatAiView (Gemini AI Assistant)',
+        description: 'Asisten AI cerdas berbasis Google Gemini SDK untuk konsultasi strategi pekerjaan, generasi kode, perangkuman dokumen, dan solusi otomatisasi tugas harian.',
+        techSpec: '@google/genai SDK Integration, Streaming Markdown Parser, Server-side API Proxy',
+        tags: ['GeminiAI', 'LLMChat', 'MarkdownParser', 'AiAssistant']
       },
       {
         id: 'finance',
@@ -1134,15 +1179,147 @@ export default {
         tags: ['Cashflow', 'Ledger', 'BudgetAlert', 'IDRCurrency']
       },
       {
+        id: 'invoice',
+        category: 'finance',
+        categoryName: 'Keuangan & Data',
+        route: '/invoice',
+        icon: 'bi bi-receipt',
+        title: 'InvoiceView (Invoice Generator PDF)',
+        description: 'Pembuat tagihan profesional untuk client. Mendukung Rincian Item Barang/Jasa, Perhitungan PPN/Pajak, Diskon, Metode Pembayaran Bank, dan Ekspor Cetak PDF resmi.',
+        techSpec: 'Dynamic Table Row Cloner, Tax/Discount Calculator, PDF Print Target Area',
+        tags: ['InvoicePDF', 'TaxCalc', 'BillingItem', 'ClientInvoice']
+      },
+      {
+        id: 'sql',
+        category: 'finance',
+        categoryName: 'Keuangan & Data',
+        route: '/sql',
+        icon: 'bi bi-database-fill-gear',
+        title: 'SqlExportView (SQL Runner & Exporter)',
+        description: 'Perkakas ekspor data sistem dalam format skema SQL DDL/DML, JSON, atau CSV untuk backup database MySQL/MariaDB dan integrasi backend tanpa ribet.',
+        techSpec: 'Raw SQL DDL/INSERT Generator, Blob File Downloader, Schema Inspector',
+        tags: ['SQLGenerator', 'DatabaseBackup', 'CSVExport', 'DataMigration']
+      },
+      {
+        id: 'insights',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/productivity-insights',
+        icon: 'bi bi-bar-chart-line-fill',
+        title: 'ProductivityInsightsView (D3.js Charts)',
+        description: 'Visualisasi analitik performa kerja menggunakan grafik SVG interaktif D3.js. Menampilkan kecepatan penyelesaian tugas (Task Velocity), distribusi kategori, dan trend produktivitas mingguan.',
+        techSpec: 'D3.js v7 Data Visualization, Dynamic SVG Bar/Pie/Line Chart Generators',
+        tags: ['D3js', 'SVGCharts', 'ProductivityMetrics', 'DataAnalytics']
+      },
+      {
+        id: 'quick-capture',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/quick-capture',
+        icon: 'bi bi-lightning-charge-fill',
+        title: 'QuickCaptureView (Quick Capture & Alarms)',
+        description: 'Fitur penangkap ide cepat berbasis suara/teks beserta pengatur alarm pengingat instan agar tidak ada tugas kritis yang terlewatkan dalam rutinitas kerja padat.',
+        techSpec: 'Web Speech Recognition API fallback, Local Alarm Timer Loop, Audio Synthesizer',
+        tags: ['QuickNotes', 'VoiceCapture', 'AlarmSuite', 'InstantCapture']
+      },
+      {
+        id: 'calendar',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/calendar',
+        icon: 'bi bi-calendar3',
+        title: 'CalendarView (Kalender & Agenda Timed)',
+        description: 'Tampilan kalender bulanan & mingguan interaktif untuk merencanakan rapat, tenggat waktu proyek, dan jadwal acara penting dengan indikator warna status.',
+        techSpec: 'Custom Grid Date Algorithm, Event Overlap Manager, Vuex Events Dispatcher',
+        tags: ['CalendarGrid', 'AgendaScheduler', 'EventsFilter', 'DatePicker']
+      },
+      {
+        id: 'time-suite',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/time-suite',
+        icon: 'bi bi-clock-history',
+        title: 'TimeSuiteView (Pomodoro & Focus Timer)',
+        description: 'Aplikasi manajemen waktu metode Pomodoro (25m Fokus / 5m Istirahat), Stopwatch presisi tinggi, Timer Hitung Mundur, dan statistik durasi fokus harian.',
+        techSpec: 'Web Worker Precision Interval, Audio Alert Beep Synthesizer, Session Streak Tracker',
+        tags: ['Pomodoro', 'FocusTimer', 'Stopwatch', 'AudioAlert']
+      },
+      {
+        id: 'selfie',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/selfie',
+        icon: 'bi bi-camera-reels-fill',
+        title: 'SelfieHappinessView (Selfie Mood & Drive Sync)',
+        description: 'Pengabadi momen kebahagiaan saat berhasil menyelesaikan tugas berat via kamera, dilengkapi catatan rasa syukur dan integrasi backup cloud.',
+        techSpec: 'MediaStream WebRTC, Canvas Image Snapshot Engine, Cloud Drive Sync Bridge',
+        tags: ['HappinessLog', 'CameraCapture', 'GratitudeJournal', 'DriveSync']
+      },
+      {
+        id: 'mood',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/mood',
+        icon: 'bi bi-emoji-smile-fill',
+        title: 'MoodAlarmView (Kamera Mood & Alarm Kerja)',
+        description: 'Monitor tingkat kelelahan dan ekspresi emosi saat bekerja di depan laptop. Memberikan rekomendasi istirahat dan bunyi alarm jika terdeteksi stres berlebih.',
+        techSpec: 'WebRTC Video Stream, Expression Feature Vector Calculations, Rest Break Sound Alert',
+        tags: ['MoodTracker', 'HealthAlarm', 'RestReminder', 'WebRTCStream']
+      },
+      {
+        id: 'notes',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/notes',
+        icon: 'bi bi-journal-text',
+        title: 'StickyNotesView (Notes & Sticky Scratchpad)',
+        description: 'Papan catatan tempel digital warna-warni untuk mencoret memo singkat, daftar belanjaan, atau instruksi cepat yang bisa ditempel bebas di layar.',
+        techSpec: 'Drag & Drop Canvas Position, Rich Text Markup Parsing, Color Palette Picker',
+        tags: ['StickyNotes', 'Scratchpad', 'MemoBoard', 'ColorTheme']
+      },
+      {
+        id: 'code-notes',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/code-notes',
+        icon: 'bi bi-code-slash',
+        title: 'CodeNotesView (Code Snippets & Tech Notes)',
+        description: 'Buku catatan khusus potongan kode program (PHP, JS, SQL, Go) dengan syntax highlighting, pencarian kata kunci, dan tombol Salin Kode satu kali klik.',
+        techSpec: 'Clipboard API Integration, Code Syntax Parser, Tag-based Code Filter',
+        tags: ['CodeSnippets', 'DeveloperNotes', 'CopyCode', 'SyntaxHighlight']
+      },
+      {
+        id: 'games',
+        category: 'agenda',
+        categoryName: 'Agenda & Habit',
+        route: '/games',
+        icon: 'bi bi-controller',
+        title: 'GamesView (3D Games & Simulator Arcade)',
+        description: 'Koleksi 9 game 3D interaktif berbasis Three.js (CyberRacer, BrickBreaker, TowerBuilder, Snake3D, Pong3D, AimTrainer, Memory3D, TicTacToe3D) dengan pencahayaan terang benderang.',
+        techSpec: 'Three.js 3D Rendering Engine, Ambient & Hemisphere Lighting, Physics Loop, HighScore Tracker',
+        tags: ['3DGames', 'ThreeJS', 'VividLighting', 'ArcadeSimulator']
+      },
+      {
         id: 'preferences',
         category: 'system',
         categoryName: 'System & Tools',
         route: '/preferences',
         icon: 'bi bi-sliders',
-        title: 'PreferencesView (Theme Coffee & OLED)',
-        description: 'Pusat kontrol tema (Light, Dark Slate, OLED True Black, Coffee Mode), pemilih warna aksen kustom, tombol Install PWA, serta fasilitas Ekspor & Impor JSON seluruh data aplikasi.',
+        title: 'PreferencesView (Pengaturan Theme & Backup)',
+        description: 'Pusat kontrol tema (Light, Dark Slate, OLED True Black), pemilih warna aksen kustom, tombol Install PWA, serta fasilitas Ekspor & Impor JSON seluruh data aplikasi.',
         techSpec: 'CSS Variable Theme Swapper, JSON Blob Importer/Exporter, PWA ServiceWorker Bridge',
-        tags: ['ThemeSettings', 'CoffeeMode', 'BackupRestore', 'PWAInstaller']
+        tags: ['ThemeSettings', 'OLEDSlate', 'BackupRestore', 'PWAInstaller']
+      },
+      {
+        id: 'faq',
+        category: 'system',
+        categoryName: 'System & Tools',
+        route: '/faq',
+        icon: 'bi bi-question-circle-fill',
+        title: 'FaqAboutView (Info & Hidden Features)',
+        description: 'Panduan lengkap penggunaan aplikasi, daftar fitur rahasia (Hidden Shortcuts), spesifikasi teknis platform, serta informasi lisensi karya.',
+        techSpec: 'Accordion Layout, Keyboard Shortcut Listeners, Interactive Guide Cards',
+        tags: ['FAQGuide', 'HiddenFeatures', 'SystemSpecs', 'UserManual']
       }
     ];
 
@@ -1151,651 +1328,397 @@ export default {
       return showcaseViews.filter(v => v.category === activeCategory.value);
     });
 
-    const scrollToSection = (id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+    const submitWaForm = () => {
+      const { name, company, message } = waForm;
+      const waNumber = "6285817048266";
+      const waText = `Halo Mas Arif! 👋\n\nPerkenalkan, saya *${name}* dari *${company}*.\n\nSaya melihat portfolio & sistem RajinKerja.id Anda dan tertarik untuk berdiskusi lebih lanjut.\n\n"${message}"\n\nTerima kasih banyak atas waktunya! 🙏✨`;
+      const encodedText = encodeURIComponent(waText);
+      const waURL = `https://wa.me/${waNumber}?text=${encodedText}`;
+
+      Swal.fire({
+        title: 'PESAN DISIAPKAN! 🚀',
+        text: 'Pesan Anda telah dirakit otomatis. Lanjutkan obrolan di WhatsApp?',
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonColor: '#25d366',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Buka WhatsApp',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(waURL, '_blank');
+          waForm.name = '';
+          waForm.company = '';
+          waForm.message = '';
+        }
+      });
     };
-
-    const triggerAllOutAttack = () => {
-      showAllOutAttack.value = true;
-    };
-
-    onMounted(() => {
-      initThreeCanvas();
-
-      try {
-        gsap.from('.gsap-hero-el', {
-          y: 70,
-          opacity: 0,
-          duration: 0.9,
-          stagger: 0.12,
-          ease: 'power3.out'
-        });
-      } catch (e) {
-        console.warn('GSAP notice:', e);
-      }
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('resize', onResize);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      if (renderer && renderer.domElement) {
-        renderer.domElement.remove();
-      }
-    });
 
     return {
       canvasContainer,
       currentLang,
-      portfolioTheme,
-      setPortfolioTheme,
+      activeFaq,
       activeCategory,
-      activeSkillFilter,
-      personaSkills,
-      filteredSkills,
+      waForm,
       showcaseCategories,
       showcaseViews,
       filteredShowcaseViews,
-      showAllOutAttack,
       setLanguage,
       t,
-      scrollToSection,
-      triggerAllOutAttack
+      submitWaForm
     };
   }
 };
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=Cabinet+Grotesk:wght@800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&display=swap');
 
 .developer-portfolio-page {
   font-family: 'Space Grotesk', sans-serif;
-  background-color: #030714;
-  color: #ffffff;
+  --bg-color: #f8fafc;
+  --text-color: #0f172a;
+  --border-color: #0f172a;
+  --accent-main-blue: #0284c7;
+  --accent-cyan: #00e5ff;
+  --accent-soft-blue: #e0f2fe;
+  --p3r-electric-blue: #00d2ff;
+  --p3r-azure: #0ea5e9;
+  --p3r-deep-navy: #0b1329;
+  --border-width: 3px;
+  --shadow-solid: 5px 5px 0px #0284c7;
+  --shadow-hover: 2px 2px 0px #0284c7;
+
+  background-color: var(--bg-color);
+  color: var(--text-color);
   position: relative;
   overflow-x: hidden;
   margin: -1rem -1rem;
   padding: 0;
-  min-height: 100vh;
+}
+
+/* Persona 3 Reload & Persona 5 Royal Battle Hero */
+.p3r-battle-hero {
+  background: linear-gradient(135deg, #090d16 0%, #0c1c38 40%, #0369a1 85%, #00d2ff 100%);
+  color: #ffffff;
+}
+
+.p3r-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-size: 36px 36px;
+  background-image: linear-gradient(to right, rgba(0, 210, 255, 0.08) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 210, 255, 0.08) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+.p3r-diagonal-stripe {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 140%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(0, 229, 255, 0.08) 45%, rgba(14, 165, 233, 0.12) 50%, transparent 55%);
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.persona-badge {
+  background: #000000;
+  border: 2px solid var(--accent-cyan);
+  padding: 6px 14px;
+  transform: skewX(-10deg);
+  box-shadow: 4px 4px 0px var(--accent-cyan);
+}
+
+.p3r-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+  animation: p3rPulse 1.5s infinite;
+}
+
+@keyframes p3rPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.p3r-tag-bold {
+  color: var(--accent-cyan);
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+}
+
+.p3r-role-pill {
+  display: inline-block;
+  background: #ffffff;
+  color: #0b1329;
+  padding: 6px 20px;
+  font-weight: 900;
+  transform: skewX(-8deg);
+  box-shadow: 4px 4px 0px #0284c7;
+}
+
+/* Persona 5 Battle Slanted Title Cutout */
+.p5-battle-title-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  transform: rotate(-2deg);
+}
+
+.p5-battle-title {
+  display: inline-block;
+  margin: 0 auto;
+  font-size: clamp(2rem, 6vw, 4.2rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  background: #000000;
+  color: #ffffff;
+  border: 3px solid #ffffff;
+  transform: skewX(-12deg);
+  box-shadow: 6px 6px 0px var(--accent-cyan);
+  letter-spacing: -1px;
+}
+
+.p5-title-secondary {
+  background: var(--accent-cyan);
+  color: #0b1329;
+  border-color: #000000;
+  box-shadow: 6px 6px 0px #0284c7;
+}
+
+.p3r-quote-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #000000;
+  padding: 18px 24px;
+  transform: skewX(-4deg);
+  box-shadow: 5px 5px 0px #00d2ff;
+  position: relative;
+}
+
+.p3r-quote-label {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.7rem;
+  padding: 2px 10px;
+  letter-spacing: 1px;
+}
+
+.p3r-callout-ribbon {
+  display: inline-block;
+  background: var(--accent-cyan);
+  color: #0b1329;
+  font-weight: 900;
+  font-size: 1.1rem;
+  padding: 8px 22px;
+  border: 3px solid #000000;
+  transform: rotate(-1.5deg) skewX(-6deg);
+  box-shadow: 4px 4px 0px #ffffff;
+}
+
+/* Persona 5 Battle Command Menu Action Buttons */
+.p5-battle-cmd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transform: skewX(-12deg);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 3px solid #000000;
+  position: relative;
+}
+
+.p5-cmd-attack {
+  background: #0284c7;
+  color: #ffffff !important;
+  box-shadow: 5px 5px 0px var(--accent-cyan);
+}
+
+.p5-cmd-persona {
+  background: #00e5ff;
+  color: #0b1329 !important;
+  box-shadow: 5px 5px 0px #ffffff;
+}
+
+.p5-cmd-item {
+  background: #ffffff;
+  color: #0b1329 !important;
+  box-shadow: 5px 5px 0px #0284c7;
+}
+
+.p5-battle-cmd-btn:hover {
+  transform: skewX(-12deg) translate(3px, 3px);
+  box-shadow: 1px 1px 0px #000000;
 }
 
 #portfolio-canvas-container {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   pointer-events: none;
+  opacity: 0.25;
 }
 
-/* Background Overlays: Halftone & Speedlines */
-.manga-speedlines {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    -55deg,
-    rgba(0, 102, 255, 0.03) 0px,
-    rgba(0, 102, 255, 0.03) 2px,
-    transparent 2px,
-    transparent 14px
-  );
-  pointer-events: none;
-  z-index: 0;
+/* Neo brutalism styling elements */
+.brutal-box {
+  border: var(--border-width) solid var(--border-color);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-solid);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 0 !important;
 }
 
-.halftone-dot-grid {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(rgba(0, 210, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  z-index: 0;
+.brutal-box:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-hover);
 }
 
-.bg-navy-grid {
-  background: linear-gradient(180deg, rgba(3, 7, 20, 0.7) 0%, rgba(6, 18, 44, 0.85) 50%, rgba(3, 7, 20, 0.7) 100%);
-}
-
-/* Top Persona HUD Bar */
-.persona-hud-bar {
-  background: rgba(2, 6, 23, 0.88);
-  backdrop-filter: blur(12px);
-  border-bottom: 2px solid rgba(0, 102, 255, 0.4);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 1030;
-}
-
-.hud-slash-badge {
-  background: #0066ff;
-  color: #ffffff;
-  font-weight: 900;
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
-  margin-right: 6px;
-  display: inline-block;
-}
-
-.hud-title {
-  letter-spacing: 1px;
-  font-size: 1.1rem;
-}
-
-.hud-meter-wrap {
-  width: 110px;
-}
-
-.hud-bar-bg {
-  height: 6px;
-  background: #1e293b;
-  border-radius: 2px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.hud-bar-fill {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.eq-pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: #00d2ff;
-  border-radius: 50%;
-  animation: pulse-dot 1s infinite alternate ease-in-out;
-}
-
-@keyframes pulse-dot {
-  from { opacity: 0.4; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1.3); }
-}
-
-.p3-lang-btn {
-  background: #0f172a;
-  border: 1px solid rgba(0, 210, 255, 0.3);
-  color: #94a3b8;
-  font-weight: bold;
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  transition: all 0.2s;
-}
-
-.p3-lang-btn.active, .p3-lang-btn:hover {
-  background: #0066ff;
-  color: #ffffff;
-  border-color: #00d2ff;
-}
-
-/* ========================================================================= */
-/* 3D DIAGONAL MIRING KANAN KIRI ENGINE                                      */
-/* ========================================================================= */
-.card-tilt-left {
-  perspective: 1200px;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
-  transform: perspective(1000px) rotateY(6deg) skewX(-4deg) rotateZ(-1.2deg);
-}
-
-.card-tilt-right {
-  perspective: 1200px;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
-  transform: perspective(1000px) rotateY(-6deg) skewX(4deg) rotateZ(1.2deg);
-}
-
-.card-tilt-left:hover, .card-tilt-right:hover {
-  transform: perspective(1000px) translateZ(30px) rotateY(0deg) skewX(0deg) rotateZ(0deg) scale(1.02);
-  z-index: 10;
-}
-
-.card-tilt-left:hover .persona-skill-card,
-.card-tilt-left:hover .persona-char-card,
-.card-tilt-left:hover .persona-quest-card,
-.card-tilt-right:hover .persona-skill-card,
-.card-tilt-right:hover .persona-stats-card,
-.card-tilt-right:hover .persona-quest-card {
-  border-color: #00d2ff !important;
-  box-shadow: -8px 8px 0px #020617, 0 0 35px rgba(0, 102, 255, 0.5) !important;
-}
-
-/* Hero Titles */
-.p3r-battle-phase-pill {
-  background: rgba(2, 6, 23, 0.85);
-  border: 2px solid #0066ff;
-  padding: 4px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: -4px 4px 0 #000;
-}
-
-.phase-badge {
-  font-weight: 900;
-  font-size: 0.8rem;
-  padding: 2px 8px;
-}
-
-.phase-title {
-  font-weight: 800;
-  letter-spacing: 1px;
-  font-size: 0.85rem;
-}
-
-.phase-tag {
-  font-weight: 900;
-  font-size: 0.75rem;
-  padding: 2px 6px;
-}
-
-.p3r-hero-3d-stage {
-  perspective: 1000px;
-  max-width: 900px;
-}
-
-.p3r-slanted-title-left {
-  transform: perspective(900px) rotateY(8deg) skewX(-6deg) rotateZ(-2deg);
-  display: inline-block;
-  margin-bottom: 6px;
-}
-
-.p3r-slanted-title-right {
-  transform: perspective(900px) rotateY(-8deg) skewX(6deg) rotateZ(2deg);
-  display: inline-block;
-}
-
-.p3r-cutout-title {
-  font-family: 'Cabinet Grotesk', 'Space Grotesk', sans-serif;
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
+.brutal-btn {
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: -1px;
-  margin: 0;
-  background: #ffffff;
-  color: #030714;
-  padding: 4px 24px;
-  display: inline-block;
-  box-shadow: -10px 10px 0px #0066ff, -18px 18px 0px #020617;
-  border: 4px solid #000000;
-}
-
-.p3r-accent-title {
-  background: #0066ff;
-  color: #ffffff;
-  box-shadow: 10px 10px 0px #00d2ff, 18px 18px 0px #020617;
-  border: 4px solid #000000;
-}
-
-.p3r-role-banner {
-  background: #0b1a3d;
-  border: 2px solid #00d2ff;
-  color: #00d2ff;
-  font-weight: 900;
-  padding: 8px 24px;
-  box-shadow: -4px 4px 0px #020617;
-  letter-spacing: 2px;
-}
-
-.p3r-quote-battle-card {
-  background: rgba(11, 26, 61, 0.75);
-  backdrop-filter: blur(10px);
-  border: 2px solid #0066ff;
-  border-left: 8px solid #00d2ff;
-  padding: 20px 24px;
-  box-shadow: -8px 8px 0px #020617;
-  text-align: left;
-}
-
-/* Battle Command Buttons (Slanted Arc) */
-.p3-cmd-pill {
-  background: #0b1a3d;
-  border: 2px solid #0066ff;
-  color: #ffffff;
-  text-decoration: none;
-  padding: 12px 22px;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: -5px 5px 0px #020617;
-  transform: skewX(-6deg);
-  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  letter-spacing: 0.5px;
+  padding: 12px 24px;
   cursor: pointer;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-solid);
+  color: var(--text-color);
+  border-radius: 0 !important;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: inline-block;
+  text-decoration: none;
 }
 
-.p3-cmd-pill:hover {
-  background: #0066ff;
-  color: #ffffff;
-  border-color: #00d2ff;
-  transform: skewX(-6deg) translateY(-5px);
-  box-shadow: -8px 8px 0px #00d2ff, 0 0 25px rgba(0, 102, 255, 0.6);
+.brutal-btn:hover {
+  transform: translate(3px, 3px);
+  box-shadow: var(--shadow-hover);
+  color: var(--text-color);
 }
 
-.cmd-icon {
-  font-size: 1.5rem;
+.bg-main-blue { background-color: var(--accent-main-blue) !important; color: #ffffff !important; }
+.bg-cyan { background-color: var(--accent-cyan) !important; color: #0b1329 !important; }
+.bg-soft-blue { background-color: var(--accent-soft-blue) !important; color: var(--text-color) !important; }
+.bg-dark-accent { background-color: var(--p3r-deep-navy) !important; color: #ffffff !important; }
+.text-main-blue { color: var(--accent-main-blue) !important; }
+.text-cyan { color: var(--accent-cyan) !important; }
+
+.skew-title {
+  transform: skewX(-4deg) rotate(-1.5deg);
+  text-transform: uppercase;
+  font-weight: 900;
+  line-height: 1.1;
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  margin-bottom: 1rem;
 }
 
-.cmd-attack {
-  border-color: #f59e0b;
+.brutal-navbar {
+  border-bottom: var(--border-width) solid var(--border-color);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  position: sticky;
+  top: 0;
 }
-.cmd-attack:hover {
-  background: #b45309;
-  border-color: #fbbf24;
+
+.lang-btn {
+  cursor: pointer;
+  font-weight: 800;
+  padding: 3px 10px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.lang-btn.active {
+  background: var(--accent-main-blue);
+  color: #fff;
+  box-shadow: 2px 2px 0px var(--border-color);
 }
 
 /* Marquee */
-.persona-marquee {
-  background: #0066ff;
-  color: #ffffff;
-  font-weight: 900;
-  padding: 10px 0;
+.marquee {
+  width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  border-top: 3px solid #000;
-  border-bottom: 3px solid #000;
-  transform: rotate(-1deg);
-  margin: 30px -10px;
+  background: var(--text-color);
+  color: var(--accent-cyan);
+  padding: 12px 0;
+  border-top: var(--border-width) solid var(--border-color);
+  border-bottom: var(--border-width) solid var(--border-color);
+  position: relative;
+  z-index: 10;
 }
 
-.persona-marquee-inner {
+.marquee-content {
   display: inline-block;
-  animation: marquee-scroll 25s linear infinite;
-  letter-spacing: 2px;
-}
-
-@keyframes marquee-scroll {
-  from { transform: translateX(0%); }
-  to { transform: translateX(-50%); }
-}
-
-/* Persona Character & Status Cards */
-.persona-char-card, .persona-stats-card, .persona-skill-card, .persona-quest-card {
-  background: rgba(11, 26, 61, 0.85);
-  backdrop-filter: blur(12px);
-  border: 2px solid rgba(0, 102, 255, 0.6);
-  box-shadow: -8px 8px 0px #020617;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.char-photo-wrap {
-  width: 220px;
-  height: 220px;
-}
-
-.char-photo-border {
-  position: absolute;
-  inset: -6px;
-  border: 3px solid #00d2ff;
-  transform: rotate(-3deg);
-  box-shadow: -6px 6px 0px #0066ff;
-}
-
-.char-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: relative;
-  z-index: 1;
-  filter: contrast(1.1) saturate(1.1);
-  border: 3px solid #000;
-}
-
-.char-persona-tag {
-  position: absolute;
-  bottom: -10px;
-  right: -15px;
-  background: #020617;
-  border: 2px solid #00d2ff;
-  padding: 4px 10px;
-  z-index: 2;
-  box-shadow: -4px 4px 0 #000;
-}
-
-/* Stat Meters */
-.stat-track {
-  height: 8px;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.stat-fill {
-  height: 100%;
-  transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* Filter Buttons */
-.p3-filter-btn {
-  background: #0f172a;
-  border: 2px solid rgba(0, 102, 255, 0.5);
-  color: #ffffff;
-  font-weight: bold;
-  padding: 8px 18px;
-  transform: skewX(-4deg);
-  transition: all 0.2s ease;
-}
-
-.p3-filter-btn.active, .p3-filter-btn:hover {
-  background: #0066ff;
-  border-color: #00d2ff;
-  box-shadow: -4px 4px 0px #00d2ff;
-}
-
-/* Social Buttons */
-.p3-social-btn {
-  width: 50px;
-  height: 50px;
-  background: #0f172a;
-  border: 2px solid #0066ff;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-shadow: -4px 4px 0 #020617;
-  transform: skewX(-4deg);
-  transition: all 0.2s;
-}
-
-.p3-social-btn:hover {
-  background: #00d2ff;
-  color: #030714;
-  transform: skewX(-4deg) translateY(-4px);
-}
-
-/* All-Out Attack Cinematic Overlay */
-.all-out-attack-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(3, 7, 20, 0.95);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.aoa-backdrop {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(0, 102, 255, 0.15) 0px,
-    rgba(0, 102, 255, 0.15) 10px,
-    transparent 10px,
-    transparent 20px
-  );
-}
-
-.aoa-slash-line {
-  position: absolute;
-  height: 8px;
-  width: 150%;
-  background: #00d2ff;
-  box-shadow: 0 0 25px #00d2ff;
-}
-
-.aoa-slash-1 {
-  top: 30%;
-  left: -25%;
-  transform: rotate(-25deg);
-}
-
-.aoa-slash-2 {
-  bottom: 25%;
-  left: -25%;
-  transform: rotate(20deg);
-  background: #ff0055;
-  box-shadow: 0 0 25px #ff0055;
-}
-
-.aoa-content-box {
-  position: relative;
-  z-index: 2;
-  max-width: 750px;
-  padding: 30px;
-  background: #020617;
-  border: 4px solid #0066ff;
-  box-shadow: -15px 15px 0px #00d2ff, 0 0 50px rgba(0, 102, 255, 0.8);
-  transform: skewX(-4deg);
-}
-
-.aoa-big-title {
-  font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 900;
-  letter-spacing: 2px;
-  color: #ffffff;
-  text-shadow: 5px 5px 0px #0066ff, 10px 10px 0px #000;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  animation: marquee 25s linear infinite;
 }
 
-.aoa-quote-banner {
-  background: #0b1a3d;
-  border: 2px solid #00d2ff;
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* Timeline */
+.timeline { position: relative; max-width: 1200px; margin: 0 auto; }
+.timeline::after {
+  content: ''; position: absolute; width: 6px; background-color: var(--border-color);
+  top: 0; bottom: 0; left: 50%; margin-left: -3px;
+}
+.timeline-item { padding: 10px 40px; position: relative; background-color: inherit; width: 50%; }
+.timeline-item::after {
+  content: ''; position: absolute; width: 22px; height: 22px; right: -11px;
+  background-color: var(--accent-cyan); border: 4px solid var(--border-color);
+  top: 18px; z-index: 1; transition: all 0.3s ease;
+}
+.timeline-item:hover::after { transform: scale(1.4) rotate(45deg); background-color: var(--accent-main-blue); }
+.left-item { left: 0; }
+.right-item { left: 50%; }
+.right-item::after { left: -11px; }
+
+@media screen and (max-width: 768px) {
+  .timeline::after { left: 24px; }
+  .timeline-item { width: 100%; padding-left: 60px; padding-right: 15px; }
+  .left-item::after, .right-item::after { left: 13px; }
+  .right-item { left: 0%; }
 }
 
-.aoa-top-tag {
-  display: inline-block;
-  background: #ff0055;
-  padding: 4px 14px;
-  font-weight: 900;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
+.section-padding { padding: 80px 0; }
+.obj-fit-cover { object-fit: cover; }
+
+.org-banner {
+  background: repeating-linear-gradient(45deg, var(--accent-cyan), var(--accent-cyan) 20px, var(--accent-soft-blue) 20px, var(--accent-soft-blue) 40px);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-solid);
 }
 
-/* Animations */
-.all-out-fade-enter-active, .all-out-fade-leave-active {
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.all-out-fade-enter-from, .all-out-fade-leave-to {
-  opacity: 0;
-  transform: scale(1.1);
+.max-w-400 {
+  max-width: 400px;
 }
 
-/* =========================================================================
-   OMORI DARK THEME MODE (WHITE SPACE / HANDWRITTEN NOTEBOOK AESTHETIC)
-   ========================================================================= */
-.omori-theme-mode {
-  font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif !important;
-  background-color: #08080a !important;
-  color: #f3f4f6 !important;
+.hover-up {
+  transition: transform 0.2s ease;
 }
-
-.omori-theme-mode h1,
-.omori-theme-mode h2,
-.omori-theme-mode h3,
-.omori-theme-mode h4,
-.omori-theme-mode h5,
-.omori-theme-mode h6,
-.omori-theme-mode .hud-title,
-.omori-theme-mode .p3r-cutout-title,
-.omori-theme-mode .skill-name {
-  font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif !important;
-  letter-spacing: 1px !important;
-}
-
-/* Hand-drawn borders for OMORI cards */
-.omori-theme-mode .persona-quest-card,
-.omori-theme-mode .p3r-quote-battle-card,
-.omori-theme-mode .p3r-skill-slot,
-.omori-theme-mode .showcase-item-card,
-.omori-theme-mode .hud-bar-bg,
-.omori-theme-mode .aoa-content-box {
-  border: 2px solid #e2e8f0 !important;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
-  background: #111114 !important;
-  box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.25) !important;
-  transform: none !important;
-}
-
-.omori-theme-mode .p3r-slanted-title-left,
-.omori-theme-mode .p3r-slanted-title-right,
-.omori-theme-mode .card-tilt-left,
-.omori-theme-mode .card-tilt-right {
-  transform: none !important;
-}
-
-.omori-theme-mode .p3r-cutout-title {
-  color: #ffffff !important;
-  text-shadow: 3px 3px 0px #222 !important;
-  font-weight: 700 !important;
-}
-
-.omori-theme-mode .p3r-accent-title {
-  color: #e2e8f0 !important;
-  -webkit-text-stroke: 1px #ffffff !important;
-}
-
-.omori-theme-mode .btn {
-  font-family: 'Patrick Hand', cursive, sans-serif !important;
-  font-size: 1.1rem !important;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
-}
-
-/* OMORI Hanging Black Lightbulb in White Space */
-.omori-lightbulb-dangle {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 99;
-  pointer-events: none;
-  animation: bulbSwing 4s ease-in-out infinite alternate;
-}
-
-.omori-bulb-cord {
-  width: 2px;
-  height: 60px;
-  background: #ffffff;
-  margin: 0 auto;
-  opacity: 0.8;
-}
-
-.omori-bulb-glow {
-  color: #ffffff;
-  font-size: 22px;
-  text-align: center;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85));
-}
-
-@keyframes bulbSwing {
-  0% { transform: translateX(-50%) rotate(-4deg); }
-  100% { transform: translateX(-50%) rotate(4deg); }
-}
-
-.theme-mode-switch-group button {
-  cursor: pointer;
-  border: none;
-  font-size: 11px;
+.hover-up:hover {
+  transform: translateY(-3px);
 }
 </style>

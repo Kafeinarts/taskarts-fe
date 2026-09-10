@@ -13,49 +13,6 @@ const DEFAULT_NOTES = [];
 const DEFAULT_EVENTS = [];
 const DEFAULT_DIARIES = [];
 
-const DEFAULT_FREELANCE_PRODUCTS = [
-  {
-    id: 'prod_1',
-    title: 'Landing Page Responsif & Modern',
-    description: 'Pembuatan landing page profesional single-page dengan desain modern, cepat, dan mobile-friendly.',
-    features: ['Desain Responsif (Mobile & Desktop)', 'Formulir Kontak WhatsApp / Email', 'Optimasi Kecepatan & SEO Dasar', 'Revisi hingga 3x'],
-    price: 1500000,
-    is_negotiable: true,
-    category: 'Web Development',
-    delivery_time: '3-5 Hari Kerja'
-  },
-  {
-    id: 'prod_2',
-    title: 'Aplikasi Web Full-Stack / Dashboard Admin',
-    description: 'Sistem manajemen data, dashboard admin, dan CRUD terintegrasi database untuk operasional bisnis.',
-    features: ['Autentikasi & Multi-role User', 'Export PDF & Excel', 'Dashboard Statistik & Grafik', 'Garansi Bug 1 Bulan'],
-    price: 4500000,
-    is_negotiable: true,
-    category: 'Web Development',
-    delivery_time: '10-14 Hari Kerja'
-  },
-  {
-    id: 'prod_3',
-    title: 'Paket Desain UI/UX Mobile & Web (Figma)',
-    description: 'Desain visual antarmuka elegan, prototipe interaktif, dan panduan design system siap koding.',
-    features: ['Wireframe & User Flow', 'High-Fidelity Design (Figma)', 'Design System & Component Library', 'Interactive Prototype'],
-    price: 2500000,
-    is_negotiable: false,
-    category: 'UI/UX Design',
-    delivery_time: '5-7 Hari Kerja'
-  },
-  {
-    id: 'prod_4',
-    title: 'Audit Kode & Optimasi Kinerja Web',
-    description: 'Analisis mendalam performa website, perbaikan bug, dan peningkatan skor Core Web Vitals.',
-    features: ['Audit Kecepatan & Memory Leak', 'Pembersihan Dependencies Usang', 'Laporan Analisis Komprehensif', 'Implementasi Best Practices'],
-    price: 1200000,
-    is_negotiable: true,
-    category: 'Consulting',
-    delivery_time: '2-3 Hari Kerja'
-  }
-];
-
 const SAMPLE_DIARIES = [
   {
     id: 'diary_sample_1',
@@ -843,12 +800,10 @@ export default createStore({
       rabItems: loadLocal('ft_rabItems', []),
       rabIncomes: loadLocal('ft_rabIncomes', []),
       rabExpenses: loadLocal('ft_rabExpenses', []),
-      freelanceProducts: loadLocal('ft_freelanceProducts', DEFAULT_FREELANCE_PRODUCTS),
       aiProvider: loadLocal('ft_aiProvider', 'gemini'),
       aiModel: loadLocal('ft_aiModel', 'gemini-1.5-flash'),
       themeMode: loadLocal('ft_themeMode', 'light'), // Persisted theme mode
       accentColor: loadLocal('ft_accentColor', '#2563eb'), // default Material blue
-      workspaceMode: loadLocal('ft_workspace_mode', 'professional'), // Persisted workspace mode (simple, professional, sekretaris, bendahara, developer, kreatif)
       budgetThreshold: loadLocal('ft_budgetThreshold', 5000000), // Default budget threshold: Rp 5.000.000
       welcomeBanner: loadLocal('ft_welcomeBanner', {
         title: 'Selamat Datang, Rekan Kerja!',
@@ -1030,7 +985,6 @@ export default createStore({
     getAiModel: (state) => state.aiModel,
     getThemeMode: (state) => state.themeMode,
     getAccentColor: (state) => state.accentColor,
-    getWorkspaceMode: (state) => state.workspaceMode || 'professional',
     getBudgetThreshold: (state) => state.budgetThreshold,
     getMyBusiness: (state) => state.myBusiness,
     getWelcomeBanner: (state) => state.welcomeBanner || { title: 'Selamat Datang, Rekan Kerja!', subtitle: 'Pusat kendali produktivitas & organizer karir karyawan Anda: kelola tugas (5 view modes), proyek kantor, arus kas, dan invoice.' },
@@ -1044,7 +998,6 @@ export default createStore({
     },
     getSuratList: (state) => (state.suratList && state.suratList.length ? state.suratList : SAMPLE_SURAT_DRAFTS),
     getSelfieGallery: (state) => state.selfieGallery,
-    getFreelanceProducts: (state) => state.freelanceProducts || [],
 
     // RAB Getters
     getRabItems: (state) => state.rabItems || [],
@@ -1105,10 +1058,6 @@ export default createStore({
     SET_ACCENT_COLOR(state, color) {
       state.accentColor = color;
       saveLocal('ft_accentColor', state.accentColor);
-    },
-    SET_WORKSPACE_MODE(state, mode) {
-      state.workspaceMode = mode;
-      saveLocal('ft_workspace_mode', state.workspaceMode);
     },
 
     // Contacts
@@ -1484,28 +1433,6 @@ export default createStore({
     DELETE_SELFIE(state, id) {
       state.selfieGallery = state.selfieGallery.filter(s => s.id !== id);
       saveLocal('ft_selfieGallery', state.selfieGallery);
-    },
-
-    // Freelance Products & POS
-    SET_FREELANCE_PRODUCTS(state, products) {
-      state.freelanceProducts = products;
-      saveLocal('ft_freelanceProducts', products);
-    },
-    ADD_FREELANCE_PRODUCT(state, product) {
-      if (!state.freelanceProducts) state.freelanceProducts = [];
-      state.freelanceProducts.unshift(product);
-      saveLocal('ft_freelanceProducts', state.freelanceProducts);
-    },
-    UPDATE_FREELANCE_PRODUCT(state, updated) {
-      const idx = state.freelanceProducts.findIndex(p => p.id === updated.id);
-      if (idx !== -1) {
-        state.freelanceProducts.splice(idx, 1, { ...updated });
-        saveLocal('ft_freelanceProducts', state.freelanceProducts);
-      }
-    },
-    DELETE_FREELANCE_PRODUCT(state, id) {
-      state.freelanceProducts = state.freelanceProducts.filter(p => p.id !== id);
-      saveLocal('ft_freelanceProducts', state.freelanceProducts);
     },
 
     // RAB Mutations
@@ -2019,25 +1946,6 @@ export default createStore({
     },
     setAccentColor({ commit }, color) {
       commit('SET_ACCENT_COLOR', color);
-    },
-    setWorkspaceMode({ commit }, mode) {
-      commit('SET_WORKSPACE_MODE', mode);
-    },
-
-    addFreelanceProduct({ commit }, product) {
-      commit('ADD_FREELANCE_PRODUCT', {
-        ...product,
-        id: product.id || 'prod_' + Date.now() + Math.random().toString(36).substr(2, 4)
-      });
-    },
-    updateFreelanceProduct({ commit }, product) {
-      commit('UPDATE_FREELANCE_PRODUCT', product);
-    },
-    deleteFreelanceProduct({ commit }, id) {
-      commit('DELETE_FREELANCE_PRODUCT', id);
-    },
-    setFreelanceProducts({ commit }, products) {
-      commit('SET_FREELANCE_PRODUCTS', products);
     },
 
     addContact({ commit }, contact) {

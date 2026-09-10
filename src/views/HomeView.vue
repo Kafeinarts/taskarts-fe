@@ -7,13 +7,10 @@
       <!-- 1. M3 Greeting & Header Card -->
       <div class="m3-card m3-card-tonal p-3.5 mb-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <div class="d-flex align-items-center gap-1.5 flex-wrap">
+          <div class="d-flex align-items-center gap-1.5">
             <span class="m3-chip-brand">
               <i class="bi bi-stars text-warning me-1"></i>By Kafeinarts
             </span>
-            <router-link to="/modes" class="badge rounded-pill px-2.5 py-1 text-decoration-none fw-bold" :style="{ backgroundColor: currentModeConfig.materialLight, color: currentModeConfig.materialDark, border: `1px solid ${currentModeConfig.materialAccent}` }" title="Ganti Mode (Ctrl+M)">
-              <i :class="currentModeConfig.icon" class="me-1"></i>{{ currentModeConfig.title }}
-            </router-link>
             <span v-if="isBudgetExceeded" class="badge bg-danger rounded-pill px-2 py-0.5 small fw-bold">
               Over Budget
             </span>
@@ -23,10 +20,6 @@
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-1.5 mb-1">
-          <span class="badge bg-primary text-white fw-bold px-2 py-0.5 rounded-pill" style="font-size: 11px;">TASKARTS</span>
-          <span class="text-sub small fst-italic">"the art of getting things done"</span>
-        </div>
         <h2 class="fw-extrabold text-main mb-1 fs-5">
           {{ greetingTime }}, <span class="text-primary">{{ displayName }}</span> 👋
         </h2>
@@ -185,34 +178,22 @@
           <div class="col-lg-7 col-xl-8">
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
               <span class="badge-hero-capsule">
-                <i class="bi bi-palette2 me-1.5 text-primary"></i>
-                <strong class="text-primary">Taskarts</strong>
-              </span>
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold small fst-italic shadow-xs">
-                "the art of getting things done"
+                <i class="bi bi-shield-check me-1.5 text-primary"></i>
+                <span>RajinKerja Workspace</span>
               </span>
               <span class="badge-hero-kafeinarts">
                 <i class="bi bi-stars me-1 text-warning"></i>
                 <span>By Kafeinarts</span>
               </span>
-              <router-link to="/modes" class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs" :style="{ backgroundColor: currentModeConfig.materialLight, color: currentModeConfig.materialDark, border: `1px solid ${currentModeConfig.materialAccent}` }" title="Klik untuk Ganti Mode Workspace (Ctrl+M)">
-                <i :class="currentModeConfig.icon" :style="{ color: currentModeConfig.materialColor }"></i>
-                <span>{{ currentModeConfig.title }}</span>
-                <kbd class="badge bg-white text-dark py-0.5 px-1.5 border ms-1" style="font-size: 9px; font-family: inherit;">Ctrl+M</kbd>
-              </router-link>
               <span v-if="isBudgetExceeded" class="badge-hero-alert">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i>
                 <span>Budget Exceeded</span>
               </span>
             </div>
 
-            <h1 class="hero-title fw-extrabold mb-1">
+            <h1 class="hero-title fw-extrabold mb-2">
               {{ greetingTime }}, <span class="text-gradient-primary">{{ displayName }}</span>
             </h1>
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="text-primary fw-extrabold" style="letter-spacing: 0.5px;">TASKARTS</span>
-              <span class="text-sub font-monospace small">— "the art of getting things done"</span>
-            </div>
             <p class="hero-subtitle mb-4 text-muted">
               {{ welcomeBanner.subtitle || 'Pusat kendali produktivitas terpadu untuk mengelola proyek, to-do list, surat resmi, dan keuangan harian Anda.' }}
             </p>
@@ -1072,7 +1053,6 @@
 <script>
 import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useStore } from 'vuex';
-import { getModeConfig, isRouteAllowedInMode } from '../utils/workspaceModes';
 
 const ProductivityDashboard = defineAsyncComponent(() => import('@/components/ProductivityDashboard.vue'));
 const Workspace3DSimulator = defineAsyncComponent(() => import('@/components/Workspace3DSimulator.vue'));
@@ -1087,9 +1067,6 @@ export default {
   },
   setup() {
     const store = useStore();
-
-    const currentWorkspaceMode = computed(() => store.getters.getWorkspaceMode || 'professional');
-    const currentModeConfig = computed(() => getModeConfig(currentWorkspaceMode.value));
 
     // Mobile Launcher Reactive State
     const mobileSearch = ref('');
@@ -1315,12 +1292,11 @@ export default {
 
       // Media & Hiburan
       { id: 'diary', title: 'Diary & Jurnal', category: 'media', icon: 'bi-book-half', to: '/diary', bgGradient: 'linear-gradient(135deg, #ca8a04, #a16207)' },
-      { id: 'videos', title: 'Upload Media', category: 'media', icon: 'bi-collection-play-fill', to: '/videos', bgGradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
+      { id: 'videos', title: 'Video Sync', category: 'media', icon: 'bi-play-btn-fill', to: '/videos', bgGradient: 'linear-gradient(135deg, #dc2626, #991b1b)' },
       { id: 'games', title: '3D Games', category: 'media', icon: 'bi-controller', to: '/games', bgGradient: 'linear-gradient(135deg, #9333ea, #7e22ce)' },
       { id: 'mood', title: 'Kamera Mood', category: 'media', icon: 'bi-emoji-smile-fill', to: '/mood', bgGradient: 'linear-gradient(135deg, #f43f5e, #e11d48)' },
 
       // Sistem & Preferensi
-      { id: 'modes', title: 'Mode Workspace', category: 'tools', icon: 'bi-sliders2', to: '/modes', bgGradient: 'linear-gradient(135deg, #009688, #00796b)' },
       { id: 'preferences', title: 'Pengaturan', category: 'tools', icon: 'bi-sliders', to: '/preferences', bgGradient: 'linear-gradient(135deg, #475569, #334155)' },
       { id: 'faq', title: 'Panduan FAQ', category: 'tools', icon: 'bi-question-circle-fill', to: '/faq', bgGradient: 'linear-gradient(135deg, #0891b2, #0e7490)' },
       { id: 'developer', title: 'Developer', category: 'tools', icon: 'bi-person-badge-fill', to: '/developer', bgGradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }
@@ -1328,9 +1304,6 @@ export default {
 
     const filteredQuickApps = computed(() => {
       let list = quickAccessApps;
-      // Filter apps allowed in the current workspace mode
-      list = list.filter(app => isRouteAllowedInMode(app.to, currentWorkspaceMode.value));
-
       if (mobileCategory.value !== 'all') {
         list = list.filter(app => app.category === mobileCategory.value);
       }
@@ -1376,8 +1349,6 @@ export default {
     };
 
     return {
-      currentWorkspaceMode,
-      currentModeConfig,
       mobileSearch,
       mobileCategory,
       mobileCategories,
