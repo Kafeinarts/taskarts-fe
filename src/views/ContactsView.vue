@@ -1113,7 +1113,7 @@ export default {
     const exportContactsJson = () => {
       try {
         const payload = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           type: 'contacts_backup',
           version: '2.5',
           exportDate: new Date().toISOString(),
@@ -1124,7 +1124,7 @@ export default {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Kontak_RajinKerja_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `Kontak_TaskArts_${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

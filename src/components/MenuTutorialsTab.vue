@@ -14,7 +14,7 @@
           </div>
           <h4 class="fw-extrabold text-dark mb-1">Tutorial Penggunaan Seluruh Menu & Fitur</h4>
           <p class="text-muted small mb-0">
-            Panduan mendalam langkah demi langkah, rincian tombol penting, skenario nyata, dan tips efisiensi untuk setiap menu di RajinKerja.id.
+            Panduan mendalam langkah demi langkah, rincian tombol penting, skenario nyata, dan tips efisiensi untuk setiap menu di TaskArts.
           </p>
         </div>
 
@@ -320,7 +320,7 @@ export default {
 
     const copyTutorialSummary = (tut) => {
       const stepsText = tut.steps.map(s => `Langkah ${s.stepNumber}. ${s.title}: ${s.desc}`).join('\n');
-      const text = `📖 PANDUAN PENGGUNAAN: ${tut.title.toUpperCase()}\n\nFungsi: ${tut.overview}\nTarget: ${tut.targetUser}\n\nLANGKAH KERJA:\n${stepsText}\n\nPRO TIPS:\n- ${tut.proTips.join('\n- ')}\n\n(RajinKerja.id Work Suite)`;
+      const text = `📖 PANDUAN PENGGUNAAN: ${tut.title.toUpperCase()}\n\nFungsi: ${tut.overview}\nTarget: ${tut.targetUser}\n\nLANGKAH KERJA:\n${stepsText}\n\nPRO TIPS:\n- ${tut.proTips.join('\n- ')}\n\n(TaskArts Work Suite)`;
       
       navigator.clipboard.writeText(text);
       sendOnDeviceNotification(`📋 Panduan ${tut.title.split('&')[0]} Disalin!`, {

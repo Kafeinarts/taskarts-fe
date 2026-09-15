@@ -6,7 +6,7 @@
         <div class="col-lg-8">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
             <span class="badge bg-primary text-white fw-bold px-3 py-1.5 rounded-pill fs-6">
-              <i class="bi bi-patch-check-fill me-1"></i> RajinKerja.id Work Suite v2.5
+              <i class="bi bi-patch-check-fill me-1"></i> TaskArts Work Suite v2.5
             </span>
             <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill" v-if="isOnline">
               <i class="bi bi-wifi me-1"></i> Online & PWA Active
@@ -42,8 +42,8 @@
 
         <div class="col-lg-4 text-center">
           <div class="bg-white bg-opacity-10 p-4 rounded-4 border border-white border-opacity-10 shadow-sm backdrop-blur">
-            <img src="/logo.svg" alt="RajinKerja Logo" style="width: 80px; height: 80px;" class="mb-3 p-1 bg-white rounded-3 shadow-sm" />
-            <h5 class="fw-extrabold text-white mb-1">RajinKerja<span class="text-primary">.id</span></h5>
+            <img src="/logo.svg" alt="TaskArts Logo" style="width: 80px; height: 80px;" class="mb-3 p-1 bg-white rounded-3 shadow-sm" />
+            <h5 class="fw-extrabold text-white mb-1">Task<span class="text-primary">Arts</span></h5>
             <p class="small text-slate-300 mb-2">Workflow & Productivity OS</p>
             <div class="d-flex justify-content-center gap-1">
               <span class="badge bg-success rounded-pill px-2.5 py-1 small fw-bold">100% Local-First</span>
@@ -120,7 +120,7 @@
         </div>
 
         <p class="text-muted small mb-4">
-          Berikut adalah penjelasan mendalam tentang fungsi, keunggulan teknis, dan alur penggunaan dari 20 modul kerja yang tersedia di RajinKerja.id:
+          Berikut adalah penjelasan mendalam tentang fungsi, keunggulan teknis, dan alur penggunaan dari 20 modul kerja yang tersedia di TaskArts:
         </p>
 
         <div class="row g-4">
@@ -178,7 +178,7 @@
         </div>
 
         <p class="text-muted small mb-4">
-          RajinKerja.id menyimpan sejumlah fitur canggih dan integrasi otomatis yang dirancang untuk mempercepat produktivitas kerja harian Anda tanpa diketahui banyak pengguna:
+          TaskArts menyimpan sejumlah fitur canggih dan integrasi otomatis yang dirancang untuk mempercepat produktivitas kerja harian Anda tanpa diketahui banyak pengguna:
         </p>
 
         <div class="row g-4">
@@ -206,7 +206,7 @@
                 <h5 class="fw-bold text-dark mb-0">Skema Universal JSON Export & Import</h5>
               </div>
               <p class="small text-secondary lh-base mb-2">
-                Setiap file JSON cadangan yang diekspor dari RajinKerja.id memiliki struktur standar <code>{ app: "RajinKerja", version: "2.5", ... }</code>. Anda dapat mengimpor file satu modul (seperti CV atau Invoice saja) atau memulihkan seluruh aplikasi (Full Restore) dengan tombol <em>Pulihkan & Timpa</em> di menu Preferences.
+                Setiap file JSON cadangan yang diekspor dari TaskArts memiliki struktur standar <code>{ app: "TaskArts", version: "2.5", ... }</code>. Anda dapat mengimpor file satu modul (seperti CV atau Invoice saja) atau memulihkan seluruh aplikasi (Full Restore) dengan tombol <em>Pulihkan & Timpa</em> di menu Preferences.
               </p>
               <div class="small bg-white p-2 rounded border font-monospace text-primary">
                 Export JSON ➔ Cross-Browser Sync ➔ Offline Storage Migration
@@ -358,7 +358,7 @@
         </div>
 
         <p class="text-muted small mb-4">
-          RajinKerja.id adalah Progressive Web App (PWA) yang dapat diinstall layaknya aplikasi native tanpa memerlukan Google Play Store atau App Store. Aplikasi dapat dibuka secara offline, memiliki ikon mandiri di home screen, dan berjalan dengan layar penuh.
+          TaskArts adalah Progressive Web App (PWA) yang dapat diinstall layaknya aplikasi native tanpa memerlukan Google Play Store atau App Store. Aplikasi dapat dibuka secara offline, memiliki ikon mandiri di home screen, dan berjalan dengan layar penuh.
         </p>
 
         <div class="row g-4">
@@ -370,7 +370,7 @@
                 <h6 class="fw-bold text-dark mb-0">Google Chrome di Android</h6>
               </div>
               <ol class="small text-secondary lh-lg mb-0 ps-3">
-                <li>Buka situs RajinKerja.id di browser Chrome Android.</li>
+                <li>Buka situs TaskArts di browser Chrome Android.</li>
                 <li>Klik ikon titik tiga (⋮) di sudut kanan atas layar.</li>
                 <li>Pilih menu <strong>"Tambahkan ke Layar Utama"</strong> atau <strong>"Install Aplikasi"</strong>.</li>
                 <li>Konfirmasi pemasangan. Ikon aplikasi akan muncul di app drawer smartphone Anda.</li>
@@ -404,7 +404,7 @@
               <ol class="small text-secondary lh-lg mb-0 ps-3">
                 <li>Buka aplikasi di Chrome atau Microsoft Edge.</li>
                 <li>Lihat ikon monitor kecil bertanda (+) di sisi kanan address bar URL.</li>
-                <li>Klik tombol <strong>"Install RajinKerja.id"</strong>.</li>
+                <li>Klik tombol <strong>"Install TaskArts"</strong>.</li>
                 <li>Aplikasi akan terbuka di jendela tersendiri tanpa address bar browser.</li>
               </ol>
             </div>
@@ -428,12 +428,12 @@
               <div>
                 <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 fw-bold small mb-1">Lead Architect & Developer</span>
                 <h5 class="fw-extrabold text-dark mb-0">Arif Permana Putrasuryana</h5>
-                <small class="text-muted">Creator & Lead Engineer RajinKerja.id</small>
+                <small class="text-muted">Creator & Lead Engineer TaskArts</small>
               </div>
             </div>
 
             <p class="small text-secondary lh-base mb-4">
-              RajinKerja.id dikembangkan secara independen oleh Arif Permana Putrasuryana (By Kafeinarts) sebagai solusi sistem operasi produktivitas yang memprioritaskan portabilitas data, privasi penuh tanpa tracking, serta kenyamanan di berbagai perangkat mobile dan desktop.
+              TaskArts dikembangkan secara independen oleh Arif Permana Putrasuryana (By Kafeinarts) sebagai solusi sistem operasi produktivitas yang memprioritaskan portabilitas data, privasi penuh tanpa tracking, serta kenyamanan di berbagai perangkat mobile dan desktop.
             </p>
 
             <h6 class="fw-bold text-dark mb-2 small"><i class="bi bi-link-45deg me-1 text-primary"></i>Media Sosial & Portofolio Resmi:</h6>
@@ -489,7 +489,7 @@
             </div>
 
             <p class="small text-slate-300 lh-base mb-3">
-              Source code lengkap RajinKerja.id tersedia secara terbuka di GitHub. Anda dapat melakukan fork, kloning, kontribusi, atau self-hosting aplikasi ini secara gratis.
+              Source code lengkap TaskArts tersedia secara terbuka di GitHub. Anda dapat melakukan fork, kloning, kontribusi, atau self-hosting aplikasi ini secara gratis.
             </p>
 
             <div class="p-3 bg-black bg-opacity-50 rounded-3 mb-3 border border-secondary border-opacity-25">
@@ -905,7 +905,7 @@ export default {
         answer: 'Buka menu <strong>Preferences</strong> ➔ Pada bagian <em>Pencadangan & Pemulihan Seluruh Data</em>, klik tombol <strong>Ekspor Semua Data (Full Backup)</strong> untuk mengunduh berkas `.json`. Untuk memulihkan, pilih file JSON cadangan Anda lalu klik tombol <strong>Pulihkan & Timpa (Full Recovery)</strong>.'
       },
       {
-        question: 'Apakah RajinKerja.id dapat digunakan saat tidak ada jaringan internet (Offline)?',
+        question: 'Apakah TaskArts dapat digunakan saat tidak ada jaringan internet (Offline)?',
         answer: 'Ya, 100%! Aplikasi ini dirancang dengan prinsip <em>Offline-First</em> dan Service Worker PWA. Semua data Anda tersimpan di memori lokal peramban (localStorage) sehingga aplikasi tetap dapat dibuka dan digunakan dengan lancar di mana saja tanpa koneksi internet.'
       },
       {

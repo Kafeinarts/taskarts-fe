@@ -1,5 +1,5 @@
 // src/data/menuTutorials.js
-// Panduan & Tutorial Lengkap Seluruh Menu RajinKerja.id
+// Panduan & Tutorial Lengkap Seluruh Menu TaskArts
 
 export const MENU_CATEGORIES = [
   { id: 'all', name: '🌟 Semua Menu', count: 25 },
@@ -1242,8 +1242,8 @@ export const MENU_TUTORIALS = [
       {
         stepNumber: 2,
         title: 'Pasang Aplikasi ke HP (Install PWA)',
-        desc: 'Gunakan panel PWA untuk menginstall RajinKerja.id langsung ke layar utama HP Android/iOS Anda agar berjalan layaknya aplikasi native.',
-        keyAction: 'Klik tombol "Install RajinKerja ke HP / Device".'
+        desc: 'Gunakan panel PWA untuk menginstall TaskArts langsung ke layar utama HP Android/iOS Anda agar berjalan layaknya aplikasi native.',
+        keyAction: 'Klik tombol "Install TaskArts ke HP / Device".'
       },
       {
         stepNumber: 3,
@@ -1271,7 +1271,7 @@ export const MENU_TUTORIALS = [
     ],
     practicalScenario: {
       context: 'Membeli laptop baru dan ingin memindahkan seluruh database pekerjaan dari laptop lama ke laptop baru.',
-      solution: 'Di laptop lama: buka Preferences, klik "Ekspor Semua Data (Full Backup)". Di laptop baru: buka RajinKerja.id, pilih file JSON tadi, dan klik "Pulihkan & Timpa". Seluruh data seketika berpindah utuh.'
+      solution: 'Di laptop lama: buka Preferences, klik "Ekspor Semua Data (Full Backup)". Di laptop baru: buka TaskArts, pilih file JSON tadi, dan klik "Pulihkan & Timpa". Seluruh data seketika berpindah utuh.'
     },
     proTips: [
       'Simpan file backup JSON mingguan Anda di Google Drive atau flashdisk sebagai cadangan permanen.'
@@ -1342,7 +1342,7 @@ export const MENU_TUTORIALS = [
     icon: '👨‍💻',
     badge: 'Profil Pembuat & Dukung Dev',
     route: '/developer',
-    overview: 'Halaman portofolio resmi pembuat RajinKerja.id (Arif Permana Putrasuryana) yang memuat perjalanan karir rekayasa perangkat lunak, keahlian teknologi, repositori GitHub, serta sarana donasi apresiasi pengembang.',
+    overview: 'Halaman portofolio resmi pembuat TaskArts (Arif Permana Putrasuryana) yang memuat perjalanan karir rekayasa perangkat lunak, keahlian teknologi, repositori GitHub, serta sarana donasi apresiasi pengembang.',
     targetUser: 'Pengguna, perekrut, rekan developer, dan siapapun yang ingin berkolaborasi atau mendukung kelanjutan pengembangan aplikasi.',
     steps: [
       {

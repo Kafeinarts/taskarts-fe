@@ -1,5 +1,5 @@
 /**
- * Storage Manager Utility for RajinKerja.id
+ * Storage Manager Utility for TaskArts
  * Monitors LocalStorage & Cache Memory capacity, calculates usage, and guards against quota overflow.
  * Storage limit extended to 5 GB (Cache Memory mode).
  */
@@ -288,7 +288,7 @@ export function clearTemporaryCache() {
 }
 
 /**
- * Total Reset (Factory Reset) for RajinKerja.id
+ * Total Reset (Factory Reset) for TaskArts
  * Wipes all application data from LocalStorage and triggers storage quota update events.
  * Optionally preserves visual appearance settings (Theme Mode and Accent Color).
  */

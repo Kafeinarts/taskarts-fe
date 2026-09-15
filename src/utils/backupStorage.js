@@ -1,6 +1,6 @@
 /**
  * backupStorage.js
- * High-capacity asynchronous storage manager for RajinKerja nightly automated snapshots.
+ * High-capacity asynchronous storage manager for TaskArts nightly automated snapshots.
  *
  * Uses browser IndexedDB instead of localStorage to prevent QuotaExceededError (5MB limit).
  * Automatically cleans up any legacy monolithic snapshots from localStorage to free up space.

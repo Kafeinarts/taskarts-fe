@@ -385,7 +385,7 @@ export default {
           pdf.setFontSize(16);
           pdf.text(docTitle.value, 10, 15);
           pdf.setFontSize(10);
-          pdf.text(`Dipindai via RajinKerja Camera Scanner - ${new Date().toLocaleString('id-ID')}`, 10, 22);
+          pdf.text(`Dipindai via TaskArts Camera Scanner - ${new Date().toLocaleString('id-ID')}`, 10, 22);
 
           pdf.addImage(capturedImage.value, 'PNG', 10, 28, pdfWidth, Math.min(pdfHeight, 240));
 

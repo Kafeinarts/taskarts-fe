@@ -9,11 +9,11 @@
       <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
         <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
           <div class="brand-icon-wrapper shadow-sm">
-            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+            <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
           </div>
           <div class="lh-1 text-truncate">
             <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
-              RajinKerja<span class="brand-accent" :style="{ color: accentColor }">.id</span>
+              Task<span class="brand-accent" :style="{ color: accentColor }">Arts</span>
             </span>
             <div class="d-flex align-items-center gap-1.5 mt-1">
               <span class="brand-badge-kafeinarts">
@@ -24,8 +24,8 @@
         </router-link>
 
         <div v-else class="mx-auto">
-          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="RajinKerja.id By Kafeinarts">
-            <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="TaskArts By Kafeinarts">
+            <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
           </router-link>
         </div>
 
@@ -190,13 +190,13 @@
             <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
           </router-link>
 
-          <!-- Quick Camera Shortcut Button -->
-          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
+          <!-- Quick Camera Shortcut Button (Desktop / Tablet) -->
+          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
             <i class="bi bi-camera-fill text-secondary fs-6"></i>
           </router-link>
 
-          <!-- Quick Mood Tracker & Alarm Shortcut Button -->
-          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
+          <!-- Quick Mood Tracker & Alarm Shortcut Button (Desktop / Tablet) -->
+          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
             <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
           </router-link>
 
@@ -229,10 +229,10 @@
             <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
           </button>
 
-          <!-- Storage Link -->
+          <!-- Storage Link (Desktop & Tablet) -->
           <router-link
             to="/storage"
-            class="btn btn-sm border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn position-relative"
+            class="btn btn-sm border rounded-circle p-0 d-none d-sm-flex align-items-center justify-content-center header-icon-btn position-relative"
             :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
             title="Kapasitas & Kuota Storage"
           >
@@ -247,21 +247,26 @@
         </div>
       </header>
 
-      <!-- Mobile Offcanvas Drawer -->
+      <!-- Mobile Bottom Sheet Navigation Menu (Slides Up From Bottom) -->
       <transition name="overlay-fade">
         <div class="offcanvas-overlay" v-if="mobileDrawer" @click="mobileDrawer = false"></div>
       </transition>
       
-      <transition name="drawer-slide">
-        <div class="mobile-drawer p-3" v-if="mobileDrawer">
-          <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+      <transition name="sheet-slide-up">
+        <div class="mobile-bottom-sheet-menu px-3.5 pt-2 pb-4" v-if="mobileDrawer">
+          <!-- Drag Handle Indicator -->
+          <div class="mobile-sheet-drag-handle-bar mb-2" @click="mobileDrawer = false">
+            <span class="mobile-sheet-drag-pill"></span>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pb-2.5 border-bottom mb-2.5">
             <div class="d-flex align-items-center gap-2">
               <div class="brand-icon-wrapper shadow-sm">
-                <img src="/logo.svg" alt="RajinKerja Logo" class="brand-logo-img" />
+                <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
               </div>
               <div class="lh-1">
-                <span class="fw-bold fs-5 text-app">RajinKerja.id</span>
-                <small class="brand-badge-kafeinarts d-block mt-0.5">By Kafeinarts</small>
+                <span class="fw-bold fs-5 text-app">Task<span :style="{ color: accentColor }">Arts</span></span>
+                <small class="brand-badge-kafeinarts d-block mt-0.5">Menu & Navigasi</small>
               </div>
             </div>
             <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
@@ -270,46 +275,51 @@
           </div>
 
           <!-- Mobile Search Filter -->
-          <div class="mb-3">
-            <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1.5 border">
-              <i class="bi bi-search text-muted me-2" style="font-size: 12px;"></i>
+          <div class="mb-2.5">
+            <div class="search-input-group d-flex align-items-center rounded-pill px-3 py-1.5 border bg-surface">
+              <i class="bi bi-search text-muted me-2" style="font-size: 13px;"></i>
               <input 
                 v-model="sidebarSearch" 
                 type="text" 
                 class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
-                placeholder="Cari menu..." 
+                placeholder="Cari menu (Surat, To-Do, Kas, CV...)" 
                 style="font-size: 13px;"
               />
+              <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link p-0 text-muted ms-1 text-decoration-none">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
             </div>
           </div>
 
-          <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
-            <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2">
-              <div class="sidebar-section-header px-1 pt-1">{{ group.title }}</div>
-              <router-link 
-                v-for="item in group.items" 
-                :key="item.to" 
-                :to="item.to" 
-                class="material-nav-link"
-              >
-                <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
-                  <i :class="item.icon" class="nav-icon"></i>
-                </div>
-                <span>{{ item.label }}</span>
-                <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
-                  {{ item.badge() }}
-                </span>
-                <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
-                  {{ item.badgeText }}
-                </span>
-              </router-link>
-            </div>
-          </nav>
+          <div class="mobile-sheet-scroll-body">
+            <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
+              <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2.5">
+                <div class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">{{ group.title }}</div>
+                <router-link 
+                  v-for="item in group.items" 
+                  :key="item.to" 
+                  :to="item.to" 
+                  class="material-nav-link"
+                >
+                  <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                    <i :class="item.icon" class="nav-icon"></i>
+                  </div>
+                  <span class="fw-medium">{{ item.label }}</span>
+                  <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                    {{ item.badge() }}
+                  </span>
+                  <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                    {{ item.badgeText }}
+                  </span>
+                </router-link>
+              </div>
+            </nav>
 
-          <div class="p-2 border-top mt-3">
-            <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2">
-              <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
-            </button>
+            <div class="p-2 border-top mt-2 mb-1">
+              <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5">
+                <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
+              </button>
+            </div>
           </div>
         </div>
       </transition>
@@ -518,7 +528,7 @@ export default {
       for (const key of Object.keys(routeTitles)) {
         if (key !== '/' && path.startsWith(key)) return routeTitles[key].title;
       }
-      return 'RajinKerja.id';
+      return 'TaskArts';
     });
 
     const currentPageIcon = computed(() => {
@@ -588,7 +598,7 @@ export default {
             } catch (e) {}
 
             const fullState = {
-              app: 'RajinKerja',
+              app: 'TaskArts',
               version: '2.5',
               exportDate: new Date().toISOString(),
               rabItems: store.getters.getRabItems || [],
@@ -1200,9 +1210,21 @@ body {
   color: var(--primary-color) !important;
 }
 
-.btn-outline-primary:hover {
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-primary.show,
+.btn-check:checked + .btn-outline-primary {
   background-color: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary.active *,
+.btn-outline-primary:active *,
+.btn-outline-primary:hover *,
+.btn-check:checked + .btn-outline-primary * {
   color: #ffffff !important;
 }
 
@@ -1551,40 +1573,70 @@ body {
   opacity: 0;
 }
 
-/* Drawer slide transition */
-.drawer-slide-enter-active,
-.drawer-slide-leave-active {
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+/* Sheet slide-up transition (Slide from bottom to top) */
+.sheet-slide-up-enter-active,
+.sheet-slide-up-leave-active {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
 }
 
-.drawer-slide-enter-from,
-.drawer-slide-leave-to {
-  transform: translateX(-100%);
+.sheet-slide-up-enter-from,
+.sheet-slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0.85;
 }
 
-/* Mobile Drawer & Overlay */
+/* Mobile Bottom Sheet Menu & Overlay */
 .offcanvas-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 1050;
 }
 
-.mobile-drawer {
+.mobile-bottom-sheet-menu {
   position: fixed;
-  top: 0;
-  left: 0;
   bottom: 0;
-  width: 290px;
+  left: 0;
+  right: 0;
+  top: auto;
+  max-height: 84vh;
+  height: auto;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
   background-color: var(--sidebar-bg);
   z-index: 1060;
+  box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-sheet-drag-handle-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0 2px 0;
+  cursor: pointer;
+}
+
+.mobile-sheet-drag-pill {
+  width: 44px;
+  height: 5px;
+  border-radius: 9999px;
+  background-color: var(--border-color);
+  opacity: 0.85;
+}
+
+.mobile-sheet-scroll-body {
   overflow-y: auto;
-  box-shadow: 6px 0 24px rgba(0, 0, 0, 0.22);
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  padding-right: 2px;
+  overscroll-behavior: contain;
 }
 
 /* Material Design 3 Top App Bar & Back Button */
@@ -1818,12 +1870,95 @@ body {
   }
   .main-content {
     margin-left: 0 !important;
-    padding-bottom: 84px !important;
+    padding-bottom: 96px !important;
   }
+
+  /* Main viewport with generous breathing room away from device edges */
   .main-view-viewport {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    padding-bottom: 30px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-top: 14px !important;
+    padding-bottom: 96px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 1. Eliminate the edge-touching effect caused by Bootstrap row negative margins */
+  .main-view-viewport .row {
+    margin-left: -6px !important;
+    margin-right: -6px !important;
+  }
+  .main-view-viewport .row > [class*="col-"] {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  /* 2. Responsive card padding: prevent desktop p-4/p-5 from crushing mobile inner space */
+  .main-view-viewport .card {
+    border-radius: 16px !important;
+  }
+  .main-view-viewport .card-body.p-4,
+  .main-view-viewport .card.p-4,
+  .main-view-viewport .p-4:not(.keep-pad-4) {
+    padding: 1rem !important; /* 16px */
+  }
+  .main-view-viewport .card-header.p-4 {
+    padding: 0.875rem 1rem !important;
+  }
+  .main-view-viewport .card-footer.p-4 {
+    padding: 0.875rem 1rem !important;
+  }
+  .main-view-viewport .p-5 {
+    padding: 1.25rem !important;
+  }
+
+  /* 3. Action button toolbars and menus across all views: full touch targets with no overlap */
+  .main-view-viewport .d-flex.flex-wrap.gap-2 {
+    width: 100% !important;
+  }
+  .main-view-viewport .d-flex.flex-wrap.gap-2 > .btn {
+    flex: 1 1 auto;
+    min-height: 40px;
+    font-size: 13px;
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 4. Tab navigation & pill menus: smooth horizontal scrolling without ugly scrollbars */
+  .main-view-viewport .nav-tabs,
+  .main-view-viewport .nav-pills {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 4px !important;
+  }
+  .main-view-viewport .nav-tabs::-webkit-scrollbar,
+  .main-view-viewport .nav-pills::-webkit-scrollbar {
+    display: none;
+  }
+  .main-view-viewport .nav-tabs .nav-link,
+  .main-view-viewport .nav-pills .nav-link {
+    white-space: nowrap !important;
+    font-size: 13px !important;
+    padding: 6px 14px !important;
+  }
+
+  /* 5. Mobile Bottom Sheet navigation item polish */
+  .mobile-bottom-sheet-menu .material-nav-link {
+    padding: 9px 12px;
+    border-radius: 12px;
+    margin-bottom: 3px;
+    font-size: 13.5px;
+    min-height: 44px;
+  }
+
+  /* 6. Mobile bottom navigation bar safe padding */
+  .m3-bottom-nav {
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 4px 12px max(4px, env(safe-area-inset-bottom, 0px)) 12px !important;
   }
 }
 

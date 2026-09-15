@@ -343,8 +343,8 @@ const SAMPLE_CONTACTS = [
   {
     id: 'c2',
     name: 'Rian Prasetyo',
-    company: 'RajinKerja Core Team',
-    email: 'rian.dev@rajinkerja.id',
+    company: 'TaskArts Core Team',
+    email: 'rian.dev@taskarts.id',
     phone: '081398765432',
     address: 'BSD City, Tangerang Selatan',
     category: 'Tim Internal',
@@ -355,8 +355,8 @@ const SAMPLE_CONTACTS = [
   {
     id: 'c3',
     name: 'Dinda Kirana',
-    company: 'RajinKerja Core Team',
-    email: 'dinda.design@rajinkerja.id',
+    company: 'TaskArts Core Team',
+    email: 'dinda.design@taskarts.id',
     phone: '085712345678',
     address: 'Kebayoran Baru, Jakarta Selatan',
     category: 'Tim Internal',
@@ -822,7 +822,7 @@ export default createStore({
       userProfile: loadLocal('ft_userProfile', {
         name: 'Arip Developer',
         jobTitle: 'Full-Stack Developer & Tech Lead',
-        company: 'RajinKerja Studio',
+        company: 'TaskArts Studio',
         bio: 'Productive developer creating high-performance web solutions & productivity tools.',
         email: 'aripstrike@gmail.com',
         phone: '081234567890',

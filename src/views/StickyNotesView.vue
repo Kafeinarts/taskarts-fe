@@ -7,7 +7,7 @@
         <div>
           <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
             <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1.5 rounded-pill">
-              <i class="bi bi-journal-bookmark-fill me-1"></i> RajinKerja Notes & Docs
+              <i class="bi bi-journal-bookmark-fill me-1"></i> TaskArts Notes & Docs
             </span>
             <span class="badge bg-purple-subtle text-purple fw-bold px-3 py-1.5 rounded-pill">
               <i class="bi bi-diagram-3-fill me-1"></i> Mermaid Supported

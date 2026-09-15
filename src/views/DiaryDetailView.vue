@@ -164,7 +164,7 @@
 
         <!-- Story Footer Quote / Footnote -->
         <div class="p-3.5 bg-white bg-opacity-70 rounded-3 border border-dark border-opacity-10 text-center small text-muted font-monospace">
-          <i class="bi bi-pen me-1"></i> Ditulis & disimpan dengan aman di RajinKerja Personal Journal.
+          <i class="bi bi-pen me-1"></i> Ditulis & disimpan dengan aman di TaskArts Personal Journal.
         </div>
       </div>
     </div>

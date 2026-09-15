@@ -81,7 +81,7 @@
               type="text"
               class="form-control form-control-lg fw-extrabold text-dark rounded-3 border-2 fs-4"
               v-model="activeDraft.title"
-              placeholder="Contoh: Mengapa Saya Memilih Vue.js untuk Membangun RajinKerja.id"
+              placeholder="Contoh: Mengapa Saya Memilih Vue.js untuk Membangun TaskArts"
               @input="autoSave"
             />
           </div>

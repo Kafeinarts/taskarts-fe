@@ -852,7 +852,7 @@ export default {
     const exportInvoiceJson = () => {
       try {
         const payload = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           type: 'invoices_backup',
           version: '2.5',
           exportDate: new Date().toISOString(),

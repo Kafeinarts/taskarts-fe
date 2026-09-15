@@ -56,10 +56,10 @@ export function sendOnDeviceNotification(title, options = {}) {
   if (typeof window !== 'undefined' && checkNotificationSupport() && Notification.permission === 'granted') {
     try {
       const notif = new Notification(notifTitle, {
-        body: notifBody || 'RajinKerja Work Suite System Alert',
+        body: notifBody || 'TaskArts Work Suite System Alert',
         icon: '/logo.svg',
         badge: '/logo.svg',
-        tag: opts.tag || 'rajinkerja-notif-' + Date.now(),
+        tag: opts.tag || 'taskarts-notif-' + Date.now(),
         renotify: true,
         vibrate: [200, 100, 200]
       });

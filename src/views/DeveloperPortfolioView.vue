@@ -829,7 +829,7 @@ export default {
         about_city: "Kota: Depok, Jawa Barat",
         skills_title: "Technical Arsenal",
         sys_showcase_title: "ARSITEKTUR & KOMPONEN APP",
-        sys_showcase_sub: "Analisis mendalam per tiap view dan komponen yang membangun sistem RajinKerja.id",
+        sys_showcase_sub: "Analisis mendalam per tiap view dan komponen yang membangun sistem TaskArts",
         services_title: "LAYANAN",
         services_subtitle: "Solusi digital inovatif untuk kebutuhan bisnis Anda.",
         srv_web_title: "Pengembangan Web",
@@ -913,7 +913,7 @@ export default {
         about_city: "City: Depok, West Java",
         skills_title: "Technical Arsenal",
         sys_showcase_title: "APP ARCHITECTURE & VIEWS SHOWCASE",
-        sys_showcase_sub: "In-depth breakdown of every view and component building RajinKerja.id OS",
+        sys_showcase_sub: "In-depth breakdown of every view and component building TaskArts OS",
         services_title: "SERVICES",
         services_subtitle: "Innovative digital solutions for your business needs.",
         srv_web_title: "Web Development",
@@ -997,7 +997,7 @@ export default {
         about_city: "都市: 西ジャワ州、デポック",
         skills_title: "技術スタック",
         sys_showcase_title: "アプリの構造と各画面の解説",
-        sys_showcase_sub: "RajinKerja.id OSを構築する各コンポーネントとViewの完全分析",
+        sys_showcase_sub: "TaskArts OSを構築する各コンポーネントとViewの完全分析",
         services_title: "サービス",
         services_subtitle: "ビジネスニーズに向けた革新的なデジタルソリューション。",
         srv_web_title: "ウェブ開発",
@@ -1331,7 +1331,7 @@ export default {
     const submitWaForm = () => {
       const { name, company, message } = waForm;
       const waNumber = "6285817048266";
-      const waText = `Halo Mas Arif! 👋\n\nPerkenalkan, saya *${name}* dari *${company}*.\n\nSaya melihat portfolio & sistem RajinKerja.id Anda dan tertarik untuk berdiskusi lebih lanjut.\n\n"${message}"\n\nTerima kasih banyak atas waktunya! 🙏✨`;
+      const waText = `Halo Mas Arif! 👋\n\nPerkenalkan, saya *${name}* dari *${company}*.\n\nSaya melihat portfolio & sistem TaskArts Anda dan tertarik untuk berdiskusi lebih lanjut.\n\n"${message}"\n\nTerima kasih banyak atas waktunya! 🙏✨`;
       const encodedText = encodeURIComponent(waText);
       const waURL = `https://wa.me/${waNumber}?text=${encodedText}`;
 

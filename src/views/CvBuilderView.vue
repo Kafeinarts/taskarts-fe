@@ -2365,7 +2365,7 @@ export default {
     const exportCvJson = () => {
       try {
         const payload = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           module: 'CvBuilder',
           cvMode: cvMode.value,
           exportDate: new Date().toISOString(),
@@ -2381,7 +2381,7 @@ export default {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `CV_ATS_RajinKerja_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `CV_ATS_TaskArts_${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

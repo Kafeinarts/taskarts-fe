@@ -1,5 +1,5 @@
 {
-  "name": "RajinKerja.id",
+  "name": "TaskArts",
   "description": "Platform pengorganisir pekerjaan, tugas harian, proyek kantor, keuangan, dan produktivitas karyawan & profesional.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

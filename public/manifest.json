@@ -1,6 +1,6 @@
 {
-  "name": "RajinKerja.id Work Suite",
-  "short_name": "RajinKerja",
+  "name": "TaskArts Work Suite",
+  "short_name": "TaskArts",
   "description": "Organizer pekerjaan, tugas harian, dan produktivitas karyawan profesional.",
   "start_url": "/",
   "display": "standalone",

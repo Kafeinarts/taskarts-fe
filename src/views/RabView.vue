@@ -1287,7 +1287,7 @@ export default {
         `;
 
         openPrintableDocumentInNewTab({
-          title: `Laporan_RAB_${exporterMeta.lokasiTanggal || 'RajinKerja'}`,
+          title: `Laporan_RAB_${exporterMeta.lokasiTanggal || 'TaskArts'}`,
           rawHtml: printHeaderHtml + summaryCardsHtml + tableHtml + signatureHtml,
           autoPrint: true
         });
@@ -1301,7 +1301,7 @@ export default {
     const exportRabJson = () => {
       try {
         const rabBackupData = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           type: 'rab_backup',
           version: '2.5',
           exportDate: new Date().toISOString(),
@@ -1324,7 +1324,7 @@ export default {
         const link = document.createElement('a');
         link.href = url;
         const dateStr = new Date().toISOString().split('T')[0];
-        link.download = `Backup_RAB_RajinKerja_${dateStr}.json`;
+        link.download = `Backup_RAB_TaskArts_${dateStr}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1334,7 +1334,7 @@ export default {
           icon: 'success',
           title: 'Backup RAB Berhasil Diunduh!',
           html: `<div class="text-start small">
-            <p class="mb-1"><strong>File:</strong> Backup_RAB_RajinKerja_${dateStr}.json</p>
+            <p class="mb-1"><strong>File:</strong> Backup_RAB_TaskArts_${dateStr}.json</p>
             <p class="mb-1"><strong>Total Item RAB:</strong> ${rabItems.value.length} item</p>
             <p class="mb-1"><strong>Total Kas Masuk:</strong> ${rabIncomes.value.length} catatan</p>
             <p class="mb-0"><strong>Total Realisasi:</strong> ${rabExpenses.value.length} transaksi</p>

@@ -179,7 +179,7 @@
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
               <span class="badge-hero-capsule">
                 <i class="bi bi-shield-check me-1.5 text-primary"></i>
-                <span>RajinKerja Workspace</span>
+                <span>TaskArts Workspace</span>
               </span>
               <span class="badge-hero-kafeinarts">
                 <i class="bi bi-stars me-1 text-warning"></i>
@@ -1506,12 +1506,13 @@ export default {
 .m3-app-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px 8px;
+  gap: 12px 6px;
 }
 
-@media (max-width: 340px) {
+@media (max-width: 360px) {
   .m3-app-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 12px 8px;
   }
 }
 
@@ -1533,9 +1534,9 @@ export default {
 }
 
 .m3-app-icon-squircle {
-  width: 58px;
-  height: 58px;
-  border-radius: 17px;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1550,7 +1551,7 @@ export default {
 }
 
 .m3-app-icon {
-  font-size: 26px;
+  font-size: 23px;
   line-height: 1;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 }

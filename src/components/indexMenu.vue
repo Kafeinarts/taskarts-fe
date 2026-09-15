@@ -12,7 +12,7 @@
               {{ currentDate }}
             </span>
           </div>
-          <h2 class="fw-bold display-6 mb-1">Selamat Datang di RajinKerja.id! 🚀</h2>
+          <h2 class="fw-bold display-6 mb-1">Selamat Datang di TaskArts! 🚀</h2>
           <p class="mb-0 text-white-50">Kelola tugas harian, proyek pekerjaan, keuangan, invoice, dan agenda karir karyawan dalam satu platform terorganisir.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">

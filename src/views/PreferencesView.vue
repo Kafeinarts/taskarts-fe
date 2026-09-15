@@ -38,7 +38,7 @@
           </div>
 
           <button v-if="canInstallPwa" @click="triggerPwaInstall" class="btn btn-success btn-lg w-100 rounded-pill fw-extrabold shadow mb-3 d-flex align-items-center justify-content-center gap-2 py-3 fs-6">
-            <i class="bi bi-download fs-5"></i> Install RajinKerja ke HP / Device
+            <i class="bi bi-download fs-5"></i> Install TaskArts ke HP / Device
           </button>
           <div v-else class="mb-3 p-3 rounded-3" style="background-color: #0f172a !important; border: 1px solid #1e293b !important;">
             <div class="small fw-bold mb-2 text-warning fs-6" style="color: #fef08a !important;">
@@ -787,7 +787,7 @@ export default {
         } catch (e) {}
 
         const fullState = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           version: '2.5',
           exportDate: new Date().toISOString(),
           rabItems: store.getters.getRabItems || [],
@@ -908,7 +908,7 @@ export default {
       } catch (e) {}
 
       const fullData = {
-        app: 'RajinKerja',
+        app: 'TaskArts',
         version: '2.5',
         exportTimestamp: new Date().toISOString(),
         exportDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
@@ -1097,7 +1097,7 @@ export default {
       const choice = await window.deferredPwaPrompt.userChoice;
       if (choice.outcome === 'accepted') {
         sendOnDeviceNotification('📱 PWA Berhasil Terpasang!', {
-          body: 'Aplikasi RajinKerja kini ada di layar HP Anda.',
+          body: 'Aplikasi TaskArts kini ada di layar HP Anda.',
           type: 'success'
         });
       }
@@ -1121,7 +1121,7 @@ export default {
     };
 
     const testNotif = () => {
-      sendOnDeviceNotification('🔔 Uji Coba Notifikasi RajinKerja', {
+      sendOnDeviceNotification('🔔 Uji Coba Notifikasi TaskArts', {
         body: 'Notifikasi sistem On-Device berfungsi dengan sangat baik!',
         type: 'info'
       });
@@ -1155,7 +1155,7 @@ export default {
       } catch (e) {}
 
       const fullState = {
-        app: 'RajinKerja',
+        app: 'TaskArts',
         version: '2.5',
         exportDate: new Date().toISOString(),
         formattedDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
@@ -1243,7 +1243,7 @@ export default {
           };
           importError.value = '';
         } catch (err) {
-          importError.value = 'Format berkas JSON tidak valid. Pilih file backup RajinKerja yang sesuai.';
+          importError.value = 'Format berkas JSON tidak valid. Pilih file backup TaskArts yang sesuai.';
           recoveryPreview.value = null;
         }
       };

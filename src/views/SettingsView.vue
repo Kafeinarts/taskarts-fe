@@ -205,7 +205,7 @@ export default {
       } catch (e) {}
 
       const fullState = {
-        app: 'RajinKerja',
+        app: 'TaskArts',
         version: '2.5',
         exportDate: new Date().toISOString(),
         formattedDate: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),

@@ -74,7 +74,7 @@
               <i class="bi bi-robot fs-5"></i>
             </div>
             <div class="bg-light text-dark p-3 rounded-4 rounded-top-left-0 border shadow-sm max-w-xl">
-              <div class="fw-bold text-primary small mb-1">RajinKerja AI</div>
+              <div class="fw-bold text-primary small mb-1">TaskArts AI</div>
               <div class="white-space-pre-line lh-base">{{ msg.content }}</div>
               <div class="d-flex justify-content-between align-items-center mt-2 border-top pt-1 text-muted" style="font-size: 0.75rem;">
                 <span>{{ msg.time }}</span>
@@ -132,7 +132,7 @@ export default {
     const messages = ref([
       {
         role: 'assistant',
-        content: 'Halo! Saya RajinKerja AI Assistant. Saya siap membantu Anda menyusun tugas, membuat draf email, menganalisis strategi, atau menjawab pertanyaan teknis Anda.',
+        content: 'Halo! Saya TaskArts AI Assistant. Saya siap membantu Anda menyusun tugas, membuat draf email, menganalisis strategi, atau menjawab pertanyaan teknis Anda.',
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
       }
     ]);

@@ -58,7 +58,7 @@ export const PAPER_SIZES = {
  * @param {number} [options.marginRight] - Right margin in mm
  */
 export function openPrintableDocumentInNewTab({
-  title = 'Dokumen RajinKerja',
+  title = 'Dokumen TaskArts',
   elementId = null,
   element = null,
   rawHtml = '',
@@ -102,7 +102,7 @@ export function openPrintableDocumentInNewTab({
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} - RajinKerja Document Viewer</title>
+  <title>${title} - TaskArts Document Viewer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -322,7 +322,7 @@ export function openPrintableDocumentInNewTab({
   <div class="print-toolbar no-print">
     <div class="d-flex align-items-center flex-wrap gap-2">
       <span class="badge bg-primary text-white fw-bold px-2.5 py-1">
-        <i class="bi bi-file-earmark-pdf me-1"></i> RajinKerja Print / PDF
+        <i class="bi bi-file-earmark-pdf me-1"></i> TaskArts Print / PDF
       </span>
       <span class="fw-bold fs-6 text-white text-truncate" style="max-width: 250px;">${title}</span>
     </div>

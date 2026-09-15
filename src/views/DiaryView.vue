@@ -9,7 +9,7 @@
         <div>
           <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
             <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1.5 rounded-pill">
-              <i class="bi bi-book-half me-1"></i> RajinKerja Diary & Journal
+              <i class="bi bi-book-half me-1"></i> TaskArts Diary & Journal
             </span>
             <span class="badge bg-warning-subtle text-dark fw-bold px-3 py-1.5 rounded-pill">
               <i class="bi bi-markdown-fill me-1"></i> Markdown & Rich Media

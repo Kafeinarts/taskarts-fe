@@ -1,61 +1,61 @@
 <template>
   <div class="container-fluid p-0" data-aos="fade-up">
     <!-- Header Banner (no-print) -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border no-print">
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center mb-4 gap-3 bg-white p-3 p-md-4 rounded-4 shadow-sm border no-print">
       <div>
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-          <span class="badge bg-danger text-white fw-bold px-3 py-1.5 rounded-pill">
+        <div class="d-flex flex-wrap align-items-center gap-1.5 mb-1.5">
+          <span class="badge bg-danger text-white fw-bold px-2.5 py-1 rounded-pill small">
             <i class="bi bi-file-earmark-check-fill me-1"></i> Persuratan Resmi Indonesia
           </span>
-          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1.5 rounded-pill small">By Kafeinarts</span>
-          <span class="badge bg-primary text-white fw-bold px-3 py-1.5 rounded-pill">
-            <i class="bi bi-image me-1"></i> Custom Logo Kop Surat
+          <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-bold px-2.5 py-1 rounded-pill small">By Kafeinarts</span>
+          <span class="badge bg-primary text-white fw-bold px-2.5 py-1 rounded-pill small">
+            <i class="bi bi-image me-1"></i> Custom Logo Kop
           </span>
-          <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill">
-            <i class="bi bi-people-fill me-1"></i> Bulk Mail Merge (Multi-Penerima)
+          <span class="badge bg-success text-white fw-bold px-2.5 py-1 rounded-pill small">
+            <i class="bi bi-people-fill me-1"></i> Bulk Mail Merge
           </span>
         </div>
-        <h2 class="fw-bold mb-1 text-dark">Generator Surat Resmi & Desain Kop Surat Custom</h2>
-        <p class="text-muted mb-0">Buat surat kedinasan, lamaran, izin, dan perjanjian kerja untuk 1 orang maupun <strong>massal / banyak penerima sekaligus</strong> dengan Kop Surat otomatis dan cetak PDF standar instansi.</p>
+        <h2 class="fw-bold mb-1 text-dark fs-4 fs-md-3">Generator Surat Resmi & Desain Kop Surat Custom</h2>
+        <p class="text-muted mb-0 small">Buat surat kedinasan, lamaran, izin, dan perjanjian kerja untuk 1 orang maupun <strong>massal / banyak penerima sekaligus</strong> dengan Kop Surat otomatis dan cetak PDF standar instansi.</p>
       </div>
 
-      <div class="d-flex flex-wrap align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2 surat-header-actions">
         <!-- Cek Draft Laporan & Surat Button -->
-        <button class="btn btn-outline-primary rounded-pill px-3.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm" @click="openDraftsModal" title="Periksa daftar draft dan laporan yang sudah dikerjakan">
+        <button class="btn btn-outline-primary rounded-pill px-3 fw-bold d-flex align-items-center gap-1.5 shadow-sm" @click="openDraftsModal" title="Periksa daftar draft dan laporan yang sudah dikerjakan">
           <i class="bi bi-folder2-open text-primary"></i>
-          <span>Cek Draft ({{ draftsList.length }})</span>
+          <span>Draft ({{ draftsList.length }})</span>
         </button>
         <button class="btn btn-outline-warning text-dark rounded-pill px-3 fw-semibold" @click="exportSuratJson" title="Download data Surat sebagai JSON">
-          <i class="bi bi-filetype-json text-warning me-1"></i> Export JSON
+          <i class="bi bi-filetype-json text-warning me-1"></i> Export
         </button>
         <button class="btn btn-outline-info text-dark rounded-pill px-3 fw-semibold" @click="triggerImportSuratJson" title="Import data Surat dari JSON">
-          <i class="bi bi-upload text-info me-1"></i> Import JSON
+          <i class="bi bi-upload text-info me-1"></i> Import
         </button>
         <input type="file" ref="suratJsonInput" accept=".json" class="d-none" @change="onSuratJsonSelected" />
         <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter(false)" :title="currentDraftId ? 'Perbarui draft yang sedang dibuka' : 'Simpan surat ke arsip draft'">
-          <i class="bi bi-floppy me-1"></i> {{ currentDraftId ? 'Perbarui Draft' : 'Simpan Draft' }}
+          <i class="bi bi-floppy me-1"></i> {{ currentDraftId ? 'Perbarui' : 'Simpan' }}
         </button>
         <button v-if="currentDraftId" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 fw-semibold" @click="saveLetter(true)" title="Simpan sebagai draft baru (salinan terpisah)">
-          <i class="bi bi-plus-circle me-1"></i> Simpan Draft Baru
+          <i class="bi bi-plus-circle me-1"></i> Baru
         </button>
         <button v-if="suratMode === 'single'" class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
-          <i class="bi bi-whatsapp me-1"></i> Kirim via WA
+          <i class="bi bi-whatsapp me-1"></i> WA
         </button>
-        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+        <button class="btn btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
           <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
           <i v-else class="bi bi-printer"></i>
-          <span>{{ isPdfLoading ? 'Menyiapkan Surat...' : (suratMode === 'bulk' ? 'Buka Semua Surat (Bulk PDF A4)' : 'Cetak / Buka PDF A4') }}</span>
+          <span>{{ isPdfLoading ? 'Menyiapkan...' : (suratMode === 'bulk' ? 'Buka Semua (' + bulkRecipients.length + ' Surat)' : 'Cetak / Buka PDF') }}</span>
         </button>
       </div>
     </div>
 
     <!-- Mode Selector: Single Letter vs Bulk Multi-Penerima (no-print) -->
-    <div class="card border-0 shadow-sm rounded-4 bg-white p-2 mb-4 no-print">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-2.5 mb-4 no-print">
       <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-2 py-1">
-        <div class="btn-group p-1 bg-light rounded-pill border" role="group">
+        <div class="btn-group p-1 bg-light rounded-pill border w-100 w-sm-auto" role="group">
           <button
             type="button"
-            class="btn rounded-pill px-4 py-1.5 fw-bold small transition-all"
+            class="btn rounded-pill px-3 px-sm-4 py-1.5 fw-bold small transition-all flex-fill"
             :class="suratMode === 'single' ? 'btn-primary text-white shadow-sm' : 'btn-light text-muted'"
             @click="suratMode = 'single'"
           >
@@ -63,11 +63,11 @@
           </button>
           <button
             type="button"
-            class="btn rounded-pill px-4 py-1.5 fw-bold small transition-all"
+            class="btn rounded-pill px-3 px-sm-4 py-1.5 fw-bold small transition-all flex-fill"
             :class="suratMode === 'bulk' ? 'btn-success text-white shadow-sm' : 'btn-light text-muted'"
             @click="suratMode = 'bulk'"
           >
-            <i class="bi bi-people-fill me-1.5"></i> Mode Massal / Bulk Multi-Penerima ({{ bulkRecipients.length }} Orang)
+            <i class="bi bi-people-fill me-1.5"></i> Mode Massal / Bulk ({{ bulkRecipients.length }} Orang)
           </button>
         </div>
 
@@ -83,17 +83,17 @@
     </div>
 
     <!-- Letter Templates Gallery Carousel / Grid (no-print) -->
-    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4 no-print">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 mb-4 no-print">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
         <div>
           <h5 class="fw-bold text-dark mb-0"><i class="bi bi-collection text-primary me-2"></i>Pilih 12 Template Surat Siap Pakai</h5>
           <small class="text-muted">Template akan mengisi struktur Kop, perihal, dan draf isi surat secara otomatis.</small>
         </div>
-        <div class="d-flex gap-1">
+        <div class="d-flex gap-1 overflow-x-auto pb-1 surat-cat-scroll">
           <button
             v-for="cat in templateCategories"
             :key="cat.id"
-            class="btn btn-xs rounded-pill px-2.5 py-1"
+            class="btn btn-xs rounded-pill px-2.5 py-1 text-nowrap"
             :class="activeTemplateCat === cat.id ? 'btn-primary fw-bold' : 'btn-light border text-muted'"
             @click="activeTemplateCat = cat.id"
           >
@@ -102,19 +102,19 @@
         </div>
       </div>
 
-      <div class="row g-3">
-        <div v-for="tmpl in filteredTemplates" :key="tmpl.id" class="col-6 col-md-4 col-lg-3">
+      <div class="row g-2.5 g-md-3">
+        <div v-for="tmpl in filteredTemplates" :key="tmpl.id" class="col-6 col-sm-4 col-md-3 col-xl-2">
           <div
-            class="card h-100 border-2 rounded-3 p-3 cursor-pointer transition-all text-center hover-shadow"
+            class="card h-100 border-2 rounded-3 p-2.5 cursor-pointer transition-all text-center hover-shadow surat-tmpl-card"
             :class="selectedTemplateId === tmpl.id ? 'border-primary bg-primary bg-opacity-10 shadow-sm' : 'border-light bg-light'"
             @click="selectTemplate(tmpl)"
           >
-            <div class="p-2 rounded-circle bg-white shadow-sm d-inline-block mx-auto mb-2" style="width: 44px; height: 44px;">
-              <i :class="tmpl.icon" class="fs-4 text-primary"></i>
+            <div class="p-2 rounded-circle bg-white shadow-sm d-inline-block mx-auto mb-1.5" style="width: 38px; height: 38px;">
+              <i :class="tmpl.icon" class="fs-5 text-primary"></i>
             </div>
-            <h6 class="fw-bold text-dark small mb-1 text-truncate">{{ tmpl.title }}</h6>
-            <span class="badge bg-secondary-subtle text-secondary small rounded-pill">{{ tmpl.category }}</span>
-            <small class="d-block text-muted mt-1" style="font-size: 10px;">{{ tmpl.desc }}</small>
+            <h6 class="fw-bold text-dark small mb-1 text-truncate" style="font-size: 12px;">{{ tmpl.title }}</h6>
+            <span class="badge bg-secondary-subtle text-secondary small rounded-pill px-2 py-0.5" style="font-size: 10px;">{{ tmpl.category }}</span>
+            <small class="d-block text-muted mt-1 text-truncate" style="font-size: 10px;">{{ tmpl.desc }}</small>
           </div>
         </div>
       </div>
@@ -230,11 +230,35 @@
       </div>
     </div>
 
+    <!-- Mobile View Switcher Segment (Visible only on screens < 992px) -->
+    <div class="d-lg-none bg-white p-2 rounded-4 shadow-sm border mb-3 no-print">
+      <div class="d-flex gap-2">
+        <button 
+          type="button" 
+          class="btn flex-fill rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center gap-1.5 transition-all"
+          :class="mobileActiveView === 'editor' ? 'btn-primary shadow-sm text-white' : 'btn-light border text-muted'"
+          @click="mobileActiveView = 'editor'"
+        >
+          <i class="bi bi-pencil-square"></i>
+          <span>1. Form & Isi Surat</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn flex-fill rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center gap-1.5 transition-all"
+          :class="mobileActiveView === 'preview' ? 'btn-primary shadow-sm text-white' : 'btn-light border text-muted'"
+          @click="mobileActiveView = 'preview'"
+        >
+          <i class="bi bi-eye-fill"></i>
+          <span>2. Pratinjau Kertas A4</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Main Editor & Preview Grid -->
     <div class="row g-4">
       <!-- Left Form Controls (no-print) -->
-      <div class="col-lg-5 no-print">
-        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+      <div class="col-lg-5 no-print" :class="{ 'd-none d-lg-block': mobileActiveView === 'preview' }">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
           <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
             <h5 class="fw-bold text-dark mb-0">
               <i class="bi bi-pencil-square text-primary me-2"></i>{{ suratMode === 'bulk' ? 'Master Pengaturan Surat' : 'Pengaturan & Isi Surat' }}
@@ -264,29 +288,29 @@
           </div>
 
           <!-- Nav Tabs for Form: Kop Surat, Kertas & Margin A4, Metadata, Isi & Tanda Tangan -->
-          <ul class="nav nav-pills nav-fill mb-3 bg-light p-1 rounded-3">
-            <li class="nav-item">
-              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'kop' }" @click="formTab = 'kop'">
+          <ul class="nav nav-pills surat-form-pills mb-3 bg-light p-1 rounded-3 flex-nowrap overflow-x-auto">
+            <li class="nav-item flex-shrink-0">
+              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'kop' }" @click="formTab = 'kop'">
                 <i class="bi bi-image me-1"></i> Kop & Logo
               </button>
             </li>
-            <li class="nav-item">
-              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'margin' }" @click="formTab = 'margin'">
+            <li class="nav-item flex-shrink-0">
+              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'margin' }" @click="formTab = 'margin'">
                 <i class="bi bi-aspect-ratio me-1"></i> Kertas & Margin
               </button>
             </li>
-            <li class="nav-item">
-              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'meta' }" @click="formTab = 'meta'">
+            <li class="nav-item flex-shrink-0">
+              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'meta' }" @click="formTab = 'meta'">
                 <i class="bi bi-card-heading me-1"></i> Metadata
               </button>
             </li>
-            <li class="nav-item">
-              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'body' }" @click="formTab = 'body'">
+            <li class="nav-item flex-shrink-0">
+              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'body' }" @click="formTab = 'body'">
                 <i class="bi bi-text-paragraph me-1"></i> Isi Surat
               </button>
             </li>
-            <li class="nav-item">
-              <button class="nav-link py-1.5 small fw-semibold" :class="{ active: formTab === 'sign' }" @click="formTab = 'sign'">
+            <li class="nav-item flex-shrink-0">
+              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'sign' }" @click="formTab = 'sign'">
                 <i class="bi bi-pen me-1"></i> TTD & Cap
               </button>
             </li>
@@ -696,12 +720,28 @@
               <textarea class="form-control form-control-sm" rows="2" v-model="letter.ccText" placeholder="1. Direktur Keuangan&#10;2. Arsip Bagian Umum"></textarea>
             </div>
           </div>
+
+          <!-- Mobile Quick View Preview Trigger -->
+          <div class="d-lg-none mt-3 pt-3 border-top">
+            <button type="button" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" @click="mobileActiveView = 'preview'">
+              <i class="bi bi-eye"></i>
+              <span>Buka Pratinjau Kertas A4</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Right Column: Live Printable Preview -->
-      <div class="col-lg-7">
+      <div class="col-lg-7" :class="{ 'd-none d-lg-block': mobileActiveView === 'editor' }">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
+          <!-- Mobile Quick Back to Editor Button -->
+          <div class="d-lg-none mb-2.5 pb-2.5 border-bottom no-print">
+            <button type="button" class="btn btn-outline-primary w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center gap-2" @click="mobileActiveView = 'editor'">
+              <i class="bi bi-arrow-left"></i>
+              <span>Kembali ke Form & Isi Surat</span>
+            </button>
+          </div>
+
           <!-- Preview Header Bar (no-print) -->
           <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2.5 mb-2.5 no-print gap-2">
             <div class="d-flex align-items-center flex-wrap gap-2">
@@ -1425,7 +1465,7 @@ export default {
 
     const logoPresets = [
       { id: 'none', name: '🚫 Tanpa Logo (Kop Polos)', url: '' },
-      { id: 'logo_app', name: 'Logo RajinKerja', url: '/logo.svg' },
+      { id: 'logo_app', name: 'Logo TaskArts', url: '/logo.svg' },
       { id: 'logo_garuda', name: 'Lambang Garuda RI', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg/200px-Coat_of_arms_of_Indonesia_Garuda_Pancasila.svg.png' },
       { id: 'logo_corp', name: 'Gedung Korporat', url: 'https://cdn-icons-png.flaticon.com/512/2942/2942821.png' },
       { id: 'logo_tech', name: 'Startup Tech Node', url: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png' },
@@ -1457,8 +1497,8 @@ export default {
         subject: 'Surat Permohonan Pengunduran Diri Kerja',
         recipientName: 'Bapak / Ibu Pimpinan Manajemen',
         recipientTitle: 'Human Resources Division',
-        recipientAddress: 'PT RajinKerja Global Indonesia\nDi Tempat',
-        bodyContent: 'Melalui surat ini, saya menyampaikan permohonan pengunduran diri saya dari posisi Senior Software Engineer di PT RajinKerja Global Indonesia terhitung efektif per tanggal 30 September 2026.\n\nSaya mengucapkan terima kasih yang sebesar-besarnya atas kesempatan berharga, pengalaman kerja, serta bimbingan yang telah diberikan selama masa kerja saya. Saya memohon maaf apabila terdapat tutur kata atau perbuatan yang kurang berkenan selama saya bertugas.\n\nSebelum tanggal efektif pengunduran diri, saya berkomitmen untuk menyelesaikan seluruh tanggung jawab yang ada serta melakukan serah terima pekerjaan (handover) kepada rekan tim dengan sebaik-baiknya.'
+        recipientAddress: 'PT TaskArts Global Indonesia\nDi Tempat',
+        bodyContent: 'Melalui surat ini, saya menyampaikan permohonan pengunduran diri saya dari posisi Senior Software Engineer di PT TaskArts Global Indonesia terhitung efektif per tanggal 30 September 2026.\n\nSaya mengucapkan terima kasih yang sebesar-besarnya atas kesempatan berharga, pengalaman kerja, serta bimbingan yang telah diberikan selama masa kerja saya. Saya memohon maaf apabila terdapat tutur kata atau perbuatan yang kurang berkenan selama saya bertugas.\n\nSebelum tanggal efektif pengunduran diri, saya berkomitmen untuk menyelesaikan seluruh tanggung jawab yang ada serta melakukan serah terima pekerjaan (handover) kepada rekan tim dengan sebaik-baiknya.'
       },
       {
         id: 'pakelaring',
@@ -1484,7 +1524,7 @@ export default {
         recipientName: 'Bapak / Ibu Direktur Utama',
         recipientTitle: 'Direksi Manajemen',
         recipientAddress: 'PT Solusi Bisnis Abadi\nJakarta',
-        bodyContent: 'Sehubungan dengan kebutuhan peningkatan efisiensi digital operasional perusahaan Bapak/Ibu, bersama surat ini kami dari RajinKerja Studio bermaksud mengajukan proposal penawaran jasa pembuatan Web Application & Management Task OS.\n\nAdapun rincian paket layanan yang kami tawarkan meliputi:\n1. Desain Antarmuka UI/UX Modern & Responsif\n2. Modul Manajemen Proyek, Kanban & Pelacakan Arus Kas\n3. Integrasi Single Page Application & Local Offline Persistence\n4. Garansi Pemeliharaan & Pelatihan Tim selama 3 Bulan\n\nTotal investasi yang kami tawarkan adalah sebesar Rp 25.000.000 (Dua Puluh Lima Juta Rupiah). Kami sangat terbuka untuk berdiskusi lebih lanjut guna menyesuaikan spesifikasi kebutuhan Bapak/Ibu.'
+        bodyContent: 'Sehubungan dengan kebutuhan peningkatan efisiensi digital operasional perusahaan Bapak/Ibu, bersama surat ini kami dari TaskArts Studio bermaksud mengajukan proposal penawaran jasa pembuatan Web Application & Management Task OS.\n\nAdapun rincian paket layanan yang kami tawarkan meliputi:\n1. Desain Antarmuka UI/UX Modern & Responsif\n2. Modul Manajemen Proyek, Kanban & Pelacakan Arus Kas\n3. Integrasi Single Page Application & Local Offline Persistence\n4. Garansi Pemeliharaan & Pelatihan Tim selama 3 Bulan\n\nTotal investasi yang kami tawarkan adalah sebesar Rp 25.000.000 (Dua Puluh Lima Juta Rupiah). Kami sangat terbuka untuk berdiskusi lebih lanjut guna menyesuaikan spesifikasi kebutuhan Bapak/Ibu.'
       },
       {
         id: 'izin',
@@ -1496,7 +1536,7 @@ export default {
         subject: 'Permohonan Izin Tidak Masuk Kerja (Cuti Tahunan)',
         recipientName: 'Bapak / Ibu Manager Operasional',
         recipientTitle: 'Head of Division',
-        recipientAddress: 'PT RajinKerja Studio\nDi Tempat',
+        recipientAddress: 'PT TaskArts Studio\nDi Tempat',
         bodyContent: 'Melalui surat ini, saya yang bertanda tangan di bawah ini mengajukan permohonan izin cuti kerja selama 3 (tiga) hari kerja, terhitung mulai tanggal 20 Agustus 2026 sampai dengan 22 Agustus 2026 karena adanya keperluan keluarga di luar kota.\n\nSelama masa cuti tersebut, tugas harian darurat telah saya koordinasikan dengan rekan satu tim. Saya akan kembali masuk bekerja seperti biasa pada hari Senin, 25 Agustus 2026.\n\nDemikian surat permohonan izin ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.'
       },
       {
@@ -1561,7 +1601,7 @@ export default {
         subject: 'Surat Pernyataan Kesanggupan Mematuhi Ketentuan Perusahaan',
         recipientName: 'Manajemen Perusahaan',
         recipientTitle: 'Dewan Direksi',
-        recipientAddress: 'PT RajinKerja Global Indonesia\nDi Tempat',
+        recipientAddress: 'PT TaskArts Global Indonesia\nDi Tempat',
         bodyContent: 'Saya yang bertanda tangan di bawah ini menyatakan dengan sesungguhnya bahwa:\n\n1. Sanggup mematuhi seluruh peraturan perusahaan dan menjaga kerahasiaan data (Non-Disclosure Agreement).\n2. Tidak akan menyalahgunakan fasilitas dan akses sistem kantor untuk kepentingan pribadi.\n3. Bersedia menerima sanksi sesuai hukum yang berlaku apabila terbukti melanggar pernyataan ini.\n\nDemikian surat pernyataan ini saya buat dengan sadar dan penuh rasa tanggung jawab.'
       },
       {
@@ -1612,7 +1652,7 @@ export default {
       recipientTitle: 'Direktur Utama',
       recipientAddress: 'PT Solusi Mandiri Nusantara\nJakarta Selatan',
       salutation: 'Dengan hormat,',
-      bodyContent: 'Sehubungan dengan rencana peningkatan efisiensi kerja tim dan operasional perusahaan Bapak/Ibu, bersama surat ini kami bermaksud mengajukan penawaran kerjasama implementasi RajinKerja Task OS.\n\nSistem kami telah dirancang dengan standar performa modern yang mencakup modul To-Do Kanban, Rencana Anggaran Biaya (RAB), Pelacak Arus Kas, dan Pembuat Surat & CV ATS otomatis.\n\nBesar harapan kami untuk dapat mempresentasikan keunggulan sistem ini di hadapan tim manajemen Bapak/Ibu. Atas perhatian dan kerjasamanya, kami sampaikan terima kasih.',
+      bodyContent: 'Sehubungan dengan rencana peningkatan efisiensi kerja tim dan operasional perusahaan Bapak/Ibu, bersama surat ini kami bermaksud mengajukan penawaran kerjasama implementasi TaskArts Task OS.\n\nSistem kami telah dirancang dengan standar performa modern yang mencakup modul To-Do Kanban, Rencana Anggaran Biaya (RAB), Pelacak Arus Kas, dan Pembuat Surat & CV ATS otomatis.\n\nBesar harapan kami untuk dapat mempresentasikan keunggulan sistem ini di hadapan tim manajemen Bapak/Ibu. Atas perhatian dan kerjasamanya, kami sampaikan terima kasih.',
       closing: 'Hormat kami,',
       signerName: 'Arif Permana, S.Kom',
       signerTitle: 'Direktur Utama',
@@ -1638,7 +1678,9 @@ export default {
       return PAPER_SIZES[key] || PAPER_SIZES.a4;
     });
 
-    const previewZoom = ref(100);
+    const mobileActiveView = ref<'editor' | 'preview'>('editor');
+    const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+    const previewZoom = ref(isMobileScreen ? 60 : 100);
     const showMarginGuides = ref(false);
 
     const previewTransformStyle = computed(() => {
@@ -2443,7 +2485,7 @@ export default {
 
     const exportSuratJson = () => {
       const payload = {
-        app: 'RajinKerja.id',
+        app: 'TaskArts',
         module: 'SuratBuilder',
         suratMode: suratMode.value,
         exportedAt: new Date().toISOString(),
@@ -2560,6 +2602,7 @@ export default {
       printCurrentMode,
       printLetter,
       // Paper, Preview & Zoom
+      mobileActiveView,
       paperSizesList,
       currentPaperInfo,
       previewZoom,
@@ -2716,6 +2759,54 @@ export default {
 
 .white-space-pre-line {
   white-space: pre-line;
+}
+
+/* Mobile Surat Enhancements */
+.surat-cat-scroll,
+.surat-form-pills {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.surat-cat-scroll::-webkit-scrollbar,
+.surat-form-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.surat-form-pills .nav-link {
+  transition: all 0.18s ease;
+  border-radius: 9999px;
+  color: var(--text-muted, #64748b);
+}
+.surat-form-pills .nav-link.active {
+  background-color: var(--primary-color, #2563eb) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.preview-desk-workbench {
+  background-color: #1e293b;
+  min-height: 480px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .surat-header-actions {
+    width: 100%;
+  }
+  .surat-header-actions .btn {
+    flex: 1 1 auto;
+    font-size: 12.5px;
+    padding: 6px 12px;
+  }
+  .preview-desk-workbench {
+    padding: 12px 6px !important;
+    min-height: 380px;
+  }
+  .surat-tmpl-card {
+    min-height: 110px;
+  }
 }
 
 /* ======================================================== */

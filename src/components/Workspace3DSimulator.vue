@@ -310,7 +310,7 @@ export default {
       if (text === 'code') {
         ctx.fillStyle = '#38bdf8';
         ctx.font = 'bold 22px monospace';
-        ctx.fillText('// RajinKerja.id IDE Suite', 30, 45);
+        ctx.fillText('// TaskArts IDE Suite', 30, 45);
 
         ctx.fillStyle = '#f43f5e';
         ctx.font = '16px monospace';

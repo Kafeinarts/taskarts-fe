@@ -416,7 +416,7 @@ export default {
     const exportVideosJson = () => {
       try {
         const payload = {
-          app: 'RajinKerja',
+          app: 'TaskArts',
           type: 'videohub_backup',
           exportDate: new Date().toISOString(),
           videos: videos.value
@@ -426,7 +426,7 @@ export default {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `VideoHub_RajinKerja_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `VideoHub_TaskArts_${new Date().toISOString().split('T')[0]}.json`;
         link.click();
         URL.revokeObjectURL(url);
         window.alert('Data Video Hub berhasil diekspor!');
