@@ -343,28 +343,28 @@
               :class="{ active: currentViewMode === 'list' }"
               @click="currentViewMode = 'list'"
             >
-              <i class="bi bi-list-ul me-1.5"></i> 1. Standard List
+              <i class="bi bi-list-ul me-1.5"></i> <span>1. Standard List</span>
             </button>
             <button
               class="todo-view-tab-btn"
               :class="{ active: currentViewMode === 'kanban' }"
               @click="currentViewMode = 'kanban'"
             >
-              <i class="bi bi-kanban me-1.5"></i> 2. Kanban Board
+              <i class="bi bi-kanban me-1.5"></i> <span>2. Kanban Board</span>
             </button>
             <button
               class="todo-view-tab-btn"
               :class="{ active: currentViewMode === 'eisenhower' }"
               @click="currentViewMode = 'eisenhower'"
             >
-              <i class="bi bi-grid-fill me-1.5"></i> 3. Matriks Eisenhower
+              <i class="bi bi-grid-fill me-1.5"></i> <span>3. Matriks Eisenhower</span>
             </button>
             <button
               class="todo-view-tab-btn"
               :class="{ active: currentViewMode === 'timeline' }"
               @click="currentViewMode = 'timeline'"
             >
-              <i class="bi bi-calendar-range me-1.5"></i> 4. Timeline Deadline
+              <i class="bi bi-calendar-range me-1.5"></i> <span>4. Timeline Deadline</span>
             </button>
 
             <!-- VIEW MODE 5: FOLDER & CATEGORY GROUP -->
@@ -373,7 +373,7 @@
               :class="{ active: currentViewMode === 'folder' }"
               @click="currentViewMode = 'folder'"
             >
-              <i class="bi bi-folder-fill me-1.5"></i> 5. Kelompok Folder
+              <i class="bi bi-folder-fill me-1.5"></i> <span>5. Kelompok Folder</span>
             </button>
 
             <button
@@ -381,7 +381,7 @@
               :class="{ active: currentViewMode === 'compact' }"
               @click="currentViewMode = 'compact'"
             >
-              <i class="bi bi-check-square me-1.5"></i> 6. Checklist Ringkas
+              <i class="bi bi-check-square me-1.5"></i> <span>6. Checklist Ringkas</span>
             </button>
           </div>
 
@@ -1699,14 +1699,46 @@ export default {
   color: var(--primary-color, #2563eb);
 }
 
-.todo-view-tab-btn.active {
+.todo-view-tab-btn.active,
+.todo-view-tab-btn.active:hover,
+.todo-view-tab-btn.active:focus,
+.todo-view-tab-btn.active:active {
   background-color: var(--primary-color, #2563eb) !important;
   border-color: var(--primary-color, #2563eb) !important;
   color: #ffffff !important;
   box-shadow: 0 3px 10px rgba(37, 99, 235, 0.32);
 }
 
-.todo-view-tab-btn.active i {
+.todo-view-tab-btn.active *,
+.todo-view-tab-btn.active i,
+.todo-view-tab-btn.active span {
+  color: #ffffff !important;
+}
+
+:global(.dark-mode) .todo-view-tab-btn,
+:global(.dark-theme) .todo-view-tab-btn {
+  background-color: var(--bg-surface, #1e293b);
+  border-color: var(--border-color, #334155);
+  color: var(--text-main, #f8fafc);
+}
+
+:global(.oled-theme) .todo-view-tab-btn {
+  background-color: #0d0d0d;
+  border-color: #27272a;
+  color: #f8fafc;
+}
+
+:global(.dark-mode) .todo-view-tab-btn.active,
+:global(.dark-theme) .todo-view-tab-btn.active,
+:global(.oled-theme) .todo-view-tab-btn.active {
+  background-color: var(--primary-color, #2563eb) !important;
+  border-color: var(--primary-color, #2563eb) !important;
+  color: #ffffff !important;
+}
+
+:global(.dark-mode) .todo-view-tab-btn.active *,
+:global(.dark-theme) .todo-view-tab-btn.active *,
+:global(.oled-theme) .todo-view-tab-btn.active * {
   color: #ffffff !important;
 }
 

@@ -143,19 +143,18 @@
             <span>Home</span>
           </router-link>
 
-          <!-- MOBILE: If on Home, show drawer hamburger toggle -->
+          <!-- MOBILE & TABLET: Menu button to open bottom sheet -->
           <button
-            v-else
-            class="btn btn-sm btn-icon-m3 d-md-none rounded-circle"
+            class="btn btn-sm btn-icon-m3 d-lg-none rounded-circle"
             @click="mobileDrawer = true"
-            title="Buka Menu Navigasi"
+            title="Buka Menu Navigasi (Slide Bawah)"
           >
             <i class="bi bi-list fs-5"></i>
           </button>
 
           <!-- DESKTOP: Sidebar collapse toggle -->
           <button
-            class="btn btn-sm btn-icon-m3 d-none d-md-flex rounded-circle me-1"
+            class="btn btn-sm btn-icon-m3 d-none d-lg-flex rounded-circle me-1"
             @click="isCollapsed = !isCollapsed"
             :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
           >
@@ -337,7 +336,7 @@
       </div>
 
       <!-- Material Design 3 Mobile Bottom Navigation Bar -->
-      <nav class="m3-bottom-nav d-md-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
+      <nav class="m3-bottom-nav d-lg-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
         <router-link to="/" class="m3-bottom-nav-item" :class="{ active: route.path === '/' }">
           <div class="m3-nav-indicator">
             <i class="bi bi-grid-fill"></i>
@@ -1604,13 +1603,13 @@ body {
   left: 0;
   right: 0;
   top: auto;
-  max-height: 84vh;
+  max-height: 86vh;
   height: auto;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
   background-color: var(--sidebar-bg);
   z-index: 1060;
-  box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
 }
@@ -1619,12 +1618,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4px 0 2px 0;
+  padding: 6px 0 3px 0;
   cursor: pointer;
 }
 
 .mobile-sheet-drag-pill {
-  width: 44px;
+  width: 48px;
   height: 5px;
   border-radius: 9999px;
   background-color: var(--border-color);
@@ -1635,7 +1634,8 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex: 1 1 auto;
-  padding-right: 2px;
+  max-height: calc(86vh - 120px);
+  padding-right: 4px;
   overscroll-behavior: contain;
 }
 
@@ -1864,9 +1864,9 @@ body {
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991.98px) {
   .sidebar-nav {
-    display: none;
+    display: none !important;
   }
   .main-content {
     margin-left: 0 !important;

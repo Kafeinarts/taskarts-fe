@@ -20,28 +20,31 @@
       </div>
 
       <div class="d-flex flex-wrap align-items-center gap-2 surat-header-actions">
-        <!-- Cek Draft Laporan & Surat Button -->
-        <button class="btn btn-outline-primary rounded-pill px-3 fw-bold d-flex align-items-center gap-1.5 shadow-sm" @click="openDraftsModal" title="Periksa daftar draft dan laporan yang sudah dikerjakan">
-          <i class="bi bi-folder2-open text-primary"></i>
-          <span>Draft ({{ draftsList.length }})</span>
-        </button>
-        <button class="btn btn-outline-warning text-dark rounded-pill px-3 fw-semibold" @click="exportSuratJson" title="Download data Surat sebagai JSON">
-          <i class="bi bi-filetype-json text-warning me-1"></i> Export
-        </button>
-        <button class="btn btn-outline-info text-dark rounded-pill px-3 fw-semibold" @click="triggerImportSuratJson" title="Import data Surat dari JSON">
-          <i class="bi bi-upload text-info me-1"></i> Import
-        </button>
+        <!-- Secondary actions pill group -->
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-primary fw-bold" @click="openDraftsModal" title="Periksa daftar draft">
+            <i class="bi bi-folder2-open me-1"></i> Draft ({{ draftsList.length }})
+          </button>
+          <button class="btn btn-outline-warning text-dark fw-semibold" @click="exportSuratJson" title="Export JSON">
+            <i class="bi bi-filetype-json text-warning me-1"></i> JSON
+          </button>
+          <button class="btn btn-outline-info text-dark fw-semibold" @click="triggerImportSuratJson" title="Import JSON">
+            <i class="bi bi-upload text-info me-1"></i> Import
+          </button>
+        </div>
         <input type="file" ref="suratJsonInput" accept=".json" class="d-none" @change="onSuratJsonSelected" />
-        <button class="btn btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter(false)" :title="currentDraftId ? 'Perbarui draft yang sedang dibuka' : 'Simpan surat ke arsip draft'">
+
+        <!-- Primary actions -->
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" @click="saveLetter(false)" :title="currentDraftId ? 'Perbarui draft yang sedang dibuka' : 'Simpan surat ke arsip draft'">
           <i class="bi bi-floppy me-1"></i> {{ currentDraftId ? 'Perbarui' : 'Simpan' }}
         </button>
         <button v-if="currentDraftId" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 fw-semibold" @click="saveLetter(true)" title="Simpan sebagai draft baru (salinan terpisah)">
           <i class="bi bi-plus-circle me-1"></i> Baru
         </button>
-        <button v-if="suratMode === 'single'" class="btn btn-success rounded-pill px-3.5 fw-bold shadow-sm" @click="openWaModal">
+        <button v-if="suratMode === 'single'" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" @click="openWaModal">
           <i class="bi bi-whatsapp me-1"></i> WA
         </button>
-        <button class="btn btn-primary rounded-pill px-3.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
+        <button class="btn btn-sm btn-primary rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-flex align-items-center gap-1.5" :disabled="isPdfLoading" @click="printCurrentMode">
           <span v-if="isPdfLoading" class="spinner-border spinner-border-sm text-white" role="status"></span>
           <i v-else class="bi bi-printer"></i>
           <span>{{ isPdfLoading ? 'Menyiapkan...' : (suratMode === 'bulk' ? 'Buka Semua (' + bulkRecipients.length + ' Surat)' : 'Cetak / Buka PDF') }}</span>
@@ -84,12 +87,25 @@
 
     <!-- Letter Templates Gallery Carousel / Grid (no-print) -->
     <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 mb-4 no-print">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-        <div>
-          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-collection text-primary me-2"></i>Pilih 12 Template Surat Siap Pakai</h5>
-          <small class="text-muted">Template akan mengisi struktur Kop, perihal, dan draf isi surat secara otomatis.</small>
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2" :class="{ 'mb-3': showTemplatesSection }">
+        <div class="d-flex align-items-center justify-content-between w-100 w-md-auto">
+          <div>
+            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-collection text-primary"></i>
+              <span>Pilih Template Surat (12)</span>
+            </h5>
+            <small class="text-muted d-none d-sm-inline">Kop, perihal, dan draf surat terisi otomatis.</small>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold ms-2"
+            @click="toggleTemplatesSection"
+          >
+            <i :class="showTemplatesSection ? 'bi bi-chevron-up' : 'bi bi-chevron-down'" class="me-1"></i>
+            <span>{{ showTemplatesSection ? 'Sembunyikan' : 'Buka Template' }}</span>
+          </button>
         </div>
-        <div class="d-flex gap-1 overflow-x-auto pb-1 surat-cat-scroll">
+        <div v-show="showTemplatesSection" class="d-flex gap-1 overflow-x-auto pb-1 surat-cat-scroll">
           <button
             v-for="cat in templateCategories"
             :key="cat.id"
@@ -102,7 +118,7 @@
         </div>
       </div>
 
-      <div class="row g-2.5 g-md-3">
+      <div v-show="showTemplatesSection" class="row g-2.5 g-md-3">
         <div v-for="tmpl in filteredTemplates" :key="tmpl.id" class="col-6 col-sm-4 col-md-3 col-xl-2">
           <div
             class="card h-100 border-2 rounded-3 p-2.5 cursor-pointer transition-all text-center hover-shadow surat-tmpl-card"
@@ -231,13 +247,13 @@
     </div>
 
     <!-- Mobile View Switcher Segment (Visible only on screens < 992px) -->
-    <div class="d-lg-none bg-white p-2 rounded-4 shadow-sm border mb-3 no-print">
+    <div class="d-lg-none bg-white p-2 rounded-4 shadow-sm border mb-3 no-print sticky-top" style="top: 60px; z-index: 20;">
       <div class="d-flex gap-2">
         <button 
           type="button" 
           class="btn flex-fill rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center gap-1.5 transition-all"
           :class="mobileActiveView === 'editor' ? 'btn-primary shadow-sm text-white' : 'btn-light border text-muted'"
-          @click="mobileActiveView = 'editor'"
+          @click="switchMobileView('editor')"
         >
           <i class="bi bi-pencil-square"></i>
           <span>1. Form & Isi Surat</span>
@@ -246,7 +262,7 @@
           type="button" 
           class="btn flex-fill rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center gap-1.5 transition-all"
           :class="mobileActiveView === 'preview' ? 'btn-primary shadow-sm text-white' : 'btn-light border text-muted'"
-          @click="mobileActiveView = 'preview'"
+          @click="switchMobileView('preview')"
         >
           <i class="bi bi-eye-fill"></i>
           <span>2. Pratinjau Kertas A4</span>
@@ -802,9 +818,10 @@
             <div class="d-flex align-items-center gap-1.5">
               <label class="small text-muted fw-bold mb-0">Zoom:</label>
               <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-secondary bg-white px-2" :disabled="previewZoom <= 50" @click="previewZoom = Math.max(50, previewZoom - 10)" title="Perkecil Zoom">-</button>
-                <button type="button" class="btn btn-light border px-2 fw-semibold" style="min-width: 48px; font-size: 11.5px;" @click="previewZoom = 100" title="Reset 100%">{{ previewZoom }}%</button>
+                <button type="button" class="btn btn-outline-secondary bg-white px-2" :disabled="previewZoom <= 30" @click="previewZoom = Math.max(30, previewZoom - 10)" title="Perkecil Zoom">-</button>
+                <button type="button" class="btn btn-light border px-2 fw-semibold" style="min-width: 44px; font-size: 11.5px;" @click="previewZoom = 100" title="Reset 100%">{{ previewZoom }}%</button>
                 <button type="button" class="btn btn-outline-secondary bg-white px-2" :disabled="previewZoom >= 150" @click="previewZoom = Math.min(150, previewZoom + 10)" title="Perbesar Zoom">+</button>
+                <button type="button" class="btn btn-outline-primary bg-white px-2 fw-bold" @click="fitPreviewToScreen" title="Sesuaikan dengan Lebar Layar">Fit</button>
               </div>
             </div>
           </div>
@@ -1678,10 +1695,33 @@ export default {
       return PAPER_SIZES[key] || PAPER_SIZES.a4;
     });
 
-    const mobileActiveView = ref<'editor' | 'preview'>('editor');
+    const mobileActiveView = ref('editor');
     const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
-    const previewZoom = ref(isMobileScreen ? 60 : 100);
+    const showTemplatesSection = ref(!isMobileScreen);
+    const toggleTemplatesSection = () => {
+      showTemplatesSection.value = !showTemplatesSection.value;
+    };
+
+    const previewZoom = ref(isMobileScreen ? 48 : 100);
     const showMarginGuides = ref(false);
+
+    const fitPreviewToScreen = () => {
+      const containerWidth = typeof window !== 'undefined' ? (window.innerWidth < 768 ? window.innerWidth - 32 : 620) : 620;
+      const paper = currentPaperInfo.value;
+      const isLandscape = letter.value.paperOrientation === 'landscape';
+      const widthMm = isLandscape ? paper.heightMm : paper.widthMm;
+      // 1mm = 3.7795px
+      const paperPx = widthMm * 3.78;
+      const calculated = Math.floor((containerWidth / paperPx) * 100);
+      previewZoom.value = Math.max(30, Math.min(100, calculated));
+    };
+
+    const switchMobileView = (view) => {
+      mobileActiveView.value = view;
+      if (view === 'preview') {
+        fitPreviewToScreen();
+      }
+    };
 
     const previewTransformStyle = computed(() => {
       const scale = (previewZoom.value || 100) / 100;
@@ -2603,6 +2643,10 @@ export default {
       printLetter,
       // Paper, Preview & Zoom
       mobileActiveView,
+      switchMobileView,
+      showTemplatesSection,
+      toggleTemplatesSection,
+      fitPreviewToScreen,
       paperSizesList,
       currentPaperInfo,
       previewZoom,
