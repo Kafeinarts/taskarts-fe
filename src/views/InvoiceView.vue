@@ -92,94 +92,119 @@
       </div>
     </div>
 
+    <!-- Dedicated Top Full-Width Wizard Stepper Bar (1-2-3-4 di paling atas secara rapih) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white mb-4 no-print overflow-hidden">
+      <div class="p-3 p-md-4">
+        <!-- Top Toolbar inside Stepper Card: Title, Status Step, and Options -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary text-white px-2.5 py-1 rounded-pill fw-bold">
+              Tahap {{ currentWizardStep }} dari 4
+            </span>
+            <h6 class="fw-bold text-dark mb-0 fs-6">
+              {{ currentStepTitle }}
+            </h6>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Toggle Mode: Wizard Bertahap vs Semua Formulir -->
+            <div class="btn-group btn-group-sm p-0.5 bg-light rounded-3 border">
+              <button
+                type="button"
+                class="btn btn-xs rounded-2 px-2.5 py-1 transition-all"
+                :class="editorFormMode === 'wizard' ? 'bg-white shadow-xs text-primary fw-bold' : 'text-muted border-0'"
+                @click="editorFormMode = 'wizard'"
+                title="Navigasi Langkah demi Langkah (Wizard)"
+              >
+                <i class="bi bi-signpost-split me-1"></i> Mode Wizard
+              </button>
+              <button
+                type="button"
+                class="btn btn-xs rounded-2 px-2.5 py-1 transition-all"
+                :class="editorFormMode === 'all-in-one' ? 'bg-white shadow-xs text-primary fw-bold' : 'text-muted border-0'"
+                @click="editorFormMode = 'all-in-one'"
+                title="Tampilkan Semua Bagian Formulir Sekaligus"
+              >
+                <i class="bi bi-view-stacked me-1"></i> Semua Formulir
+              </button>
+            </div>
+
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 bg-white" @click="loadSampleData" title="Isi dengan contoh data">
+              <i class="bi bi-magic me-1"></i> Contoh
+            </button>
+            <button type="button" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 py-1 bg-white" @click="resetInvoiceForm" title="Reset Form">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Horizontal Stepper 1 - 2 - 3 - 4 with Connecting Progress Line -->
+        <div class="top-wizard-stepper">
+          <!-- Background track line -->
+          <div class="progress top-wizard-progress" style="height: 4px;">
+            <div
+              class="progress-bar bg-primary transition-all"
+              role="progressbar"
+              :style="{ width: (((currentWizardStep - 1) / 3) * 100) + '%' }"
+            ></div>
+          </div>
+
+          <!-- 4 Step Interactive Buttons -->
+          <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
+            <button
+              type="button"
+              v-for="step in wizardSteps"
+              :key="step.number"
+              class="top-step-btn btn p-2 rounded-3 text-center transition-all d-flex flex-column align-items-center"
+              :class="currentWizardStep === step.number ? 'active-step bg-primary-subtle' : 'bg-white'"
+              @click="currentWizardStep = step.number"
+            >
+              <div
+                class="top-step-circle rounded-circle d-flex align-items-center justify-content-center fw-bold transition-all mb-1.5"
+                :class="[
+                  currentWizardStep === step.number
+                    ? 'bg-primary text-white shadow-sm ring-4'
+                    : (currentWizardStep > step.number
+                        ? 'bg-success text-white shadow-xs'
+                        : 'bg-light border text-muted')
+                ]"
+              >
+                <i v-if="currentWizardStep > step.number" class="bi bi-check-lg fw-bold"></i>
+                <span v-else>{{ step.number }}</span>
+              </div>
+              <span
+                class="small fw-bold d-block text-truncate w-100"
+                :class="currentWizardStep === step.number ? 'text-primary' : (currentWizardStep > step.number ? 'text-dark' : 'text-muted')"
+                style="font-size: 13px;"
+              >
+                {{ step.title }}
+              </span>
+              <span class="d-none d-md-block text-muted text-truncate w-100 opacity-75" style="font-size: 11px;">
+                {{ step.desc }}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Workspace Container -->
     <div class="row g-4 mb-4">
-      <!-- FORM EDITOR & WIZARD (Left or Top) -->
+      <!-- FORM EDITOR (Left or Top) -->
       <div
         v-show="layoutMode !== 'preview-only'"
         :class="layoutMode === 'stacked' || layoutMode === 'editor-only' ? 'col-12 no-print' : 'col-xl-6 col-lg-6 no-print'"
       >
         <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-          <!-- Wizard Top Bar Header -->
-          <div class="p-4 bg-light bg-opacity-75 border-bottom">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <div>
-                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                  <i class="bi bi-sliders2 text-primary"></i>
-                  <span>Editor & Wizard Tagihan</span>
-                </h5>
-                <small class="text-muted">Langkah {{ currentWizardStep }} dari 4: {{ currentStepTitle }}</small>
-              </div>
-
-              <div class="d-flex align-items-center gap-2">
-                <!-- Toggle Mode: Wizard Bertahap vs Semua Formulir -->
-                <div class="btn-group btn-group-sm">
-                  <button
-                    type="button"
-                    class="btn btn-xs rounded-pill px-2.5 py-1"
-                    :class="editorFormMode === 'wizard' ? 'btn-primary fw-bold' : 'btn-outline-secondary bg-white'"
-                    @click="editorFormMode = 'wizard'"
-                    title="Navigasi Langkah demi Langkah (Wizard)"
-                  >
-                    <i class="bi bi-signpost-split me-1"></i> Wizard
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-xs rounded-pill px-2.5 py-1"
-                    :class="editorFormMode === 'all-in-one' ? 'btn-primary fw-bold' : 'btn-outline-secondary bg-white'"
-                    @click="editorFormMode = 'all-in-one'"
-                    title="Tampilkan Semua Bagian Formulir Sekaligus"
-                  >
-                    <i class="bi bi-view-stacked me-1"></i> Semua Form
-                  </button>
-                </div>
-
-                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1" @click="loadSampleData" title="Isi dengan contoh data">
-                  <i class="bi bi-magic me-1"></i> Contoh
-                </button>
-                <button type="button" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 py-1" @click="resetInvoiceForm" title="Reset Form">
-                  <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
-                </button>
-              </div>
-            </div>
-
-            <!-- Wizard Step Stepper Navigation -->
-            <div class="wizard-stepper-container">
-              <div class="progress mb-2" style="height: 5px;">
-                <div
-                  class="progress-bar bg-primary transition-all"
-                  role="progressbar"
-                  :style="{ width: ((currentWizardStep / 4) * 100) + '%' }"
-                ></div>
-              </div>
-
-              <div class="d-flex justify-content-between align-items-center gap-1">
-                <button
-                  type="button"
-                  v-for="step in wizardSteps"
-                  :key="step.number"
-                  class="wizard-step-btn flex-fill text-start p-2 rounded-3 border d-flex align-items-center gap-2 transition-all"
-                  :class="[
-                    currentWizardStep === step.number
-                      ? 'bg-primary text-white border-primary shadow-sm'
-                      : (currentWizardStep > step.number ? 'bg-white text-dark border-primary-subtle' : 'bg-white text-muted border-light-subtle')
-                  ]"
-                  @click="currentWizardStep = step.number"
-                >
-                  <span
-                    class="wizard-step-number rounded-circle d-inline-flex align-items-center justify-content-center fw-bold"
-                    :class="currentWizardStep === step.number ? 'bg-white text-primary' : (currentWizardStep > step.number ? 'bg-primary-subtle text-primary' : 'bg-light text-muted')"
-                  >
-                    <i v-if="currentWizardStep > step.number" class="bi bi-check-lg"></i>
-                    <span v-else>{{ step.number }}</span>
-                  </span>
-                  <div class="wizard-step-text text-truncate">
-                    <span class="d-block small fw-bold leading-tight">{{ step.title }}</span>
-                    <span class="d-none d-md-block opacity-75" style="font-size: 10px;">{{ step.desc }}</span>
-                  </div>
-                </button>
-              </div>
-            </div>
+          <!-- Card Header for active section -->
+          <div class="px-4 py-3 bg-light bg-opacity-75 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-sliders2 text-primary"></i>
+              <span>{{ editorFormMode === 'all-in-one' ? 'Formulir Tagihan Lengkap' : `Langkah ${currentWizardStep}: ${currentStepTitle}` }}</span>
+            </h6>
+            <span class="small text-muted" v-if="editorFormMode === 'wizard'">
+              Langkah {{ currentWizardStep }} / 4
+            </span>
           </div>
 
           <!-- Wizard Content Form -->
@@ -2484,22 +2509,39 @@ export default {
 }
 
 /* Wizard Stepper Styling */
-.wizard-stepper-container {
-  margin-top: 4px;
+.top-wizard-stepper {
+  position: relative;
+  padding: 4px 6px;
 }
 
-.wizard-step-btn {
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: white;
+.top-wizard-progress {
+  position: absolute;
+  top: 26px;
+  left: 12%;
+  right: 12%;
+  z-index: 1;
+  background-color: var(--border-color, #e2e8f0);
+}
+
+.top-step-btn {
+  width: 24%;
   cursor: pointer;
-  min-height: 44px;
+  border: 1.5px solid transparent;
 }
 
-.wizard-step-number {
-  width: 26px;
-  height: 26px;
-  font-size: 11px;
-  flex-shrink: 0;
+.top-step-btn.active-step {
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+.top-step-circle {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.ring-4 {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
 }
 
 .shadow-2xs {
