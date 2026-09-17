@@ -198,25 +198,6 @@
                 </div>
 
                 <div class="row g-3">
-                  <!-- Status Pill Picker -->
-                  <div class="col-12">
-                    <div class="p-2.5 rounded-3 bg-light border d-flex align-items-center justify-content-between flex-wrap gap-2">
-                      <span class="small fw-bold text-dark"><i class="bi bi-patch-check me-1 text-primary"></i>Status Tagihan:</span>
-                      <div class="d-flex gap-1.5 flex-wrap">
-                        <button
-                          type="button"
-                          v-for="st in ['Belum Bayar', 'Lunas', 'Menunggu', 'Draft', 'Dibatalkan']"
-                          :key="st"
-                          class="btn btn-xs rounded-pill px-3 py-1 transition-all"
-                          :class="invoice.status === st ? 'btn-dark fw-bold shadow-xs' : 'btn-outline-secondary bg-white'"
-                          @click="invoice.status = st"
-                        >
-                          {{ st }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
                   <!-- Judul Dokumen Kustom (Invoice / Faktur / Kwitansi) -->
                   <div class="col-md-6">
                     <label class="form-label small fw-bold text-dark">
@@ -244,7 +225,22 @@
                         <li><a class="dropdown-item" href="javascript:;" @click="invoice.documentTitle = 'TAGIHAN / BILLING STATEMENT'">BILLING STATEMENT</a></li>
                       </ul>
                     </div>
-                    <small class="text-muted" style="font-size: 11px;">Bisa diisi judul bebas sesuai kebutuhan jenis transaksi.</small>
+                    <small class="text-muted" style="font-size: 11px;">Bisa diisi judul bebas sesuai jenis transaksi.</small>
+                  </div>
+
+                  <!-- Status Tagihan Dropdown -->
+                  <div class="col-md-6">
+                    <label class="form-label small fw-bold text-dark">
+                      <i class="bi bi-patch-check me-1 text-primary"></i>Status Tagihan
+                    </label>
+                    <select class="form-select form-select-sm fw-semibold" v-model="invoice.status">
+                      <option value="Belum Bayar">Belum Bayar</option>
+                      <option value="Lunas">Lunas</option>
+                      <option value="Menunggu">Menunggu</option>
+                      <option value="Draft">Draft</option>
+                      <option value="Dibatalkan">Dibatalkan</option>
+                    </select>
+                    <small class="text-muted" style="font-size: 11px;">Status pembayaran saat dokumen diterbitkan.</small>
                   </div>
 
                   <!-- Nomor Invoice -->
@@ -631,7 +627,7 @@
 
                   <div class="col-md-6">
                     <label class="form-label small fw-bold text-dark">Nama Penandatangan</label>
-                    <input type="text" class="form-control form-control-sm" v-model="invoice.signerName" placeholder="Arip Tri Prayogo" />
+                    <input type="text" class="form-control form-control-sm" v-model="invoice.signerName" placeholder="Arif Permana Putrasuryana" />
                   </div>
 
                   <div class="col-md-6">
@@ -1175,14 +1171,19 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="(item, idx) in invoice.items" :key="idx" class="invoice-table-row">
+                      <tr v-if="invoice.items.length === 0 || (invoice.items.length === 1 && !invoice.items[0].nama && invoice.items[0].biaya === 0)">
+                        <td colspan="5" class="text-center py-4 text-muted small fst-italic">
+                          Belum ada item tagihan. Silakan tambahkan rincian item pekerjaan di formulir.
+                        </td>
+                      </tr>
+                      <tr v-else v-for="(item, idx) in invoice.items" :key="idx" class="invoice-table-row">
                         <td class="text-center text-muted small" style="font-size: 11px;">{{ idx + 1 }}</td>
                         <td>
                           <div v-if="isInlineEditing">
-                            <input type="text" class="form-control form-control-sm py-0.5" v-model="item.nama" />
+                            <input type="text" class="form-control form-control-sm py-0.5" v-model="item.nama" placeholder="Nama item / layanan..." />
                           </div>
                           <div v-else class="fw-semibold" style="font-size: 12px;" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">
-                            {{ item.nama || 'Layanan Digital & Pengembangan Proyek' }}
+                            {{ item.nama || '-' }}
                           </div>
                         </td>
                         <td class="text-center fw-bold small" style="font-size: 11px;">
@@ -1191,7 +1192,7 @@
                         </td>
                         <td class="text-end text-muted small" style="font-size: 11px;">
                           <input v-if="isInlineEditing" type="number" class="form-control form-control-sm text-end py-0.5" v-model.number="item.biaya" />
-                          <span v-else>{{ formatCurrency(item.biaya) }}</span>
+                          <span v-else>{{ formatCurrency(item.biaya || 0) }}</span>
                         </td>
                         <td class="text-end fw-bold" style="font-size: 12px;" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">
                           {{ formatCurrency((item.quantity || 1) * (item.biaya || 0)) }}
@@ -1239,7 +1240,7 @@
                           </span>
                         </div>
                         <div class="border-top pt-0.5 fw-bold text-truncate" style="font-size: 11px;" :class="invoice.paperTheme === 'dark' ? 'text-white' : 'text-dark'">
-                          {{ invoice.signerName || 'Arip Tri Prayogo' }}
+                          {{ invoice.signerName || 'Arif Permana Putrasuryana' }}
                         </div>
                         <div class="small opacity-60" style="font-size: 9.5px;" v-if="invoice.signerTitle">
                           {{ invoice.signerTitle }}
@@ -1507,16 +1508,16 @@ export default {
       // Payment & Bank
       bankName: 'Bank Central Asia (BCA)',
       bankAccount: '8830-1928-31',
-      bankHolder: 'Kafeinarts Studio / Arip Tri Prayogo',
+      bankHolder: 'Kafeinarts Studio / Arif Permana Putrasuryana',
 
       // Signature
-      signerName: 'Arip Tri Prayogo',
+      signerName: 'Arif Permana Putrasuryana',
       signerTitle: 'Lead Creative & Developer',
       signatureImageUrl: '',
 
       // Financials
       items: [
-        { nama: 'Pengembangan Web Application & UI/UX', quantity: 1, biaya: 4500000 }
+        { nama: '', quantity: 1, biaya: 0 }
       ],
       taxPercent: 0,
       discount: 0,
@@ -1669,8 +1670,8 @@ export default {
         customLogoUrl: '',
         bankName: 'Bank Central Asia (BCA)',
         bankAccount: '8830-1928-31',
-        bankHolder: 'Kafeinarts Studio / Arip Tri Prayogo',
-        signerName: 'Arip Tri Prayogo',
+        bankHolder: 'Kafeinarts Studio / Arif Permana Putrasuryana',
+        signerName: 'Arif Permana Putrasuryana',
         signerTitle: 'Lead Creative & Developer',
         signatureImageUrl: '',
         items: [{ nama: '', quantity: 1, biaya: 0 }],
@@ -2055,19 +2056,27 @@ export default {
 
         // Render items
         const maxItems = paperSize === 'a4' && paperOrient === 'portrait' ? 18 : 7;
-        const itemsToPrint = invoice.value.items.slice(0, maxItems);
-        itemsToPrint.forEach((item, idx) => {
-          doc.text(String(idx + 1), marginX + 2, tableY);
-          const descWidth = contentWidth - 75;
-          const nameLines = doc.splitTextToSize(item.nama || 'Layanan Digital', descWidth);
-          doc.text(nameLines, marginX + 10, tableY);
-          doc.text(String(item.quantity || 1), marginX + contentWidth - 65, tableY, { align: 'center' });
-          doc.text(formatCurrency(item.biaya), marginX + contentWidth - 35, tableY, { align: 'right' });
-          doc.setFont('helvetica', 'bold');
-          doc.text(formatCurrency((item.quantity || 1) * (item.biaya || 0)), marginX + contentWidth - 2, tableY, { align: 'right' });
-          doc.setFont('helvetica', 'normal');
+        const validItems = invoice.value.items.filter(it => it.nama || it.biaya > 0);
+        const itemsToPrint = validItems.length > 0 ? validItems.slice(0, maxItems) : [];
+        if (itemsToPrint.length === 0) {
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(150);
+          doc.text('(Belum ada rincian item)', marginX + 10, tableY);
           tableY += 7.5;
-        });
+        } else {
+          itemsToPrint.forEach((item, idx) => {
+            doc.text(String(idx + 1), marginX + 2, tableY);
+            const descWidth = contentWidth - 75;
+            const nameLines = doc.splitTextToSize(item.nama || '-', descWidth);
+            doc.text(nameLines, marginX + 10, tableY);
+            doc.text(String(item.quantity || 1), marginX + contentWidth - 65, tableY, { align: 'center' });
+            doc.text(formatCurrency(item.biaya || 0), marginX + contentWidth - 35, tableY, { align: 'right' });
+            doc.setFont('helvetica', 'bold');
+            doc.text(formatCurrency((item.quantity || 1) * (item.biaya || 0)), marginX + contentWidth - 2, tableY, { align: 'right' });
+            doc.setFont('helvetica', 'normal');
+            tableY += 7.5;
+          });
+        }
 
         // Horizontal line under table
         doc.setDrawColor(226, 232, 240);
@@ -2104,7 +2113,7 @@ export default {
 
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(15, 23, 42);
-        doc.text(invoice.value.signerName || 'Arip Tri Prayogo', marginX, pageHeight - 6);
+        doc.text(invoice.value.signerName || 'Arif Permana Putrasuryana', marginX, pageHeight - 6);
 
         // Right: Totals Box
         const totalsBoxWidth = rightBoxWidth;
