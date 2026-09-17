@@ -56,14 +56,24 @@
           <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-primary">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="text-muted small fw-semibold">Total Kas & Setara Kas</span>
-              <div class="p-2 bg-primary-subtle text-primary rounded-3">
-                <i class="bi bi-wallet2 fs-5"></i>
+              <div class="d-flex align-items-center gap-1">
+                <button 
+                  @click="openSetBaseCashModal" 
+                  class="btn btn-sm btn-light border p-1 rounded-circle text-primary" 
+                  style="width: 28px; height: 28px;"
+                  title="Atur Saldo Awal Kas (Default: Rp 0)"
+                >
+                  <i class="bi bi-pencil-square" style="font-size: 11px;"></i>
+                </button>
+                <div class="p-2 bg-primary-subtle text-primary rounded-3">
+                  <i class="bi bi-wallet2 fs-5"></i>
+                </div>
               </div>
             </div>
             <h4 class="fw-bold mb-1 text-dark">{{ formatRupiah(totalCashPosition) }}</h4>
-            <div class="d-flex align-items-center gap-1 small text-success">
-              <i class="bi bi-check-circle-fill"></i>
-              <span>Tersedia di 5 Akun Bank/Kasir</span>
+            <div class="d-flex align-items-center justify-content-between small text-muted">
+              <span>Saldo Awal: {{ formatRupiah(baseCash) }}</span>
+              <span class="badge bg-light text-secondary border">Kas Riil</span>
             </div>
           </div>
         </div>
@@ -714,6 +724,9 @@ export default {
     const modalTransactionRef = ref(null);
     let bsModalInstance = null;
 
+    // Saldo awal kas (default 0)
+    const baseCash = ref(0);
+
     // Transaction form state
     const formTrans = ref({
       type: 'inflow',
@@ -730,6 +743,14 @@ export default {
 
     const loadData = () => {
       initFinanceSeedData();
+      // Pastikan saldo awal kas di-set ke 0 (menghapus residu dummy 350.000.000)
+      const savedBase = localStorage.getItem('ft_finance_base_cash');
+      if (savedBase === null || savedBase === '350000000') {
+        localStorage.setItem('ft_finance_base_cash', '0');
+        baseCash.value = 0;
+      } else {
+        baseCash.value = Number(savedBase) || 0;
+      }
       transactions.value = safeGet(STORAGE_KEYS.CASHFLOW, []);
       bankStatements.value = safeGet(STORAGE_KEYS.BANK_RECON, []);
       currencies.value = safeGet(STORAGE_KEYS.CURRENCIES, []);
@@ -774,10 +795,44 @@ export default {
     });
 
     const totalCashPosition = computed(() => {
-      // Base IDR cash + net of transactions
-      const baseCash = 350000000; // Saldo awal buku kas
-      return baseCash + totalInflow.value - totalOutflow.value;
+      // Base IDR cash (default 0) + net of transactions
+      return Number(baseCash.value || 0) + totalInflow.value - totalOutflow.value;
     });
+
+    const openSetBaseCashModal = async () => {
+      const { value: newBase } = await Swal.fire({
+        title: 'Atur Saldo Awal Kas',
+        text: 'Tentukan saldo awal kas & setara kas riil (Default: 0):',
+        input: 'number',
+        inputValue: baseCash.value,
+        showCancelButton: true,
+        confirmButtonText: 'Simpan Saldo Awal',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#2563eb',
+        inputValidator: (val) => {
+          if (val === '' || isNaN(val)) return 'Masukkan angka saldo awal yang valid (misal: 0)';
+          if (Number(val) < 0) return 'Saldo awal tidak boleh bernilai negatif';
+        }
+      });
+
+      if (newBase !== undefined) {
+        const val = Number(newBase || 0);
+        baseCash.value = val;
+        localStorage.setItem('ft_finance_base_cash', String(val));
+        logAuditTrail({
+          module: 'Arus Kas',
+          action: 'UPDATE',
+          details: `Mengubah saldo awal kas menjadi ${formatRupiah(val)}`
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Saldo Awal Disimpan',
+          text: `Saldo awal kas disetel ke ${formatRupiah(val)}`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    };
 
     const unmatchedBankCount = computed(() => {
       return bankStatements.value.filter(b => b.status !== 'MATCHED').length;
@@ -1256,6 +1311,8 @@ export default {
       totalInflow,
       totalOutflow,
       totalCashPosition,
+      baseCash,
+      openSetBaseCashModal,
       unmatchedBankCount,
       matchedBankCount,
       calcAmount,

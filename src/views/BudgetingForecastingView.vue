@@ -399,11 +399,11 @@ export default {
 
     const budgetsList = ref([]);
     const forecastConfig = ref({
-      projectedMonthlyGrowthRate: 6.5,
-      projectedMonthlyInflationCost: 2.8,
+      projectedMonthlyGrowthRate: 0,
+      projectedMonthlyInflationCost: 0,
       scenario: 'Realistis',
-      includeCapex: true,
-      capexAmount: 35000000,
+      includeCapex: false,
+      capexAmount: 0,
       forecastMonths: 6
     });
 
@@ -427,11 +427,11 @@ export default {
       initFinanceSeedData();
       budgetsList.value = safeGet(STORAGE_KEYS.BUDGETS, []);
       forecastConfig.value = safeGet(STORAGE_KEYS.FORECASTS, {
-        projectedMonthlyGrowthRate: 6.5,
-        projectedMonthlyInflationCost: 2.8,
+        projectedMonthlyGrowthRate: 0,
+        projectedMonthlyInflationCost: 0,
         scenario: 'Realistis',
-        includeCapex: true,
-        capexAmount: 35000000,
+        includeCapex: false,
+        capexAmount: 0,
         forecastMonths: 6
       });
     };

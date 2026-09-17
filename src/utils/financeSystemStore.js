@@ -163,7 +163,14 @@ export function initFinanceSeedData() {
     });
     safeSet(STORAGE_KEYS.USERS, []);
     safeSet(STORAGE_KEYS.AUDIT_TRAIL, []);
+    localStorage.setItem('ft_finance_base_cash', '0');
     localStorage.setItem(PURGE_KEY, 'true');
+  }
+
+  // Ensure base cash is explicitly 0 if empty or set to legacy 350.000.000
+  const curBase = localStorage.getItem('ft_finance_base_cash');
+  if (curBase === null || curBase === '350000000') {
+    localStorage.setItem('ft_finance_base_cash', '0');
   }
 
   // Ensure keys exist as empty collections if accessed
