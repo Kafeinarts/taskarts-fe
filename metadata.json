@@ -1,6 +1,6 @@
 {
   "name": "TaskArts",
-  "description": "Platform pengorganisir pekerjaan, tugas harian, proyek kantor, keuangan, dan produktivitas karyawan & profesional.",
+  "description": "Platform pengorganisir pekerjaan, tugas harian, proyek kantor, sistem keuangan, kolaborasi tim dengan Google Calendar, dan produktivitas karyawan & profesional.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

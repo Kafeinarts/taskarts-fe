@@ -270,16 +270,113 @@
       </div>
     </div>
 
+    <!-- Dedicated Top Full-Width Wizard Stepper Bar (Langkah 1-2-3-4-5 di paling atas secara rapih) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white mb-4 no-print overflow-hidden">
+      <div class="p-3 p-md-4">
+        <!-- Top Toolbar inside Stepper Card: Step Title, Status & Mode Toggle -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary text-white px-2.5 py-1 rounded-pill fw-bold">
+              Tahap {{ currentSuratStepNumber }} dari 5
+            </span>
+            <h6 class="fw-bold text-dark mb-0 fs-6">
+              {{ currentSuratStepTitle }}
+            </h6>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Toggle Mode: Wizard Bertahap vs Semua Formulir -->
+            <div class="btn-group btn-group-sm p-0.5 bg-light rounded-3 border">
+              <button
+                type="button"
+                class="btn btn-xs rounded-2 px-2.5 py-1 transition-all"
+                :class="suratEditorMode === 'wizard' ? 'bg-white shadow-xs text-primary fw-bold' : 'text-muted border-0'"
+                @click="suratEditorMode = 'wizard'"
+                title="Navigasi Langkah demi Langkah (Wizard)"
+              >
+                <i class="bi bi-signpost-split me-1"></i> Mode Wizard
+              </button>
+              <button
+                type="button"
+                class="btn btn-xs rounded-2 px-2.5 py-1 transition-all"
+                :class="suratEditorMode === 'all-in-one' ? 'bg-white shadow-xs text-primary fw-bold' : 'text-muted border-0'"
+                @click="suratEditorMode = 'all-in-one'"
+                title="Tampilkan Semua Bagian Formulir Sekaligus"
+              >
+                <i class="bi bi-view-stacked me-1"></i> Semua Formulir
+              </button>
+            </div>
+
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 bg-white" @click="createNewDraft" title="Reset Formulir Surat Baru">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Horizontal Stepper 1 - 2 - 3 - 4 - 5 with Connecting Progress Line -->
+        <div class="top-wizard-stepper">
+          <!-- Background track line -->
+          <div class="progress top-wizard-progress" style="height: 4px;">
+            <div
+              class="progress-bar bg-primary transition-all"
+              role="progressbar"
+              :style="{ width: (((currentSuratStepNumber - 1) / 4) * 100) + '%' }"
+            ></div>
+          </div>
+
+          <!-- 5 Step Interactive Buttons -->
+          <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
+            <button
+              type="button"
+              v-for="step in suratWizardSteps"
+              :key="step.id"
+              class="top-step-btn btn p-2 rounded-3 text-center transition-all d-flex flex-column align-items-center flex-fill"
+              :class="formTab === step.id ? 'active-step bg-primary-subtle' : 'bg-white'"
+              @click="setSuratStep(step.id)"
+            >
+              <div
+                class="top-step-circle rounded-circle d-flex align-items-center justify-content-center fw-bold transition-all mb-1.5"
+                :class="[
+                  formTab === step.id
+                    ? 'bg-primary text-white shadow-sm ring-4'
+                    : (currentSuratStepNumber > step.number
+                        ? 'bg-success text-white shadow-xs'
+                        : 'bg-light border text-muted')
+                ]"
+              >
+                <i v-if="currentSuratStepNumber > step.number" class="bi bi-check-lg fw-bold"></i>
+                <span v-else>{{ step.number }}</span>
+              </div>
+              <span
+                class="small fw-bold d-block text-truncate w-100"
+                :class="formTab === step.id ? 'text-primary' : (currentSuratStepNumber > step.number ? 'text-dark' : 'text-muted')"
+                style="font-size: 13px;"
+              >
+                {{ step.title }}
+              </span>
+              <span class="d-none d-md-block text-muted text-truncate w-100 opacity-75" style="font-size: 11px;">
+                {{ step.desc }}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Editor & Preview Grid -->
     <div class="row g-4">
       <!-- Left Form Controls (no-print) -->
       <div class="col-lg-5 no-print" :class="{ 'd-none d-lg-block': mobileActiveView === 'preview' }">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
           <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-            <h5 class="fw-bold text-dark mb-0">
-              <i class="bi bi-pencil-square text-primary me-2"></i>{{ suratMode === 'bulk' ? 'Master Pengaturan Surat' : 'Pengaturan & Isi Surat' }}
+            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-sliders2 text-primary"></i>
+              <span>{{ suratEditorMode === 'all-in-one' ? 'Formulir Pengaturan Surat Lengkap' : `Langkah ${currentSuratStepNumber}: ${currentSuratStepTitle}` }}</span>
             </h5>
-            <span v-if="suratMode === 'bulk'" class="badge bg-success rounded-pill small">Master Mail Merge</span>
+            <span class="small text-muted" v-if="suratEditorMode === 'wizard'">
+              Langkah {{ currentSuratStepNumber }} / 5
+            </span>
+            <span v-else-if="suratMode === 'bulk'" class="badge bg-success rounded-pill small">Master Mail Merge</span>
           </div>
 
           <!-- Active Draft Indicator Banner -->
@@ -303,37 +400,15 @@
             </div>
           </div>
 
-          <!-- Nav Tabs for Form: Kop Surat, Kertas & Margin A4, Metadata, Isi & Tanda Tangan -->
-          <ul class="nav nav-pills surat-form-pills mb-3 bg-light p-1 rounded-3 flex-nowrap overflow-x-auto">
-            <li class="nav-item flex-shrink-0">
-              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'kop' }" @click="formTab = 'kop'">
-                <i class="bi bi-image me-1"></i> Kop & Logo
-              </button>
-            </li>
-            <li class="nav-item flex-shrink-0">
-              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'margin' }" @click="formTab = 'margin'">
-                <i class="bi bi-aspect-ratio me-1"></i> Kertas & Margin
-              </button>
-            </li>
-            <li class="nav-item flex-shrink-0">
-              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'meta' }" @click="formTab = 'meta'">
-                <i class="bi bi-card-heading me-1"></i> Metadata
-              </button>
-            </li>
-            <li class="nav-item flex-shrink-0">
-              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'body' }" @click="formTab = 'body'">
-                <i class="bi bi-text-paragraph me-1"></i> Isi Surat
-              </button>
-            </li>
-            <li class="nav-item flex-shrink-0">
-              <button class="nav-link py-1.5 px-2.5 small fw-semibold text-nowrap" :class="{ active: formTab === 'sign' }" @click="formTab = 'sign'">
-                <i class="bi bi-pen me-1"></i> TTD & Cap
-              </button>
-            </li>
-          </ul>
-
           <!-- TAB 1: KOP SURAT & LOGO CUSTOMIZATION -->
-          <div v-show="formTab === 'kop'">
+          <div v-show="suratEditorMode === 'all-in-one' || formTab === 'kop'" class="wizard-section mb-4">
+            <div v-if="suratEditorMode === 'all-in-one'" class="section-badge-header mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white rounded-circle p-1 px-2">1</span>
+                <span>Kop Surat Resmi & Desain Logo Instansi</span>
+              </h6>
+              <span class="small text-muted">Header instansi, logo & garis pemisah</span>
+            </div>
             <div class="form-check form-switch mb-3 bg-light p-3 rounded-3 border">
               <input class="form-check-input" type="checkbox" id="enableKop" v-model="letter.showKop" />
               <label class="form-check-label fw-bold text-dark small" for="enableKop">
@@ -436,7 +511,14 @@
           </div>
 
           <!-- TAB 2: KERTAS & MARGIN RESMI -->
-          <div v-show="formTab === 'margin'">
+          <div v-show="suratEditorMode === 'all-in-one' || formTab === 'margin'" class="wizard-section mb-4">
+            <div v-if="suratEditorMode === 'all-in-one'" class="section-badge-header mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white rounded-circle p-1 px-2">2</span>
+                <span>Format Kertas, Margin Cetak & Tipografi</span>
+              </h6>
+              <span class="small text-muted">A4/F4/Legal, margin & spasi</span>
+            </div>
             <!-- Alert Info -->
             <div class="alert alert-info py-2 px-3 rounded-3 small mb-3 border-info-subtle d-flex align-items-center justify-content-between flex-wrap gap-2">
               <div>
@@ -614,8 +696,15 @@
             </div>
           </div>
 
-          <!-- TAB 2: METADATA & PENERIMA -->
-          <div v-show="formTab === 'meta'">
+          <!-- TAB 3: METADATA & PENERIMA -->
+          <div v-show="suratEditorMode === 'all-in-one' || formTab === 'meta'" class="wizard-section mb-4">
+            <div v-if="suratEditorMode === 'all-in-one'" class="section-badge-header mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white rounded-circle p-1 px-2">3</span>
+                <span>Informasi Metadata, Nomor & Tujuan Surat</span>
+              </h6>
+              <span class="small text-muted">Nomor surat, perihal & penerima</span>
+            </div>
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark small">Nomor Surat Master</label>
@@ -658,8 +747,15 @@
             </div>
           </div>
 
-          <!-- TAB 3: ISI & NARASI SURAT -->
-          <div v-show="formTab === 'body'">
+          <!-- TAB 4: ISI & NARASI SURAT -->
+          <div v-show="suratEditorMode === 'all-in-one' || formTab === 'body'" class="wizard-section mb-4">
+            <div v-if="suratEditorMode === 'all-in-one'" class="section-badge-header mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white rounded-circle p-1 px-2">4</span>
+                <span>Isi Surat & Narasi Utama</span>
+              </h6>
+              <span class="small text-muted">Salam pembuka, inti & penutup</span>
+            </div>
             <div class="d-flex justify-content-between align-items-center mb-1">
               <label class="form-label fw-bold text-dark small mb-0">Isi Surat / Narasi Utama</label>
               <div class="btn-group btn-group-sm">
@@ -690,8 +786,15 @@
             </div>
           </div>
 
-          <!-- TAB 4: TANDA TANGAN & STEMPEL CAP -->
-          <div v-show="formTab === 'sign'">
+          <!-- TAB 5: TANDA TANGAN & STEMPEL CAP -->
+          <div v-show="suratEditorMode === 'all-in-one' || formTab === 'sign'" class="wizard-section mb-4">
+            <div v-if="suratEditorMode === 'all-in-one'" class="section-badge-header mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white rounded-circle p-1 px-2">5</span>
+                <span>Pengesahan, Tanda Tangan & Cap Stempel</span>
+              </h6>
+              <span class="small text-muted">Penandatangan, NIP & cap resmi</span>
+            </div>
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark small">Nama Penandatangan</label>
@@ -735,6 +838,34 @@
               <label class="form-label fw-bold text-dark small">Tembusan Surat (Opsional - Pisahkan dengan Enter)</label>
               <textarea class="form-control form-control-sm" rows="2" v-model="letter.ccText" placeholder="1. Direktur Keuangan&#10;2. Arsip Bagian Umum"></textarea>
             </div>
+          </div>
+
+          <!-- Wizard Footer Navigation Buttons -->
+          <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-4" v-if="suratEditorMode === 'wizard'">
+            <button
+              type="button"
+              class="btn btn-outline-secondary rounded-pill px-3 py-1.5"
+              :disabled="currentSuratStepNumber === 1"
+              @click="prevSuratStep"
+            >
+              <i class="bi bi-chevron-left me-1"></i> Langkah Sebelumnya
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary rounded-pill px-4 py-1.5 fw-bold shadow-sm"
+              v-if="currentSuratStepNumber < 5"
+              @click="nextSuratStep"
+            >
+              Lanjut ke Langkah {{ currentSuratStepNumber + 1 }} <i class="bi bi-chevron-right ms-1"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-success rounded-pill px-4 py-1.5 fw-bold shadow-sm"
+              v-else
+              @click="printCurrentMode"
+            >
+              <i class="bi bi-printer me-1"></i> Selesai & Cetak PDF
+            </button>
           </div>
 
           <!-- Mobile Quick View Preview Trigger -->
@@ -1426,8 +1557,45 @@ export default {
     const suratMode = ref('single'); // 'single' | 'bulk'
     const isPrintingAll = ref(false);
     const formTab = ref('kop');
+    const suratEditorMode = ref('wizard'); // 'wizard' | 'all-in-one'
     const selectedTemplateId = ref('lamaran');
     const activeTemplateCat = ref('all');
+
+    const suratWizardSteps = [
+      { id: 'kop', number: 1, title: 'Kop & Logo', desc: 'Header instansi & logo' },
+      { id: 'margin', number: 2, title: 'Kertas & Margin', desc: 'Format kertas & tipografi' },
+      { id: 'meta', number: 3, title: 'Nomor & Tujuan', desc: 'Nomor, perihal & penerima' },
+      { id: 'body', number: 4, title: 'Isi Surat', desc: 'Salam, inti & lampiran' },
+      { id: 'sign', number: 5, title: 'Tanda Tangan', desc: 'Pengesahan & stempel' }
+    ];
+
+    const currentSuratStepNumber = computed(() => {
+      const idx = suratWizardSteps.findIndex(s => s.id === formTab.value);
+      return idx >= 0 ? idx + 1 : 1;
+    });
+
+    const currentSuratStepTitle = computed(() => {
+      const step = suratWizardSteps.find(s => s.id === formTab.value);
+      return step ? step.title : 'Kop & Logo';
+    });
+
+    const setSuratStep = (stepId) => {
+      formTab.value = stepId;
+    };
+
+    const nextSuratStep = () => {
+      const currentIdx = suratWizardSteps.findIndex(s => s.id === formTab.value);
+      if (currentIdx < suratWizardSteps.length - 1) {
+        formTab.value = suratWizardSteps[currentIdx + 1].id;
+      }
+    };
+
+    const prevSuratStep = () => {
+      const currentIdx = suratWizardSteps.findIndex(s => s.id === formTab.value);
+      if (currentIdx > 0) {
+        formTab.value = suratWizardSteps[currentIdx - 1].id;
+      }
+    };
 
     // Bulk Mail Merge State
     const activeBulkIndex = ref(0);
@@ -2612,6 +2780,13 @@ export default {
       suratMode,
       isPrintingAll,
       formTab,
+      suratEditorMode,
+      suratWizardSteps,
+      currentSuratStepNumber,
+      currentSuratStepTitle,
+      setSuratStep,
+      nextSuratStep,
+      prevSuratStep,
       selectedTemplateId,
       activeTemplateCat,
       templateCategories,
@@ -2825,6 +3000,45 @@ export default {
   background-color: var(--primary-color, #2563eb) !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* Wizard Stepper Styling */
+.top-wizard-stepper {
+  position: relative;
+  padding: 4px 6px;
+}
+
+.top-wizard-progress {
+  position: absolute;
+  top: 26px;
+  left: 10%;
+  right: 10%;
+  z-index: 1;
+  background-color: var(--border-color, #e2e8f0);
+}
+
+.top-step-btn {
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+
+.top-step-btn.active-step {
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+.top-step-circle {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.ring-4 {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.shadow-2xs {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .preview-desk-workbench {

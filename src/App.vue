@@ -3,378 +3,423 @@
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
-    <!-- Desktop Material Navigation Drawer -->
-    <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
-      <!-- Sidebar Brand Header -->
-      <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
-        <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
-          <div class="brand-icon-wrapper shadow-sm">
-            <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
-          </div>
-          <div class="lh-1 text-truncate">
-            <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
-              Task<span class="brand-accent" :style="{ color: accentColor }">Arts</span>
-            </span>
-            <div class="d-flex align-items-center gap-1.5 mt-1">
-              <span class="brand-badge-kafeinarts">
-                <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
-              </span>
-            </div>
-          </div>
-        </router-link>
+    <!-- Dukung Dev Modal Popup (Bank & E-Wallet) -->
+    <DukungDevModal v-model="showDukungModal" />
 
-        <div v-else class="mx-auto">
-          <router-link to="/" class="brand-icon-wrapper shadow-sm" title="TaskArts By Kafeinarts">
-            <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
-          </router-link>
+    <!-- =========================================================
+         SAMSUNG DeX / WINDOWS DESKTOP OS MODE
+         Persis mirip Samsung DeX dengan icon placement vertikal & taskbar
+         ========================================================= -->
+    <template v-if="isDesktopMode">
+      <DesktopDexWorkspace @exit-desktop-mode="disableDesktopMode">
+        <div class="p-3 p-md-4 main-view-viewport">
+          <router-view v-slot="{ Component }">
+            <transition name="fade-slide" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </div>
+      </DesktopDexWorkspace>
+    </template>
 
-        <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-          <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
-        </button>
-      </div>
-
-      <!-- Quick Search Bar (When Expanded) -->
-      <div v-if="!isCollapsed" class="sidebar-search-box px-3 py-2">
-        <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1">
-          <i class="bi bi-search text-muted me-2" style="font-size: 11px;"></i>
-          <input 
-            v-model="sidebarSearch" 
-            type="text" 
-            class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
-            placeholder="Cari fitur / menu..." 
-            style="font-size: 12px;"
-          />
-          <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link text-muted p-0 ms-1 text-decoration-none" title="Bersihkan">
-            <i class="bi bi-x-circle-fill" style="font-size: 12px;"></i>
-          </button>
-          <span v-else class="badge bg-light text-muted border px-1.5 py-0.5 rounded" style="font-size: 9px;">Ctrl+K</span>
-        </div>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="sidebar-links p-2 flex-grow-1">
-        <div v-if="filteredNavGroups.length === 0" class="text-center py-4 px-2 text-muted small">
-          <i class="bi bi-search fs-4 d-block mb-1 opacity-50"></i>
-          Tidak ada menu "{{ sidebarSearch }}"
-        </div>
-
-        <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="sidebar-group-block mb-1">
-          <!-- Section Header -->
-          <div v-if="!isCollapsed" class="sidebar-section-header d-flex align-items-center justify-content-between">
-            <span>{{ group.title }}</span>
-            <span class="badge rounded-pill bg-light text-muted border px-1.5 py-0.5" style="font-size: 9px;">{{ group.items.length }}</span>
-          </div>
-          <div v-else-if="gIdx > 0" class="sidebar-divider my-1.5"></div>
-
-          <!-- Items in Group -->
-          <router-link
-            v-for="item in group.items"
-            :key="item.to"
-            :to="item.to"
-            class="material-nav-link"
-            :title="item.label"
-          >
-            <div class="nav-icon-box" :style="{ '--item-color': item.color }">
-              <i :class="item.icon" class="nav-icon"></i>
-            </div>
-            <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1">{{ item.label }}</span>
-            
-            <!-- Dynamic Count Badge -->
-            <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
-              {{ item.badge() }}
-            </span>
-            <!-- Static Badge Text -->
-            <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
-              {{ item.badgeText }}
-            </span>
-          </router-link>
-        </div>
-      </nav>
-
-      <!-- Sidebar Footer (Expanded) -->
-      <div class="sidebar-footer p-2.5 border-top divider-color" v-if="!isCollapsed">
-        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 footer-user-pill mb-2">
-          <div class="d-flex align-items-center gap-2 overflow-hidden">
-            <div class="avatar-kafeinarts">
-              <span>K</span>
+    <!-- =========================================================
+         STANDARD APP MODE (Material 3 Sidebar Navigation & Top Bar)
+         ========================================================= -->
+    <template v-else>
+      <!-- Desktop Material Navigation Drawer -->
+      <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
+        <!-- Sidebar Brand Header -->
+        <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
+          <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
+            <div class="brand-icon-wrapper shadow-sm">
+              <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
             </div>
             <div class="lh-1 text-truncate">
-              <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts</span>
-              <small class="text-success fw-semibold" style="font-size: 10px;">● Workspace Siap</small>
+              <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
+                Task<span class="brand-accent" :style="{ color: accentColor }">Arts</span>
+              </span>
+              <div class="d-flex align-items-center gap-1.5 mt-1">
+                <span class="brand-badge-kafeinarts">
+                  <i class="bi bi-stars me-1 text-warning"></i>By Kafeinarts
+                </span>
+              </div>
+            </div>
+          </router-link>
+
+          <div v-else class="mx-auto">
+            <router-link to="/" class="brand-icon-wrapper shadow-sm" title="TaskArts By Kafeinarts">
+              <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
+            </router-link>
+          </div>
+
+          <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
+          </button>
+        </div>
+
+        <!-- Quick Search Bar (When Expanded) -->
+        <div v-if="!isCollapsed" class="sidebar-search-box px-3 py-2">
+          <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1">
+            <i class="bi bi-search text-muted me-2" style="font-size: 11px;"></i>
+            <input 
+              v-model="sidebarSearch" 
+              type="text" 
+              class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
+              placeholder="Cari fitur / menu..." 
+              style="font-size: 12px;"
+            />
+            <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link text-muted p-0 ms-1 text-decoration-none" title="Bersihkan">
+              <i class="bi bi-x-circle-fill" style="font-size: 12px;"></i>
+            </button>
+            <span v-else class="badge bg-light text-muted border px-1.5 py-0.5 rounded" style="font-size: 9px;">Ctrl+K</span>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="sidebar-links p-2 flex-grow-1">
+          <div v-if="filteredNavGroups.length === 0" class="text-center py-4 px-2 text-muted small">
+            <i class="bi bi-search fs-4 d-block mb-1 opacity-50"></i>
+            Tidak ada menu "{{ sidebarSearch }}"
+          </div>
+
+          <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="sidebar-group-block mb-1">
+            <!-- Section Header -->
+            <div v-if="!isCollapsed" class="sidebar-section-header d-flex align-items-center justify-content-between">
+              <span>{{ group.title }}</span>
+              <span class="badge rounded-pill bg-light text-muted border px-1.5 py-0.5" style="font-size: 9px;">{{ group.items.length }}</span>
+            </div>
+            <div v-else-if="gIdx > 0" class="sidebar-divider my-1.5"></div>
+
+            <!-- Items in Group -->
+            <router-link
+              v-for="item in group.items"
+              :key="item.to"
+              :to="item.to"
+              class="material-nav-link"
+              :title="item.label"
+            >
+              <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+                <i :class="item.icon" class="nav-icon"></i>
+              </div>
+              <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1">{{ item.label }}</span>
+              
+              <!-- Dynamic Count Badge -->
+              <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                {{ item.badge() }}
+              </span>
+              <!-- Static Badge Text -->
+              <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                {{ item.badgeText }}
+              </span>
+            </router-link>
+          </div>
+        </nav>
+
+        <!-- Sidebar Footer (Expanded) -->
+        <div class="sidebar-footer p-2.5 border-top divider-color" v-if="!isCollapsed">
+          <div class="d-flex align-items-center justify-content-between p-2 rounded-3 footer-user-pill mb-2">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+              <div class="avatar-kafeinarts">
+                <span>K</span>
+              </div>
+              <div class="lh-1 text-truncate">
+                <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts</span>
+                <small class="text-success fw-semibold" style="font-size: 10px;">● Workspace Siap</small>
+              </div>
+            </div>
+            <router-link to="/preferences" class="btn btn-sm btn-ghost p-1 text-sub" title="Pengaturan Sistem">
+              <i class="bi bi-gear-fill"></i>
+            </router-link>
+          </div>
+
+          <div class="d-flex flex-column gap-1.5">
+            <!-- Mode Desktop Switcher in Sidebar -->
+            <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-1.5 fw-semibold" style="font-size: 11.5px;" title="Aktifkan Mode Desktop Samsung DeX">
+              <i class="bi bi-display"></i> Mode Desktop (DeX)
+            </button>
+            <div class="d-flex gap-1.5">
+              <router-link to="/preferences" class="btn btn-sm btn-outline-theme rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 py-1.5" style="font-size: 11.5px;">
+                <i class="bi bi-palette"></i> Tema
+              </router-link>
+              <button @click="showDukungModal = true" class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5" style="font-size: 11.5px;" title="Dukung Pengembang">
+                <i class="bi bi-heart-fill"></i> Dukung
+              </button>
             </div>
           </div>
-          <router-link to="/preferences" class="btn btn-sm btn-ghost p-1 text-sub" title="Pengaturan Sistem">
-            <i class="bi bi-gear-fill"></i>
-          </router-link>
         </div>
 
-        <div class="d-flex gap-1.5">
-          <router-link to="/preferences" class="btn btn-sm btn-outline-theme rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 py-1.5" style="font-size: 11.5px;">
-            <i class="bi bi-palette"></i> Tema
-          </router-link>
-          <button @click="showDukungModal = true" class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5" style="font-size: 11.5px;" title="Dukung Pengembang">
-            <i class="bi bi-heart-fill"></i> Dukung
+        <!-- Sidebar Footer (Collapsed) -->
+        <div class="sidebar-footer p-2 border-top divider-color text-center d-flex flex-column align-items-center gap-1.5" v-else>
+          <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary border rounded-circle p-0" style="width: 38px; height: 38px;" title="Mode Desktop Samsung DeX">
+            <i class="bi bi-display fs-6"></i>
+          </button>
+          <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0 mb-2" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
+            <i class="bi bi-heart-fill text-danger fs-6"></i>
           </button>
         </div>
-      </div>
+      </aside>
 
-      <!-- Sidebar Footer (Collapsed) -->
-      <div class="sidebar-footer p-2 border-top divider-color text-center" v-else>
-        <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0 mb-2" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
-          <i class="bi bi-heart-fill text-danger fs-6"></i>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div :class="['main-content', { expanded: isCollapsed }]">
-      <!-- Material Design 3 Top App Bar Header -->
-      <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
-        <div class="d-flex align-items-center gap-2">
-          <!-- MOBILE: If on subpage, show prominent Back to Home button! -->
-          <router-link
-            v-if="route.path !== '/'"
-            to="/"
-            class="btn btn-sm m3-back-btn d-flex align-items-center gap-1.5 fw-bold shadow-xs"
-            title="Kembali ke Beranda (Dashboard)"
-          >
-            <i class="bi bi-arrow-left fs-6"></i>
-            <span>Home</span>
-          </router-link>
-
-          <!-- MOBILE & TABLET: Menu button to open bottom sheet -->
-          <button
-            class="btn btn-sm btn-icon-m3 d-lg-none rounded-circle"
-            @click="mobileDrawer = true"
-            title="Buka Menu Navigasi (Slide Bawah)"
-          >
-            <i class="bi bi-list fs-5"></i>
-          </button>
-
-          <!-- DESKTOP: Sidebar collapse toggle -->
-          <button
-            class="btn btn-sm btn-icon-m3 d-none d-lg-flex rounded-circle me-1"
-            @click="isCollapsed = !isCollapsed"
-            :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
-          >
-            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
-          </button>
-          
-          <!-- Dynamic Breadcrumb / Page Title Badge -->
-          <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
-            <!-- Desktop Back-to-home Breadcrumb link -->
+      <!-- Main Content Area -->
+      <div :class="['main-content', { expanded: isCollapsed }]">
+        <!-- Material Design 3 Top App Bar Header (NAVBAR) -->
+        <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
+          <div class="d-flex align-items-center gap-2">
+            <!-- MOBILE: If on subpage, show prominent Back to Home button! -->
             <router-link
               v-if="route.path !== '/'"
               to="/"
-              class="d-none d-md-inline text-sub text-decoration-none hover-primary small fw-semibold breadcrumb-home-link"
-              title="Ke Dashboard Home"
+              class="btn btn-sm m3-back-btn d-flex align-items-center gap-1.5 fw-bold shadow-xs"
+              title="Kembali ke Beranda (Dashboard)"
             >
-              <i class="bi bi-house-door me-1"></i>Home
+              <i class="bi bi-arrow-left fs-6"></i>
+              <span>Home</span>
             </router-link>
-            <span v-if="route.path !== '/'" class="d-none d-md-inline text-muted small opacity-50">/</span>
 
-            <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
-            <span class="fw-bold text-app fs-6 page-title-text text-truncate" style="max-width: 220px;">
-              {{ currentPageTitle }}
-            </span>
-          </div>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-          <!-- Quick Capture Launcher -->
-          <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub" title="Quick Capture (Catatan & Alarm)">
-            <i class="bi bi-lightning-charge-fill text-warning"></i>
-            <span class="small fw-semibold">Quick Capture</span>
-            <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
-          </router-link>
-
-          <!-- Quick Camera Shortcut Button (Desktop / Tablet) -->
-          <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
-            <i class="bi bi-camera-fill text-secondary fs-6"></i>
-          </router-link>
-
-          <!-- Quick Mood Tracker & Alarm Shortcut Button (Desktop / Tablet) -->
-          <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
-            <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
-          </router-link>
-
-          <!-- Budget Alert Warning if exceeded -->
-          <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
-            <i class="bi bi-exclamation-triangle-fill fs-6"></i>
-          </router-link>
-
-          <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
-          <button 
-            @click="toggleBluePinkMode" 
-            class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
-            :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)' : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'"
-            style="font-size: 11.5px; height: 32px; width: auto;"
-          >
-            <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: accentColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
-            <span class="fw-bold d-none d-sm-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
-              {{ isPinkMode ? '🌸 Pink' : '🔵 Blue' }}
-            </span>
-          </button>
-
-          <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
-          <button 
-            @click="toggleThemeMode" 
-            class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
-            :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
-          >
-            <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
-            <i v-else-if="themeMode === 'dark'" class="bi bi-moon-stars-fill text-info fs-6"></i>
-            <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
-          </button>
-
-          <!-- Storage Link (Desktop & Tablet) -->
-          <router-link
-            to="/storage"
-            class="btn btn-sm border rounded-circle p-0 d-none d-sm-flex align-items-center justify-content-center header-icon-btn position-relative"
-            :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
-            title="Kapasitas & Kuota Storage"
-          >
-            <i class="bi bi-hdd-stack-fill fs-6" :class="isStorageFullState ? 'text-white' : 'text-primary'"></i>
-            <span v-if="isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-          </router-link>
-
-          <!-- Preferences Link -->
-          <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
-            <i class="bi bi-gear-fill text-primary fs-6"></i>
-          </router-link>
-        </div>
-      </header>
-
-      <!-- Mobile Bottom Sheet Navigation Menu (Slides Up From Bottom) -->
-      <transition name="overlay-fade">
-        <div class="offcanvas-overlay" v-if="mobileDrawer" @click="mobileDrawer = false"></div>
-      </transition>
-      
-      <transition name="sheet-slide-up">
-        <div class="mobile-bottom-sheet-menu px-3.5 pt-2 pb-4" v-if="mobileDrawer">
-          <!-- Drag Handle Indicator -->
-          <div class="mobile-sheet-drag-handle-bar mb-2" @click="mobileDrawer = false">
-            <span class="mobile-sheet-drag-pill"></span>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center pb-2.5 border-bottom mb-2.5">
-            <div class="d-flex align-items-center gap-2">
-              <div class="brand-icon-wrapper shadow-sm">
-                <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
-              </div>
-              <div class="lh-1">
-                <span class="fw-bold fs-5 text-app">Task<span :style="{ color: accentColor }">Arts</span></span>
-                <small class="brand-badge-kafeinarts d-block mt-0.5">Menu & Navigasi</small>
-              </div>
-            </div>
-            <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
-              <i class="bi bi-x-lg"></i>
+            <!-- MOBILE & TABLET: Menu button to open bottom sheet -->
+            <button
+              class="btn btn-sm btn-icon-m3 d-lg-none rounded-circle"
+              @click="mobileDrawer = true"
+              title="Buka Menu Navigasi (Slide Bawah)"
+            >
+              <i class="bi bi-list fs-5"></i>
             </button>
-          </div>
 
-          <!-- Mobile Search Filter -->
-          <div class="mb-2.5">
-            <div class="search-input-group d-flex align-items-center rounded-pill px-3 py-1.5 border bg-surface">
-              <i class="bi bi-search text-muted me-2" style="font-size: 13px;"></i>
-              <input 
-                v-model="sidebarSearch" 
-                type="text" 
-                class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
-                placeholder="Cari menu (Surat, To-Do, Kas, CV...)" 
-                style="font-size: 13px;"
-              />
-              <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link p-0 text-muted ms-1 text-decoration-none">
-                <i class="bi bi-x-circle-fill"></i>
-              </button>
+            <!-- DESKTOP: Sidebar collapse toggle -->
+            <button
+              class="btn btn-sm btn-icon-m3 d-none d-lg-flex rounded-circle me-1"
+              @click="isCollapsed = !isCollapsed"
+              :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
+            >
+              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
+            </button>
+            
+            <!-- Dynamic Breadcrumb / Page Title Badge -->
+            <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
+              <!-- Desktop Back-to-home Breadcrumb link -->
+              <router-link
+                v-if="route.path !== '/'"
+                to="/"
+                class="d-none d-md-inline text-sub text-decoration-none hover-primary small fw-semibold breadcrumb-home-link"
+                title="Ke Dashboard Home"
+              >
+                <i class="bi bi-house-door me-1"></i>Home
+              </router-link>
+              <span v-if="route.path !== '/'" class="d-none d-md-inline text-muted small opacity-50">/</span>
+
+              <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
+              <span class="fw-bold text-app fs-6 page-title-text text-truncate" style="max-width: 220px;">
+                {{ currentPageTitle }}
+              </span>
             </div>
           </div>
 
-          <div class="mobile-sheet-scroll-body">
-            <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
-              <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2.5">
-                <div class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">{{ group.title }}</div>
-                <router-link 
-                  v-for="item in group.items" 
-                  :key="item.to" 
-                  :to="item.to" 
-                  class="material-nav-link"
-                >
-                  <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
-                    <i :class="item.icon" class="nav-icon"></i>
-                  </div>
-                  <span class="fw-medium">{{ item.label }}</span>
-                  <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
-                    {{ item.badge() }}
-                  </span>
-                  <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
-                    {{ item.badgeText }}
-                  </span>
-                </router-link>
+          <div class="d-flex align-items-center gap-2">
+            <!-- MODE DESKTOP OS (Samsung DeX & Windows Style) Switcher Trigger in Navbar -->
+            <button 
+              @click="enableDesktopMode" 
+              class="btn btn-sm btn-dex-mode-navbar rounded-pill px-2.5 px-md-3 py-1.5 d-flex align-items-center gap-1.5 fw-bold shadow-xs text-nowrap"
+              title="Beralih ke Mode Desktop (Tampilan OS seperti Windows & Samsung DeX)"
+              id="navbar-desktop-mode-btn"
+            >
+              <i class="bi bi-display fs-6 text-primary"></i>
+              <span class="d-none d-sm-inline">Mode Desktop</span>
+              <span class="badge bg-primary text-white rounded-pill px-1.5 py-0.2" style="font-size: 10px;">DeX</span>
+            </button>
+
+            <!-- Quick Capture Launcher -->
+            <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub" title="Quick Capture (Catatan & Alarm)">
+              <i class="bi bi-lightning-charge-fill text-warning"></i>
+              <span class="small fw-semibold">Quick Capture</span>
+              <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
+            </router-link>
+
+            <!-- Quick Camera Shortcut Button (Desktop / Tablet) -->
+            <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
+              <i class="bi bi-camera-fill text-secondary fs-6"></i>
+            </router-link>
+
+            <!-- Quick Mood Tracker & Alarm Shortcut Button (Desktop / Tablet) -->
+            <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
+              <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
+            </router-link>
+
+            <!-- Budget Alert Warning if exceeded -->
+            <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
+              <i class="bi bi-exclamation-triangle-fill fs-6"></i>
+            </router-link>
+
+            <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
+            <button 
+              @click="toggleBluePinkMode" 
+              class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
+              :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)' : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'"
+              style="font-size: 11.5px; height: 32px; width: auto;"
+            >
+              <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: accentColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
+              <span class="fw-bold d-none d-sm-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
+                {{ isPinkMode ? '🌸 Pink' : '🔵 Blue' }}
+              </span>
+            </button>
+
+            <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
+            <button 
+              @click="toggleThemeMode" 
+              class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
+              :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
+            >
+              <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
+              <i v-else-if="themeMode === 'dark'" class="bi bi-moon-stars-fill text-info fs-6"></i>
+              <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
+            </button>
+
+            <!-- Storage Link (Desktop & Tablet) -->
+            <router-link
+              to="/storage"
+              class="btn btn-sm border rounded-circle p-0 d-none d-sm-flex align-items-center justify-content-center header-icon-btn position-relative"
+              :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
+              title="Kapasitas & Kuota Storage"
+            >
+              <i class="bi bi-hdd-stack-fill fs-6" :class="isStorageFullState ? 'text-white' : 'text-primary'"></i>
+              <span v-if="isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+            </router-link>
+
+            <!-- Preferences Link -->
+            <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
+              <i class="bi bi-gear-fill text-primary fs-6"></i>
+            </router-link>
+          </div>
+        </header>
+
+        <!-- Mobile Bottom Sheet Navigation Menu (Slides Up From Bottom) -->
+        <transition name="overlay-fade">
+          <div class="offcanvas-overlay" v-if="mobileDrawer" @click="mobileDrawer = false"></div>
+        </transition>
+        
+        <transition name="sheet-slide-up">
+          <div class="mobile-bottom-sheet-menu px-3.5 pt-2 pb-4" v-if="mobileDrawer">
+            <!-- Drag Handle Indicator -->
+            <div class="mobile-sheet-drag-handle-bar mb-2" @click="mobileDrawer = false">
+              <span class="mobile-sheet-drag-pill"></span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pb-2.5 border-bottom mb-2.5">
+              <div class="d-flex align-items-center gap-2">
+                <div class="brand-icon-wrapper shadow-sm">
+                  <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
+                </div>
+                <div class="lh-1">
+                  <span class="fw-bold fs-5 text-app">Task<span :style="{ color: accentColor }">Arts</span></span>
+                  <small class="brand-badge-kafeinarts d-block mt-0.5">Menu & Navigasi</small>
+                </div>
               </div>
-            </nav>
-
-            <div class="p-2 border-top mt-2 mb-1">
-              <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5">
-                <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
+              <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
+                <i class="bi bi-x-lg"></i>
               </button>
             </div>
+
+            <!-- Mobile Search Filter -->
+            <div class="mb-2.5">
+              <div class="search-input-group d-flex align-items-center rounded-pill px-3 py-1.5 border bg-surface">
+                <i class="bi bi-search text-muted me-2" style="font-size: 13px;"></i>
+                <input 
+                  v-model="sidebarSearch" 
+                  type="text" 
+                  class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
+                  placeholder="Cari menu (Surat, To-Do, Kas, CV...)" 
+                  style="font-size: 13px;"
+                />
+                <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link p-0 text-muted ms-1 text-decoration-none">
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mobile-sheet-scroll-body">
+              <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
+                <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2.5">
+                  <div class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">{{ group.title }}</div>
+                  <router-link 
+                    v-for="item in group.items" 
+                    :key="item.to" 
+                    :to="item.to" 
+                    class="material-nav-link"
+                  >
+                    <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                      <i :class="item.icon" class="nav-icon"></i>
+                    </div>
+                    <span class="fw-medium">{{ item.label }}</span>
+                    <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                      {{ item.badge() }}
+                    </span>
+                    <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                      {{ item.badgeText }}
+                    </span>
+                  </router-link>
+                </div>
+              </nav>
+
+              <div class="p-2 border-top mt-2 mb-1 d-flex flex-column gap-2">
+                <button @click="mobileDrawer = false; enableDesktopMode()" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2">
+                  <i class="bi bi-display text-primary"></i> Beralih ke Mode Desktop (DeX)
+                </button>
+                <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5">
+                  <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
+                </button>
+              </div>
+            </div>
           </div>
+        </transition>
+
+        <!-- Main Router View Container with Snappy Lightweight Fade-Slide Animation -->
+        <div class="p-3 p-md-4 main-view-viewport">
+          <router-view v-slot="{ Component }">
+            <transition name="fade-slide" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </div>
-      </transition>
 
-      <!-- Dukung Dev Modal Popup (Bank & E-Wallet) -->
-      <DukungDevModal v-model="showDukungModal" />
+        <!-- Material Design 3 Mobile Bottom Navigation Bar -->
+        <nav class="m3-bottom-nav d-lg-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
+          <router-link to="/" class="m3-bottom-nav-item" :class="{ active: route.path === '/' }">
+            <div class="m3-nav-indicator">
+              <i class="bi bi-grid-fill"></i>
+            </div>
+            <span class="m3-nav-label">Home</span>
+          </router-link>
 
-      <!-- Main Router View Container with Snappy Lightweight Fade-Slide Animation -->
-      <div class="p-3 p-md-4 main-view-viewport">
-        <router-view v-slot="{ Component }">
-          <transition name="fade-slide" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+          <router-link to="/todo" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/todo') || route.path.startsWith('/tasks') }">
+            <div class="m3-nav-indicator position-relative">
+              <i class="bi bi-check2-square"></i>
+              <span v-if="pendingTasksCount" class="m3-badge-dot">{{ pendingTasksCount > 99 ? '99+' : pendingTasksCount }}</span>
+            </div>
+            <span class="m3-nav-label">To-Do</span>
+          </router-link>
+
+          <router-link to="/finance" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/finance') }">
+            <div class="m3-nav-indicator position-relative">
+              <i class="bi bi-wallet2"></i>
+              <span v-if="isBudgetExceeded" class="m3-badge-alert">!</span>
+            </div>
+            <span class="m3-nav-label">Kas</span>
+          </router-link>
+
+          <router-link to="/surat" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/surat') }">
+            <div class="m3-nav-indicator">
+              <i class="bi bi-file-earmark-richtext-fill"></i>
+            </div>
+            <span class="m3-nav-label">Surat</span>
+          </router-link>
+
+          <button type="button" class="m3-bottom-nav-item btn-clean" @click="mobileDrawer = true">
+            <div class="m3-nav-indicator">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+            </div>
+            <span class="m3-nav-label">Menu</span>
+          </button>
+        </nav>
       </div>
-
-      <!-- Material Design 3 Mobile Bottom Navigation Bar -->
-      <nav class="m3-bottom-nav d-lg-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
-        <router-link to="/" class="m3-bottom-nav-item" :class="{ active: route.path === '/' }">
-          <div class="m3-nav-indicator">
-            <i class="bi bi-grid-fill"></i>
-          </div>
-          <span class="m3-nav-label">Home</span>
-        </router-link>
-
-        <router-link to="/todo" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/todo') || route.path.startsWith('/tasks') }">
-          <div class="m3-nav-indicator position-relative">
-            <i class="bi bi-check2-square"></i>
-            <span v-if="pendingTasksCount" class="m3-badge-dot">{{ pendingTasksCount > 99 ? '99+' : pendingTasksCount }}</span>
-          </div>
-          <span class="m3-nav-label">To-Do</span>
-        </router-link>
-
-        <router-link to="/finance" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/finance') }">
-          <div class="m3-nav-indicator position-relative">
-            <i class="bi bi-wallet2"></i>
-            <span v-if="isBudgetExceeded" class="m3-badge-alert">!</span>
-          </div>
-          <span class="m3-nav-label">Kas</span>
-        </router-link>
-
-        <router-link to="/surat" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/surat') }">
-          <div class="m3-nav-indicator">
-            <i class="bi bi-file-earmark-richtext-fill"></i>
-          </div>
-          <span class="m3-nav-label">Surat</span>
-        </router-link>
-
-        <button type="button" class="m3-bottom-nav-item btn-clean" @click="mobileDrawer = true">
-          <div class="m3-nav-indicator">
-            <i class="bi bi-grid-3x3-gap-fill"></i>
-          </div>
-          <span class="m3-nav-label">Menu</span>
-        </button>
-      </nav>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -384,6 +429,7 @@ import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
+import DesktopDexWorkspace from './components/DesktopDexWorkspace.vue';
 import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
 import { isStorageFull } from './utils/storageManager';
 
@@ -391,7 +437,8 @@ export default {
   name: 'App',
   components: {
     AppNotifications,
-    DukungDevModal
+    DukungDevModal,
+    DesktopDexWorkspace
   },
   setup() {
     const store = useStore();
@@ -401,6 +448,37 @@ export default {
     const showDukungModal = ref(false);
     const sidebarSearch = ref('');
     const isStorageFullState = ref(isStorageFull());
+    
+    // Desktop Mode State (Samsung DeX & Windows OS Style)
+    const isDesktopMode = ref(localStorage.getItem('ft_desktop_mode') === 'true');
+
+    const enableDesktopMode = () => {
+      isDesktopMode.value = true;
+      localStorage.setItem('ft_desktop_mode', 'true');
+      store.dispatch('showNotification', {
+        type: 'success',
+        title: '🖥️ Mode Desktop OS Aktif',
+        message: 'Tampilan Samsung DeX & Windows OS diaktifkan dengan penataan ikon DeX dan taskbar desktop.'
+      });
+    };
+
+    const disableDesktopMode = () => {
+      isDesktopMode.value = false;
+      localStorage.setItem('ft_desktop_mode', 'false');
+      store.dispatch('showNotification', {
+        type: 'info',
+        title: '📱 Mode Aplikasi Standar',
+        message: 'Kembali ke tampilan navigasi sidebar & app mode standar.'
+      });
+    };
+
+    const toggleDesktopMode = () => {
+      if (isDesktopMode.value) {
+        disableDesktopMode();
+      } else {
+        enableDesktopMode();
+      }
+    };
 
     const updateStorageState = () => {
       isStorageFullState.value = isStorageFull();
@@ -432,6 +510,12 @@ export default {
       {
         title: 'TIM & KOMUNIKASI',
         items: [
+          { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white' },
+          { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark' },
+          { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white' },
+          { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark' },
+          { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white' },
+          { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white' },
           { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white' },
           { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark' }
         ]
@@ -439,8 +523,14 @@ export default {
       {
         title: 'KEUANGAN & DATA',
         items: [
-          { to: '/finance', label: 'Keuangan & Tracker', icon: 'bi-wallet2', color: '#2563eb', badge: () => isBudgetExceeded.value ? 'Over Budget' : null, badgeClass: 'bg-danger text-white' },
-          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', badgeText: 'NEW', badgeClass: 'bg-success text-white' },
+          { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white' },
+          { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white' },
+          { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark' },
+          { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed' },
+          { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark' },
+          { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white' },
+          { to: '/finance', label: 'Ringkasan Money Tracker', icon: 'bi-wallet2', color: '#475569' },
+          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669' },
           { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
           { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706' }
         ]
@@ -499,7 +589,20 @@ export default {
       '/cv': { title: 'CV & Resume Builder ATS', icon: 'bi-person-vcard-fill' },
       '/videos': { title: 'Tonton & Sync Video Hub', icon: 'bi-play-btn-fill' },
       '/contacts': { title: 'Kontak Tim & Broadcast WA', icon: 'bi-person-lines-fill' },
+      '/team-bulletin': { title: '1. Pusat Informasi & Pengumuman Internal', icon: 'bi-megaphone-fill' },
+      '/team-channels': { title: '2. Ruang Diskusi Berbasis Saluran (Channels)', icon: 'bi-hash' },
+      '/team-assets': { title: '3. Repositori Aset & Dokumen Bersama', icon: 'bi-folder-symlink-fill' },
+      '/team-ticketing': { title: '4. Sistem Permintaan Lintas Divisi (Ticketing)', icon: 'bi-ticket-perforated-fill' },
+      '/team-calendar': { title: '5. Kalender Kolaborasi & Google Calendar', icon: 'bi-calendar-check-fill' },
+      '/team-expertise': { title: '6. Direktori Keahlian & Pencarian Kompetensi', icon: 'bi-award-fill' },
+      '/team-collaboration': { title: 'Modul Tim & Komunikasi (Kolaborasi Lintas Divisi)', icon: 'bi-people-fill' },
       '/chat-ai': { title: 'Live Chat AI Assistant', icon: 'bi-robot' },
+      '/finance-cashflow': { title: '1. Arus Kas & Rekonsiliasi Bank', icon: 'bi-cash-coin' },
+      '/finance-ap-ar': { title: '2. Hutang & Piutang (AP & AR)', icon: 'bi-arrow-left-right' },
+      '/finance-expenses': { title: '3. Pengeluaran & Reimbursement', icon: 'bi-receipt-cutoff' },
+      '/finance-budgeting': { title: '4. Penganggaran & Forecasting', icon: 'bi-pie-chart-fill' },
+      '/finance-reports': { title: '5. Pelaporan Keuangan PSAK / IFRS', icon: 'bi-file-earmark-spreadsheet-fill' },
+      '/finance-security': { title: '6. Keamanan & Jejak Audit (RBAC)', icon: 'bi-shield-lock-fill' },
       '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
       '/rab': { title: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill' },
       '/invoice': { title: 'Invoice Generator (PDF)', icon: 'bi-receipt' },
@@ -739,13 +842,47 @@ export default {
       isPinkMode,
       isStorageFullState,
       toggleBluePinkMode,
-      toggleThemeMode
+      toggleThemeMode,
+      isDesktopMode,
+      enableDesktopMode,
+      disableDesktopMode,
+      toggleDesktopMode
     };
   }
 };
 </script>
 
 <style>
+/* Mode Desktop Navbar Trigger Button */
+.btn-dex-mode-navbar {
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  color: var(--bs-body-color, #1e293b);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 12px;
+}
+
+.btn-dex-mode-navbar:hover {
+  background: rgba(37, 99, 235, 0.16);
+  border-color: #2563eb;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.dark-theme .btn-dex-mode-navbar,
+.oled-theme .btn-dex-mode-navbar {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(96, 165, 250, 0.35);
+  color: #f1f5f9;
+}
+
+.dark-theme .btn-dex-mode-navbar:hover,
+.oled-theme .btn-dex-mode-navbar:hover {
+  background: rgba(59, 130, 246, 0.28);
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
 /* Global Anti-Horizontal Scroll & Mobile Constraints */
 html, body, #app, .app-container {
   max-width: 100vw !important;

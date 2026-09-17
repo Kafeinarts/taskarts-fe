@@ -285,6 +285,80 @@ const routes = [
   {
     path: "/drafts",
     redirect: "/medium-draft",
+  },
+  // Finance System Modules
+  {
+    path: "/finance-cashflow",
+    name: "finance-cashflow",
+    component: () => import("../views/CashFlowManagementView.vue"),
+  },
+  {
+    path: "/finance-ap-ar",
+    name: "finance-ap-ar",
+    component: () => import("../views/AccountsPayableReceivableView.vue"),
+  },
+  {
+    path: "/finance-expenses",
+    name: "finance-expenses",
+    component: () => import("../views/ExpenseReimbursementView.vue"),
+  },
+  {
+    path: "/finance-budgeting",
+    name: "finance-budgeting",
+    component: () => import("../views/BudgetingForecastingView.vue"),
+  },
+  {
+    path: "/finance-reports",
+    name: "finance-reports",
+    component: () => import("../views/FinancialReportsView.vue"),
+  },
+  {
+    path: "/finance-security",
+    name: "finance-security",
+    component: () => import("../views/FinanceSecurityAuditView.vue"),
+  },
+  {
+    path: "/team-collaboration",
+    name: "team-collaboration",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-bulletin",
+    name: "team-bulletin",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-channels",
+    name: "team-channels",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-assets",
+    name: "team-assets",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-ticketing",
+    name: "team-ticketing",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-requests",
+    redirect: "/team-ticketing",
+  },
+  {
+    path: "/team-calendar",
+    name: "team-calendar",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-expertise",
+    name: "team-expertise",
+    component: () => import("../views/TeamCollaborationView.vue"),
+  },
+  {
+    path: "/team-directory",
+    redirect: "/team-expertise",
   }
 ];
 
