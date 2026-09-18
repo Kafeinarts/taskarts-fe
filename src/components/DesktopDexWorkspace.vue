@@ -753,7 +753,8 @@ export default {
       { id: 'finance-budgeting', name: 'Anggaran Bisnis', to: '/finance-budgeting', icon: 'bi-pie-chart-fill', color: '#7c3aed', category: 'Keuangan' },
       { id: 'finance-security', name: 'Audit & Keamanan', to: '/finance-security', icon: 'bi-shield-lock-fill', color: '#dc2626', category: 'Keuangan' },
 
-      // Column 3: Team Collaboration & Communication
+      // Column 3: Team Collaboration & Google Workspace
+      { id: 'contacts', name: 'Kontak & Google Hub', to: '/contacts', icon: 'bi-person-lines-fill', color: '#16a34a', category: 'Tim', badgeText: 'Google' },
       { id: 'team-bulletin', name: '1. Buletin Internal', to: '/team-bulletin', icon: 'bi-megaphone-fill', color: '#2563eb', category: 'Tim' },
       { id: 'team-channels', name: '2. Saluran Diskusi', to: '/team-channels', icon: 'bi-hash', color: '#0ea5e9', category: 'Tim' },
       { id: 'team-assets', name: '3. Aset Bersama', to: '/team-assets', icon: 'bi-folder-symlink-fill', color: '#10b981', category: 'Tim' },
