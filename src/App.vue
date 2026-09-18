@@ -27,7 +27,7 @@
          ========================================================= -->
     <template v-else>
       <!-- Desktop Material Navigation Drawer -->
-      <aside :class="['sidebar-nav', { collapsed: isCollapsed }]">
+      <aside :class="['sidebar-nav', { collapsed: isCollapsed, 'is-resizing': isResizingSidebar }]">
         <!-- Sidebar Brand Header -->
         <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
           <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
@@ -52,9 +52,19 @@
             </router-link>
           </div>
 
-          <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-            <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
-          </button>
+          <div class="d-flex align-items-center gap-1">
+            <button 
+              v-if="!isCollapsed"
+              class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" 
+              @click="resetSidebarWidth" 
+              :title="sidebarWidth >= 350 ? 'Kembalikan ke Lebar Standar (280px)' : 'Perlebar Sidebar Membaca (360px)'"
+            >
+              <i :class="sidebarWidth >= 350 ? 'bi bi-arrows-angle-contract' : 'bi bi-arrows-angle-expand'" style="font-size: 13px;"></i>
+            </button>
+            <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
+            </button>
+          </div>
         </div>
 
         <!-- Quick Search Bar (When Expanded) -->
@@ -101,14 +111,14 @@
               <div class="nav-icon-box" :style="{ '--item-color': item.color }">
                 <i :class="item.icon" class="nav-icon"></i>
               </div>
-              <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1">{{ item.label }}</span>
+              <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
               
               <!-- Dynamic Count Badge -->
-              <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+              <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-primary text-white'">
                 {{ item.badge() }}
               </span>
               <!-- Static Badge Text -->
-              <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+              <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
                 {{ item.badgeText }}
               </span>
             </router-link>
@@ -145,6 +155,39 @@
                 <i class="bi bi-heart-fill"></i> Dukung
               </button>
             </div>
+
+            <!-- Quick Sidebar Width Adjustment Selector -->
+            <div class="d-flex align-items-center justify-content-between px-1 pt-1 text-muted" style="font-size: 10.5px;">
+              <span class="d-flex align-items-center gap-1 text-truncate" :title="`Lebar sidebar saat ini ${sidebarWidth}px. Anda dapat menggeser batas kanan sidebar ke kiri/kanan.`">
+                <i class="bi bi-arrows-left-right text-primary"></i>
+                <span class="text-truncate">Lebar: <strong class="text-dark-emphasis">{{ sidebarWidth }}px</strong></span>
+              </span>
+              <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                <button 
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none" 
+                  :class="sidebarWidth <= 260 ? 'fw-bold text-primary' : 'text-muted'"
+                  @click="setSidebarWidthPreset(240)"
+                  title="Preset Ringkas (240px)"
+                >Ringkas</button>
+                <span class="opacity-50">|</span>
+                <button 
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none" 
+                  :class="sidebarWidth > 260 && sidebarWidth <= 330 ? 'fw-bold text-primary' : 'text-muted'"
+                  @click="setSidebarWidthPreset(300)"
+                  title="Preset Nyaman (300px)"
+                >Nyaman</button>
+                <span class="opacity-50">|</span>
+                <button 
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none" 
+                  :class="sidebarWidth > 330 ? 'fw-bold text-primary' : 'text-muted'"
+                  @click="setSidebarWidthPreset(380)"
+                  title="Preset Luas Membaca (380px)"
+                >Luas</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -157,10 +200,28 @@
             <i class="bi bi-heart-fill text-danger fs-6"></i>
           </button>
         </div>
+
+        <!-- Draggable Horizontal Resizer Bar on Right Border -->
+        <div 
+          v-if="!isCollapsed"
+          class="sidebar-resizer"
+          @mousedown="startSidebarResize"
+          @touchstart="startSidebarResize"
+          @dblclick="resetSidebarWidth"
+          :title="`Tarik batas ini ke kanan/kiri (${sidebarWidth}px) • Klik 2x untuk toggle lebar`"
+        >
+          <div class="resizer-indicator-line"></div>
+          <div class="resizer-handle-grip" :class="{ active: isResizingSidebar }">
+            <i class="bi bi-grip-vertical"></i>
+          </div>
+          <div v-if="isResizingSidebar" class="sidebar-width-tooltip shadow-sm">
+            {{ sidebarWidth }}px
+          </div>
+        </div>
       </aside>
 
       <!-- Main Content Area -->
-      <div :class="['main-content', { expanded: isCollapsed }]">
+      <div :class="['main-content', { expanded: isCollapsed, 'is-resizing': isResizingSidebar }]">
         <!-- Material Design 3 Top App Bar Header (NAVBAR) -->
         <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
           <div class="d-flex align-items-center gap-2">
@@ -449,6 +510,91 @@ export default {
     const sidebarSearch = ref('');
     const isStorageFullState = ref(isStorageFull());
     
+    // -------------------------------------------------------------
+    // Resizable Desktop Sidebar (Drag Left & Right to Adjust Width)
+    // -------------------------------------------------------------
+    const DEFAULT_SIDEBAR_WIDTH = 280;
+    const MIN_SIDEBAR_WIDTH = 210;
+    const MAX_SIDEBAR_WIDTH = 550;
+
+    const savedWidth = parseInt(localStorage.getItem('taskarts_sidebar_width') || '', 10);
+    const sidebarWidth = ref(
+      !isNaN(savedWidth) && savedWidth >= MIN_SIDEBAR_WIDTH && savedWidth <= MAX_SIDEBAR_WIDTH
+        ? savedWidth
+        : DEFAULT_SIDEBAR_WIDTH
+    );
+
+    const isResizingSidebar = ref(false);
+
+    const applySidebarWidth = (width) => {
+      document.documentElement.style.setProperty('--sidebar-width', `${width}px`);
+      document.body.style.setProperty('--sidebar-width', `${width}px`);
+    };
+
+    // Apply saved or default width immediately
+    applySidebarWidth(sidebarWidth.value);
+
+    const onSidebarResizeMove = (e) => {
+      if (!isResizingSidebar.value) return;
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      if (!clientX) return;
+
+      const dynamicMax = Math.min(MAX_SIDEBAR_WIDTH, Math.floor(window.innerWidth * 0.6));
+      let newWidth = clientX;
+
+      if (newWidth < MIN_SIDEBAR_WIDTH) newWidth = MIN_SIDEBAR_WIDTH;
+      if (newWidth > dynamicMax) newWidth = dynamicMax;
+
+      sidebarWidth.value = Math.round(newWidth);
+      applySidebarWidth(sidebarWidth.value);
+      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
+    };
+
+    const stopSidebarResize = () => {
+      if (!isResizingSidebar.value) return;
+      isResizingSidebar.value = false;
+      document.body.classList.remove('sidebar-resizing');
+      window.removeEventListener('mousemove', onSidebarResizeMove);
+      window.removeEventListener('mouseup', stopSidebarResize);
+      window.removeEventListener('touchmove', onSidebarResizeMove);
+      window.removeEventListener('touchend', stopSidebarResize);
+    };
+
+    const startSidebarResize = () => {
+      if (isCollapsed.value) {
+        isCollapsed.value = false;
+      }
+      isResizingSidebar.value = true;
+      document.body.classList.add('sidebar-resizing');
+
+      window.addEventListener('mousemove', onSidebarResizeMove, { passive: false });
+      window.addEventListener('mouseup', stopSidebarResize);
+      window.addEventListener('touchmove', onSidebarResizeMove, { passive: false });
+      window.addEventListener('touchend', stopSidebarResize);
+    };
+
+    const resetSidebarWidth = () => {
+      if (sidebarWidth.value >= 350) {
+        sidebarWidth.value = DEFAULT_SIDEBAR_WIDTH;
+      } else {
+        sidebarWidth.value = 360;
+      }
+      applySidebarWidth(sidebarWidth.value);
+      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
+      store.dispatch('showNotification', {
+        type: 'info',
+        title: '📏 Lebar Sidebar Disesuaikan',
+        message: `Lebar sidebar diatur ke ${sidebarWidth.value}px agar teks menu nyaman dibaca.`
+      });
+    };
+
+    const setSidebarWidthPreset = (targetWidth) => {
+      if (isCollapsed.value) isCollapsed.value = false;
+      sidebarWidth.value = targetWidth;
+      applySidebarWidth(sidebarWidth.value);
+      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
+    };
+
     // Desktop Mode State (Samsung DeX & Windows OS Style)
     const isDesktopMode = ref(localStorage.getItem('ft_desktop_mode') === 'true');
 
@@ -764,6 +910,11 @@ export default {
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('storage-quota-updated', updateStorageState);
       window.removeEventListener('storage-quota-full', updateStorageState);
+      window.removeEventListener('mousemove', onSidebarResizeMove);
+      window.removeEventListener('mouseup', stopSidebarResize);
+      window.removeEventListener('touchmove', onSidebarResizeMove);
+      window.removeEventListener('touchend', stopSidebarResize);
+      document.body.classList.remove('sidebar-resizing');
     });
 
     const isPinkMode = computed(() => {
@@ -846,7 +997,12 @@ export default {
       isDesktopMode,
       enableDesktopMode,
       disableDesktopMode,
-      toggleDesktopMode
+      toggleDesktopMode,
+      sidebarWidth,
+      isResizingSidebar,
+      startSidebarResize,
+      resetSidebarWidth,
+      setSidebarWidthPreset
     };
   }
 };
@@ -1448,6 +1604,116 @@ body {
   width: var(--sidebar-collapsed-width);
 }
 
+/* Sidebar Drag Resizer & Handle */
+.sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+}
+
+.resizer-indicator-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.sidebar-resizer:hover .resizer-indicator-line,
+.sidebar-nav.is-resizing .resizer-indicator-line {
+  background-color: var(--primary-color, #2563eb);
+}
+
+.resizer-handle-grip {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 46px;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--sidebar-border, #cbd5e1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-sub, #64748b);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s;
+  pointer-events: none;
+}
+
+.sidebar-resizer:hover .resizer-handle-grip,
+.sidebar-nav.is-resizing .resizer-handle-grip,
+.resizer-handle-grip.active {
+  opacity: 1;
+  background-color: var(--primary-color, #2563eb);
+  color: #ffffff;
+  border-color: var(--primary-color, #2563eb);
+}
+
+.sidebar-width-tooltip {
+  position: absolute;
+  top: calc(50% + 36px);
+  left: 14px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1070;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Instant synchronous resizing with no CSS animation lag */
+.sidebar-nav.is-resizing,
+.main-content.is-resizing,
+body.sidebar-resizing .sidebar-nav,
+body.sidebar-resizing .main-content {
+  transition: none !important;
+}
+
+body.sidebar-resizing {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+body.sidebar-resizing * {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+.dark-theme .resizer-handle-grip,
+.oled-theme .resizer-handle-grip {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+.dark-theme .sidebar-resizer:hover .resizer-handle-grip,
+.oled-theme .sidebar-resizer:hover .resizer-handle-grip,
+.dark-theme .sidebar-nav.is-resizing .resizer-handle-grip,
+.oled-theme .sidebar-nav.is-resizing .resizer-handle-grip {
+  background-color: var(--primary-color, #2563eb);
+  color: #ffffff;
+}
+
 .sidebar-brand {
   border-bottom: 1px solid var(--sidebar-divider);
 }
@@ -1482,7 +1748,16 @@ body {
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 2px;
+  min-width: 0;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.nav-label {
+  letter-spacing: -0.15px;
+  line-height: 1.35;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .material-nav-link:hover {
