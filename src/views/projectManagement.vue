@@ -75,7 +75,7 @@
                 class="form-control"
                 :class="{ 'is-invalid': formErrors.rate }"
                 v-model.number="form.rate"
-                placeholder="15000000"
+                placeholder="Contoh: 15000000"
               />
               <div class="invalid-feedback" v-if="formErrors.rate">{{ formErrors.rate }}</div>
             </div>
@@ -320,8 +320,8 @@ export default {
       clientEmail: '',
       clientPhone: '',
       projectTitle: '',
-      deadline: new Date().toISOString().split('T')[0],
-      rate: 0,
+      deadline: '',
+      rate: null,
       status: 'In Progress',
       progress: 0,
       description: ''
@@ -331,7 +331,7 @@ export default {
     const bulkText = ref('');
     const bulkError = ref('');
     const bulkDefault = ref({
-      deadline: new Date().toISOString().split('T')[0],
+      deadline: '',
       status: 'In Progress'
     });
 
@@ -383,8 +383,8 @@ export default {
         clientEmail: '',
         clientPhone: '',
         projectTitle: '',
-        deadline: new Date().toISOString().split('T')[0],
-        rate: 0,
+        deadline: '',
+        rate: null,
         status: 'In Progress',
         progress: 0,
         description: ''

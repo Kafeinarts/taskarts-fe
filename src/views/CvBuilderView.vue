@@ -1234,47 +1234,25 @@ export default {
     const bulkCandidates = ref([
       {
         id: 'cv_cand_1',
-        fullName: 'Arif Permana, S.Kom',
-        jobTitle: 'Software Engineer',
-        email: 'arif.permana@email.com',
-        phone: '081234567890',
-        address: 'Jakarta, Indonesia',
-        linkedin: 'linkedin.com/in/arifpermana',
-        github: 'github.com/arifpermana',
-        website: 'arifpermana.dev',
-        avatar: sampleAvatar,
-        showAvatar: true,
+        fullName: '',
+        jobTitle: '',
+        email: '',
+        phone: '',
+        address: '',
+        linkedin: '',
+        github: '',
+        website: '',
+        avatar: '',
+        showAvatar: false,
         avatarShape: 'circle',
         avatarSize: 'md',
         avatarPos: 'left',
-        summary: 'Software Engineer berdedikasi tinggi dengan pengalaman 4+ tahun dalam merancang dan mengembangkan arsitektur web modern yang scalable, RESTful API, dan sistem full-stack yang andal menggunakan Vue 3, TypeScript, Node.js, dan cloud infrastructure.',
-        experience: [
-          {
-            company: 'PT Solusi Teknologi Nusantara',
-            position: 'Senior Software Engineer',
-            period: '2022 - Sekarang',
-            location: 'Jakarta Selatan',
-            description: '• Memimpin perancangan dan implementasi 10+ layanan aplikasi berbasis web yang stabil dan terukur.\n• Mengembangkan REST API berkinerja tinggi serta mengoptimalkan query database hingga meningkatkan respons sistem sebesar 40%.\n• Mengelola arsitektur frontend modern menggunakan Vue 3, TypeScript, dan state management terintegrasi.'
-          },
-          {
-            company: 'PT Inovasi Kode Indonesia',
-            position: 'Software Engineer',
-            period: '2020 - 2022',
-            location: 'Jakarta',
-            description: '• Mengembangkan arsitektur backend REST API dan frontend SPA dengan tingkat reliabilitas 99.9%.\n• Berkolaborasi dengan tim produk dan desainer dalam menghadirkan antarmuka pengguna yang intuitif dan responsif.'
-          }
-        ],
-        education: [
-          {
-            institution: 'Universitas Indonesia',
-            degree: 'S1 Teknik Informatika / Ilmu Komputer',
-            period: '2016 - 2020',
-            gpa: '3.84 / 4.00'
-          }
-        ],
-        skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'PostgreSQL', 'RESTful API', 'Docker', 'Git'],
-        languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
-        certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
+        summary: '',
+        experience: [],
+        education: [],
+        skills: [],
+        languages: [],
+        certifications: [],
         selectedTemplate: 'ats_clean_1',
         customColor: '#0d6efd',
         cvFont: 'font-sans',
@@ -1290,111 +1268,30 @@ export default {
           sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
           sectionVisibility: {}
         }
-      },
-      {
-        id: 'cv_cand_2',
-        fullName: 'Dwi Retno.R, S.E.',
-        jobTitle: 'Accountant & Admin',
-        email: 'dwiretno.r@accounting.id',
-        phone: '081398765432',
-        address: 'Jakarta, Indonesia',
-        linkedin: 'linkedin.com/in/dwiretnor',
-        github: '',
-        website: '',
-        avatar: sampleAvatar,
-        showAvatar: true,
-        avatarShape: 'rounded',
-        avatarSize: 'md',
-        avatarPos: 'sidebar',
-        summary: 'Profesional Akuntan dan Administrasi berpengalaman 5+ tahun dalam pengelolaan pembukuan, penyusunan laporan keuangan komprehensif, rekonsiliasi bank, kepatuhan perpajakan (PPh & PPN), serta efisiensi manajemen operasional administrasi kantor.',
-        experience: [
-          {
-            company: 'PT Global Niaga Perkasa',
-            position: 'Senior Accountant & Finance Admin',
-            period: '2021 - Sekarang',
-            location: 'Jakarta Pusat',
-            description: '• Menyusun laporan keuangan bulanan, kuartalan, dan tahunan (Neraca, Laba Rugi, Arus Kas) dengan akurasi 100%.\n• Mengelola rekonsiliasi kas/bank harian dan mengaudit bukti transaksi keuangan operasional perusahaan.\n• Mengurus pelaporan pajak perusahaan (e-Faktur, PPh 21/23, e-SPT) secara tertib dan tepat waktu.'
-          },
-          {
-            company: 'PT Mahakarya Mitra Usaha',
-            position: 'Accounting & Administrative Staff',
-            period: '2019 - 2021',
-            location: 'Jakarta',
-            description: '• Memproses invoicing, faktur penjualan, purchase order (PO), dan verifikasi pembayaran tagihan vendor.\n• Mengarsipkan seluruh dokumen keuangan dan administrasi perusahaan secara rapi dan sistematis.'
-          }
-        ],
-        education: [
-          {
-            institution: 'Universitas Gadjah Mada',
-            degree: 'S1 Akuntansi',
-            period: '2015 - 2019',
-            gpa: '3.80 / 4.00'
-          }
-        ],
-        skills: ['Financial Reporting', 'General Ledger & Journaling', 'Tax Compliance (PPh & PPN)', 'Bank Reconciliation', 'Accurate & SAP', 'Microsoft Excel (Advanced)', 'Office Administration', 'Budgeting'],
-        languages: ['Bahasa Indonesia (Native)', 'English (Intermediate / Professional)'],
-        certifications: ['Brevet Pajak A & B Terakreditasi', 'Certified Junior Accountant (CJA)'],
-        selectedTemplate: 'ats_sidebar_left_3',
-        customColor: '#0f766e',
-        cvFont: 'font-sans',
-        customLayoutActive: false,
-        customLayoutConfig: {
-          columnMode: 'two_column',
-          sidebarPosition: 'left',
-          sidebarRatio: '35',
-          headerAlign: 'left',
-          headerBanner: false,
-          avatarPos: 'sidebar',
-          mainSections: ['summary', 'experience', 'education'],
-          sidebarSections: ['contact', 'skills', 'languages', 'certifications'],
-          sectionVisibility: {}
-        }
       }
     ]);
 
     // Single mode primary CV
     const singleCv = ref({
-      fullName: 'Arif Permana Putrasuryana, S.Kom',
-      jobTitle: 'Software Engineer',
-      email: 'arif.permana@email.com',
-      phone: '081234567890',
-      address: 'Jakarta, Indonesia',
-      linkedin: 'linkedin.com/in/arifpermana',
-      github: 'github.com/arifpermana',
-      website: 'arifpermana.dev',
-      avatar: sampleAvatar,
-      showAvatar: true,
+      fullName: '',
+      jobTitle: '',
+      email: '',
+      phone: '',
+      address: '',
+      linkedin: '',
+      github: '',
+      website: '',
+      avatar: '',
+      showAvatar: false,
       avatarShape: 'circle',
       avatarSize: 'md',
       avatarPos: 'left',
-      summary: 'Software Engineer berdedikasi tinggi dengan pengalaman 4+ tahun dalam merancang dan mengembangkan arsitektur web modern yang scalable, RESTful API, dan sistem full-stack yang andal menggunakan Vue 3, TypeScript, Node.js, dan cloud infrastructure.',
-      experience: [
-        {
-          company: 'PT Solusi Teknologi Nusantara',
-          position: 'Senior Software Engineer',
-          period: '2022 - Sekarang',
-          location: 'Jakarta Selatan',
-          description: '• Memimpin perancangan dan implementasi 10+ layanan aplikasi berbasis web yang stabil dan terukur.\n• Mengembangkan REST API berkinerja tinggi serta mengoptimalkan query database hingga meningkatkan respons sistem sebesar 40%.\n• Mengelola arsitektur frontend modern menggunakan Vue 3, TypeScript, dan state management terintegrasi.'
-        },
-        {
-          company: 'PT Inovasi Kode Indonesia',
-          position: 'Software Engineer',
-          period: '2020 - 2022',
-          location: 'Jakarta',
-          description: '• Mengembangkan arsitektur backend REST API dan frontend SPA dengan tingkat reliabilitas 99.9%.\n• Berkolaborasi dengan tim produk dan desainer dalam menghadirkan antarmuka pengguna yang intuitif dan responsif.'
-        }
-      ],
-      education: [
-        {
-          institution: 'Universitas Indonesia',
-          degree: 'S1 Teknik Informatika / Ilmu Komputer',
-          period: '2016 - 2020',
-          gpa: '3.84 / 4.00'
-        }
-      ],
-      skills: ['Vue.js 3', 'TypeScript', 'Tailwind CSS', 'Node.js', 'PostgreSQL', 'RESTful API', 'Docker', 'Git'],
-      languages: ['Bahasa Indonesia (Native)', 'English (Professional Working)'],
-      certifications: ['Google Cloud Certified Associate Cloud Engineer', 'Meta Front-End Developer Certificate'],
+      summary: '',
+      experience: [],
+      education: [],
+      skills: [],
+      languages: [],
+      certifications: [],
       selectedTemplate: 'ats_clean_1',
       customLayoutActive: false,
       customLayoutConfig: {
@@ -2169,41 +2066,26 @@ export default {
 
     // Bulk Management Functions
     const addNewCandidate = () => {
-      const nextNum = bulkCandidates.value.length + 1;
       bulkCandidates.value.push({
         id: 'cv_cand_' + Date.now(),
-        fullName: 'Kandidat ' + nextNum,
-        jobTitle: 'Posisi / Profesi',
-        email: 'kandidat' + nextNum + '@email.com',
-        phone: '081234567890',
-        address: 'Jakarta, Indonesia',
+        fullName: '',
+        jobTitle: '',
+        email: '',
+        phone: '',
+        address: '',
         linkedin: '',
         github: '',
         website: '',
-        avatar: sampleAvatar,
-        showAvatar: true,
+        avatar: '',
+        showAvatar: false,
         avatarShape: 'circle',
         avatarSize: 'md',
-        summary: 'Rangkuman profesional profil kandidat...',
-        experience: [
-          {
-            company: 'PT Perusahaan Reksa',
-            position: 'Staff Profesional',
-            period: '2023 - Sekarang',
-            location: 'Jakarta',
-            description: '• Melaksanakan tanggung jawab operasional dan pencapaian target kerja.'
-          }
-        ],
-        education: [
-          {
-            institution: 'Universitas Indonesia',
-            degree: 'S1 Sarjana',
-            period: '2018 - 2022',
-            gpa: '3.75'
-          }
-        ],
-        skills: ['Manajemen Kerja', 'Komunikasi', 'Analisis Data', 'Problem Solving'],
-        languages: ['Bahasa Indonesia (Native)', 'English (Conversational)'],
+        avatarPos: 'left',
+        summary: '',
+        experience: [],
+        education: [],
+        skills: [],
+        languages: [],
         certifications: [],
         selectedTemplate: 'ats_clean_1',
         customColor: '#1e293b',

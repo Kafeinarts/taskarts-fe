@@ -1486,11 +1486,11 @@ export default {
     const savedInvoices = computed(() => store.getters.getInvoices || []);
 
     const invoice = ref({
-      invoiceNumber: 'INV-' + new Date().getFullYear() + '-001',
+      invoiceNumber: '',
       documentTitle: 'INVOICE',
       poNumber: '',
       issueDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      dueDate: '',
       clientName: '',
       clientCompany: '',
       clientEmail: '',
@@ -1501,11 +1501,11 @@ export default {
 
       // Kop & Sender Customization
       useCustomSender: false,
-      senderName: 'Kafeinarts Digital Studio',
-      senderTagline: 'Solusi Desain, Web Application & Digital Creative',
-      senderEmail: 'studio@kafeinarts.id',
-      senderPhone: '0812-3456-7890',
-      senderAddress: 'Jakarta, Indonesia',
+      senderName: '',
+      senderTagline: '',
+      senderEmail: '',
+      senderPhone: '',
+      senderAddress: '',
 
       // Custom Labels
       labelBillTo: 'DITAGIHKAN KEPADA (BILL TO):',
@@ -1531,24 +1531,24 @@ export default {
       customLogoUrl: '',
 
       // Payment & Bank
-      bankName: 'Bank Central Asia (BCA)',
-      bankAccount: '8830-1928-31',
-      bankHolder: 'Kafeinarts Studio / Arif Permana Putrasuryana',
+      bankName: '',
+      bankAccount: '',
+      bankHolder: '',
 
       // Signature
-      signerName: 'Arif Permana Putrasuryana',
-      signerTitle: 'Lead Creative & Developer',
+      signerName: '',
+      signerTitle: '',
       signatureImageUrl: '',
 
       // Financials
       items: [
-        { nama: '', quantity: 1, biaya: 0 }
+        { nama: '', quantity: 1, biaya: null }
       ],
-      taxPercent: 0,
-      discount: 0,
-      downPayment: 0,
-      shippingFee: 0,
-      notes: 'Pembayaran mohon ditransfer ke rekening di atas dalam 14 hari kerja. Terima kasih atas kerjasamanya!'
+      taxPercent: null,
+      discount: null,
+      downPayment: null,
+      shippingFee: null,
+      notes: ''
     });
 
     const activeBusiness = computed(() => {
@@ -1660,11 +1660,11 @@ export default {
 
     const resetInvoiceForm = () => {
       invoice.value = {
-        invoiceNumber: 'INV-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900),
+        invoiceNumber: '',
         documentTitle: 'INVOICE',
         poNumber: '',
         issueDate: new Date().toISOString().split('T')[0],
-        dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+        dueDate: '',
         clientName: '',
         clientCompany: '',
         clientEmail: '',
@@ -1673,11 +1673,11 @@ export default {
         currency: 'IDR',
         status: 'Belum Bayar',
         useCustomSender: false,
-        senderName: 'Kafeinarts Digital Studio',
-        senderTagline: 'Solusi Desain, Web Application & Digital Creative',
-        senderEmail: 'studio@kafeinarts.id',
-        senderPhone: '0812-3456-7890',
-        senderAddress: 'Jakarta, Indonesia',
+        senderName: '',
+        senderTagline: '',
+        senderEmail: '',
+        senderPhone: '',
+        senderAddress: '',
         labelBillTo: 'DITAGIHKAN KEPADA (BILL TO):',
         labelPayment: 'TRANSFER & PEMBAYARAN:',
         labelNotes: 'CATATAN & SYARAT KETENTUAN:',
@@ -1693,18 +1693,18 @@ export default {
         logoOutlineMode: 'auto',
         logoSize: 52,
         customLogoUrl: '',
-        bankName: 'Bank Central Asia (BCA)',
-        bankAccount: '8830-1928-31',
-        bankHolder: 'Kafeinarts Studio / Arif Permana Putrasuryana',
-        signerName: 'Arif Permana Putrasuryana',
-        signerTitle: 'Lead Creative & Developer',
+        bankName: '',
+        bankAccount: '',
+        bankHolder: '',
+        signerName: '',
+        signerTitle: '',
         signatureImageUrl: '',
-        items: [{ nama: '', quantity: 1, biaya: 0 }],
-        taxPercent: 0,
-        discount: 0,
-        downPayment: 0,
-        shippingFee: 0,
-        notes: 'Pembayaran mohon ditransfer dalam 14 hari kerja. Terima kasih!'
+        items: [{ nama: '', quantity: 1, biaya: null }],
+        taxPercent: null,
+        discount: null,
+        downPayment: null,
+        shippingFee: null,
+        notes: ''
       };
       currentWizardStep.value = 1;
       showToastMsg('Form invoice telah direset.');
