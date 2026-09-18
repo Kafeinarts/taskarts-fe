@@ -101,27 +101,84 @@
             <div v-else-if="gIdx > 0" class="sidebar-divider my-1.5"></div>
 
             <!-- Items in Group -->
-            <router-link
-              v-for="item in group.items"
-              :key="item.to"
-              :to="item.to"
-              class="material-nav-link"
-              :title="item.label"
-            >
-              <div class="nav-icon-box" :style="{ '--item-color': item.color }">
-                <i :class="item.icon" class="nav-icon"></i>
+            <template v-for="item in group.items" :key="item.id || item.to">
+              <!-- Dropdown / Submenu Parent Item -->
+              <div v-if="item.children && item.children.length > 0" class="sidebar-dropdown-wrapper mb-1">
+                <div
+                  class="material-nav-link sidebar-dropdown-toggle cursor-pointer"
+                  :class="{
+                    'dropdown-open': isDropdownOpen(item),
+                    'active-parent': isParentActive(item)
+                  }"
+                  @click="toggleDropdown(item)"
+                  :title="item.label"
+                >
+                  <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+                    <i :class="item.icon" class="nav-icon"></i>
+                  </div>
+                  <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
+
+                  <!-- Module Count Badge -->
+                  <span v-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-1 small text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
+                    {{ item.badgeText }}
+                  </span>
+
+                  <!-- Submenu Accordion Chevron Indicator -->
+                  <i 
+                    v-if="!isCollapsed" 
+                    class="bi bi-chevron-down ms-1.5 fs-7 transition-transform" 
+                    :class="{ 'rotate-180': isDropdownOpen(item) }"
+                  ></i>
+                </div>
+
+                <!-- Collapsible Submenu Items -->
+                <transition name="submenu-slide">
+                  <div v-if="!isCollapsed && isDropdownOpen(item)" class="sidebar-submenu ps-2 pe-1 pt-1 pb-1">
+                    <router-link
+                      v-for="sub in item.children"
+                      :key="sub.to"
+                      :to="sub.to"
+                      class="material-nav-link submenu-nav-link"
+                      :title="sub.label"
+                    >
+                      <div class="submenu-icon-box me-2" :style="{ '--sub-color': sub.color }">
+                        <i :class="sub.icon" class="sub-nav-icon"></i>
+                      </div>
+                      <span class="nav-label text-truncate flex-grow-1" :title="sub.label">{{ sub.label }}</span>
+                      
+                      <span v-if="sub.badge && sub.badge()" class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap" :class="sub.badgeClass || 'bg-primary text-white'">
+                        {{ sub.badge() }}
+                      </span>
+                      <span v-else-if="sub.badgeText" class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap" :class="sub.badgeClass || 'bg-light text-dark border'">
+                        {{ sub.badgeText }}
+                      </span>
+                    </router-link>
+                  </div>
+                </transition>
               </div>
-              <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
-              
-              <!-- Dynamic Count Badge -->
-              <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-primary text-white'">
-                {{ item.badge() }}
-              </span>
-              <!-- Static Badge Text -->
-              <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
-                {{ item.badgeText }}
-              </span>
-            </router-link>
+
+              <!-- Standard Single Route Item -->
+              <router-link
+                v-else
+                :to="item.to"
+                class="material-nav-link"
+                :title="item.label"
+              >
+                <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+                  <i :class="item.icon" class="nav-icon"></i>
+                </div>
+                <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
+                
+                <!-- Dynamic Count Badge -->
+                <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-primary text-white'">
+                  {{ item.badge() }}
+                </span>
+                <!-- Static Badge Text -->
+                <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
+                  {{ item.badgeText }}
+                </span>
+              </router-link>
+            </template>
           </div>
         </nav>
 
@@ -154,39 +211,6 @@
               <button @click="showDukungModal = true" class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5" style="font-size: 11.5px;" title="Dukung Pengembang">
                 <i class="bi bi-heart-fill"></i> Dukung
               </button>
-            </div>
-
-            <!-- Quick Sidebar Width Adjustment Selector -->
-            <div class="d-flex align-items-center justify-content-between px-1 pt-1 text-muted" style="font-size: 10.5px;">
-              <span class="d-flex align-items-center gap-1 text-truncate" :title="`Lebar sidebar saat ini ${sidebarWidth}px. Anda dapat menggeser batas kanan sidebar ke kiri/kanan.`">
-                <i class="bi bi-arrows-left-right text-primary"></i>
-                <span class="text-truncate">Lebar: <strong class="text-dark-emphasis">{{ sidebarWidth }}px</strong></span>
-              </span>
-              <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                <button 
-                  type="button"
-                  class="btn btn-link p-0 text-decoration-none" 
-                  :class="sidebarWidth <= 260 ? 'fw-bold text-primary' : 'text-muted'"
-                  @click="setSidebarWidthPreset(240)"
-                  title="Preset Ringkas (240px)"
-                >Ringkas</button>
-                <span class="opacity-50">|</span>
-                <button 
-                  type="button"
-                  class="btn btn-link p-0 text-decoration-none" 
-                  :class="sidebarWidth > 260 && sidebarWidth <= 330 ? 'fw-bold text-primary' : 'text-muted'"
-                  @click="setSidebarWidthPreset(300)"
-                  title="Preset Nyaman (300px)"
-                >Nyaman</button>
-                <span class="opacity-50">|</span>
-                <button 
-                  type="button"
-                  class="btn btn-link p-0 text-decoration-none" 
-                  :class="sidebarWidth > 330 ? 'fw-bold text-primary' : 'text-muted'"
-                  @click="setSidebarWidthPreset(380)"
-                  title="Preset Luas Membaca (380px)"
-                >Luas</button>
-              </div>
             </div>
           </div>
         </div>
@@ -221,7 +245,12 @@
       </aside>
 
       <!-- Main Content Area -->
-      <div :class="['main-content', { expanded: isCollapsed, 'is-resizing': isResizingSidebar }]">
+      <div :class="['main-content', { 
+        expanded: isCollapsed, 
+        'is-resizing': isResizingSidebar,
+        'is-sidebar-wide': sidebarWidth >= 330,
+        'is-sidebar-extra-wide': sidebarWidth >= 390
+      }]">
         <!-- Material Design 3 Top App Bar Header (NAVBAR) -->
         <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
           <div class="d-flex align-items-center gap-2">
@@ -396,26 +425,80 @@
             </div>
 
             <div class="mobile-sheet-scroll-body">
-              <nav class="d-flex flex-column gap-1" @click="mobileDrawer = false">
+              <nav class="d-flex flex-column gap-1">
                 <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2.5">
                   <div class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">{{ group.title }}</div>
-                  <router-link 
-                    v-for="item in group.items" 
-                    :key="item.to" 
-                    :to="item.to" 
-                    class="material-nav-link"
-                  >
-                    <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
-                      <i :class="item.icon" class="nav-icon"></i>
+                  
+                  <template v-for="item in group.items" :key="item.id || item.to">
+                    <!-- Dropdown parent in Mobile Drawer -->
+                    <div v-if="item.children && item.children.length > 0" class="sidebar-dropdown-wrapper mb-1">
+                      <div
+                        class="material-nav-link sidebar-dropdown-toggle cursor-pointer"
+                        :class="{
+                          'dropdown-open': isDropdownOpen(item),
+                          'active-parent': isParentActive(item)
+                        }"
+                        @click.stop="toggleDropdown(item)"
+                      >
+                        <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                          <i :class="item.icon" class="nav-icon"></i>
+                        </div>
+                        <span class="fw-semibold text-truncate flex-grow-1">{{ item.label }}</span>
+                        
+                        <span v-if="item.badgeText" class="badge rounded-pill ms-auto ms-1 small" :class="item.badgeClass || 'bg-light text-dark border'">
+                          {{ item.badgeText }}
+                        </span>
+                        
+                        <i 
+                          class="bi bi-chevron-down ms-1.5 fs-7 transition-transform" 
+                          :class="{ 'rotate-180': isDropdownOpen(item) }"
+                        ></i>
+                      </div>
+
+                      <!-- Submenu items in Mobile Drawer -->
+                      <transition name="submenu-slide">
+                        <div v-if="isDropdownOpen(item)" class="sidebar-submenu ps-2 pe-1 pt-1 pb-1">
+                          <router-link
+                            v-for="sub in item.children"
+                            :key="sub.to"
+                            :to="sub.to"
+                            class="material-nav-link submenu-nav-link"
+                            @click="mobileDrawer = false"
+                          >
+                            <div class="submenu-icon-box me-2" :style="{ '--sub-color': sub.color }">
+                              <i :class="sub.icon" class="sub-nav-icon"></i>
+                            </div>
+                            <span class="nav-label text-truncate flex-grow-1">{{ sub.label }}</span>
+                            <span v-if="sub.badge && sub.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="sub.badgeClass || 'bg-primary text-white'">
+                              {{ sub.badge() }}
+                            </span>
+                            <span v-else-if="sub.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="sub.badgeClass || 'bg-light text-dark border'">
+                              {{ sub.badgeText }}
+                            </span>
+                          </router-link>
+                        </div>
+                      </transition>
                     </div>
-                    <span class="fw-medium">{{ item.label }}</span>
-                    <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
-                      {{ item.badge() }}
-                    </span>
-                    <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
-                      {{ item.badgeText }}
-                    </span>
-                  </router-link>
+
+                    <!-- Direct link in Mobile Drawer -->
+                    <router-link 
+                      v-else
+                      :to="item.to" 
+                      class="material-nav-link"
+                      @click="mobileDrawer = false"
+                    >
+                      <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                        <i :class="item.icon" class="nav-icon"></i>
+                      </div>
+                      <span class="fw-medium">{{ item.label }}</span>
+                      <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                        {{ item.badge() }}
+                      </span>
+                      <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                        {{ item.badgeText }}
+                      </span>
+                    </router-link>
+                  </template>
                 </div>
               </nav>
 
@@ -432,7 +515,7 @@
         </transition>
 
         <!-- Main Router View Container with Snappy Lightweight Fade-Slide Animation -->
-        <div class="p-3 p-md-4 main-view-viewport">
+        <div class="p-3 p-md-4 main-view-viewport" :class="{ 'cards-stacked-mode': shouldStackCards }">
           <router-view v-slot="{ Component }">
             <transition name="fade-slide" mode="out-in">
               <component :is="Component" />
@@ -656,12 +739,23 @@ export default {
       {
         title: 'TIM & KOMUNIKASI',
         items: [
-          { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white' },
-          { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark' },
-          { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white' },
-          { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark' },
-          { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white' },
-          { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white' },
+          {
+            id: 'team-modules',
+            label: 'Modul Tim & Komunikasi',
+            icon: 'bi-people-fill',
+            color: '#2563eb',
+            badgeText: '6 Modul',
+            badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
+            to: '/team-collaboration',
+            children: [
+              { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white' },
+              { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark' },
+              { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white' },
+              { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark' },
+              { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white' },
+              { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white' }
+            ]
+          },
           { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white' },
           { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark' }
         ]
@@ -669,12 +763,23 @@ export default {
       {
         title: 'KEUANGAN & DATA',
         items: [
-          { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white' },
-          { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white' },
-          { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark' },
-          { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed' },
-          { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark' },
-          { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white' },
+          {
+            id: 'finance-modules',
+            label: 'Sistem Keuangan Perusahaan',
+            icon: 'bi-bank',
+            color: '#059669',
+            badgeText: '6 Modul',
+            badgeClass: 'bg-success-subtle text-success border border-success-subtle',
+            to: '/finance-cashflow',
+            children: [
+              { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white' },
+              { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white' },
+              { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark' },
+              { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed' },
+              { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark' },
+              { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white' }
+            ]
+          },
           { to: '/finance', label: 'Ringkasan Money Tracker', icon: 'bi-wallet2', color: '#475569' },
           { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669' },
           { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
@@ -712,15 +817,96 @@ export default {
       const q = sidebarSearch.value.trim().toLowerCase();
       if (!q) return navGroups;
       return navGroups
-        .map(g => ({
-          ...g,
-          items: g.items.filter(item =>
-            item.label.toLowerCase().includes(q) ||
-            item.to.toLowerCase().includes(q) ||
-            g.title.toLowerCase().includes(q)
-          )
-        }))
+        .map(g => {
+          const matchingItems = [];
+          g.items.forEach(item => {
+            if (item.children && item.children.length > 0) {
+              const matchedSubs = item.children.filter(sub =>
+                sub.label.toLowerCase().includes(q) ||
+                sub.to.toLowerCase().includes(q)
+              );
+              if (
+                matchedSubs.length > 0 ||
+                item.label.toLowerCase().includes(q) ||
+                (item.to && item.to.toLowerCase().includes(q))
+              ) {
+                matchingItems.push({
+                  ...item,
+                  children: matchedSubs.length > 0 ? matchedSubs : item.children,
+                  _forceOpen: true
+                });
+              }
+            } else {
+              if (
+                item.label.toLowerCase().includes(q) ||
+                item.to.toLowerCase().includes(q) ||
+                g.title.toLowerCase().includes(q)
+              ) {
+                matchingItems.push(item);
+              }
+            }
+          });
+          return {
+            ...g,
+            items: matchingItems
+          };
+        })
         .filter(g => g.items.length > 0);
+    });
+
+    // Sub-menus state (for clustered 1-6 menu groups)
+    const expandedDropdowns = ref({
+      'team-modules': true,
+      'finance-modules': true
+    });
+
+    const isDropdownOpen = (item) => {
+      if (!item || !item.id) return false;
+      if (item._forceOpen) return true;
+      return !!expandedDropdowns.value[item.id];
+    };
+
+    const isParentActive = (item) => {
+      if (!item || !item.children) return false;
+      const currentPath = route.path;
+      return item.children.some(c => c.to === currentPath) || item.to === currentPath;
+    };
+
+    const toggleDropdown = (item) => {
+      if (isCollapsed.value) {
+        isCollapsed.value = false;
+      }
+      if (!item || !item.id) return;
+      expandedDropdowns.value[item.id] = !expandedDropdowns.value[item.id];
+    };
+
+    // Auto-open parent dropdown when navigating to any child route
+    watch(() => route.path, (newPath) => {
+      navGroups.forEach(g => {
+        g.items.forEach(item => {
+          if (item.children && item.id) {
+            if (item.children.some(c => c.to === newPath) || item.to === newPath) {
+              expandedDropdowns.value[item.id] = true;
+            }
+          }
+        });
+      });
+    }, { immediate: true });
+
+    // Window size tracker for responsive layout and stacking cards
+    const windowInnerWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const onWindowResize = () => {
+      windowInnerWidth.value = window.innerWidth;
+    };
+
+    // Auto-stack multi-column cards when sidebar is widened or content area is constrained
+    const shouldStackCards = computed(() => {
+      if (isCollapsed.value) return false;
+      const effectiveContentWidth = windowInnerWidth.value - sidebarWidth.value;
+      if (sidebarWidth.value >= 400 && windowInnerWidth.value < 1600) return true;
+      if (sidebarWidth.value >= 320 && effectiveContentWidth < 1000) return true;
+      if (effectiveContentWidth < 900) return true;
+      return false;
     });
 
     // Dynamic Title & Icon based on Active Route
@@ -904,12 +1090,14 @@ export default {
       // Storage quota listeners
       window.addEventListener('storage-quota-updated', updateStorageState);
       window.addEventListener('storage-quota-full', updateStorageState);
+      window.addEventListener('resize', onWindowResize, { passive: true });
     });
 
     onUnmounted(() => {
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('storage-quota-updated', updateStorageState);
       window.removeEventListener('storage-quota-full', updateStorageState);
+      window.removeEventListener('resize', onWindowResize);
       window.removeEventListener('mousemove', onSidebarResizeMove);
       window.removeEventListener('mouseup', stopSidebarResize);
       window.removeEventListener('touchmove', onSidebarResizeMove);
@@ -1002,7 +1190,12 @@ export default {
       isResizingSidebar,
       startSidebarResize,
       resetSidebarWidth,
-      setSidebarWidthPreset
+      setSidebarWidthPreset,
+      isDropdownOpen,
+      isParentActive,
+      toggleDropdown,
+      expandedDropdowns,
+      shouldStackCards
     };
   }
 };
@@ -1774,6 +1967,92 @@ body.sidebar-resizing * {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
+/* Submenu & Dropdown Accordion Styles */
+.sidebar-dropdown-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-dropdown-toggle.active-parent {
+  background-color: var(--sidebar-hover-bg);
+  color: var(--primary-color) !important;
+  font-weight: 700;
+}
+
+.sidebar-dropdown-toggle .transition-transform {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-dropdown-toggle .rotate-180 {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  margin-left: 14px;
+  border-left: 2px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.submenu-nav-link {
+  padding: 5.5px 8px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  margin-bottom: 1px !important;
+  color: var(--sidebar-text);
+  font-weight: 500;
+}
+
+.submenu-nav-link .nav-label {
+  font-size: 12px !important;
+  font-weight: 500;
+}
+
+.submenu-icon-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(148, 163, 184, 0.12);
+  color: var(--sub-color, var(--primary-color));
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.submenu-nav-link:hover .submenu-icon-box {
+  background-color: rgba(37, 99, 235, 0.18);
+  transform: scale(1.05);
+}
+
+.submenu-nav-link.router-link-active {
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text) !important;
+  font-weight: 700;
+}
+
+.submenu-nav-link.router-link-active .submenu-icon-box {
+  background-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff !important;
+}
+
+/* Submenu Slide Animation */
+.submenu-slide-enter-active,
+.submenu-slide-leave-active {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  max-height: 400px;
+}
+
+.submenu-slide-enter-from,
+.submenu-slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 /* Brand styling & Kafeinarts Signature */
 .brand-icon-wrapper {
   width: 38px;
@@ -2274,6 +2553,171 @@ body.sidebar-resizing * {
   color: #ffffff;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+}
+
+/* =========================================================
+   Unified Responsive Layout, Spacing & Anti-Cramping Polish
+   ========================================================= */
+.main-view-viewport {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 24px 28px 80px 28px;
+  box-sizing: border-box;
+  container-type: inline-size;
+  container-name: main-viewport;
+}
+
+@media (min-width: 1400px) {
+  .main-view-viewport {
+    padding: 28px 36px 96px 36px;
+  }
+}
+
+/* =========================================================================
+   Responsive Card Stacking Engine (Prevents cramping when sidebar is wide)
+   ========================================================================= */
+
+/* Container Query: Automatically stack multi-column cards when main viewport width is constrained */
+@container main-viewport (max-width: 980px) {
+  .row > [class*="col-lg-6"],
+  .row > [class*="col-xl-6"],
+  .row > [class*="col-xxl-6"],
+  .row > [class*="col-lg-7"],
+  .row > [class*="col-lg-8"],
+  .row > [class*="col-lg-5"],
+  .row > [class*="col-xl-7"],
+  .row > [class*="col-xl-8"],
+  .row > [class*="col-xl-5"] {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+@container main-viewport (max-width: 840px) {
+  .row > [class*="col-md-6"],
+  .row > [class*="col-lg-4"],
+  .row > [class*="col-xl-4"] {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Dynamic State: Activates when user drags sidebar wider or on medium screens */
+.main-view-viewport.cards-stacked-mode .row > [class*="col-lg-6"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-xl-6"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-xxl-6"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-lg-7"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-lg-8"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-lg-5"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-xl-7"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-xl-8"],
+.main-view-viewport.cards-stacked-mode .row > [class*="col-xl-5"] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.main-content.is-sidebar-extra-wide .main-view-viewport .row > [class*="col-lg-4"],
+.main-content.is-sidebar-extra-wide .main-view-viewport .row > [class*="col-xl-4"] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Generous breathing room when cards are stacked */
+.main-view-viewport.cards-stacked-mode .row > [class*="col-"] > .card,
+.main-content.is-sidebar-wide .main-view-viewport .row > [class*="col-"] > .card {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Generous Card Rhythms - Avoid nested feel and dense cramping */
+.main-view-viewport .card {
+  border-radius: 16px;
+  border-color: var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.02);
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.main-view-viewport .card-header {
+  padding: 1.15rem 1.35rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+}
+
+.main-view-viewport .card-body {
+  padding: 1.35rem 1.35rem;
+}
+
+.main-view-viewport .card-footer {
+  padding: 1rem 1.35rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+}
+
+/* Form input spacing and touch targets */
+.main-view-viewport .form-control,
+.main-view-viewport .form-select {
+  padding: 0.6rem 0.85rem;
+  font-size: 13.5px;
+  border-radius: 10px;
+  border-color: var(--border-color);
+}
+
+.main-view-viewport .form-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: var(--text-main);
+  letter-spacing: -0.1px;
+}
+
+/* Action toolbars & button groups */
+.main-view-viewport .d-flex.flex-wrap.gap-2 {
+  align-items: center;
+}
+
+.main-view-viewport .btn {
+  font-size: 13px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+
+/* Clean Responsive Tables */
+.main-view-viewport .table-responsive {
+  border-radius: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.75rem;
+}
+
+.main-view-viewport .table {
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+
+.main-view-viewport .table th {
+  padding: 12px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.main-view-viewport .table td {
+  padding: 12px 14px;
+  font-size: 13.5px;
+}
+
+/* Prevent squished pills, badges & chips */
+.badge, .m3-chip {
+  white-space: nowrap;
+  letter-spacing: -0.1px;
 }
 
 @media (max-width: 991.98px) {
