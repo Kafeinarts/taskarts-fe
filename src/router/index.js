@@ -267,6 +267,12 @@ const routes = [
     component: () => import("../views/productivity/ProductivityInsightsView.vue"),
   },
   {
+    path: "/attendance",
+    name: "attendance",
+    component: () => import("../views/productivity/AttendanceView.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/insights",
     redirect: "/productivity-insights",
   },

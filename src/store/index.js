@@ -2039,16 +2039,52 @@ export default createStore({
     },
     async fetchFeatures({ commit, state }) {
       try {
-        let url = '/features/enabled';
-        // Non-admin: fetch per-user features
-        if (state.auth.user && state.auth.user.role !== 'admin') {
-          url = `/features/user/${state.auth.user.id}/enabled`;
+        const user = state.auth.user;
+        if (!user) {
+          console.log('[Auth] fetchFeatures: no user, fetching global enabled');
+          const { data } = await api.get('/features/enabled');
+          const keys = Array.isArray(data.data) ? data.data.map(f => f.key || f) : [];
+          commit('SET_ENABLED_FEATURES', keys);
+          return;
         }
-        console.log('[Auth] fetchFeatures:', url);
-        const { data } = await api.get(url);
-        const keys = Array.isArray(data.data) ? data.data : [];
+
+        // Everyone (including admin): check per-user features first
+        try {
+          console.log('[Auth] fetchFeatures: checking per-user features for', user.id);
+          const { data } = await api.get(`/features/user/${user.id}/enabled`);
+          const keys = Array.isArray(data.data) ? data.data.map(f => f.key || f) : [];
+          if (keys.length > 0) {
+            console.log('[Auth] fetchFeatures: per-user features loaded:', keys.length);
+            commit('SET_ENABLED_FEATURES', keys);
+            return;
+          }
+        } catch (_) { /* fall through */ }
+
+        // Admin without per-user settings → sees everything
+        if (user.role === 'admin') {
+          console.log('[Auth] fetchFeatures: admin — all features enabled');
+          commit('SET_ENABLED_FEATURES', ['*']);
+          return;
+        }
+
+        // Non-admin: try role-based
+        try {
+          console.log('[Auth] fetchFeatures: trying role-based for', user.role);
+          const { data } = await api.get(`/features/roles/${user.role}/enabled`);
+          const keys = Array.isArray(data.data) ? data.data : [];
+          if (keys.length > 0) {
+            console.log('[Auth] fetchFeatures: role-based features loaded:', keys.length);
+            commit('SET_ENABLED_FEATURES', keys);
+            return;
+          }
+        } catch (_) { /* fall through */ }
+
+        // Fallback to global
+        console.log('[Auth] fetchFeatures: fallback to global enabled');
+        const { data } = await api.get('/features/enabled');
+        const keys = Array.isArray(data.data) ? data.data.map(f => f.key || f) : [];
         commit('SET_ENABLED_FEATURES', keys);
-        console.log('[Auth] fetchFeatures: loaded', keys.length, 'enabled features');
+        console.log('[Auth] fetchFeatures: loaded', keys.length, 'features');
       } catch (e) {
         console.warn('[Auth] fetchFeatures: failed (non-critical):', e.response?.status || e.message);
       }

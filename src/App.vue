@@ -869,6 +869,7 @@ export default {
           { to: '/productivity-insights', label: 'Productivity Insights', icon: 'bi-bar-chart-line-fill', color: '#2563eb', badgeText: 'D3.js', badgeClass: 'bg-primary text-white', featureKey: 'productivity-insights' },
           { to: '/quick-capture', label: 'Quick Capture Notes', icon: 'bi-lightning-charge-fill', color: '#f59e0b', featureKey: 'quick-capture' },
           { to: '/calendar', label: 'Kalender & Agenda', icon: 'bi-calendar3', color: '#ea580c', featureKey: 'calendar' },
+          { to: '/attendance', label: 'Absensi', icon: 'bi-clock-history', color: '#7c3aed', featureKey: 'attendance' },
           { to: '/time-suite', label: 'Time Suite & Pomodoro', icon: 'bi-clock-history', color: '#16a34a', featureKey: 'time-suite' },
           { to: '/selfie', label: 'Selfie for Happiness', icon: 'bi-camera-reels-fill', color: '#e11d48', featureKey: 'selfie' },
           { to: '/mood', label: 'Kamera Mood & Alarm', icon: 'bi-emoji-smile-fill', color: '#f43f5e', featureKey: 'mood' },
@@ -911,6 +912,8 @@ export default {
     const isFeatureEnabled = (featureKey) => {
       if (!featureKey || featureKey === '_admin') return isAdmin.value;
       if (isAdmin.value) return true;
+      // '*' wildcard means all features enabled
+      if (enabledFeatures.value.includes('*')) return true;
       return enabledFeatures.value.includes(featureKey);
     };
 
