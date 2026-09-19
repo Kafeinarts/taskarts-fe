@@ -7,14 +7,18 @@ module.exports = defineConfig({
     port: 3000,
     host: '0.0.0.0',
     allowedHosts: 'all',
+    proxy: {
+      '/api/v1': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      }
+    },
     setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {
         throw new Error('webpack-dev-server is not defined');
       }
 
-      devServer.app.use(require('express').json());
-
-      devServer.app.post('/api/chat', async (req, res) => {
+      devServer.app.post('/api/chat', require('express').json(), async (req, res) => {
         try {
           const { message, customApiKey, history } = req.body || {};
           const apiKey = (customApiKey && customApiKey.trim()) || process.env.GEMINI_API_KEY || 'AQ.Ab8RN6JGhPsfz7AVNneY9DU8r1YHtbKQUWmS6DyfJfgoOZX-Kg';

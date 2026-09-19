@@ -56,6 +56,46 @@ TaskArts adalah sistem operasi produktivitas dan aplikasi web terpadu (Progressi
 
 ---
 
+## 🔌 Integrasi Backend Laravel (API Baru — Source of Truth)
+
+Sejak refactor backend (Sept 2026), setiap modul aplikasi **memiliki pasangan API REST** di folder `../back-end` (Laravel 13 + MySQL). Backend ini disetujui sebagai *single source of truth* untuk data tersinkronisasi; frontend saat ini masih berjalan **offline-first** (Vuex + LocalStorage) dan dapat diarahkan untuk membaca/menulis API pada tahap integrasi berikutnya.
+
+### Menjalankan Backend
+```bash
+cd ../back-end
+composer install
+cp .env.example .env          # set sqlite / mysql taskarts (sudah dikonfigurasi MySQL)
+php artisan migrate --seed    # membuat tabel & user admin
+php artisan serve             # http://127.0.0.1:8000
+```
+
+### Akses API
+Semua endpoint berada di bawah prefix **`/api/v1`** dan dilindungi **Sanctum** (`Authorization: Bearer <token>`).
+Template respons konsisten: `{ "success": bool, "message": string, "data": payload, "meta?": {} }`.
+
+### Pemetaan Modul Frontend ↔ Endpoint API
+
+| Modul Frontend (View) | Endpoint API (`/api/v1/...`) |
+|---|---|
+| `todoList.vue`, `TaskDetailView.vue`, `projectManagement.vue` | `/tasks`, `/tasks/{id}/complete` `/reopen`, `/projects` |
+| `ContactsView.vue`, `VideoHubView.vue` | `/contacts` (+ `GET /contacts/stats`) |
+| `moneyTracker.vue`, `CashFlowManagementView.vue`, `FinanceSecurityAuditView.vue` | `/finance/transactions`, `.../summary`, `.../cash-flow` |
+| `BudgetingForecastingView.vue` | `/finance/budgets`, `.../{id}/sync-spent`, `.../{id}/usage` |
+| `InvoiceView.vue` | `/finance/invoices`, `.../{id}/pdf`, `.../{id}/pay` |
+| `AccountsPayableReceivableView.vue` | `/finance/ap-ar`, `.../{id}/settle` |
+| `RabView.vue` | `/finance/rab` (+ `.../summary`) |
+| `HabitTrackerView.vue` | `/habits`, `.../{id}/log` |
+| `StickyNotesView.vue`, `DiaryView.vue`, `CodeNotesView.vue`, `MediumDraftView.vue` | `/notes`, `/diary`, `/code-notes`, `/drafts` |
+| `CalendarView.vue`, `MoodAlarmView.vue` | `/events`, `/mood-logs`, `/work-alarms` |
+| `CvBuilderView.vue` | `/cvs`, `.../{id}/default` |
+| `HomeView.vue` (dashboard) | `/dashboard` |
+| `PreferencesView.vue`, `SettingsView.vue` | `/settings`, `/settings/batch` |
+| Ekspor Excel/PDF | `/reports/tasks|contacts|finance|rab/excel` & `.../pdf` |
+
+> 🔒 **Catatan Keamanan:** `vue.config.js` masih mengandung nilai *default API key* Gemini yang dikirim ke `/api/chat`. Sebaiknya diganti dengan `process.env.GEMINI_API_KEY` saja (tanpa fallback hardcoded) sebelum dibagikan ke publik.
+
+---
+
 ## 🛠️ Arsitektur Teknologi & Dependensi
 
 | Kategori | Teknologi | Deskripsi |

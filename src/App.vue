@@ -7,10 +7,21 @@
     <DukungDevModal v-model="showDukungModal" />
 
     <!-- =========================================================
+         AUTH MODE: show only router-view (login/register pages)
+         ========================================================= -->
+    <template v-if="!isLoggedIn">
+      <router-view v-slot="{ Component }">
+        <transition name="fade-slide" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </template>
+
+    <!-- =========================================================
          SAMSUNG DeX / WINDOWS DESKTOP OS MODE
          Persis mirip Samsung DeX dengan icon placement vertikal & taskbar
          ========================================================= -->
-    <template v-if="isDesktopMode">
+    <template v-else-if="isDesktopMode">
       <DesktopDexWorkspace @exit-desktop-mode="disableDesktopMode">
         <div class="p-3 p-md-4 main-view-viewport">
           <router-view v-slot="{ Component }">
@@ -184,23 +195,45 @@
 
         <!-- Sidebar Footer (Expanded) -->
         <div class="sidebar-footer p-2.5 border-top divider-color" v-if="!isCollapsed">
-          <div class="d-flex align-items-center justify-content-between p-2 rounded-3 footer-user-pill mb-2">
-            <div class="d-flex align-items-center gap-2 overflow-hidden">
-              <div class="avatar-kafeinarts">
-                <span>K</span>
+          <!-- Profile Badge — clickable to show dropdown -->
+          <div class="position-relative mb-2">
+            <div
+              class="d-flex align-items-center justify-content-between p-2 rounded-3 footer-user-pill cursor-pointer"
+              @click="showProfileDropdown = !showProfileDropdown"
+            >
+              <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <div class="avatar-kafeinarts">
+                  <span>{{ userInitial }}</span>
+                </div>
+                <div class="lh-1 text-truncate">
+                  <span class="fw-bold fs-7 text-app d-block text-truncate">{{ userName }}</span>
+                  <small class="text-success fw-semibold" style="font-size: 10px;">● {{ userRole }}</small>
+                </div>
               </div>
-              <div class="lh-1 text-truncate">
-                <span class="fw-bold fs-7 text-app d-block text-truncate">Kafeinarts</span>
-                <small class="text-success fw-semibold" style="font-size: 10px;">● Workspace Siap</small>
-              </div>
+              <i class="bi bi-chevron-down text-muted" style="font-size: 11px;" :class="{ 'rotate-180': showProfileDropdown }"></i>
             </div>
-            <router-link to="/preferences" class="btn btn-sm btn-ghost p-1 text-sub" title="Pengaturan Sistem">
-              <i class="bi bi-gear-fill"></i>
-            </router-link>
+
+            <!-- Profile Dropdown -->
+            <transition name="submenu-slide">
+              <div v-if="showProfileDropdown" class="card shadow-lg border-0 rounded-3 mb-2 p-2" style="z-index: 100;">
+                <router-link to="/preferences" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light" @click="showProfileDropdown = false">
+                  <i class="bi bi-person-gear text-primary"></i>
+                  <span class="fw-medium small">Edit Profil</span>
+                </router-link>
+                <router-link to="/features" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light" @click="showProfileDropdown = false">
+                  <i class="bi bi-gear-wide-connected text-warning"></i>
+                  <span class="fw-medium small">Pengaturan Fitur</span>
+                </router-link>
+                <hr class="my-1" />
+                <button class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start hover-bg-light" @click="handleLogout">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span class="fw-medium small">Keluar</span>
+                </button>
+              </div>
+            </transition>
           </div>
 
           <div class="d-flex flex-column gap-1.5">
-            <!-- Mode Desktop Switcher in Sidebar -->
             <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-1.5 fw-semibold" style="font-size: 11.5px;" title="Aktifkan Mode Desktop Samsung DeX">
               <i class="bi bi-display"></i> Mode Desktop (DeX)
             </button>
@@ -217,10 +250,30 @@
 
         <!-- Sidebar Footer (Collapsed) -->
         <div class="sidebar-footer p-2 border-top divider-color text-center d-flex flex-column align-items-center gap-1.5" v-else>
+          <!-- Profile Avatar (Collapsed) -->
+          <div class="position-relative">
+            <div class="avatar-kafeinarts cursor-pointer" @click="showProfileDropdown = !showProfileDropdown" :title="userName">
+              <span>{{ userInitial }}</span>
+            </div>
+            <transition name="submenu-slide">
+              <div v-if="showProfileDropdown" class="card shadow-lg border-0 rounded-3 p-2 position-absolute" style="bottom: 100%; left: -60px; z-index: 100; min-width: 160px;">
+                <router-link to="/preferences" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small" @click="showProfileDropdown = false">
+                  <i class="bi bi-person-gear text-primary"></i> Edit Profil
+                </router-link>
+                <router-link to="/features" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small" @click="showProfileDropdown = false">
+                  <i class="bi bi-gear-wide-connected text-warning"></i> Fitur
+                </router-link>
+                <hr class="my-1" />
+                <button class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start small hover-bg-light" @click="handleLogout">
+                  <i class="bi bi-box-arrow-right"></i> Keluar
+                </button>
+              </div>
+            </transition>
+          </div>
           <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary border rounded-circle p-0" style="width: 38px; height: 38px;" title="Mode Desktop Samsung DeX">
             <i class="bi bi-display fs-6"></i>
           </button>
-          <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0 mb-2" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
+          <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
             <i class="bi bi-heart-fill text-danger fs-6"></i>
           </button>
         </div>
@@ -503,11 +556,25 @@
               </nav>
 
               <div class="p-2 border-top mt-2 mb-1 d-flex flex-column gap-2">
+                <!-- User Info -->
+                <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light mb-1">
+                  <div class="avatar-kafeinarts"><span>{{ userInitial }}</span></div>
+                  <div class="lh-1 overflow-hidden">
+                    <div class="fw-bold text-app text-truncate">{{ userName }}</div>
+                    <small class="text-muted text-truncate d-block" style="font-size: 11px;">{{ userEmail }}</small>
+                  </div>
+                </div>
+                <router-link to="/preferences" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2" @click="mobileDrawer = false">
+                  <i class="bi bi-person-gear text-primary"></i> Edit Profil
+                </router-link>
                 <button @click="mobileDrawer = false; enableDesktopMode()" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2">
                   <i class="bi bi-display text-primary"></i> Beralih ke Mode Desktop (DeX)
                 </button>
                 <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5">
                   <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
+                </button>
+                <button @click="mobileDrawer = false; handleLogout()" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2">
+                  <i class="bi bi-box-arrow-right"></i> Keluar
                 </button>
               </div>
             </div>
@@ -570,7 +637,7 @@
 <script>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import AppNotifications from './components/AppNotifications.vue';
 import DukungDevModal from './components/DukungDevModal.vue';
 import DesktopDexWorkspace from './components/DesktopDexWorkspace.vue';
@@ -587,9 +654,11 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
     const isCollapsed = ref(false);
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
+    const showProfileDropdown = ref(false);
     const sidebarSearch = ref('');
     const isStorageFullState = ref(isStorageFull());
     
@@ -709,6 +778,11 @@ export default {
       }
     };
 
+    const handleLogout = async () => {
+      await store.dispatch('logout');
+      router.push('/login');
+    };
+
     const updateStorageState = () => {
       isStorageFullState.value = isStorageFull();
     };
@@ -719,21 +793,22 @@ export default {
     const isBudgetExceeded = computed(() => store.getters.isBudgetExceeded);
     const themeMode = computed(() => store.getters.getThemeMode);
     const accentColor = computed(() => store.getters.getAccentColor);
+    const isLoggedIn = computed(() => !!store.state.auth.token);
 
     // Grouped navigation definition for structured elegant presentation
     const navGroups = [
       {
         title: 'WORKSPACE & PROYEK',
         items: [
-          { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb' },
-          { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white' },
-          { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white' },
-          { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark' },
-          { to: '/project', label: 'Proyek & Kontrak', icon: 'bi-briefcase-fill', color: '#0284c7', badge: () => activeProjectsCount.value, badgeClass: 'bg-info text-dark' },
-          { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48' },
-          { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb' },
-          { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669' },
-          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white' }
+          { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb', featureKey: 'dashboard' },
+          { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white', featureKey: 'job-tracker' },
+          { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white', featureKey: 'medium-draft' },
+          { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark', featureKey: 'todo' },
+          { to: '/project', label: 'Proyek & Kontrak', icon: 'bi-briefcase-fill', color: '#0284c7', badge: () => activeProjectsCount.value, badgeClass: 'bg-info text-dark', featureKey: 'project' },
+          { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48', featureKey: 'selfie' },
+          { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb', featureKey: 'surat' },
+          { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669', featureKey: 'cv' },
+          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white', featureKey: 'videos' }
         ]
       },
       {
@@ -747,17 +822,18 @@ export default {
             badgeText: '6 Modul',
             badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
             to: '/team-collaboration',
+            featureKey: 'team-collaboration',
             children: [
-              { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white' },
-              { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark' },
-              { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white' },
-              { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark' },
-              { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white' },
-              { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white' }
+              { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white', featureKey: 'team-collaboration' },
+              { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark', featureKey: 'team-collaboration' },
+              { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white', featureKey: 'team-collaboration' },
+              { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark', featureKey: 'team-collaboration' },
+              { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white', featureKey: 'team-collaboration' },
+              { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white', featureKey: 'team-collaboration' }
             ]
           },
-          { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white' },
-          { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark' }
+          { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white', featureKey: 'contacts' },
+          { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark', featureKey: 'chat-ai' }
         ]
       },
       {
@@ -771,59 +847,87 @@ export default {
             badgeText: '6 Modul',
             badgeClass: 'bg-success-subtle text-success border border-success-subtle',
             to: '/finance-cashflow',
+            featureKey: 'finance-cashflow',
             children: [
-              { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white' },
-              { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white' },
-              { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark' },
-              { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed' },
-              { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark' },
-              { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white' }
+              { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white', featureKey: 'finance-cashflow' },
+              { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white', featureKey: 'finance-ap-ar' },
+              { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark', featureKey: 'finance-expenses' },
+              { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed', featureKey: 'finance-budgeting' },
+              { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark', featureKey: 'finance-reports' },
+              { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white', featureKey: 'finance-security' }
             ]
           },
-          { to: '/finance', label: 'Ringkasan Money Tracker', icon: 'bi-wallet2', color: '#475569' },
-          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669' },
-          { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1' },
-          { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706' }
+          { to: '/finance', label: 'Ringkasan Money Tracker', icon: 'bi-wallet2', color: '#475569', featureKey: 'finance' },
+          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', featureKey: 'rab' },
+          { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1', featureKey: 'invoice' },
+          { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706', featureKey: 'storage' }
         ]
       },
       {
         title: 'AGENDA & PRODUKTIVITAS',
         items: [
-          { to: '/productivity-insights', label: 'Productivity Insights', icon: 'bi-bar-chart-line-fill', color: '#2563eb', badgeText: 'D3.js', badgeClass: 'bg-primary text-white' },
-          { to: '/quick-capture', label: 'Quick Capture Notes', icon: 'bi-lightning-charge-fill', color: '#f59e0b' },
-          { to: '/calendar', label: 'Kalender & Agenda', icon: 'bi-calendar3', color: '#ea580c' },
-          { to: '/time-suite', label: 'Time Suite & Pomodoro', icon: 'bi-clock-history', color: '#16a34a' },
-          { to: '/selfie', label: 'Selfie for Happiness', icon: 'bi-camera-reels-fill', color: '#e11d48' },
-          { to: '/mood', label: 'Kamera Mood & Alarm', icon: 'bi-emoji-smile-fill', color: '#f43f5e' },
-          { to: '/notes', label: 'Notes & Scratchpad', icon: 'bi-journal-text', color: '#64748b' },
-          { to: '/diary', label: 'Diary & Jurnal Cerita', icon: 'bi-book-half', color: '#ca8a04', badgeText: 'Foto', badgeClass: 'bg-warning text-dark' },
-          { to: '/code-notes', label: 'Code Snippets', icon: 'bi-code-slash', color: '#0284c7' },
-          { to: '/games', label: '3D Games & Simulator', icon: 'bi-controller', color: '#9333ea' }
+          { to: '/productivity-insights', label: 'Productivity Insights', icon: 'bi-bar-chart-line-fill', color: '#2563eb', badgeText: 'D3.js', badgeClass: 'bg-primary text-white', featureKey: 'productivity-insights' },
+          { to: '/quick-capture', label: 'Quick Capture Notes', icon: 'bi-lightning-charge-fill', color: '#f59e0b', featureKey: 'quick-capture' },
+          { to: '/calendar', label: 'Kalender & Agenda', icon: 'bi-calendar3', color: '#ea580c', featureKey: 'calendar' },
+          { to: '/time-suite', label: 'Time Suite & Pomodoro', icon: 'bi-clock-history', color: '#16a34a', featureKey: 'time-suite' },
+          { to: '/selfie', label: 'Selfie for Happiness', icon: 'bi-camera-reels-fill', color: '#e11d48', featureKey: 'selfie' },
+          { to: '/mood', label: 'Kamera Mood & Alarm', icon: 'bi-emoji-smile-fill', color: '#f43f5e', featureKey: 'mood' },
+          { to: '/notes', label: 'Notes & Scratchpad', icon: 'bi-journal-text', color: '#64748b', featureKey: 'notes' },
+          { to: '/diary', label: 'Diary & Jurnal Cerita', icon: 'bi-book-half', color: '#ca8a04', badgeText: 'Foto', badgeClass: 'bg-warning text-dark', featureKey: 'diary' },
+          { to: '/code-notes', label: 'Code Snippets', icon: 'bi-code-slash', color: '#0284c7', featureKey: 'code-notes' },
+          { to: '/games', label: '3D Games & Simulator', icon: 'bi-controller', color: '#9333ea', featureKey: 'games' }
         ]
       },
       {
         title: 'SISTEM & PANDUAN',
         items: [
-          { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white' },
-          { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb' },
-          { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2' },
-          { to: '/developer', label: 'View Developer', icon: 'bi-person-badge-fill', color: '#2563eb', badgeText: 'PRO', badgeClass: 'bg-primary text-white' }
+          { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white', featureKey: 'storage' },
+          { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb', featureKey: 'settings' },
+          { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2', featureKey: 'settings' },
+          { to: '/developer', label: 'View Developer', icon: 'bi-person-badge-fill', color: '#2563eb', badgeText: 'PRO', badgeClass: 'bg-primary text-white', featureKey: 'developer' },
+          { to: '/features', label: 'Pengaturan Fitur', icon: 'bi-gear-wide-connected', color: '#ea580c', badgeText: 'Admin', badgeClass: 'bg-warning text-dark', featureKey: '_admin' },
+          { to: '/register-user', label: 'Tambah Akun', icon: 'bi-person-plus-fill', color: '#2563eb', badgeText: 'Admin', badgeClass: 'bg-primary text-white', featureKey: '_admin' }
         ]
       }
     ];
 
-    // Reactive filter when user types in sidebar search box
+    // Feature-gated filtering: only show menu items whose featureKey is in enabledFeatures (admin sees all)
+    const enabledFeatures = computed(() => store.state.enabledFeatures);
+    const isAdmin = computed(() => store.state.auth.user?.role === 'admin');
+
+    // Dynamic user info for sidebar
+    const userName = computed(() => store.state.auth.user?.name || 'Guest');
+    const userEmail = computed(() => store.state.auth.user?.email || '');
+    const userRole = computed(() => {
+      const r = store.state.auth.user?.role;
+      if (r === 'admin') return 'Admin';
+      return 'Member';
+    });
+    const userInitial = computed(() => {
+      const name = store.state.auth.user?.name || 'G';
+      return name.charAt(0).toUpperCase();
+    });
+
+    const isFeatureEnabled = (featureKey) => {
+      if (!featureKey || featureKey === '_admin') return isAdmin.value;
+      if (isAdmin.value) return true;
+      return enabledFeatures.value.includes(featureKey);
+    };
+
+    // Reactive filter when user types in sidebar search box + feature gate
     const filteredNavGroups = computed(() => {
       const q = sidebarSearch.value.trim().toLowerCase();
-      if (!q) return navGroups;
       return navGroups
         .map(g => {
           const matchingItems = [];
           g.items.forEach(item => {
+            if (!isFeatureEnabled(item.featureKey)) return;
             if (item.children && item.children.length > 0) {
               const matchedSubs = item.children.filter(sub =>
-                sub.label.toLowerCase().includes(q) ||
-                sub.to.toLowerCase().includes(q)
+                isFeatureEnabled(sub.featureKey) && (
+                  sub.label.toLowerCase().includes(q) ||
+                  sub.to.toLowerCase().includes(q)
+                )
               );
               if (
                 matchedSubs.length > 0 ||
@@ -832,7 +936,7 @@ export default {
               ) {
                 matchingItems.push({
                   ...item,
-                  children: matchedSubs.length > 0 ? matchedSubs : item.children,
+                  children: matchedSubs.length > 0 ? matchedSubs : item.children.filter(sub => isFeatureEnabled(sub.featureKey)),
                   _forceOpen: true
                 });
               }
@@ -1012,6 +1116,33 @@ export default {
       applyThemeToBody(themeMode.value);
       window.addEventListener('keydown', handleKeydown);
 
+      // Close profile dropdown on click outside
+      const handleClickOutside = (e) => {
+        if (!e.target.closest('.sidebar-footer')) {
+          showProfileDropdown.value = false;
+        }
+      };
+      document.addEventListener('click', handleClickOutside);
+
+      // Validate token on page load / refresh
+      const token = store.state.auth.token;
+      if (token) {
+        console.log('[App] onMounted: token found, validating with server...');
+        store.dispatch('fetchUser').then((user) => {
+          if (user) {
+            console.log('[App] onMounted: user validated —', user.name);
+            store.dispatch('fetchFeatures');
+          } else {
+            console.warn('[App] onMounted: fetchUser returned null');
+          }
+        }).catch(() => {
+          // Should not happen now since fetchUser handles errors internally
+          console.error('[App] onMounted: fetchUser rejected unexpectedly');
+        });
+      } else {
+        console.log('[App] onMounted: no token — user not logged in');
+      }
+
       // Clean up legacy monolithic snapshot from localStorage to release quota back to app
       cleanLegacyLocalStorageSnapshot();
 
@@ -1093,6 +1224,23 @@ export default {
       window.addEventListener('resize', onWindowResize, { passive: true });
     });
 
+    // Close profile dropdown on route change
+    watch(route, () => {
+      showProfileDropdown.value = false;
+    });
+
+    // Log auth state changes for tracing logout issues
+    watch(
+      () => store.state.auth.token,
+      (newToken, oldToken) => {
+        if (oldToken && !newToken) {
+          console.warn('[App] Auth state: LOGGED OUT (token removed)');
+        } else if (!oldToken && newToken) {
+          console.log('[App] Auth state: LOGGED IN (token set)');
+        }
+      },
+    );
+
     onUnmounted(() => {
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('storage-quota-updated', updateStorageState);
@@ -1168,6 +1316,7 @@ export default {
       isCollapsed,
       mobileDrawer,
       showDukungModal,
+      showProfileDropdown,
       sidebarSearch,
       filteredNavGroups,
       currentPageTitle,
@@ -1178,6 +1327,12 @@ export default {
       isBudgetExceeded,
       themeMode,
       accentColor,
+      isLoggedIn,
+      isAdmin,
+      userName,
+      userEmail,
+      userRole,
+      userInitial,
       isPinkMode,
       isStorageFullState,
       toggleBluePinkMode,
@@ -1186,6 +1341,7 @@ export default {
       enableDesktopMode,
       disableDesktopMode,
       toggleDesktopMode,
+      handleLogout,
       sidebarWidth,
       isResizingSidebar,
       startSidebarResize,
@@ -2919,5 +3075,31 @@ body.sidebar-resizing * {
     border: none !important;
     background: transparent !important;
   }
+}
+
+/* Profile dropdown helpers */
+.cursor-pointer {
+  cursor: pointer;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+.hover-bg-light:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.dark-theme .hover-bg-light:hover,
+.oled-theme .hover-bg-light:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.footer-user-pill {
+  transition: background 0.15s ease;
+}
+.footer-user-pill:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.dark-theme .footer-user-pill:hover,
+.oled-theme .footer-user-pill:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 </style>

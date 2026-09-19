@@ -1,21 +1,35 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import HomeView from "../views/workspace/HomeView.vue";
+import store from "../store";
 
 const routes = [
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("../views/auth/AuthView.vue"),
+    meta: { guest: true },
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: () => import("../views/auth/AuthView.vue"),
+    meta: { guest: true },
+  },
   {
     path: "/",
     name: "home",
     component: HomeView,
+    meta: { requiresAuth: true },
   },
   {
     path: "/contacts",
     name: "contacts",
-    component: () => import("../views/ContactsView.vue"),
+    component: () => import("../views/contacts/ContactsView.vue"),
   },
   {
     path: "/invoice",
     name: "invoice",
-    component: () => import("../views/InvoiceView.vue"),
+    component: () => import("../views/finance/InvoiceView.vue"),
   },
   {
     path: "/mail",
@@ -24,7 +38,7 @@ const routes = [
   {
     path: "/todo",
     name: "todo",
-    component: () => import("../views/todoList.vue"),
+    component: () => import("../views/workspace/todoList.vue"),
   },
   {
     path: "/tasks",
@@ -33,7 +47,7 @@ const routes = [
   {
     path: "/tasks/:id",
     name: "task-detail",
-    component: () => import("../views/TaskDetailView.vue"),
+    component: () => import("../views/workspace/TaskDetailView.vue"),
   },
   {
     path: "/todo/:id",
@@ -42,32 +56,32 @@ const routes = [
   {
     path: "/project",
     name: "project",
-    component: () => import("../views/projectManagement.vue"),
+    component: () => import("../views/workspace/projectManagement.vue"),
   },
   {
     path: "/finance",
     name: "finance",
-    component: () => import("../views/moneyTracker.vue"),
+    component: () => import("../views/finance/moneyTracker.vue"),
   },
   {
     path: "/rab",
     name: "rab",
-    component: () => import("../views/RabView.vue"),
+    component: () => import("../views/finance/RabView.vue"),
   },
   {
     path: "/videos",
     name: "videos",
-    component: () => import("../views/VideoHubView.vue"),
+    component: () => import("../views/media/VideoHubView.vue"),
   },
   {
     path: "/videos/:id",
     name: "video-detail",
-    component: () => import("../views/VideoDetailView.vue"),
+    component: () => import("../views/media/VideoDetailView.vue"),
   },
   {
     path: "/custom-bingkai",
     name: "custom-bingkai",
-    component: () => import("../views/MotivationFrameSettingsView.vue"),
+    component: () => import("../views/media/MotivationFrameSettingsView.vue"),
   },
   {
     path: "/frame-custom",
@@ -84,42 +98,42 @@ const routes = [
   {
     path: "/games",
     name: "games",
-    component: () => import("../views/GamesView.vue"),
+    component: () => import("../views/media/GamesView.vue"),
   },
   {
     path: "/games/:id",
     name: "game-detail",
-    component: () => import("../views/GamesView.vue"),
+    component: () => import("../views/media/GamesView.vue"),
   },
   {
     path: "/selfie",
     name: "selfie",
-    component: () => import("../views/SelfieHappinessView.vue"),
+    component: () => import("../views/media/SelfieHappinessView.vue"),
   },
   {
     path: "/cv",
     name: "cv",
-    component: () => import("../views/CvBuilderView.vue"),
+    component: () => import("../views/notes/CvBuilderView.vue"),
   },
   {
     path: "/sql",
     name: "sql",
-    component: () => import("../views/SqlExportView.vue"),
+    component: () => import("../views/system/SqlExportView.vue"),
   },
   {
     path: "/chat-ai",
     name: "chat-ai",
-    component: () => import("../views/LiveChatAiView.vue"),
+    component: () => import("../views/ai/LiveChatAiView.vue"),
   },
   {
     path: "/code-notes",
     name: "code-notes",
-    component: () => import("../views/CodeNotesView.vue"),
+    component: () => import("../views/notes/CodeNotesView.vue"),
   },
   {
     path: "/code-notes/:id",
     name: "code-note-detail",
-    component: () => import("../views/CodeNoteDetailView.vue"),
+    component: () => import("../views/notes/CodeNoteDetailView.vue"),
   },
   {
     path: "/code-snippets/:id",
@@ -132,12 +146,12 @@ const routes = [
   {
     path: "/surat",
     name: "surat",
-    component: () => import("../views/SuratBuilderView.vue"),
+    component: () => import("../views/notes/SuratBuilderView.vue"),
   },
   {
     path: "/time-suite",
     name: "time-suite",
-    component: () => import("../views/TimeSuiteView.vue"),
+    component: () => import("../views/productivity/TimeSuiteView.vue"),
   },
   {
     path: "/habits",
@@ -146,27 +160,27 @@ const routes = [
   {
     path: "/calendar",
     name: "calendar",
-    component: () => import("../views/CalendarView.vue"),
+    component: () => import("../views/workspace/CalendarView.vue"),
   },
   {
     path: "/notes",
     name: "notes",
-    component: () => import("../views/StickyNotesView.vue"),
+    component: () => import("../views/notes/StickyNotesView.vue"),
   },
   {
     path: "/notes/:id",
     name: "note-detail",
-    component: () => import("../views/NoteDetailView.vue"),
+    component: () => import("../views/notes/NoteDetailView.vue"),
   },
   {
     path: "/diary",
     name: "diary",
-    component: () => import("../views/DiaryView.vue"),
+    component: () => import("../views/notes/DiaryView.vue"),
   },
   {
     path: "/diary/:id",
     name: "diary-detail",
-    component: () => import("../views/DiaryDetailView.vue"),
+    component: () => import("../views/notes/DiaryDetailView.vue"),
   },
   {
     path: "/jurnal",
@@ -175,12 +189,12 @@ const routes = [
   {
     path: "/storage",
     name: "storage",
-    component: () => import("../views/StorageView.vue"),
+    component: () => import("../views/system/StorageView.vue"),
   },
   {
     path: "/storage/view/:key",
     name: "storage-key-detail",
-    component: () => import("../views/StorageKeyDetailView.vue"),
+    component: () => import("../views/system/StorageKeyDetailView.vue"),
   },
   {
     path: "/storage/json-viewer",
@@ -189,17 +203,17 @@ const routes = [
   {
     path: "/settings",
     name: "settings",
-    component: () => import("../views/PreferencesView.vue"),
+    component: () => import("../views/system/PreferencesView.vue"),
   },
   {
     path: "/preferences",
     name: "preferences",
-    component: () => import("../views/PreferencesView.vue"),
+    component: () => import("../views/system/PreferencesView.vue"),
   },
   {
     path: "/camera",
     name: "camera",
-    component: () => import("../views/CameraScannerView.vue"),
+    component: () => import("../views/media/CameraScannerView.vue"),
   },
   {
     path: "/scan",
@@ -208,12 +222,12 @@ const routes = [
   {
     path: "/mood",
     name: "mood",
-    component: () => import("../views/MoodAlarmView.vue"),
+    component: () => import("../views/productivity/MoodAlarmView.vue"),
   },
   {
     path: "/alarm",
     name: "alarm",
-    component: () => import("../views/MoodAlarmView.vue"),
+    component: () => import("../views/productivity/MoodAlarmView.vue"),
   },
   {
     path: "/mood-alarm",
@@ -222,12 +236,12 @@ const routes = [
   {
     path: "/faq",
     name: "faq",
-    component: () => import("../views/FaqAboutView.vue"),
+    component: () => import("../views/about/FaqAboutView.vue"),
   },
   {
     path: "/developer",
     name: "developer",
-    component: () => import("../views/DeveloperPortfolioView.vue"),
+    component: () => import("../views/system/DeveloperPortfolioView.vue"),
   },
   {
     path: "/portfolio",
@@ -240,17 +254,17 @@ const routes = [
   {
     path: "/about",
     name: "about",
-    component: () => import("../views/FaqAboutView.vue"),
+    component: () => import("../views/about/FaqAboutView.vue"),
   },
   {
     path: "/quick-capture",
     name: "quick-capture",
-    component: () => import("../views/QuickCaptureView.vue"),
+    component: () => import("../views/workspace/QuickCaptureView.vue"),
   },
   {
     path: "/productivity-insights",
     name: "productivity-insights",
-    component: () => import("../views/ProductivityInsightsView.vue"),
+    component: () => import("../views/productivity/ProductivityInsightsView.vue"),
   },
   {
     path: "/insights",
@@ -259,7 +273,7 @@ const routes = [
   {
     path: "/job-tracker",
     name: "job-tracker",
-    component: () => import("../views/JobTrackerView.vue"),
+    component: () => import("../views/workspace/JobTrackerView.vue"),
   },
   {
     path: "/jobs",
@@ -276,7 +290,7 @@ const routes = [
   {
     path: "/medium-draft",
     name: "medium-draft",
-    component: () => import("../views/MediumDraftView.vue"),
+    component: () => import("../views/notes/MediumDraftView.vue"),
   },
   {
     path: "/medium",
@@ -290,57 +304,57 @@ const routes = [
   {
     path: "/finance-cashflow",
     name: "finance-cashflow",
-    component: () => import("../views/CashFlowManagementView.vue"),
+    component: () => import("../views/finance/CashFlowManagementView.vue"),
   },
   {
     path: "/finance-ap-ar",
     name: "finance-ap-ar",
-    component: () => import("../views/AccountsPayableReceivableView.vue"),
+    component: () => import("../views/finance/AccountsPayableReceivableView.vue"),
   },
   {
     path: "/finance-expenses",
     name: "finance-expenses",
-    component: () => import("../views/ExpenseReimbursementView.vue"),
+    component: () => import("../views/finance/ExpenseReimbursementView.vue"),
   },
   {
     path: "/finance-budgeting",
     name: "finance-budgeting",
-    component: () => import("../views/BudgetingForecastingView.vue"),
+    component: () => import("../views/finance/BudgetingForecastingView.vue"),
   },
   {
     path: "/finance-reports",
     name: "finance-reports",
-    component: () => import("../views/FinancialReportsView.vue"),
+    component: () => import("../views/finance/FinancialReportsView.vue"),
   },
   {
     path: "/finance-security",
     name: "finance-security",
-    component: () => import("../views/FinanceSecurityAuditView.vue"),
+    component: () => import("../views/finance/FinanceSecurityAuditView.vue"),
   },
   {
     path: "/team-collaboration",
     name: "team-collaboration",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-bulletin",
     name: "team-bulletin",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-channels",
     name: "team-channels",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-assets",
     name: "team-assets",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-ticketing",
     name: "team-ticketing",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-requests",
@@ -349,17 +363,29 @@ const routes = [
   {
     path: "/team-calendar",
     name: "team-calendar",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-expertise",
     name: "team-expertise",
-    component: () => import("../views/TeamCollaborationView.vue"),
+    component: () => import("../views/contacts/TeamCollaborationView.vue"),
   },
   {
     path: "/team-directory",
     redirect: "/team-expertise",
-  }
+  },
+  {
+    path: "/features",
+    name: "features",
+    component: () => import("../views/system/FeatureSettingsView.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/register-user",
+    name: "register-user",
+    component: () => import("../views/system/RegisterUserView.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
@@ -367,6 +393,27 @@ const router = createRouter({
   routes,
   scrollBehavior() {
     return { top: 0 };
+  }
+});
+
+// Navigation guard: redirect to /login if not authenticated + log transitions
+router.beforeEach((to, from, next) => {
+  const token = store.state.auth.token;
+  console.log(
+    `%c[Router] ${from.path || '(initial)'} → ${to.path}`,
+    'color: #f59e0b; font-weight: bold;',
+    token ? '(authed)' : '(guest)',
+    to.meta.requiresAuth ? '[requires auth]' : '',
+  );
+
+  if (to.meta.requiresAuth && !token) {
+    console.warn('[Router] → Redirecting to /login (no token)');
+    next('/login');
+  } else if (to.meta.guest && token) {
+    console.log('[Router] → Redirecting to / (already logged in)');
+    next('/');
+  } else {
+    next();
   }
 });
 
@@ -384,7 +431,6 @@ router.onError((error) => {
   if (isChunkLoadFailed) {
     const lastReload = sessionStorage.getItem('last_chunk_reload');
     const now = Date.now();
-    // Prevent infinite reload loop
     if (!lastReload || now - parseInt(lastReload, 10) > 8000) {
       sessionStorage.setItem('last_chunk_reload', now.toString());
       window.location.reload();

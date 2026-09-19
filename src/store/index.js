@@ -1,6 +1,7 @@
 import { createStore } from 'vuex';
 import { sendOnDeviceNotification } from '../utils/notification';
 import { safeSetItem, isStorageFull } from '../utils/storageManager';
+import api from '../boot/axios';
 
 // Default empty datasets as requested: "buat semuanya dari raw dan kosong tanpa ada data apa apa"
 const DEFAULT_CONTACTS = [];
@@ -758,7 +759,13 @@ echo "✅ Backup selesai: \${BACKUP_FILE}"`,
 function loadLocal(key, defaultData) {
   try {
     const saved = localStorage.getItem(key);
-    return saved !== null ? JSON.parse(saved) : defaultData;
+    if (saved === null) return defaultData;
+    try {
+      return JSON.parse(saved);
+    } catch (_) {
+      // Raw string stored (e.g. token "1|abc...") — return as-is
+      return saved;
+    }
   } catch (e) {
     return defaultData;
   }
@@ -785,6 +792,12 @@ function saveLocal(key, data) {
 export default createStore({
   state() {
     return {
+      // Auth (backend API)
+      auth: {
+        user: loadLocal('ft_auth_user', null),
+        token: loadLocal('ft_auth_token', ''),
+      },
+      enabledFeatures: loadLocal('ft_enabledFeatures', []),
       contacts: loadLocal('ft_contacts', DEFAULT_CONTACTS),
       projects: loadLocal('ft_projects', DEFAULT_PROJECTS),
       tasks: loadLocal('ft_tasks', DEFAULT_TASKS),
@@ -1058,6 +1071,27 @@ export default createStore({
     SET_ACCENT_COLOR(state, color) {
       state.accentColor = color;
       saveLocal('ft_accentColor', state.accentColor);
+    },
+
+    // Auth
+    SET_AUTH(state, { user, token }) {
+      state.auth.user = user;
+      state.auth.token = token;
+      saveLocal('ft_auth_user', user);
+      saveLocal('ft_auth_token', token);
+      console.log('[Store] SET_AUTH:', user?.name || 'null', token ? `(token: ${token.substring(0, 12)}...)` : '(no token)');
+    },
+    CLEAR_AUTH(state) {
+      console.warn('[Store] CLEAR_AUTH — removing user + token from localStorage');
+      console.trace('[Store] CLEAR_AUTH stack trace:');
+      state.auth.user = null;
+      state.auth.token = '';
+      localStorage.removeItem('ft_auth_user');
+      localStorage.removeItem('ft_auth_token');
+    },
+    SET_ENABLED_FEATURES(state, keys) {
+      state.enabledFeatures = keys;
+      saveLocal('ft_enabledFeatures', keys);
     },
 
     // Contacts
@@ -1939,6 +1973,85 @@ export default createStore({
     },
     showToast({ dispatch }, payload) {
       dispatch('showNotification', payload);
+    },
+
+    // Auth actions
+    async login({ commit, dispatch }, { email, password }) {
+      console.log('[Auth] login:', email);
+      const { data } = await api.post('/auth/login', { email, password });
+      console.log('[Auth] login: success —', data.data.user?.name);
+      commit('SET_AUTH', { user: data.data.user, token: data.data.token });
+      dispatch('fetchFeatures');
+      return data.data;
+    },
+    async register({ commit, dispatch }, { name, email, password, password_confirmation }) {
+      console.log('[Auth] register:', email);
+      const { data } = await api.post('/auth/register', { name, email, password, password_confirmation });
+      console.log('[Auth] register: success —', data.data.user?.name);
+      commit('SET_AUTH', { user: data.data.user, token: data.data.token });
+      dispatch('fetchFeatures');
+      return data.data;
+    },
+    async logout({ commit }) {
+      console.log('[Auth] logout: calling server...');
+      try {
+        await api.post('/auth/logout');
+        console.log('[Auth] logout: server confirmed');
+      } catch (e) {
+        console.warn('[Auth] logout: server call failed, clearing locally anyway');
+      }
+      commit('CLEAR_AUTH');
+      console.log('[Auth] logout: local auth cleared');
+    },
+    async updateProfile({ commit, state }, { name, email }) {
+      const { data } = await api.put('/auth/profile', { name, email });
+      commit('SET_AUTH', { user: data.data, token: state.auth.token });
+      return data.data;
+    },
+    async fetchUser({ commit, state }) {
+      if (!state.auth.token) {
+        console.warn('[Auth] fetchUser: no token found in store, skipping');
+        return null;
+      }
+      console.log('[Auth] fetchUser: validating token with server...');
+      try {
+        const { data } = await api.get('/auth/me');
+        const user = data.data;
+        console.log('[Auth] fetchUser: success —', user?.name, `(${user?.role})`);
+        commit('SET_AUTH', { user, token: state.auth.token });
+        return user;
+      } catch (e) {
+        const status = e.response?.status;
+        if (status === 401) {
+          // Token truly expired/revoked — clear auth
+          console.warn('[Auth] fetchUser: 401 Unauthorized — token expired/revoked, clearing auth');
+          commit('CLEAR_AUTH');
+          return null;
+        }
+        // Network error, timeout, 5xx — keep cached user, don't logout
+        console.warn(
+          `[Auth] fetchUser: server error ${status || 'network'} — keeping cached session`,
+          e.code === 'ECONNABORTED' ? '(timeout)' : '',
+        );
+        // Return cached user from localStorage so the app stays functional
+        return state.auth.user;
+      }
+    },
+    async fetchFeatures({ commit, state }) {
+      try {
+        let url = '/features/enabled';
+        // Non-admin: fetch per-user features
+        if (state.auth.user && state.auth.user.role !== 'admin') {
+          url = `/features/user/${state.auth.user.id}/enabled`;
+        }
+        console.log('[Auth] fetchFeatures:', url);
+        const { data } = await api.get(url);
+        const keys = Array.isArray(data.data) ? data.data : [];
+        commit('SET_ENABLED_FEATURES', keys);
+        console.log('[Auth] fetchFeatures: loaded', keys.length, 'enabled features');
+      } catch (e) {
+        console.warn('[Auth] fetchFeatures: failed (non-critical):', e.response?.status || e.message);
+      }
     },
 
     setThemeMode({ commit }, mode) {
