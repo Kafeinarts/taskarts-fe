@@ -1,5 +1,16 @@
 <template>
-  <div id="app" :class="['app-container', (themeMode === 'dark' || themeMode === 'oled') ? 'dark-theme dark-mode' : 'light-theme', themeMode === 'oled' ? 'oled-theme' : '', isPinkMode ? 'pink-mode' : 'blue-mode']" :style="{ '--primary-color': accentColor }">
+  <div
+    id="app"
+    :class="[
+      'app-container',
+      themeMode === 'dark' || themeMode === 'oled'
+        ? 'dark-theme dark-mode'
+        : 'light-theme',
+      themeMode === 'oled' ? 'oled-theme' : '',
+      isPinkMode ? 'pink-mode' : 'blue-mode',
+    ]"
+    :style="{ '--primary-color': accentColor }"
+  >
     <!-- Global Toast Notifications -->
     <AppNotifications />
 
@@ -38,16 +49,32 @@
          ========================================================= -->
     <template v-else>
       <!-- Desktop Material Navigation Drawer -->
-      <aside :class="['sidebar-nav', { collapsed: isCollapsed, 'is-resizing': isResizingSidebar }]">
+      <aside
+        :class="[
+          'sidebar-nav',
+          { collapsed: isCollapsed, 'is-resizing': isResizingSidebar },
+        ]"
+      >
         <!-- Sidebar Brand Header -->
-        <div class="sidebar-brand p-3 d-flex align-items-center justify-content-between">
-          <router-link to="/" class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden" v-if="!isCollapsed">
+        <div
+          class="sidebar-brand p-3 d-flex align-items-center justify-content-between"
+        >
+          <router-link
+            to="/"
+            class="text-decoration-none d-flex align-items-center gap-2.5 overflow-hidden"
+            v-if="!isCollapsed"
+          >
             <div class="brand-icon-wrapper shadow-sm">
               <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
             </div>
             <div class="lh-1 text-truncate">
-              <span class="fw-extrabold text-app fs-5 d-block brand-title" style="letter-spacing: -0.4px;">
-                Task<span class="brand-accent" :style="{ color: accentColor }">Arts</span>
+              <span
+                class="fw-extrabold text-app fs-5 d-block brand-title"
+                style="letter-spacing: -0.4px"
+              >
+                Task<span class="brand-accent" :style="{ color: accentColor }"
+                  >Arts</span
+                >
               </span>
               <div class="d-flex align-items-center gap-1.5 mt-1">
                 <span class="brand-badge-kafeinarts">
@@ -58,93 +85,162 @@
           </router-link>
 
           <div v-else class="mx-auto">
-            <router-link to="/" class="brand-icon-wrapper shadow-sm" title="TaskArts By Kafeinarts">
+            <router-link
+              to="/"
+              class="brand-icon-wrapper shadow-sm"
+              title="TaskArts By Kafeinarts"
+            >
               <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
             </router-link>
           </div>
 
           <div class="d-flex align-items-center gap-1">
-            <button 
+            <button
               v-if="!isCollapsed"
-              class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" 
-              @click="resetSidebarWidth" 
-              :title="sidebarWidth >= 350 ? 'Kembalikan ke Lebar Standar (280px)' : 'Perlebar Sidebar Membaca (360px)'"
+              class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover"
+              @click="resetSidebarWidth"
+              :title="
+                sidebarWidth >= 350
+                  ? 'Kembalikan ke Lebar Standar (280px)'
+                  : 'Perlebar Sidebar Membaca (360px)'
+              "
             >
-              <i :class="sidebarWidth >= 350 ? 'bi bi-arrows-angle-contract' : 'bi bi-arrows-angle-expand'" style="font-size: 13px;"></i>
+              <i
+                :class="
+                  sidebarWidth >= 350
+                    ? 'bi bi-arrows-angle-contract'
+                    : 'bi bi-arrows-angle-expand'
+                "
+                style="font-size: 13px"
+              ></i>
             </button>
-            <button class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse fs-5' : 'bi bi-layout-sidebar fs-5'"></i>
+            <button
+              class="btn btn-sm btn-sidebar-toggle text-sub p-1.5 rounded-circle border-0 icon-hover"
+              @click="isCollapsed = !isCollapsed"
+              :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
+            >
+              <i
+                :class="
+                  isCollapsed
+                    ? 'bi bi-layout-sidebar-reverse fs-5'
+                    : 'bi bi-layout-sidebar fs-5'
+                "
+              ></i>
             </button>
           </div>
         </div>
 
         <!-- Quick Search Bar (When Expanded) -->
         <div v-if="!isCollapsed" class="sidebar-search-box px-3 py-2">
-          <div class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1">
-            <i class="bi bi-search text-muted me-2" style="font-size: 11px;"></i>
-            <input 
-              v-model="sidebarSearch" 
-              type="text" 
-              class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
-              placeholder="Cari fitur / menu..." 
-              style="font-size: 12px;"
+          <div
+            class="search-input-group d-flex align-items-center rounded-pill px-2.5 py-1"
+          >
+            <i class="bi bi-search text-muted me-2" style="font-size: 11px"></i>
+            <input
+              v-model="sidebarSearch"
+              type="text"
+              class="search-input flex-grow-1 border-0 bg-transparent shadow-none"
+              placeholder="Cari fitur / menu..."
+              style="font-size: 12px"
             />
-            <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link text-muted p-0 ms-1 text-decoration-none" title="Bersihkan">
-              <i class="bi bi-x-circle-fill" style="font-size: 12px;"></i>
+            <button
+              v-if="sidebarSearch"
+              @click="sidebarSearch = ''"
+              class="btn btn-link text-muted p-0 ms-1 text-decoration-none"
+              title="Bersihkan"
+            >
+              <i class="bi bi-x-circle-fill" style="font-size: 12px"></i>
             </button>
-            <span v-else class="badge bg-light text-muted border px-1.5 py-0.5 rounded" style="font-size: 9px;">Ctrl+K</span>
+            <span
+              v-else
+              class="badge bg-light text-muted border px-1.5 py-0.5 rounded"
+              style="font-size: 9px"
+              >Ctrl+K</span
+            >
           </div>
         </div>
 
         <!-- Navigation Links -->
         <nav class="sidebar-links p-2 flex-grow-1">
-          <div v-if="filteredNavGroups.length === 0" class="text-center py-4 px-2 text-muted small">
+          <div
+            v-if="filteredNavGroups.length === 0"
+            class="text-center py-4 px-2 text-muted small"
+          >
             <i class="bi bi-search fs-4 d-block mb-1 opacity-50"></i>
             Tidak ada menu "{{ sidebarSearch }}"
           </div>
 
-          <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="sidebar-group-block mb-1">
+          <div
+            v-for="(group, gIdx) in filteredNavGroups"
+            :key="group.title || gIdx"
+            class="sidebar-group-block mb-1"
+          >
             <!-- Section Header -->
-            <div v-if="!isCollapsed" class="sidebar-section-header d-flex align-items-center justify-content-between">
+            <div
+              v-if="!isCollapsed"
+              class="sidebar-section-header d-flex align-items-center justify-content-between"
+            >
               <span>{{ group.title }}</span>
-              <span class="badge rounded-pill bg-light text-muted border px-1.5 py-0.5" style="font-size: 9px;">{{ group.items.length }}</span>
+              <span
+                class="badge rounded-pill bg-light text-muted border px-1.5 py-0.5"
+                style="font-size: 9px"
+                >{{ group.items.length }}</span
+              >
             </div>
             <div v-else-if="gIdx > 0" class="sidebar-divider my-1.5"></div>
 
             <!-- Items in Group -->
             <template v-for="item in group.items" :key="item.id || item.to">
               <!-- Dropdown / Submenu Parent Item -->
-              <div v-if="item.children && item.children.length > 0" class="sidebar-dropdown-wrapper mb-1">
+              <div
+                v-if="item.children && item.children.length > 0"
+                class="sidebar-dropdown-wrapper mb-1"
+              >
                 <div
                   class="material-nav-link sidebar-dropdown-toggle cursor-pointer"
                   :class="{
                     'dropdown-open': isDropdownOpen(item),
-                    'active-parent': isParentActive(item)
+                    'active-parent': isParentActive(item),
                   }"
                   @click="toggleDropdown(item)"
                   :title="item.label"
                 >
-                  <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+                  <div
+                    class="nav-icon-box"
+                    :style="{ '--item-color': item.color }"
+                  >
                     <i :class="item.icon" class="nav-icon"></i>
                   </div>
-                  <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
+                  <span
+                    v-if="!isCollapsed"
+                    class="nav-label text-truncate flex-grow-1"
+                    :title="item.label"
+                    >{{ item.label }}</span
+                  >
 
                   <!-- Module Count Badge -->
-                  <span v-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-1 small text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
+                  <span
+                    v-if="!isCollapsed && item.badgeText"
+                    class="badge rounded-pill ms-auto ms-1 small text-nowrap"
+                    :class="item.badgeClass || 'bg-light text-dark border'"
+                  >
                     {{ item.badgeText }}
                   </span>
 
                   <!-- Submenu Accordion Chevron Indicator -->
-                  <i 
-                    v-if="!isCollapsed" 
-                    class="bi bi-chevron-down ms-1.5 fs-7 transition-transform" 
+                  <i
+                    v-if="!isCollapsed"
+                    class="bi bi-chevron-down ms-1.5 fs-7 transition-transform"
                     :class="{ 'rotate-180': isDropdownOpen(item) }"
                   ></i>
                 </div>
 
                 <!-- Collapsible Submenu Items -->
                 <transition name="submenu-slide">
-                  <div v-if="!isCollapsed && isDropdownOpen(item)" class="sidebar-submenu ps-2 pe-1 pt-1 pb-1">
+                  <div
+                    v-if="!isCollapsed && isDropdownOpen(item)"
+                    class="sidebar-submenu ps-2 pe-1 pt-1 pb-1"
+                  >
                     <router-link
                       v-for="sub in item.children"
                       :key="sub.to"
@@ -152,15 +248,30 @@
                       class="material-nav-link submenu-nav-link"
                       :title="sub.label"
                     >
-                      <div class="submenu-icon-box me-2" :style="{ '--sub-color': sub.color }">
+                      <div
+                        class="submenu-icon-box me-2"
+                        :style="{ '--sub-color': sub.color }"
+                      >
                         <i :class="sub.icon" class="sub-nav-icon"></i>
                       </div>
-                      <span class="nav-label text-truncate flex-grow-1" :title="sub.label">{{ sub.label }}</span>
-                      
-                      <span v-if="sub.badge && sub.badge()" class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap" :class="sub.badgeClass || 'bg-primary text-white'">
+                      <span
+                        class="nav-label text-truncate flex-grow-1"
+                        :title="sub.label"
+                        >{{ sub.label }}</span
+                      >
+
+                      <span
+                        v-if="sub.badge && sub.badge()"
+                        class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap"
+                        :class="sub.badgeClass || 'bg-primary text-white'"
+                      >
                         {{ sub.badge() }}
                       </span>
-                      <span v-else-if="sub.badgeText" class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap" :class="sub.badgeClass || 'bg-light text-dark border'">
+                      <span
+                        v-else-if="sub.badgeText"
+                        class="badge rounded-pill ms-auto ms-1 small fw-bold text-nowrap"
+                        :class="sub.badgeClass || 'bg-light text-dark border'"
+                      >
                         {{ sub.badgeText }}
                       </span>
                     </router-link>
@@ -175,17 +286,33 @@
                 class="material-nav-link"
                 :title="item.label"
               >
-                <div class="nav-icon-box" :style="{ '--item-color': item.color }">
+                <div
+                  class="nav-icon-box"
+                  :style="{ '--item-color': item.color }"
+                >
                   <i :class="item.icon" class="nav-icon"></i>
                 </div>
-                <span v-if="!isCollapsed" class="nav-label text-truncate flex-grow-1" :title="item.label">{{ item.label }}</span>
-                
+                <span
+                  v-if="!isCollapsed"
+                  class="nav-label text-truncate flex-grow-1"
+                  :title="item.label"
+                  >{{ item.label }}</span
+                >
+
                 <!-- Dynamic Count Badge -->
-                <span v-if="!isCollapsed && item.badge && item.badge()" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-primary text-white'">
+                <span
+                  v-if="!isCollapsed && item.badge && item.badge()"
+                  class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap"
+                  :class="item.badgeClass || 'bg-primary text-white'"
+                >
                   {{ item.badge() }}
                 </span>
                 <!-- Static Badge Text -->
-                <span v-else-if="!isCollapsed && item.badgeText" class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap" :class="item.badgeClass || 'bg-light text-dark border'">
+                <span
+                  v-else-if="!isCollapsed && item.badgeText"
+                  class="badge rounded-pill ms-auto ms-2 small fw-bold text-nowrap"
+                  :class="item.badgeClass || 'bg-light text-dark border'"
+                >
                   {{ item.badgeText }}
                 </span>
               </router-link>
@@ -194,7 +321,10 @@
         </nav>
 
         <!-- Sidebar Footer (Expanded) -->
-        <div class="sidebar-footer p-2.5 border-top divider-color" v-if="!isCollapsed">
+        <div
+          class="sidebar-footer p-2.5 border-top divider-color"
+          v-if="!isCollapsed"
+        >
           <!-- Profile Badge — clickable to show dropdown -->
           <div class="position-relative mb-2">
             <div
@@ -206,26 +336,51 @@
                   <span>{{ userInitial }}</span>
                 </div>
                 <div class="lh-1 text-truncate">
-                  <span class="fw-bold fs-7 text-app d-block text-truncate">{{ userName }}</span>
-                  <small class="text-success fw-semibold" style="font-size: 10px;">● {{ userRole }}</small>
+                  <span class="fw-bold fs-7 text-app d-block text-truncate">{{
+                    userName
+                  }}</span>
+                  <small
+                    class="text-success fw-semibold"
+                    style="font-size: 10px"
+                    >● {{ userRole }}</small
+                  >
                 </div>
               </div>
-              <i class="bi bi-chevron-down text-muted" style="font-size: 11px;" :class="{ 'rotate-180': showProfileDropdown }"></i>
+              <i
+                class="bi bi-chevron-down text-muted"
+                style="font-size: 11px"
+                :class="{ 'rotate-180': showProfileDropdown }"
+              ></i>
             </div>
 
             <!-- Profile Dropdown -->
             <transition name="submenu-slide">
-              <div v-if="showProfileDropdown" class="card shadow-lg border-0 rounded-3 mb-2 p-2" style="z-index: 100;">
-                <router-link to="/preferences" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light" @click="showProfileDropdown = false">
+              <div
+                v-if="showProfileDropdown"
+                class="card shadow-lg border-0 rounded-3 mb-2 p-2"
+                style="z-index: 100"
+              >
+                <router-link
+                  to="/preferences"
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light"
+                  @click="showProfileDropdown = false"
+                >
                   <i class="bi bi-person-gear text-primary"></i>
                   <span class="fw-medium small">Edit Profil</span>
                 </router-link>
-                <router-link to="/features" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light" @click="showProfileDropdown = false">
+                <router-link
+                  to="/features"
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light"
+                  @click="showProfileDropdown = false"
+                >
                   <i class="bi bi-gear-wide-connected text-warning"></i>
                   <span class="fw-medium small">Pengaturan Fitur</span>
                 </router-link>
                 <hr class="my-1" />
-                <button class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start hover-bg-light" @click="handleLogout">
+                <button
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start hover-bg-light"
+                  @click="handleLogout"
+                >
                   <i class="bi bi-box-arrow-right"></i>
                   <span class="fw-medium small">Keluar</span>
                 </button>
@@ -234,14 +389,28 @@
           </div>
 
           <div class="d-flex flex-column gap-1.5">
-            <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-1.5 fw-semibold" style="font-size: 11.5px;" title="Aktifkan Mode Desktop Samsung DeX">
+            <button
+              @click="enableDesktopMode"
+              class="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-1.5 fw-semibold"
+              style="font-size: 11.5px"
+              title="Aktifkan Mode Desktop Samsung DeX"
+            >
               <i class="bi bi-display"></i> Mode Desktop (DeX)
             </button>
             <div class="d-flex gap-1.5">
-              <router-link to="/preferences" class="btn btn-sm btn-outline-theme rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 py-1.5" style="font-size: 11.5px;">
+              <router-link
+                to="/preferences"
+                class="btn btn-sm btn-outline-theme rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 py-1.5"
+                style="font-size: 11.5px"
+              >
                 <i class="bi bi-palette"></i> Tema
               </router-link>
-              <button @click="showDukungModal = true" class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5" style="font-size: 11.5px;" title="Dukung Pengembang">
+              <button
+                @click="showDukungModal = true"
+                class="btn btn-sm btn-success-subtle text-success border border-success-subtle rounded-pill fw-bold d-flex align-items-center justify-content-center gap-1 px-3 py-1.5"
+                style="font-size: 11.5px"
+                title="Dukung Pengembang"
+              >
                 <i class="bi bi-heart-fill"></i> Dukung
               </button>
             </div>
@@ -249,37 +418,74 @@
         </div>
 
         <!-- Sidebar Footer (Collapsed) -->
-        <div class="sidebar-footer p-2 border-top divider-color text-center d-flex flex-column align-items-center gap-1.5" v-else>
+        <div
+          class="sidebar-footer p-2 border-top divider-color text-center d-flex flex-column align-items-center gap-1.5"
+          v-else
+        >
           <!-- Profile Avatar (Collapsed) -->
           <div class="position-relative">
-            <div class="avatar-kafeinarts cursor-pointer" @click="showProfileDropdown = !showProfileDropdown" :title="userName">
+            <div
+              class="avatar-kafeinarts cursor-pointer"
+              @click="showProfileDropdown = !showProfileDropdown"
+              :title="userName"
+            >
               <span>{{ userInitial }}</span>
             </div>
             <transition name="submenu-slide">
-              <div v-if="showProfileDropdown" class="card shadow-lg border-0 rounded-3 p-2 position-absolute" style="bottom: 100%; left: -60px; z-index: 100; min-width: 160px;">
-                <router-link to="/preferences" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small" @click="showProfileDropdown = false">
+              <div
+                v-if="showProfileDropdown"
+                class="card shadow-lg border-0 rounded-3 p-2 position-absolute"
+                style="
+                  bottom: 100%;
+                  left: -60px;
+                  z-index: 100;
+                  min-width: 160px;
+                "
+              >
+                <router-link
+                  to="/preferences"
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small"
+                  @click="showProfileDropdown = false"
+                >
                   <i class="bi bi-person-gear text-primary"></i> Edit Profil
                 </router-link>
-                <router-link to="/features" class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small" @click="showProfileDropdown = false">
+                <router-link
+                  to="/features"
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-decoration-none text-app hover-bg-light small"
+                  @click="showProfileDropdown = false"
+                >
                   <i class="bi bi-gear-wide-connected text-warning"></i> Fitur
                 </router-link>
                 <hr class="my-1" />
-                <button class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start small hover-bg-light" @click="handleLogout">
+                <button
+                  class="d-flex align-items-center gap-2 px-3 py-2 rounded-2 border-0 bg-transparent text-danger w-100 text-start small hover-bg-light"
+                  @click="handleLogout"
+                >
                   <i class="bi bi-box-arrow-right"></i> Keluar
                 </button>
               </div>
             </transition>
           </div>
-          <button @click="enableDesktopMode" class="btn btn-sm btn-outline-primary border rounded-circle p-0" style="width: 38px; height: 38px;" title="Mode Desktop Samsung DeX">
+          <button
+            @click="enableDesktopMode"
+            class="btn btn-sm btn-outline-primary border rounded-circle p-0"
+            style="width: 38px; height: 38px"
+            title="Mode Desktop Samsung DeX"
+          >
             <i class="bi bi-display fs-6"></i>
           </button>
-          <button @click="showDukungModal = true" class="btn btn-sm btn-light border rounded-circle p-0" style="width: 38px; height: 38px;" title="☕ Dukung Dev">
+          <button
+            @click="showDukungModal = true"
+            class="btn btn-sm btn-light border rounded-circle p-0"
+            style="width: 38px; height: 38px"
+            title="☕ Dukung Dev"
+          >
             <i class="bi bi-heart-fill text-danger fs-6"></i>
           </button>
         </div>
 
         <!-- Draggable Horizontal Resizer Bar on Right Border -->
-        <div 
+        <div
           v-if="!isCollapsed"
           class="sidebar-resizer"
           @mousedown="startSidebarResize"
@@ -288,7 +494,10 @@
           :title="`Tarik batas ini ke kanan/kiri (${sidebarWidth}px) • Klik 2x untuk toggle lebar`"
         >
           <div class="resizer-indicator-line"></div>
-          <div class="resizer-handle-grip" :class="{ active: isResizingSidebar }">
+          <div
+            class="resizer-handle-grip"
+            :class="{ active: isResizingSidebar }"
+          >
             <i class="bi bi-grip-vertical"></i>
           </div>
           <div v-if="isResizingSidebar" class="sidebar-width-tooltip shadow-sm">
@@ -298,14 +507,21 @@
       </aside>
 
       <!-- Main Content Area -->
-      <div :class="['main-content', { 
-        expanded: isCollapsed, 
-        'is-resizing': isResizingSidebar,
-        'is-sidebar-wide': sidebarWidth >= 330,
-        'is-sidebar-extra-wide': sidebarWidth >= 390
-      }]">
+      <div
+        :class="[
+          'main-content',
+          {
+            expanded: isCollapsed,
+            'is-resizing': isResizingSidebar,
+            'is-sidebar-wide': sidebarWidth >= 330,
+            'is-sidebar-extra-wide': sidebarWidth >= 390,
+          },
+        ]"
+      >
         <!-- Material Design 3 Top App Bar Header (NAVBAR) -->
-        <header class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs">
+        <header
+          class="top-header m3-top-app-bar border-bottom px-3 px-md-4 py-2 d-flex align-items-center justify-content-between sticky-top shadow-xs"
+        >
           <div class="d-flex align-items-center gap-2">
             <!-- MOBILE: If on subpage, show prominent Back to Home button! -->
             <router-link
@@ -333,9 +549,15 @@
               @click="isCollapsed = !isCollapsed"
               :title="isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
             >
-              <i :class="isCollapsed ? 'bi bi-layout-sidebar-reverse' : 'bi bi-layout-sidebar'"></i>
+              <i
+                :class="
+                  isCollapsed
+                    ? 'bi bi-layout-sidebar-reverse'
+                    : 'bi bi-layout-sidebar'
+                "
+              ></i>
             </button>
-            
+
             <!-- Dynamic Breadcrumb / Page Title Badge -->
             <div class="d-flex align-items-center gap-2 page-breadcrumb-pill">
               <!-- Desktop Back-to-home Breadcrumb link -->
@@ -347,10 +569,19 @@
               >
                 <i class="bi bi-house-door me-1"></i>Home
               </router-link>
-              <span v-if="route.path !== '/'" class="d-none d-md-inline text-muted small opacity-50">/</span>
+              <span
+                v-if="route.path !== '/'"
+                class="d-none d-md-inline text-muted small opacity-50"
+                >/</span
+              >
 
-              <span class="page-title-badge"><i :class="currentPageIcon"></i></span>
-              <span class="fw-bold text-app fs-6 page-title-text text-truncate" style="max-width: 220px;">
+              <span class="page-title-badge"
+                ><i :class="currentPageIcon"></i
+              ></span>
+              <span
+                class="fw-bold text-app fs-6 page-title-text text-truncate"
+                style="max-width: 220px"
+              >
                 {{ currentPageTitle }}
               </span>
             </div>
@@ -358,76 +589,146 @@
 
           <div class="d-flex align-items-center gap-2">
             <!-- MODE DESKTOP OS (Samsung DeX & Windows Style) Switcher Trigger in Navbar -->
-            <button 
-              @click="enableDesktopMode" 
+            <button
+              @click="enableDesktopMode"
               class="btn btn-sm btn-dex-mode-navbar rounded-pill px-2.5 px-md-3 py-1.5 d-flex align-items-center gap-1.5 fw-bold shadow-xs text-nowrap"
               title="Beralih ke Mode Desktop (Tampilan OS seperti Windows & Samsung DeX)"
               id="navbar-desktop-mode-btn"
             >
               <i class="bi bi-display fs-6 text-primary"></i>
               <span class="d-none d-sm-inline">Mode Desktop</span>
-              <span class="badge bg-primary text-white rounded-pill px-1.5 py-0.2" style="font-size: 10px;">DeX</span>
+              <span
+                class="badge bg-primary text-white rounded-pill px-1.5 py-0.2"
+                style="font-size: 10px"
+                >DeX</span
+              >
             </button>
 
             <!-- Quick Capture Launcher -->
-            <router-link to="/quick-capture" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub" title="Quick Capture (Catatan & Alarm)">
+            <router-link
+              to="/quick-capture"
+              class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 d-none d-sm-flex align-items-center gap-1.5 quick-search-pill text-sub"
+              title="Quick Capture (Catatan & Alarm)"
+            >
               <i class="bi bi-lightning-charge-fill text-warning"></i>
               <span class="small fw-semibold">Quick Capture</span>
-              <kbd class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border" style="font-size: 10px;">⚡</kbd>
+              <kbd
+                class="badge bg-secondary-subtle text-secondary py-0.5 px-1.5 ms-1 border"
+                style="font-size: 10px"
+                >⚡</kbd
+              >
             </router-link>
 
             <!-- Quick Camera Shortcut Button (Desktop / Tablet) -->
-            <router-link to="/camera" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Scan Dokumen & Kamera">
+            <router-link
+              to="/camera"
+              class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn"
+              title="Scan Dokumen & Kamera"
+            >
               <i class="bi bi-camera-fill text-secondary fs-6"></i>
             </router-link>
 
             <!-- Quick Mood Tracker & Alarm Shortcut Button (Desktop / Tablet) -->
-            <router-link to="/mood" class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn" title="Kamera Mood & Alarm Kerja">
+            <router-link
+              to="/mood"
+              class="btn btn-sm btn-light border rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center header-icon-btn"
+              title="Kamera Mood & Alarm Kerja"
+            >
               <i class="bi bi-emoji-smile-fill text-danger fs-6"></i>
             </router-link>
 
             <!-- Budget Alert Warning if exceeded -->
-            <router-link to="/finance" v-if="isBudgetExceeded" class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none" title="Peringatan: Pengeluaran Melebihi Anggaran!">
+            <router-link
+              to="/finance"
+              v-if="isBudgetExceeded"
+              class="badge bg-danger-subtle text-danger border border-danger rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn text-decoration-none"
+              title="Peringatan: Pengeluaran Melebihi Anggaran!"
+            >
               <i class="bi bi-exclamation-triangle-fill fs-6"></i>
             </router-link>
 
             <!-- Accent Mode Switcher Button (Blue Mode vs Pink Mode) -->
-            <button 
-              @click="toggleBluePinkMode" 
+            <button
+              @click="toggleBluePinkMode"
               class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 header-icon-btn text-nowrap"
-              :title="isPinkMode ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)' : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'"
-              style="font-size: 11.5px; height: 32px; width: auto;"
+              :title="
+                isPinkMode
+                  ? 'Mode Pink Aktif (Klik untuk ganti ke Blue Mode)'
+                  : 'Mode Blue Aktif (Klik untuk ganti ke Pink Mode)'
+              "
+              style="font-size: 11.5px; height: 32px; width: auto"
             >
-              <span class="rounded-circle d-inline-block" :style="{ width: '10px', height: '10px', backgroundColor: accentColor, boxShadow: '0 0 0 1px rgba(0,0,0,0.15)' }"></span>
-              <span class="fw-bold d-none d-sm-inline" :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }">
-                {{ isPinkMode ? '🌸 Pink' : '🔵 Blue' }}
+              <span
+                class="rounded-circle d-inline-block"
+                :style="{
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: accentColor,
+                  boxShadow: '0 0 0 1px rgba(0,0,0,0.15)',
+                }"
+              ></span>
+              <span
+                class="fw-bold d-none d-sm-inline"
+                :style="{ color: isPinkMode ? '#ec4899' : '#2563eb' }"
+              >
+                {{ isPinkMode ? "🌸 Pink" : "🔵 Blue" }}
               </span>
             </button>
 
             <!-- Theme Switcher Button (Light / Dark / OLED True Black) -->
-            <button 
-              @click="toggleThemeMode" 
-              class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" 
-              :title="themeMode === 'light' ? 'Mode Terang (Klik untuk Dark Slate)' : (themeMode === 'dark' ? 'Mode Gelap Slate (Klik untuk OLED True Black)' : 'True Black OLED (Klik untuk Mode Terang)')"
+            <button
+              @click="toggleThemeMode"
+              class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn"
+              :title="
+                themeMode === 'light'
+                  ? 'Mode Terang (Klik untuk Dark Slate)'
+                  : themeMode === 'dark'
+                    ? 'Mode Gelap Slate (Klik untuk OLED True Black)'
+                    : 'True Black OLED (Klik untuk Mode Terang)'
+              "
             >
-              <i v-if="themeMode === 'light'" class="bi bi-sun-fill text-warning fs-6"></i>
-              <i v-else-if="themeMode === 'dark'" class="bi bi-moon-stars-fill text-info fs-6"></i>
-              <i v-else class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5" style="font-size: 10px;"></i>
+              <i
+                v-if="themeMode === 'light'"
+                class="bi bi-sun-fill text-warning fs-6"
+              ></i>
+              <i
+                v-else-if="themeMode === 'dark'"
+                class="bi bi-moon-stars-fill text-info fs-6"
+              ></i>
+              <i
+                v-else
+                class="bi bi-circle-fill text-white bg-dark rounded-circle border border-secondary p-0.5"
+                style="font-size: 10px"
+              ></i>
             </button>
 
             <!-- Storage Link (Desktop & Tablet) -->
             <router-link
               to="/storage"
               class="btn btn-sm border rounded-circle p-0 d-none d-sm-flex align-items-center justify-content-center header-icon-btn position-relative"
-              :class="isStorageFullState ? 'btn-danger text-white' : 'btn-light text-secondary'"
+              :class="
+                isStorageFullState
+                  ? 'btn-danger text-white'
+                  : 'btn-light text-secondary'
+              "
               title="Kapasitas & Kuota Storage"
             >
-              <i class="bi bi-hdd-stack-fill fs-6" :class="isStorageFullState ? 'text-white' : 'text-primary'"></i>
-              <span v-if="isStorageFullState" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+              <i
+                class="bi bi-hdd-stack-fill fs-6"
+                :class="isStorageFullState ? 'text-white' : 'text-primary'"
+              ></i>
+              <span
+                v-if="isStorageFullState"
+                class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+              ></span>
             </router-link>
 
             <!-- Preferences Link -->
-            <router-link to="/preferences" class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn" title="Pengaturan Aplikasi">
+            <router-link
+              to="/preferences"
+              class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center header-icon-btn"
+              title="Pengaturan Aplikasi"
+            >
               <i class="bi bi-gear-fill text-primary fs-6"></i>
             </router-link>
           </div>
@@ -435,43 +736,76 @@
 
         <!-- Mobile Bottom Sheet Navigation Menu (Slides Up From Bottom) -->
         <transition name="overlay-fade">
-          <div class="offcanvas-overlay" v-if="mobileDrawer" @click="mobileDrawer = false"></div>
+          <div
+            class="offcanvas-overlay"
+            v-if="mobileDrawer"
+            @click="mobileDrawer = false"
+          ></div>
         </transition>
-        
+
         <transition name="sheet-slide-up">
-          <div class="mobile-bottom-sheet-menu px-3.5 pt-2 pb-4" v-if="mobileDrawer">
+          <div
+            class="mobile-bottom-sheet-menu px-3.5 pt-2 pb-4"
+            v-if="mobileDrawer"
+          >
             <!-- Drag Handle Indicator -->
-            <div class="mobile-sheet-drag-handle-bar mb-2" @click="mobileDrawer = false">
+            <div
+              class="mobile-sheet-drag-handle-bar mb-2"
+              @click="mobileDrawer = false"
+            >
               <span class="mobile-sheet-drag-pill"></span>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center pb-2.5 border-bottom mb-2.5">
+            <div
+              class="d-flex justify-content-between align-items-center pb-2.5 border-bottom mb-2.5"
+            >
               <div class="d-flex align-items-center gap-2">
                 <div class="brand-icon-wrapper shadow-sm">
-                  <img src="/logo.svg" alt="TaskArts Logo" class="brand-logo-img" />
+                  <img
+                    src="/logo.svg"
+                    alt="TaskArts Logo"
+                    class="brand-logo-img"
+                  />
                 </div>
                 <div class="lh-1">
-                  <span class="fw-bold fs-5 text-app">Task<span :style="{ color: accentColor }">Arts</span></span>
-                  <small class="brand-badge-kafeinarts d-block mt-0.5">Menu & Navigasi</small>
+                  <span class="fw-bold fs-5 text-app"
+                    >Task<span :style="{ color: accentColor }">Arts</span></span
+                  >
+                  <small class="brand-badge-kafeinarts d-block mt-0.5"
+                    >Menu & Navigasi</small
+                  >
                 </div>
               </div>
-              <button class="btn btn-sm btn-light border rounded-circle shadow-sm" @click="mobileDrawer = false" title="Tutup Menu">
+              <button
+                class="btn btn-sm btn-light border rounded-circle shadow-sm"
+                @click="mobileDrawer = false"
+                title="Tutup Menu"
+              >
                 <i class="bi bi-x-lg"></i>
               </button>
             </div>
 
             <!-- Mobile Search Filter -->
             <div class="mb-2.5">
-              <div class="search-input-group d-flex align-items-center rounded-pill px-3 py-1.5 border bg-surface">
-                <i class="bi bi-search text-muted me-2" style="font-size: 13px;"></i>
-                <input 
-                  v-model="sidebarSearch" 
-                  type="text" 
-                  class="search-input flex-grow-1 border-0 bg-transparent shadow-none" 
-                  placeholder="Cari menu (Surat, To-Do, Kas, CV...)" 
-                  style="font-size: 13px;"
+              <div
+                class="search-input-group d-flex align-items-center rounded-pill px-3 py-1.5 border bg-surface"
+              >
+                <i
+                  class="bi bi-search text-muted me-2"
+                  style="font-size: 13px"
+                ></i>
+                <input
+                  v-model="sidebarSearch"
+                  type="text"
+                  class="search-input flex-grow-1 border-0 bg-transparent shadow-none"
+                  placeholder="Cari menu (Surat, To-Do, Kas, CV...)"
+                  style="font-size: 13px"
                 />
-                <button v-if="sidebarSearch" @click="sidebarSearch = ''" class="btn btn-link p-0 text-muted ms-1 text-decoration-none">
+                <button
+                  v-if="sidebarSearch"
+                  @click="sidebarSearch = ''"
+                  class="btn btn-link p-0 text-muted ms-1 text-decoration-none"
+                >
                   <i class="bi bi-x-circle-fill"></i>
                 </button>
               </div>
@@ -479,38 +813,67 @@
 
             <div class="mobile-sheet-scroll-body">
               <nav class="d-flex flex-column gap-1">
-                <div v-for="(group, gIdx) in filteredNavGroups" :key="group.title || gIdx" class="mb-2.5">
-                  <div class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">{{ group.title }}</div>
-                  
-                  <template v-for="item in group.items" :key="item.id || item.to">
+                <div
+                  v-for="(group, gIdx) in filteredNavGroups"
+                  :key="group.title || gIdx"
+                  class="mb-2.5"
+                >
+                  <div
+                    class="sidebar-section-header px-1 pt-1 pb-1.5 fw-bold text-uppercase"
+                    style="font-size: 11px; letter-spacing: 0.5px"
+                  >
+                    {{ group.title }}
+                  </div>
+
+                  <template
+                    v-for="item in group.items"
+                    :key="item.id || item.to"
+                  >
                     <!-- Dropdown parent in Mobile Drawer -->
-                    <div v-if="item.children && item.children.length > 0" class="sidebar-dropdown-wrapper mb-1">
+                    <div
+                      v-if="item.children && item.children.length > 0"
+                      class="sidebar-dropdown-wrapper mb-1"
+                    >
                       <div
                         class="material-nav-link sidebar-dropdown-toggle cursor-pointer"
                         :class="{
                           'dropdown-open': isDropdownOpen(item),
-                          'active-parent': isParentActive(item)
+                          'active-parent': isParentActive(item),
                         }"
                         @click.stop="toggleDropdown(item)"
                       >
-                        <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                        <div
+                          class="nav-icon-box me-2.5"
+                          :style="{ '--item-color': item.color }"
+                        >
                           <i :class="item.icon" class="nav-icon"></i>
                         </div>
-                        <span class="fw-semibold text-truncate flex-grow-1">{{ item.label }}</span>
-                        
-                        <span v-if="item.badgeText" class="badge rounded-pill ms-auto ms-1 small" :class="item.badgeClass || 'bg-light text-dark border'">
+                        <span class="fw-semibold text-truncate flex-grow-1">{{
+                          item.label
+                        }}</span>
+
+                        <span
+                          v-if="item.badgeText"
+                          class="badge rounded-pill ms-auto ms-1 small"
+                          :class="
+                            item.badgeClass || 'bg-light text-dark border'
+                          "
+                        >
                           {{ item.badgeText }}
                         </span>
-                        
-                        <i 
-                          class="bi bi-chevron-down ms-1.5 fs-7 transition-transform" 
+
+                        <i
+                          class="bi bi-chevron-down ms-1.5 fs-7 transition-transform"
                           :class="{ 'rotate-180': isDropdownOpen(item) }"
                         ></i>
                       </div>
 
                       <!-- Submenu items in Mobile Drawer -->
                       <transition name="submenu-slide">
-                        <div v-if="isDropdownOpen(item)" class="sidebar-submenu ps-2 pe-1 pt-1 pb-1">
+                        <div
+                          v-if="isDropdownOpen(item)"
+                          class="sidebar-submenu ps-2 pe-1 pt-1 pb-1"
+                        >
                           <router-link
                             v-for="sub in item.children"
                             :key="sub.to"
@@ -518,14 +881,29 @@
                             class="material-nav-link submenu-nav-link"
                             @click="mobileDrawer = false"
                           >
-                            <div class="submenu-icon-box me-2" :style="{ '--sub-color': sub.color }">
+                            <div
+                              class="submenu-icon-box me-2"
+                              :style="{ '--sub-color': sub.color }"
+                            >
                               <i :class="sub.icon" class="sub-nav-icon"></i>
                             </div>
-                            <span class="nav-label text-truncate flex-grow-1">{{ sub.label }}</span>
-                            <span v-if="sub.badge && sub.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="sub.badgeClass || 'bg-primary text-white'">
+                            <span class="nav-label text-truncate flex-grow-1">{{
+                              sub.label
+                            }}</span>
+                            <span
+                              v-if="sub.badge && sub.badge()"
+                              class="badge rounded-pill ms-auto small fw-bold"
+                              :class="sub.badgeClass || 'bg-primary text-white'"
+                            >
                               {{ sub.badge() }}
                             </span>
-                            <span v-else-if="sub.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="sub.badgeClass || 'bg-light text-dark border'">
+                            <span
+                              v-else-if="sub.badgeText"
+                              class="badge rounded-pill ms-auto small fw-bold"
+                              :class="
+                                sub.badgeClass || 'bg-light text-dark border'
+                              "
+                            >
                               {{ sub.badgeText }}
                             </span>
                           </router-link>
@@ -534,20 +912,31 @@
                     </div>
 
                     <!-- Direct link in Mobile Drawer -->
-                    <router-link 
+                    <router-link
                       v-else
-                      :to="item.to" 
+                      :to="item.to"
                       class="material-nav-link"
                       @click="mobileDrawer = false"
                     >
-                      <div class="nav-icon-box me-2.5" :style="{ '--item-color': item.color }">
+                      <div
+                        class="nav-icon-box me-2.5"
+                        :style="{ '--item-color': item.color }"
+                      >
                         <i :class="item.icon" class="nav-icon"></i>
                       </div>
                       <span class="fw-medium">{{ item.label }}</span>
-                      <span v-if="item.badge && item.badge()" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-primary text-white'">
+                      <span
+                        v-if="item.badge && item.badge()"
+                        class="badge rounded-pill ms-auto small fw-bold"
+                        :class="item.badgeClass || 'bg-primary text-white'"
+                      >
                         {{ item.badge() }}
                       </span>
-                      <span v-else-if="item.badgeText" class="badge rounded-pill ms-auto small fw-bold" :class="item.badgeClass || 'bg-light text-dark border'">
+                      <span
+                        v-else-if="item.badgeText"
+                        class="badge rounded-pill ms-auto small fw-bold"
+                        :class="item.badgeClass || 'bg-light text-dark border'"
+                      >
                         {{ item.badgeText }}
                       </span>
                     </router-link>
@@ -557,23 +946,57 @@
 
               <div class="p-2 border-top mt-2 mb-1 d-flex flex-column gap-2">
                 <!-- User Info -->
-                <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light mb-1">
-                  <div class="avatar-kafeinarts"><span>{{ userInitial }}</span></div>
+                <div
+                  class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light mb-1"
+                >
+                  <div class="avatar-kafeinarts">
+                    <span>{{ userInitial }}</span>
+                  </div>
                   <div class="lh-1 overflow-hidden">
-                    <div class="fw-bold text-app text-truncate">{{ userName }}</div>
-                    <small class="text-muted text-truncate d-block" style="font-size: 11px;">{{ userEmail }}</small>
+                    <div class="fw-bold text-app text-truncate">
+                      {{ userName }}
+                    </div>
+                    <small
+                      class="text-muted text-truncate d-block"
+                      style="font-size: 11px"
+                      >{{ userEmail }}</small
+                    >
                   </div>
                 </div>
-                <router-link to="/preferences" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2" @click="mobileDrawer = false">
+                <router-link
+                  to="/preferences"
+                  class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2"
+                  @click="mobileDrawer = false"
+                >
                   <i class="bi bi-person-gear text-primary"></i> Edit Profil
                 </router-link>
-                <button @click="mobileDrawer = false; enableDesktopMode()" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2">
-                  <i class="bi bi-display text-primary"></i> Beralih ke Mode Desktop (DeX)
+                <button
+                  @click="
+                    mobileDrawer = false;
+                    enableDesktopMode();
+                  "
+                  class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2"
+                >
+                  <i class="bi bi-display text-primary"></i> Beralih ke Mode
+                  Desktop (DeX)
                 </button>
-                <button @click="mobileDrawer = false; showDukungModal = true" class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5">
-                  <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev (Kafeinarts)
+                <button
+                  @click="
+                    mobileDrawer = false;
+                    showDukungModal = true;
+                  "
+                  class="btn btn-sm btn-success w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 shadow-xs py-2.5"
+                >
+                  <i class="bi bi-heart-fill text-white"></i> ☕ Dukung Dev
+                  (Kafeinarts)
                 </button>
-                <button @click="mobileDrawer = false; handleLogout()" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2">
+                <button
+                  @click="
+                    mobileDrawer = false;
+                    handleLogout();
+                  "
+                  class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-semibold text-center d-flex align-items-center justify-content-center gap-1.5 py-2"
+                >
                   <i class="bi bi-box-arrow-right"></i> Keluar
                 </button>
               </div>
@@ -582,7 +1005,10 @@
         </transition>
 
         <!-- Main Router View Container with Snappy Lightweight Fade-Slide Animation -->
-        <div class="p-3 p-md-4 main-view-viewport" :class="{ 'cards-stacked-mode': shouldStackCards }">
+        <div
+          class="p-3 p-md-4 main-view-viewport"
+          :class="{ 'cards-stacked-mode': shouldStackCards }"
+        >
           <router-view v-slot="{ Component }">
             <transition name="fade-slide" mode="out-in">
               <component :is="Component" />
@@ -591,23 +1017,43 @@
         </div>
 
         <!-- Material Design 3 Mobile Bottom Navigation Bar -->
-        <nav class="m3-bottom-nav d-lg-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg">
-          <router-link to="/" class="m3-bottom-nav-item" :class="{ active: route.path === '/' }">
+        <nav
+          class="m3-bottom-nav d-lg-none border-top fixed-bottom d-flex justify-content-around align-items-center shadow-lg"
+        >
+          <router-link
+            to="/"
+            class="m3-bottom-nav-item"
+            :class="{ active: route.path === '/' }"
+          >
             <div class="m3-nav-indicator">
               <i class="bi bi-grid-fill"></i>
             </div>
             <span class="m3-nav-label">Home</span>
           </router-link>
 
-          <router-link to="/todo" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/todo') || route.path.startsWith('/tasks') }">
+          <router-link
+            to="/todo"
+            class="m3-bottom-nav-item"
+            :class="{
+              active:
+                route.path.startsWith('/todo') ||
+                route.path.startsWith('/tasks'),
+            }"
+          >
             <div class="m3-nav-indicator position-relative">
               <i class="bi bi-check2-square"></i>
-              <span v-if="pendingTasksCount" class="m3-badge-dot">{{ pendingTasksCount > 99 ? '99+' : pendingTasksCount }}</span>
+              <span v-if="pendingTasksCount" class="m3-badge-dot">{{
+                pendingTasksCount > 99 ? "99+" : pendingTasksCount
+              }}</span>
             </div>
             <span class="m3-nav-label">To-Do</span>
           </router-link>
 
-          <router-link to="/finance" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/finance') }">
+          <router-link
+            to="/finance"
+            class="m3-bottom-nav-item"
+            :class="{ active: route.path.startsWith('/finance') }"
+          >
             <div class="m3-nav-indicator position-relative">
               <i class="bi bi-wallet2"></i>
               <span v-if="isBudgetExceeded" class="m3-badge-alert">!</span>
@@ -615,14 +1061,22 @@
             <span class="m3-nav-label">Kas</span>
           </router-link>
 
-          <router-link to="/surat" class="m3-bottom-nav-item" :class="{ active: route.path.startsWith('/surat') }">
+          <router-link
+            to="/surat"
+            class="m3-bottom-nav-item"
+            :class="{ active: route.path.startsWith('/surat') }"
+          >
             <div class="m3-nav-indicator">
               <i class="bi bi-file-earmark-richtext-fill"></i>
             </div>
             <span class="m3-nav-label">Surat</span>
           </router-link>
 
-          <button type="button" class="m3-bottom-nav-item btn-clean" @click="mobileDrawer = true">
+          <button
+            type="button"
+            class="m3-bottom-nav-item btn-clean"
+            @click="mobileDrawer = true"
+          >
             <div class="m3-nav-indicator">
               <i class="bi bi-grid-3x3-gap-fill"></i>
             </div>
@@ -635,21 +1089,24 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
-import AppNotifications from './components/AppNotifications.vue';
-import DukungDevModal from './components/DukungDevModal.vue';
-import DesktopDexWorkspace from './components/DesktopDexWorkspace.vue';
-import { saveNightlySnapshot, cleanLegacyLocalStorageSnapshot } from './utils/backupStorage';
-import { isStorageFull } from './utils/storageManager';
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+import AppNotifications from "./components/AppNotifications.vue";
+import DukungDevModal from "./components/DukungDevModal.vue";
+import DesktopDexWorkspace from "./components/DesktopDexWorkspace.vue";
+import {
+  saveNightlySnapshot,
+  cleanLegacyLocalStorageSnapshot,
+} from "./utils/backupStorage";
+import { isStorageFull } from "./utils/storageManager";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     AppNotifications,
     DukungDevModal,
-    DesktopDexWorkspace
+    DesktopDexWorkspace,
   },
   setup() {
     const store = useStore();
@@ -659,9 +1116,9 @@ export default {
     const mobileDrawer = ref(false);
     const showDukungModal = ref(false);
     const showProfileDropdown = ref(false);
-    const sidebarSearch = ref('');
+    const sidebarSearch = ref("");
     const isStorageFullState = ref(isStorageFull());
-    
+
     // -------------------------------------------------------------
     // Resizable Desktop Sidebar (Drag Left & Right to Adjust Width)
     // -------------------------------------------------------------
@@ -669,18 +1126,26 @@ export default {
     const MIN_SIDEBAR_WIDTH = 210;
     const MAX_SIDEBAR_WIDTH = 550;
 
-    const savedWidth = parseInt(localStorage.getItem('taskarts_sidebar_width') || '', 10);
+    const savedWidth = parseInt(
+      localStorage.getItem("taskarts_sidebar_width") || "",
+      10,
+    );
     const sidebarWidth = ref(
-      !isNaN(savedWidth) && savedWidth >= MIN_SIDEBAR_WIDTH && savedWidth <= MAX_SIDEBAR_WIDTH
+      !isNaN(savedWidth) &&
+        savedWidth >= MIN_SIDEBAR_WIDTH &&
+        savedWidth <= MAX_SIDEBAR_WIDTH
         ? savedWidth
-        : DEFAULT_SIDEBAR_WIDTH
+        : DEFAULT_SIDEBAR_WIDTH,
     );
 
     const isResizingSidebar = ref(false);
 
     const applySidebarWidth = (width) => {
-      document.documentElement.style.setProperty('--sidebar-width', `${width}px`);
-      document.body.style.setProperty('--sidebar-width', `${width}px`);
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        `${width}px`,
+      );
+      document.body.style.setProperty("--sidebar-width", `${width}px`);
     };
 
     // Apply saved or default width immediately
@@ -688,10 +1153,18 @@ export default {
 
     const onSidebarResizeMove = (e) => {
       if (!isResizingSidebar.value) return;
-      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const clientX =
+        e.clientX !== undefined
+          ? e.clientX
+          : e.touches && e.touches[0]
+            ? e.touches[0].clientX
+            : 0;
       if (!clientX) return;
 
-      const dynamicMax = Math.min(MAX_SIDEBAR_WIDTH, Math.floor(window.innerWidth * 0.6));
+      const dynamicMax = Math.min(
+        MAX_SIDEBAR_WIDTH,
+        Math.floor(window.innerWidth * 0.6),
+      );
       let newWidth = clientX;
 
       if (newWidth < MIN_SIDEBAR_WIDTH) newWidth = MIN_SIDEBAR_WIDTH;
@@ -699,17 +1172,20 @@ export default {
 
       sidebarWidth.value = Math.round(newWidth);
       applySidebarWidth(sidebarWidth.value);
-      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
+      localStorage.setItem(
+        "taskarts_sidebar_width",
+        sidebarWidth.value.toString(),
+      );
     };
 
     const stopSidebarResize = () => {
       if (!isResizingSidebar.value) return;
       isResizingSidebar.value = false;
-      document.body.classList.remove('sidebar-resizing');
-      window.removeEventListener('mousemove', onSidebarResizeMove);
-      window.removeEventListener('mouseup', stopSidebarResize);
-      window.removeEventListener('touchmove', onSidebarResizeMove);
-      window.removeEventListener('touchend', stopSidebarResize);
+      document.body.classList.remove("sidebar-resizing");
+      window.removeEventListener("mousemove", onSidebarResizeMove);
+      window.removeEventListener("mouseup", stopSidebarResize);
+      window.removeEventListener("touchmove", onSidebarResizeMove);
+      window.removeEventListener("touchend", stopSidebarResize);
     };
 
     const startSidebarResize = () => {
@@ -717,12 +1193,16 @@ export default {
         isCollapsed.value = false;
       }
       isResizingSidebar.value = true;
-      document.body.classList.add('sidebar-resizing');
+      document.body.classList.add("sidebar-resizing");
 
-      window.addEventListener('mousemove', onSidebarResizeMove, { passive: false });
-      window.addEventListener('mouseup', stopSidebarResize);
-      window.addEventListener('touchmove', onSidebarResizeMove, { passive: false });
-      window.addEventListener('touchend', stopSidebarResize);
+      window.addEventListener("mousemove", onSidebarResizeMove, {
+        passive: false,
+      });
+      window.addEventListener("mouseup", stopSidebarResize);
+      window.addEventListener("touchmove", onSidebarResizeMove, {
+        passive: false,
+      });
+      window.addEventListener("touchend", stopSidebarResize);
     };
 
     const resetSidebarWidth = () => {
@@ -732,11 +1212,14 @@ export default {
         sidebarWidth.value = 360;
       }
       applySidebarWidth(sidebarWidth.value);
-      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
-      store.dispatch('showNotification', {
-        type: 'info',
-        title: '📏 Lebar Sidebar Disesuaikan',
-        message: `Lebar sidebar diatur ke ${sidebarWidth.value}px agar teks menu nyaman dibaca.`
+      localStorage.setItem(
+        "taskarts_sidebar_width",
+        sidebarWidth.value.toString(),
+      );
+      store.dispatch("showNotification", {
+        type: "info",
+        title: "📏 Lebar Sidebar Disesuaikan",
+        message: `Lebar sidebar diatur ke ${sidebarWidth.value}px agar teks menu nyaman dibaca.`,
       });
     };
 
@@ -744,29 +1227,35 @@ export default {
       if (isCollapsed.value) isCollapsed.value = false;
       sidebarWidth.value = targetWidth;
       applySidebarWidth(sidebarWidth.value);
-      localStorage.setItem('taskarts_sidebar_width', sidebarWidth.value.toString());
+      localStorage.setItem(
+        "taskarts_sidebar_width",
+        sidebarWidth.value.toString(),
+      );
     };
 
     // Desktop Mode State (Samsung DeX & Windows OS Style)
-    const isDesktopMode = ref(localStorage.getItem('ft_desktop_mode') === 'true');
+    const isDesktopMode = ref(
+      localStorage.getItem("ft_desktop_mode") === "true",
+    );
 
     const enableDesktopMode = () => {
       isDesktopMode.value = true;
-      localStorage.setItem('ft_desktop_mode', 'true');
-      store.dispatch('showNotification', {
-        type: 'success',
-        title: '🖥️ Mode Desktop OS Aktif',
-        message: 'Tampilan Samsung DeX & Windows OS diaktifkan dengan penataan ikon DeX dan taskbar desktop.'
+      localStorage.setItem("ft_desktop_mode", "true");
+      store.dispatch("showNotification", {
+        type: "success",
+        title: "🖥️ Mode Desktop OS Aktif",
+        message:
+          "Tampilan Samsung DeX & Windows OS diaktifkan dengan penataan ikon DeX dan taskbar desktop.",
       });
     };
 
     const disableDesktopMode = () => {
       isDesktopMode.value = false;
-      localStorage.setItem('ft_desktop_mode', 'false');
-      store.dispatch('showNotification', {
-        type: 'info',
-        title: '📱 Mode Aplikasi Standar',
-        message: 'Kembali ke tampilan navigasi sidebar & app mode standar.'
+      localStorage.setItem("ft_desktop_mode", "false");
+      store.dispatch("showNotification", {
+        type: "info",
+        title: "📱 Mode Aplikasi Standar",
+        message: "Kembali ke tampilan navigasi sidebar & app mode standar.",
       });
     };
 
@@ -779,8 +1268,8 @@ export default {
     };
 
     const handleLogout = async () => {
-      await store.dispatch('logout');
-      router.push('/login');
+      await store.dispatch("logout");
+      router.push("/login");
     };
 
     const updateStorageState = () => {
@@ -788,7 +1277,9 @@ export default {
     };
 
     const pendingTasksCount = computed(() => store.getters.pendingTasksCount);
-    const activeProjectsCount = computed(() => store.getters.activeProjectsCount);
+    const activeProjectsCount = computed(
+      () => store.getters.activeProjectsCount,
+    );
     const totalClientsCount = computed(() => store.getters.totalClientsCount);
     const isBudgetExceeded = computed(() => store.getters.isBudgetExceeded);
     const themeMode = computed(() => store.getters.getThemeMode);
@@ -798,122 +1289,436 @@ export default {
     // Grouped navigation definition for structured elegant presentation
     const navGroups = [
       {
-        title: 'WORKSPACE & PROYEK',
-        items: [
-          { to: '/', label: 'Dashboard', icon: 'bi-grid-1x2-fill', color: '#2563eb', featureKey: 'dashboard' },
-          { to: '/job-tracker', label: 'Simpan Lamaran Kerja', icon: 'bi-briefcase-fill', color: '#0ea5e9', badgeText: 'Glints/LinkedIn', badgeClass: 'bg-primary text-white', featureKey: 'job-tracker' },
-          { to: '/medium-draft', label: 'Medium Draft Suite', icon: 'bi-medium', color: '#10b981', badgeText: 'Siap Copas', badgeClass: 'bg-success text-white', featureKey: 'medium-draft' },
-          { to: '/todo', label: 'To-Do & Kanban', icon: 'bi-kanban-fill', color: '#f59e0b', badge: () => pendingTasksCount.value, badgeClass: 'bg-warning text-dark', featureKey: 'todo' },
-          { to: '/project', label: 'Proyek & Kontrak', icon: 'bi-briefcase-fill', color: '#0284c7', badge: () => activeProjectsCount.value, badgeClass: 'bg-info text-dark', featureKey: 'project' },
-          { to: '/camera', label: 'Kamera & Scan Dokumen', icon: 'bi-camera-fill', color: '#e11d48', featureKey: 'selfie' },
-          { to: '/surat', label: 'Surat Generator', icon: 'bi-file-earmark-richtext-fill', color: '#2563eb', featureKey: 'surat' },
-          { to: '/cv', label: 'CV & Resume Builder', icon: 'bi-person-vcard-fill', color: '#059669', featureKey: 'cv' },
-          { to: '/videos', label: 'Tonton & Sync Video', icon: 'bi-play-btn-fill', color: '#dc2626', badgeText: 'YouTube', badgeClass: 'bg-danger text-white', featureKey: 'videos' }
-        ]
-      },
-      {
-        title: 'TIM & KOMUNIKASI',
+        title: "WORKSPACE & PROYEK",
         items: [
           {
-            id: 'team-modules',
-            label: 'Modul Tim & Komunikasi',
-            icon: 'bi-people-fill',
-            color: '#2563eb',
-            badgeText: '6 Modul',
-            badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
-            to: '/team-collaboration',
-            featureKey: 'team-collaboration',
-            children: [
-              { to: '/team-bulletin', label: '1. Buletin & Pengumuman', icon: 'bi-megaphone-fill', color: '#2563eb', badgeText: 'Top-Down', badgeClass: 'bg-primary text-white', featureKey: 'team-collaboration' },
-              { to: '/team-channels', label: '2. Diskusi Saluran Tim', icon: 'bi-hash', color: '#0ea5e9', badgeText: 'Channels', badgeClass: 'bg-info text-dark', featureKey: 'team-collaboration' },
-              { to: '/team-assets', label: '3. Repositori Dokumen/Aset', icon: 'bi-folder-symlink-fill', color: '#10b981', badgeText: 'Drive Hub', badgeClass: 'bg-success text-white', featureKey: 'team-collaboration' },
-              { to: '/team-ticketing', label: '4. Tiket Permintaan Divisi', icon: 'bi-ticket-perforated-fill', color: '#f59e0b', badgeText: 'Request', badgeClass: 'bg-warning text-dark', featureKey: 'team-collaboration' },
-              { to: '/team-calendar', label: '5. Google Cal & Ketersediaan', icon: 'bi-calendar-check-fill', color: '#4f46e5', badgeText: 'Google Cal', badgeClass: 'bg-primary text-white', featureKey: 'team-collaboration' },
-              { to: '/team-expertise', label: '6. Direktori Keahlian Tim', icon: 'bi-award-fill', color: '#e11d48', badgeText: 'Skills', badgeClass: 'bg-danger text-white', featureKey: 'team-collaboration' }
-            ]
+            to: "/",
+            label: "Dashboard",
+            icon: "bi-grid-1x2-fill",
+            color: "#2563eb",
+            featureKey: "dashboard",
           },
-          { to: '/contacts', label: 'Kontak Tim & WA', icon: 'bi-person-lines-fill', color: '#059669', badge: () => totalClientsCount.value, badgeClass: 'bg-success text-white', featureKey: 'contacts' },
-          { to: '/chat-ai', label: 'Live Chat AI Assistant', icon: 'bi-robot', color: '#0891b2', badgeText: 'AI', badgeClass: 'bg-info text-dark', featureKey: 'chat-ai' }
-        ]
+          {
+            to: "/job-tracker",
+            label: "Simpan Lamaran Kerja",
+            icon: "bi-briefcase-fill",
+            color: "#0ea5e9",
+            badgeText: "Glints/LinkedIn",
+            badgeClass: "bg-primary text-white",
+            featureKey: "job-tracker",
+          },
+          {
+            to: "/medium-draft",
+            label: "Medium Draft Suite",
+            icon: "bi-medium",
+            color: "#10b981",
+            badgeText: "Siap Copas",
+            badgeClass: "bg-success text-white",
+            featureKey: "medium-draft",
+          },
+          {
+            to: "/todo",
+            label: "To-Do & Kanban",
+            icon: "bi-kanban-fill",
+            color: "#f59e0b",
+            badge: () => pendingTasksCount.value,
+            badgeClass: "bg-warning text-dark",
+            featureKey: "todo",
+          },
+          {
+            to: "/project",
+            label: "Proyek & Kontrak",
+            icon: "bi-briefcase-fill",
+            color: "#0284c7",
+            badge: () => activeProjectsCount.value,
+            badgeClass: "bg-info text-dark",
+            featureKey: "project",
+          },
+          {
+            to: "/camera",
+            label: "Kamera & Scan Dokumen",
+            icon: "bi-camera-fill",
+            color: "#e11d48",
+            featureKey: "selfie",
+          },
+          {
+            to: "/surat",
+            label: "Surat Generator",
+            icon: "bi-file-earmark-richtext-fill",
+            color: "#2563eb",
+            featureKey: "surat",
+          },
+          {
+            to: "/cv",
+            label: "CV & Resume Builder",
+            icon: "bi-person-vcard-fill",
+            color: "#059669",
+            featureKey: "cv",
+          },
+          {
+            to: "/videos",
+            label: "Tonton & Sync Video",
+            icon: "bi-play-btn-fill",
+            color: "#dc2626",
+            badgeText: "YouTube",
+            badgeClass: "bg-danger text-white",
+            featureKey: "videos",
+          },
+        ],
       },
       {
-        title: 'KEUANGAN & DATA',
+        title: "TIM & KOMUNIKASI",
         items: [
           {
-            id: 'finance-modules',
-            label: 'Sistem Keuangan Perusahaan',
-            icon: 'bi-bank',
-            color: '#059669',
-            badgeText: '6 Modul',
-            badgeClass: 'bg-success-subtle text-success border border-success-subtle',
-            to: '/finance-cashflow',
-            featureKey: 'finance-cashflow',
+            id: "team-modules",
+            label: "Modul Tim & Komunikasi",
+            icon: "bi-people-fill",
+            color: "#2563eb",
+            badgeText: "6 Modul",
+            badgeClass:
+              "bg-primary-subtle text-primary border border-primary-subtle",
+            to: "/team-collaboration",
+            featureKey: "team-collaboration",
             children: [
-              { to: '/finance-cashflow', label: '1. Arus Kas & Rekonsiliasi', icon: 'bi-cash-coin', color: '#2563eb', badgeText: 'Realtime', badgeClass: 'bg-primary text-white', featureKey: 'finance-cashflow' },
-              { to: '/finance-ap-ar', label: '2. Hutang & Piutang (AP/AR)', icon: 'bi-arrow-left-right', color: '#059669', badgeText: 'Approval', badgeClass: 'bg-success text-white', featureKey: 'finance-ap-ar' },
-              { to: '/finance-expenses', label: '3. Pengeluaran & OCR Klaim', icon: 'bi-receipt-cutoff', color: '#ea580c', badgeText: 'OCR', badgeClass: 'bg-warning text-dark', featureKey: 'finance-expenses' },
-              { to: '/finance-budgeting', label: '4. Anggaran & Proyeksi', icon: 'bi-pie-chart-fill', color: '#7c3aed', featureKey: 'finance-budgeting' },
-              { to: '/finance-reports', label: '5. Laporan Keuangan PSAK', icon: 'bi-file-earmark-spreadsheet-fill', color: '#0284c7', badgeText: 'Audit', badgeClass: 'bg-info text-dark', featureKey: 'finance-reports' },
-              { to: '/finance-security', label: '6. Keamanan & Audit Trail', icon: 'bi-shield-lock-fill', color: '#dc2626', badgeText: 'RBAC', badgeClass: 'bg-danger text-white', featureKey: 'finance-security' }
-            ]
+              {
+                to: "/team-bulletin",
+                label: "1. Buletin & Pengumuman",
+                icon: "bi-megaphone-fill",
+                color: "#2563eb",
+                badgeText: "Top-Down",
+                badgeClass: "bg-primary text-white",
+                featureKey: "team-collaboration",
+              },
+              {
+                to: "/team-channels",
+                label: "2. Diskusi Saluran Tim",
+                icon: "bi-hash",
+                color: "#0ea5e9",
+                badgeText: "Channels",
+                badgeClass: "bg-info text-dark",
+                featureKey: "team-collaboration",
+              },
+              {
+                to: "/team-assets",
+                label: "3. Repositori Dokumen/Aset",
+                icon: "bi-folder-symlink-fill",
+                color: "#10b981",
+                badgeText: "Drive Hub",
+                badgeClass: "bg-success text-white",
+                featureKey: "team-collaboration",
+              },
+              {
+                to: "/team-ticketing",
+                label: "4. Tiket Permintaan Divisi",
+                icon: "bi-ticket-perforated-fill",
+                color: "#f59e0b",
+                badgeText: "Request",
+                badgeClass: "bg-warning text-dark",
+                featureKey: "team-collaboration",
+              },
+              {
+                to: "/team-calendar",
+                label: "5. Google Cal & Ketersediaan",
+                icon: "bi-calendar-check-fill",
+                color: "#4f46e5",
+                badgeText: "Google Cal",
+                badgeClass: "bg-primary text-white",
+                featureKey: "team-collaboration",
+              },
+              {
+                to: "/team-expertise",
+                label: "6. Direktori Keahlian Tim",
+                icon: "bi-award-fill",
+                color: "#e11d48",
+                badgeText: "Skills",
+                badgeClass: "bg-danger text-white",
+                featureKey: "team-collaboration",
+              },
+            ],
           },
-          { to: '/finance', label: 'Ringkasan Money Tracker', icon: 'bi-wallet2', color: '#475569', featureKey: 'finance' },
-          { to: '/rab', label: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill', color: '#059669', featureKey: 'rab' },
-          { to: '/invoice', label: 'Invoice Generator', icon: 'bi-receipt', color: '#6366f1', featureKey: 'invoice' },
-          { to: '/sql', label: 'SQL Data Export', icon: 'bi-database-fill-gear', color: '#d97706', featureKey: 'storage' }
-        ]
+          {
+            to: "/contacts",
+            label: "Kontak Tim & WA",
+            icon: "bi-person-lines-fill",
+            color: "#059669",
+            badge: () => totalClientsCount.value,
+            badgeClass: "bg-success text-white",
+            featureKey: "contacts",
+          },
+          {
+            to: "/chat-ai",
+            label: "Live Chat AI Assistant",
+            icon: "bi-robot",
+            color: "#0891b2",
+            badgeText: "AI",
+            badgeClass: "bg-info text-dark",
+            featureKey: "chat-ai",
+          },
+        ],
       },
       {
-        title: 'AGENDA & PRODUKTIVITAS',
+        title: "KEUANGAN & DATA",
         items: [
-          { to: '/productivity-insights', label: 'Productivity Insights', icon: 'bi-bar-chart-line-fill', color: '#2563eb', badgeText: 'D3.js', badgeClass: 'bg-primary text-white', featureKey: 'productivity-insights' },
-          { to: '/quick-capture', label: 'Quick Capture Notes', icon: 'bi-lightning-charge-fill', color: '#f59e0b', featureKey: 'quick-capture' },
-          { to: '/calendar', label: 'Kalender & Agenda', icon: 'bi-calendar3', color: '#ea580c', featureKey: 'calendar' },
-          { to: '/attendance', label: 'Absensi', icon: 'bi-clock-history', color: '#7c3aed', featureKey: 'attendance' },
-          { to: '/time-suite', label: 'Time Suite & Pomodoro', icon: 'bi-clock-history', color: '#16a34a', featureKey: 'time-suite' },
-          { to: '/selfie', label: 'Selfie for Happiness', icon: 'bi-camera-reels-fill', color: '#e11d48', featureKey: 'selfie' },
-          { to: '/mood', label: 'Kamera Mood & Alarm', icon: 'bi-emoji-smile-fill', color: '#f43f5e', featureKey: 'mood' },
-          { to: '/notes', label: 'Notes & Scratchpad', icon: 'bi-journal-text', color: '#64748b', featureKey: 'notes' },
-          { to: '/diary', label: 'Diary & Jurnal Cerita', icon: 'bi-book-half', color: '#ca8a04', badgeText: 'Foto', badgeClass: 'bg-warning text-dark', featureKey: 'diary' },
-          { to: '/code-notes', label: 'Code Snippets', icon: 'bi-code-slash', color: '#0284c7', featureKey: 'code-notes' },
-          { to: '/games', label: '3D Games & Simulator', icon: 'bi-controller', color: '#9333ea', featureKey: 'games' }
-        ]
+          {
+            id: "finance-modules",
+            label: "Sistem Keuangan Perusahaan",
+            icon: "bi-bank",
+            color: "#059669",
+            badgeText: "6 Modul",
+            badgeClass:
+              "bg-success-subtle text-success border border-success-subtle",
+            to: "/finance-cashflow",
+            featureKey: "finance-cashflow",
+            children: [
+              {
+                to: "/finance-cashflow",
+                label: "1. Arus Kas & Rekonsiliasi",
+                icon: "bi-cash-coin",
+                color: "#2563eb",
+                badgeText: "Realtime",
+                badgeClass: "bg-primary text-white",
+                featureKey: "finance-cashflow",
+              },
+              {
+                to: "/finance-ap-ar",
+                label: "2. Hutang & Piutang (AP/AR)",
+                icon: "bi-arrow-left-right",
+                color: "#059669",
+                badgeText: "Approval",
+                badgeClass: "bg-success text-white",
+                featureKey: "finance-ap-ar",
+              },
+              {
+                to: "/finance-expenses",
+                label: "3. Pengeluaran & OCR Klaim",
+                icon: "bi-receipt-cutoff",
+                color: "#ea580c",
+                badgeText: "OCR",
+                badgeClass: "bg-warning text-dark",
+                featureKey: "finance-expenses",
+              },
+              {
+                to: "/finance-budgeting",
+                label: "4. Anggaran & Proyeksi",
+                icon: "bi-pie-chart-fill",
+                color: "#7c3aed",
+                featureKey: "finance-budgeting",
+              },
+              {
+                to: "/finance-reports",
+                label: "5. Laporan Keuangan PSAK",
+                icon: "bi-file-earmark-spreadsheet-fill",
+                color: "#0284c7",
+                badgeText: "Audit",
+                badgeClass: "bg-info text-dark",
+                featureKey: "finance-reports",
+              },
+              {
+                to: "/finance-security",
+                label: "6. Keamanan & Audit Trail",
+                icon: "bi-shield-lock-fill",
+                color: "#dc2626",
+                badgeText: "RBAC",
+                badgeClass: "bg-danger text-white",
+                featureKey: "finance-security",
+              },
+            ],
+          },
+          {
+            to: "/finance",
+            label: "Ringkasan Money Tracker",
+            icon: "bi-wallet2",
+            color: "#475569",
+            featureKey: "finance",
+          },
+          {
+            to: "/rab",
+            label: "RAB & Kas Kegiatan",
+            icon: "bi-calculator-fill",
+            color: "#059669",
+            featureKey: "rab",
+          },
+          {
+            to: "/invoice",
+            label: "Invoice Generator",
+            icon: "bi-receipt",
+            color: "#6366f1",
+            featureKey: "invoice",
+          },
+          {
+            to: "/sql",
+            label: "SQL Data Export",
+            icon: "bi-database-fill-gear",
+            color: "#d97706",
+            featureKey: "storage",
+          },
+        ],
       },
       {
-        title: 'SISTEM & PANDUAN',
+        title: "AGENDA & PRODUKTIVITAS",
         items: [
-          { to: '/storage', label: 'Storage & Kuota', icon: 'bi-hdd-stack-fill', color: '#0284c7', badge: () => isStorageFullState.value ? 'Penuh!' : null, badgeClass: 'bg-danger text-white', featureKey: 'storage' },
-          { to: '/preferences', label: 'Preferences & Tema', icon: 'bi-sliders', color: '#2563eb', featureKey: 'settings' },
-          { to: '/faq', label: 'Info & Hidden Features', icon: 'bi-question-circle-fill', color: '#0891b2', featureKey: 'settings' },
-          { to: '/developer', label: 'View Developer', icon: 'bi-person-badge-fill', color: '#2563eb', badgeText: 'PRO', badgeClass: 'bg-primary text-white', featureKey: 'developer' },
-          { to: '/features', label: 'Pengaturan Fitur', icon: 'bi-gear-wide-connected', color: '#ea580c', badgeText: 'Admin', badgeClass: 'bg-warning text-dark', featureKey: '_admin' },
-          { to: '/register-user', label: 'Tambah Akun', icon: 'bi-person-plus-fill', color: '#2563eb', badgeText: 'Admin', badgeClass: 'bg-primary text-white', featureKey: '_admin' }
-        ]
-      }
+          {
+            to: "/productivity-insights",
+            label: "Productivity Insights",
+            icon: "bi-bar-chart-line-fill",
+            color: "#2563eb",
+            badgeText: "D3.js",
+            badgeClass: "bg-primary text-white",
+            featureKey: "productivity-insights",
+          },
+          {
+            to: "/quick-capture",
+            label: "Quick Capture Notes",
+            icon: "bi-lightning-charge-fill",
+            color: "#f59e0b",
+            featureKey: "quick-capture",
+          },
+          {
+            to: "/calendar",
+            label: "Kalender & Agenda",
+            icon: "bi-calendar3",
+            color: "#ea580c",
+            featureKey: "calendar",
+          },
+          {
+            to: "/attendance",
+            label: "Absensi",
+            icon: "bi-clock-history",
+            color: "#7c3aed",
+            featureKey: "attendance",
+          },
+          {
+            to: "/time-suite",
+            label: "Time Suite & Pomodoro",
+            icon: "bi-clock-history",
+            color: "#16a34a",
+            featureKey: "time-suite",
+          },
+          {
+            to: "/selfie",
+            label: "Selfie for Happiness",
+            icon: "bi-camera-reels-fill",
+            color: "#e11d48",
+            featureKey: "selfie",
+          },
+          {
+            to: "/mood",
+            label: "Kamera Mood & Alarm",
+            icon: "bi-emoji-smile-fill",
+            color: "#f43f5e",
+            featureKey: "mood",
+          },
+          {
+            to: "/notes",
+            label: "Notes & Scratchpad",
+            icon: "bi-journal-text",
+            color: "#64748b",
+            featureKey: "notes",
+          },
+          {
+            to: "/diary",
+            label: "Diary & Jurnal Cerita",
+            icon: "bi-book-half",
+            color: "#ca8a04",
+            badgeText: "Foto",
+            badgeClass: "bg-warning text-dark",
+            featureKey: "diary",
+          },
+          {
+            to: "/code-notes",
+            label: "Code Snippets",
+            icon: "bi-code-slash",
+            color: "#0284c7",
+            featureKey: "code-notes",
+          },
+          {
+            to: "/games",
+            label: "3D Games & Simulator",
+            icon: "bi-controller",
+            color: "#9333ea",
+            featureKey: "games",
+          },
+        ],
+      },
+      {
+        title: "SISTEM & PANDUAN",
+        items: [
+          {
+            to: "/storage",
+            label: "Storage & Kuota",
+            icon: "bi-hdd-stack-fill",
+            color: "#0284c7",
+            badge: () => (isStorageFullState.value ? "Penuh!" : null),
+            badgeClass: "bg-danger text-white",
+            featureKey: "storage",
+          },
+          {
+            to: "/preferences",
+            label: "Preferences & Tema",
+            icon: "bi-sliders",
+            color: "#2563eb",
+            featureKey: "settings",
+          },
+          {
+            to: "/faq",
+            label: "Info & Hidden Features",
+            icon: "bi-question-circle-fill",
+            color: "#0891b2",
+            featureKey: "settings",
+          },
+          {
+            to: "/developer",
+            label: "View Developer",
+            icon: "bi-person-badge-fill",
+            color: "#2563eb",
+            badgeText: "PRO",
+            badgeClass: "bg-primary text-white",
+            featureKey: "developer",
+          },
+          {
+            to: "/features",
+            label: "Pengaturan Fitur",
+            icon: "bi-gear-wide-connected",
+            color: "#ea580c",
+            badgeText: "Admin",
+            badgeClass: "bg-warning text-dark",
+            featureKey: "_admin",
+          },
+          {
+            to: "/register-user",
+            label: "Tambah Akun",
+            icon: "bi-person-plus-fill",
+            color: "#2563eb",
+            badgeText: "Admin",
+            badgeClass: "bg-primary text-white",
+            featureKey: "_admin",
+          },
+        ],
+      },
     ];
 
     // Feature-gated filtering: only show menu items whose featureKey is in enabledFeatures (admin sees all)
     const enabledFeatures = computed(() => store.state.enabledFeatures);
-    const isAdmin = computed(() => store.state.auth.user?.role === 'admin');
+    const isAdmin = computed(() => store.state.auth.user?.role === "admin");
 
     // Dynamic user info for sidebar
-    const userName = computed(() => store.state.auth.user?.name || 'Guest');
-    const userEmail = computed(() => store.state.auth.user?.email || '');
+    const userName = computed(() => store.state.auth.user?.name || "Guest");
+    const userEmail = computed(() => store.state.auth.user?.email || "");
     const userRole = computed(() => {
       const r = store.state.auth.user?.role;
-      if (r === 'admin') return 'Admin';
-      return 'Member';
+      if (r === "admin") return "Admin";
+      return "Member";
     });
     const userInitial = computed(() => {
-      const name = store.state.auth.user?.name || 'G';
+      const name = store.state.auth.user?.name || "G";
       return name.charAt(0).toUpperCase();
     });
 
     const isFeatureEnabled = (featureKey) => {
-      if (!featureKey || featureKey === '_admin') return isAdmin.value;
+      if (!featureKey || featureKey === "_admin") return isAdmin.value;
       if (isAdmin.value) return true;
       // '*' wildcard means all features enabled
-      if (enabledFeatures.value.includes('*')) return true;
+      if (enabledFeatures.value.includes("*")) return true;
       return enabledFeatures.value.includes(featureKey);
     };
 
@@ -921,16 +1726,16 @@ export default {
     const filteredNavGroups = computed(() => {
       const q = sidebarSearch.value.trim().toLowerCase();
       return navGroups
-        .map(g => {
+        .map((g) => {
           const matchingItems = [];
-          g.items.forEach(item => {
+          g.items.forEach((item) => {
             if (!isFeatureEnabled(item.featureKey)) return;
             if (item.children && item.children.length > 0) {
-              const matchedSubs = item.children.filter(sub =>
-                isFeatureEnabled(sub.featureKey) && (
-                  sub.label.toLowerCase().includes(q) ||
-                  sub.to.toLowerCase().includes(q)
-                )
+              const matchedSubs = item.children.filter(
+                (sub) =>
+                  isFeatureEnabled(sub.featureKey) &&
+                  (sub.label.toLowerCase().includes(q) ||
+                    sub.to.toLowerCase().includes(q)),
               );
               if (
                 matchedSubs.length > 0 ||
@@ -939,8 +1744,13 @@ export default {
               ) {
                 matchingItems.push({
                   ...item,
-                  children: matchedSubs.length > 0 ? matchedSubs : item.children.filter(sub => isFeatureEnabled(sub.featureKey)),
-                  _forceOpen: true
+                  children:
+                    matchedSubs.length > 0
+                      ? matchedSubs
+                      : item.children.filter((sub) =>
+                          isFeatureEnabled(sub.featureKey),
+                        ),
+                  _forceOpen: true,
                 });
               }
             } else {
@@ -955,16 +1765,16 @@ export default {
           });
           return {
             ...g,
-            items: matchingItems
+            items: matchingItems,
           };
         })
-        .filter(g => g.items.length > 0);
+        .filter((g) => g.items.length > 0);
     });
 
     // Sub-menus state (for clustered 1-6 menu groups)
     const expandedDropdowns = ref({
-      'team-modules': true,
-      'finance-modules': true
+      "team-modules": true,
+      "finance-modules": true,
     });
 
     const isDropdownOpen = (item) => {
@@ -976,7 +1786,10 @@ export default {
     const isParentActive = (item) => {
       if (!item || !item.children) return false;
       const currentPath = route.path;
-      return item.children.some(c => c.to === currentPath) || item.to === currentPath;
+      return (
+        item.children.some((c) => c.to === currentPath) ||
+        item.to === currentPath
+      );
     };
 
     const toggleDropdown = (item) => {
@@ -988,20 +1801,29 @@ export default {
     };
 
     // Auto-open parent dropdown when navigating to any child route
-    watch(() => route.path, (newPath) => {
-      navGroups.forEach(g => {
-        g.items.forEach(item => {
-          if (item.children && item.id) {
-            if (item.children.some(c => c.to === newPath) || item.to === newPath) {
-              expandedDropdowns.value[item.id] = true;
+    watch(
+      () => route.path,
+      (newPath) => {
+        navGroups.forEach((g) => {
+          g.items.forEach((item) => {
+            if (item.children && item.id) {
+              if (
+                item.children.some((c) => c.to === newPath) ||
+                item.to === newPath
+              ) {
+                expandedDropdowns.value[item.id] = true;
+              }
             }
-          }
+          });
         });
-      });
-    }, { immediate: true });
+      },
+      { immediate: true },
+    );
 
     // Window size tracker for responsive layout and stacking cards
-    const windowInnerWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const windowInnerWidth = ref(
+      typeof window !== "undefined" ? window.innerWidth : 1200,
+    );
     const onWindowResize = () => {
       windowInnerWidth.value = window.innerWidth;
     };
@@ -1010,104 +1832,199 @@ export default {
     const shouldStackCards = computed(() => {
       if (isCollapsed.value) return false;
       const effectiveContentWidth = windowInnerWidth.value - sidebarWidth.value;
-      if (sidebarWidth.value >= 400 && windowInnerWidth.value < 1600) return true;
-      if (sidebarWidth.value >= 320 && effectiveContentWidth < 1000) return true;
+      if (sidebarWidth.value >= 400 && windowInnerWidth.value < 1600)
+        return true;
+      if (sidebarWidth.value >= 320 && effectiveContentWidth < 1000)
+        return true;
       if (effectiveContentWidth < 900) return true;
       return false;
     });
 
     // Dynamic Title & Icon based on Active Route
     const routeTitles = {
-      '/': { title: 'Dashboard Executive', icon: 'bi-grid-1x2-fill' },
-      '/job-tracker': { title: 'Simpan Lamaran Kerja (Glints/LinkedIn)', icon: 'bi-briefcase-fill' },
-      '/medium-draft': { title: 'Medium Draft & Story Builder', icon: 'bi-medium' },
-      '/todo': { title: 'To-Do & Kanban OS', icon: 'bi-kanban-fill' },
-      '/project': { title: 'Proyek & Kontrak', icon: 'bi-briefcase-fill' },
-      '/camera': { title: 'Kamera Scan Dokumen', icon: 'bi-camera-fill' },
-      '/surat': { title: 'Surat Generator Resmi', icon: 'bi-file-earmark-richtext-fill' },
-      '/cv': { title: 'CV & Resume Builder ATS', icon: 'bi-person-vcard-fill' },
-      '/videos': { title: 'Tonton & Sync Video Hub', icon: 'bi-play-btn-fill' },
-      '/contacts': { title: 'Kontak Tim & Broadcast WA', icon: 'bi-person-lines-fill' },
-      '/team-bulletin': { title: '1. Pusat Informasi & Pengumuman Internal', icon: 'bi-megaphone-fill' },
-      '/team-channels': { title: '2. Ruang Diskusi Berbasis Saluran (Channels)', icon: 'bi-hash' },
-      '/team-assets': { title: '3. Repositori Aset & Dokumen Bersama', icon: 'bi-folder-symlink-fill' },
-      '/team-ticketing': { title: '4. Sistem Permintaan Lintas Divisi (Ticketing)', icon: 'bi-ticket-perforated-fill' },
-      '/team-calendar': { title: '5. Kalender Kolaborasi & Google Calendar', icon: 'bi-calendar-check-fill' },
-      '/team-expertise': { title: '6. Direktori Keahlian & Pencarian Kompetensi', icon: 'bi-award-fill' },
-      '/team-collaboration': { title: 'Modul Tim & Komunikasi (Kolaborasi Lintas Divisi)', icon: 'bi-people-fill' },
-      '/chat-ai': { title: 'Live Chat AI Assistant', icon: 'bi-robot' },
-      '/finance-cashflow': { title: '1. Arus Kas & Rekonsiliasi Bank', icon: 'bi-cash-coin' },
-      '/finance-ap-ar': { title: '2. Hutang & Piutang (AP & AR)', icon: 'bi-arrow-left-right' },
-      '/finance-expenses': { title: '3. Pengeluaran & Reimbursement', icon: 'bi-receipt-cutoff' },
-      '/finance-budgeting': { title: '4. Penganggaran & Forecasting', icon: 'bi-pie-chart-fill' },
-      '/finance-reports': { title: '5. Pelaporan Keuangan PSAK / IFRS', icon: 'bi-file-earmark-spreadsheet-fill' },
-      '/finance-security': { title: '6. Keamanan & Jejak Audit (RBAC)', icon: 'bi-shield-lock-fill' },
-      '/finance': { title: 'Keuangan & Money Tracker', icon: 'bi-wallet2' },
-      '/rab': { title: 'RAB & Kas Kegiatan', icon: 'bi-calculator-fill' },
-      '/invoice': { title: 'Invoice Generator (PDF)', icon: 'bi-receipt' },
-      '/sql': { title: 'SQL Data Export & Runner', icon: 'bi-database-fill-gear' },
-      '/productivity-insights': { title: 'Productivity Insights (D3.js)', icon: 'bi-bar-chart-line-fill' },
-      '/quick-capture': { title: 'Quick Capture & Alarms', icon: 'bi-lightning-charge-fill' },
-      '/calendar': { title: 'Kalender & Agenda Kerja', icon: 'bi-calendar3' },
-      '/time-suite': { title: 'Time Suite & Pomodoro', icon: 'bi-clock-history' },
-      '/selfie': { title: 'Selfie for Happiness', icon: 'bi-camera-reels-fill' },
-      '/mood': { title: 'Kamera Mood & Alarm Kerja', icon: 'bi-emoji-smile-fill' },
-      '/notes': { title: 'Sticky Notes & Scratchpad', icon: 'bi-journal-text' },
-      '/diary': { title: 'Diary & Jurnal Cerita Harian', icon: 'bi-book-half' },
-      '/code-notes': { title: 'Code Snippets & Tech Notes', icon: 'bi-code-slash' },
-      '/games': { title: '3D Games & Simulator', icon: 'bi-controller' },
-      '/storage/view': { title: 'Inspeksi Kunci & Detail JSON', icon: 'bi-code-square' },
-      '/storage': { title: 'Storage & Kapasitas Local Storage', icon: 'bi-hdd-stack-fill' },
-      '/preferences': { title: 'Preferences & Pengaturan', icon: 'bi-sliders' },
-      '/faq': { title: 'Panduan & Hidden Features', icon: 'bi-question-circle-fill' },
-      '/developer': { title: 'Developer Portfolio', icon: 'bi-person-badge-fill' }
+      "/": { title: "TaskArts", icon: "bi-grid-1x2-fill" },
+      "/job-tracker": {
+        title: "Simpan Lamaran Kerja (Glints/LinkedIn)",
+        icon: "bi-briefcase-fill",
+      },
+      "/medium-draft": {
+        title: "Medium Draft & Story Builder",
+        icon: "bi-medium",
+      },
+      "/todo": { title: "To-Do & Kanban OS", icon: "bi-kanban-fill" },
+      "/project": { title: "Proyek & Kontrak", icon: "bi-briefcase-fill" },
+      "/camera": { title: "Kamera Scan Dokumen", icon: "bi-camera-fill" },
+      "/surat": {
+        title: "Surat Generator Resmi",
+        icon: "bi-file-earmark-richtext-fill",
+      },
+      "/cv": { title: "CV & Resume Builder ATS", icon: "bi-person-vcard-fill" },
+      "/videos": { title: "Tonton & Sync Video Hub", icon: "bi-play-btn-fill" },
+      "/contacts": {
+        title: "Kontak Tim & Broadcast WA",
+        icon: "bi-person-lines-fill",
+      },
+      "/team-bulletin": {
+        title: "1. Pusat Informasi & Pengumuman Internal",
+        icon: "bi-megaphone-fill",
+      },
+      "/team-channels": {
+        title: "2. Ruang Diskusi Berbasis Saluran (Channels)",
+        icon: "bi-hash",
+      },
+      "/team-assets": {
+        title: "3. Repositori Aset & Dokumen Bersama",
+        icon: "bi-folder-symlink-fill",
+      },
+      "/team-ticketing": {
+        title: "4. Sistem Permintaan Lintas Divisi (Ticketing)",
+        icon: "bi-ticket-perforated-fill",
+      },
+      "/team-calendar": {
+        title: "5. Kalender Kolaborasi & Google Calendar",
+        icon: "bi-calendar-check-fill",
+      },
+      "/team-expertise": {
+        title: "6. Direktori Keahlian & Pencarian Kompetensi",
+        icon: "bi-award-fill",
+      },
+      "/team-collaboration": {
+        title: "Modul Tim & Komunikasi (Kolaborasi Lintas Divisi)",
+        icon: "bi-people-fill",
+      },
+      "/chat-ai": { title: "Live Chat AI Assistant", icon: "bi-robot" },
+      "/finance-cashflow": {
+        title: "1. Arus Kas & Rekonsiliasi Bank",
+        icon: "bi-cash-coin",
+      },
+      "/finance-ap-ar": {
+        title: "2. Hutang & Piutang (AP & AR)",
+        icon: "bi-arrow-left-right",
+      },
+      "/finance-expenses": {
+        title: "3. Pengeluaran & Reimbursement",
+        icon: "bi-receipt-cutoff",
+      },
+      "/finance-budgeting": {
+        title: "4. Penganggaran & Forecasting",
+        icon: "bi-pie-chart-fill",
+      },
+      "/finance-reports": {
+        title: "5. Pelaporan Keuangan PSAK / IFRS",
+        icon: "bi-file-earmark-spreadsheet-fill",
+      },
+      "/finance-security": {
+        title: "6. Keamanan & Jejak Audit (RBAC)",
+        icon: "bi-shield-lock-fill",
+      },
+      "/finance": { title: "Keuangan & Money Tracker", icon: "bi-wallet2" },
+      "/rab": { title: "RAB & Kas Kegiatan", icon: "bi-calculator-fill" },
+      "/invoice": { title: "Invoice Generator (PDF)", icon: "bi-receipt" },
+      "/sql": {
+        title: "SQL Data Export & Runner",
+        icon: "bi-database-fill-gear",
+      },
+      "/productivity-insights": {
+        title: "Productivity Insights (D3.js)",
+        icon: "bi-bar-chart-line-fill",
+      },
+      "/quick-capture": {
+        title: "Quick Capture & Alarms",
+        icon: "bi-lightning-charge-fill",
+      },
+      "/calendar": { title: "Kalender & Agenda Kerja", icon: "bi-calendar3" },
+      "/time-suite": {
+        title: "Time Suite & Pomodoro",
+        icon: "bi-clock-history",
+      },
+      "/selfie": {
+        title: "Selfie for Happiness",
+        icon: "bi-camera-reels-fill",
+      },
+      "/mood": {
+        title: "Kamera Mood & Alarm Kerja",
+        icon: "bi-emoji-smile-fill",
+      },
+      "/notes": { title: "Sticky Notes & Scratchpad", icon: "bi-journal-text" },
+      "/diary": { title: "Diary & Jurnal Cerita Harian", icon: "bi-book-half" },
+      "/code-notes": {
+        title: "Code Snippets & Tech Notes",
+        icon: "bi-code-slash",
+      },
+      "/games": { title: "3D Games & Simulator", icon: "bi-controller" },
+      "/storage/view": {
+        title: "Inspeksi Kunci & Detail JSON",
+        icon: "bi-code-square",
+      },
+      "/storage": {
+        title: "Storage & Kapasitas Local Storage",
+        icon: "bi-hdd-stack-fill",
+      },
+      "/preferences": { title: "Preferences & Pengaturan", icon: "bi-sliders" },
+      "/faq": {
+        title: "Panduan & Hidden Features",
+        icon: "bi-question-circle-fill",
+      },
+      "/developer": {
+        title: "Developer Portfolio",
+        icon: "bi-person-badge-fill",
+      },
     };
 
     const currentPageTitle = computed(() => {
       const path = route.path;
       if (routeTitles[path]) return routeTitles[path].title;
       for (const key of Object.keys(routeTitles)) {
-        if (key !== '/' && path.startsWith(key)) return routeTitles[key].title;
+        if (key !== "/" && path.startsWith(key)) return routeTitles[key].title;
       }
-      return 'TaskArts';
+      return "TaskArts";
     });
 
     const currentPageIcon = computed(() => {
       const path = route.path;
       if (routeTitles[path]) return routeTitles[path].icon;
       for (const key of Object.keys(routeTitles)) {
-        if (key !== '/' && path.startsWith(key)) return routeTitles[key].icon;
+        if (key !== "/" && path.startsWith(key)) return routeTitles[key].icon;
       }
-      return 'bi-app-indicator';
+      return "bi-app-indicator";
     });
 
     const applyThemeToBody = (mode) => {
-      document.body.classList.remove('light-theme', 'dark-theme', 'oled-theme', 'dark-mode');
+      document.body.classList.remove(
+        "light-theme",
+        "dark-theme",
+        "oled-theme",
+        "dark-mode",
+      );
 
-      if (mode === 'oled') {
-        document.body.classList.add('oled-theme', 'dark-mode');
-        document.body.style.backgroundColor = '#000000';
-        document.body.style.color = '#ffffff';
-      } else if (mode === 'dark') {
-        document.body.classList.add('dark-theme', 'dark-mode');
-        document.body.style.backgroundColor = '#090d16';
-        document.body.style.color = '#f1f5f9';
+      if (mode === "oled") {
+        document.body.classList.add("oled-theme", "dark-mode");
+        document.body.style.backgroundColor = "#000000";
+        document.body.style.color = "#ffffff";
+      } else if (mode === "dark") {
+        document.body.classList.add("dark-theme", "dark-mode");
+        document.body.style.backgroundColor = "#090d16";
+        document.body.style.color = "#f1f5f9";
       } else {
-        document.body.classList.add('light-theme');
-        document.body.style.backgroundColor = '#f8fafc';
-        document.body.style.color = '#0f172a';
+        document.body.classList.add("light-theme");
+        document.body.style.backgroundColor = "#f8fafc";
+        document.body.style.color = "#0f172a";
       }
     };
 
-    watch(themeMode, (newVal) => {
-      applyThemeToBody(newVal);
-    }, { immediate: true });
+    watch(
+      themeMode,
+      (newVal) => {
+        applyThemeToBody(newVal);
+      },
+      { immediate: true },
+    );
 
     // Keyboard shortcut handler (Ctrl+K or Cmd+K)
     const handleKeydown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        const searchEl = document.querySelector('.search-input');
+        const searchEl = document.querySelector(".search-input");
         if (searchEl) {
           searchEl.focus();
           searchEl.select();
@@ -1117,33 +2034,36 @@ export default {
 
     onMounted(() => {
       applyThemeToBody(themeMode.value);
-      window.addEventListener('keydown', handleKeydown);
+      window.addEventListener("keydown", handleKeydown);
 
       // Close profile dropdown on click outside
       const handleClickOutside = (e) => {
-        if (!e.target.closest('.sidebar-footer')) {
+        if (!e.target.closest(".sidebar-footer")) {
           showProfileDropdown.value = false;
         }
       };
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
 
       // Validate token on page load / refresh
       const token = store.state.auth.token;
       if (token) {
-        console.log('[App] onMounted: token found, validating with server...');
-        store.dispatch('fetchUser').then((user) => {
-          if (user) {
-            console.log('[App] onMounted: user validated —', user.name);
-            store.dispatch('fetchFeatures');
-          } else {
-            console.warn('[App] onMounted: fetchUser returned null');
-          }
-        }).catch(() => {
-          // Should not happen now since fetchUser handles errors internally
-          console.error('[App] onMounted: fetchUser rejected unexpectedly');
-        });
+        console.log("[App] onMounted: token found, validating with server...");
+        store
+          .dispatch("fetchUser")
+          .then((user) => {
+            if (user) {
+              console.log("[App] onMounted: user validated —", user.name);
+              store.dispatch("fetchFeatures");
+            } else {
+              console.warn("[App] onMounted: fetchUser returned null");
+            }
+          })
+          .catch(() => {
+            // Should not happen now since fetchUser handles errors internally
+            console.error("[App] onMounted: fetchUser rejected unexpectedly");
+          });
       } else {
-        console.log('[App] onMounted: no token — user not logged in');
+        console.log("[App] onMounted: no token — user not logged in");
       }
 
       // Clean up legacy monolithic snapshot from localStorage to release quota back to app
@@ -1151,23 +2071,30 @@ export default {
 
       // Automated Nightly Backup Check (Persisted in IndexedDB to prevent QuotaExceededError)
       try {
-        const isNightlyEnabled = localStorage.getItem('ft_auto_nightly_backup') !== 'false';
+        const isNightlyEnabled =
+          localStorage.getItem("ft_auto_nightly_backup") !== "false";
         if (isNightlyEnabled) {
-          const lastBackup = localStorage.getItem('ft_last_nightly_backup_date');
-          const today = new Date().toISOString().split('T')[0];
+          const lastBackup = localStorage.getItem(
+            "ft_last_nightly_backup_date",
+          );
+          const today = new Date().toISOString().split("T")[0];
           if (lastBackup !== today) {
             let videos = [];
             let customFolders = [];
             try {
-              videos = JSON.parse(localStorage.getItem('ft_saved_video_hub_list') || '[]');
+              videos = JSON.parse(
+                localStorage.getItem("ft_saved_video_hub_list") || "[]",
+              );
             } catch (e) {}
             try {
-              customFolders = JSON.parse(localStorage.getItem('ft_custom_folders') || '[]');
+              customFolders = JSON.parse(
+                localStorage.getItem("ft_custom_folders") || "[]",
+              );
             } catch (e) {}
 
             const fullState = {
-              app: 'TaskArts',
-              version: '2.5',
+              app: "TaskArts",
+              version: "2.5",
               exportDate: new Date().toISOString(),
               rabItems: store.getters.getRabItems || [],
               rabIncomes: store.getters.getRabIncomes || [],
@@ -1196,35 +2123,35 @@ export default {
               welcomeBanner: store.getters.getWelcomeBanner,
               geminiApiKey: store.getters.getGeminiApiKey,
               aiProvider: store.getters.getAiProvider,
-              aiModel: store.getters.getAiModel
+              aiModel: store.getters.getAiModel,
             };
 
             // Save to IndexedDB safely without crashing
             saveNightlySnapshot(fullState).catch((backupErr) => {
-              console.warn('Nightly backup snapshot error:', backupErr);
+              console.warn("Nightly backup snapshot error:", backupErr);
             });
           }
         }
       } catch (err) {
-        console.warn('Automated nightly backup check encountered error:', err);
+        console.warn("Automated nightly backup check encountered error:", err);
       }
 
       // Listen for PWA Install Prompt Event
-      window.addEventListener('beforeinstallprompt', (e) => {
+      window.addEventListener("beforeinstallprompt", (e) => {
         e.preventDefault();
         window.deferredPwaPrompt = e;
-        window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
+        window.dispatchEvent(new CustomEvent("pwa-prompt-available"));
       });
 
       // Global Listener to open Dukung Dev Modal
-      window.addEventListener('open-dukung-dev', () => {
+      window.addEventListener("open-dukung-dev", () => {
         showDukungModal.value = true;
       });
 
       // Storage quota listeners
-      window.addEventListener('storage-quota-updated', updateStorageState);
-      window.addEventListener('storage-quota-full', updateStorageState);
-      window.addEventListener('resize', onWindowResize, { passive: true });
+      window.addEventListener("storage-quota-updated", updateStorageState);
+      window.addEventListener("storage-quota-full", updateStorageState);
+      window.addEventListener("resize", onWindowResize, { passive: true });
     });
 
     // Close profile dropdown on route change
@@ -1237,81 +2164,94 @@ export default {
       () => store.state.auth.token,
       (newToken, oldToken) => {
         if (oldToken && !newToken) {
-          console.warn('[App] Auth state: LOGGED OUT (token removed)');
+          console.warn("[App] Auth state: LOGGED OUT (token removed)");
         } else if (!oldToken && newToken) {
-          console.log('[App] Auth state: LOGGED IN (token set)');
+          console.log("[App] Auth state: LOGGED IN (token set)");
         }
       },
     );
 
     onUnmounted(() => {
-      window.removeEventListener('keydown', handleKeydown);
-      window.removeEventListener('storage-quota-updated', updateStorageState);
-      window.removeEventListener('storage-quota-full', updateStorageState);
-      window.removeEventListener('resize', onWindowResize);
-      window.removeEventListener('mousemove', onSidebarResizeMove);
-      window.removeEventListener('mouseup', stopSidebarResize);
-      window.removeEventListener('touchmove', onSidebarResizeMove);
-      window.removeEventListener('touchend', stopSidebarResize);
-      document.body.classList.remove('sidebar-resizing');
+      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("storage-quota-updated", updateStorageState);
+      window.removeEventListener("storage-quota-full", updateStorageState);
+      window.removeEventListener("resize", onWindowResize);
+      window.removeEventListener("mousemove", onSidebarResizeMove);
+      window.removeEventListener("mouseup", stopSidebarResize);
+      window.removeEventListener("touchmove", onSidebarResizeMove);
+      window.removeEventListener("touchend", stopSidebarResize);
+      document.body.classList.remove("sidebar-resizing");
     });
 
     const isPinkMode = computed(() => {
-      const c = (accentColor.value || '').toLowerCase();
-      return c === '#ec4899' || c === '#f43f5e' || c === '#db2777' || c === '#e11d48';
+      const c = (accentColor.value || "").toLowerCase();
+      return (
+        c === "#ec4899" || c === "#f43f5e" || c === "#db2777" || c === "#e11d48"
+      );
     });
 
     const toggleBluePinkMode = () => {
       if (isPinkMode.value) {
-        store.dispatch('setAccentColor', '#2563eb');
-        store.dispatch('showNotification', {
-          type: 'info',
-          title: '🔵 Blue Mode Aktif',
-          message: 'Aksen warna diubah ke Material Royal Blue (#2563eb).'
+        store.dispatch("setAccentColor", "#2563eb");
+        store.dispatch("showNotification", {
+          type: "info",
+          title: "🔵 Blue Mode Aktif",
+          message: "Aksen warna diubah ke Material Royal Blue (#2563eb).",
         });
       } else {
-        store.dispatch('setAccentColor', '#ec4899');
-        store.dispatch('showNotification', {
-          type: 'info',
-          title: '🌸 Pink Mode Aktif',
-          message: 'Aksen warna diubah ke Sakura Rose Pink (#ec4899).'
+        store.dispatch("setAccentColor", "#ec4899");
+        store.dispatch("showNotification", {
+          type: "info",
+          title: "🌸 Pink Mode Aktif",
+          message: "Aksen warna diubah ke Sakura Rose Pink (#ec4899).",
         });
       }
     };
 
     // Keep document attributes & styles in sync with theme and accent color
-    watch(themeMode, (mode) => {
-      const isDark = mode === 'dark' || mode === 'oled';
-      document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
-      if (isDark) {
-        document.documentElement.classList.add('dark-mode', 'dark-theme');
-        document.body.classList.add('dark-mode', 'dark-theme');
-      } else {
-        document.documentElement.classList.remove('dark-mode', 'dark-theme');
-        document.body.classList.remove('dark-mode', 'dark-theme');
-      }
-      if (mode === 'oled') {
-        document.documentElement.classList.add('oled-theme');
-        document.body.classList.add('oled-theme');
-      } else {
-        document.documentElement.classList.remove('oled-theme');
-        document.body.classList.remove('oled-theme');
-      }
-    }, { immediate: true });
+    watch(
+      themeMode,
+      (mode) => {
+        const isDark = mode === "dark" || mode === "oled";
+        document.documentElement.setAttribute(
+          "data-bs-theme",
+          isDark ? "dark" : "light",
+        );
+        if (isDark) {
+          document.documentElement.classList.add("dark-mode", "dark-theme");
+          document.body.classList.add("dark-mode", "dark-theme");
+        } else {
+          document.documentElement.classList.remove("dark-mode", "dark-theme");
+          document.body.classList.remove("dark-mode", "dark-theme");
+        }
+        if (mode === "oled") {
+          document.documentElement.classList.add("oled-theme");
+          document.body.classList.add("oled-theme");
+        } else {
+          document.documentElement.classList.remove("oled-theme");
+          document.body.classList.remove("oled-theme");
+        }
+      },
+      { immediate: true },
+    );
 
-    watch(accentColor, (color) => {
-      if (color) {
-        document.documentElement.style.setProperty('--primary-color', color);
-        document.body.style.setProperty('--primary-color', color);
-      }
-    }, { immediate: true });
+    watch(
+      accentColor,
+      (color) => {
+        if (color) {
+          document.documentElement.style.setProperty("--primary-color", color);
+          document.body.style.setProperty("--primary-color", color);
+        }
+      },
+      { immediate: true },
+    );
 
     const toggleThemeMode = () => {
-      let next = 'light';
-      if (themeMode.value === 'light') next = 'dark';
-      else if (themeMode.value === 'dark') next = 'oled';
-      else next = 'light';
-      store.dispatch('setThemeMode', next);
+      let next = "light";
+      if (themeMode.value === "light") next = "dark";
+      else if (themeMode.value === "dark") next = "oled";
+      else next = "light";
+      store.dispatch("setThemeMode", next);
     };
 
     return {
@@ -1354,9 +2294,9 @@ export default {
       isParentActive,
       toggleDropdown,
       expandedDropdowns,
-      shouldStackCards
+      shouldStackCards,
     };
-  }
+  },
 };
 </script>
 
@@ -1392,7 +2332,10 @@ export default {
 }
 
 /* Global Anti-Horizontal Scroll & Mobile Constraints */
-html, body, #app, .app-container {
+html,
+body,
+#app,
+.app-container {
   max-width: 100vw !important;
   overflow-x: hidden !important;
 }
@@ -1486,12 +2429,19 @@ html, body, #app, .app-container {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   background-color: var(--bg-app);
   color: var(--text-main);
   margin: 0;
   padding: 0;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 /* =========================================================
@@ -1500,123 +2450,188 @@ body {
    ========================================================= */
 
 /* Typography & Text Contrast Overhauls */
-.dark-mode h1, .dark-theme h1,
-.dark-mode h2, .dark-theme h2,
-.dark-mode h3, .dark-theme h3,
-.dark-mode h4, .dark-theme h4,
-.dark-mode h5, .dark-theme h5,
-.dark-mode h6, .dark-theme h6,
-.dark-mode .h1, .dark-theme .h1,
-.dark-mode .h2, .dark-theme .h2,
-.dark-mode .h3, .dark-theme .h3,
-.dark-mode .h4, .dark-theme .h4,
-.dark-mode .h5, .dark-theme .h5,
-.dark-mode .h6, .dark-theme .h6,
-.dark-mode .card-title, .dark-theme .card-title,
-.dark-mode .modal-title, .dark-theme .modal-title,
-.dark-mode .offcanvas-title, .dark-theme .offcanvas-title {
+.dark-mode h1,
+.dark-theme h1,
+.dark-mode h2,
+.dark-theme h2,
+.dark-mode h3,
+.dark-theme h3,
+.dark-mode h4,
+.dark-theme h4,
+.dark-mode h5,
+.dark-theme h5,
+.dark-mode h6,
+.dark-theme h6,
+.dark-mode .h1,
+.dark-theme .h1,
+.dark-mode .h2,
+.dark-theme .h2,
+.dark-mode .h3,
+.dark-theme .h3,
+.dark-mode .h4,
+.dark-theme .h4,
+.dark-mode .h5,
+.dark-theme .h5,
+.dark-mode .h6,
+.dark-theme .h6,
+.dark-mode .card-title,
+.dark-theme .card-title,
+.dark-mode .modal-title,
+.dark-theme .modal-title,
+.dark-mode .offcanvas-title,
+.dark-theme .offcanvas-title {
   color: #f8fafc !important;
 }
 
 /* Invert dark text utility classes to high-contrast white/slate, except inside bright colored badges */
-.dark-mode .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(.badge.bg-info):not(.badge.bg-info-subtle),
-.dark-theme .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(.badge.bg-info):not(.badge.bg-info-subtle),
-.dark-mode .text-black, .dark-theme .text-black,
-.dark-mode .text-body, .dark-theme .text-body,
-.dark-mode .text-main, .dark-theme .text-main,
-.dark-mode .text-app, .dark-theme .text-app,
+.dark-mode
+  .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(
+    .badge.bg-info
+  ):not(.badge.bg-info-subtle),
+.dark-theme
+  .text-dark:not(.badge.bg-warning):not(.badge.bg-warning-subtle):not(
+    .badge.bg-info
+  ):not(.badge.bg-info-subtle),
+.dark-mode .text-black,
+.dark-theme .text-black,
+.dark-mode .text-body,
+.dark-theme .text-body,
+.dark-mode .text-main,
+.dark-theme .text-main,
+.dark-mode .text-app,
+.dark-theme .text-app,
 .dark-mode strong:not(.badge *):not(.badge),
 .dark-theme strong:not(.badge *):not(.badge),
-.dark-mode b, .dark-theme b {
+.dark-mode b,
+.dark-theme b {
   color: #f1f5f9 !important;
 }
 
 /* Secondary & Muted text: crisp slate-400 / zinc-300 with > 5:1 contrast against dark surfaces */
-.dark-mode .text-muted, .dark-theme .text-muted,
-.dark-mode .text-secondary, .dark-theme .text-secondary,
-.dark-mode .text-sub, .dark-theme .text-sub,
-.dark-mode small.text-muted, .dark-theme small.text-muted,
-.dark-mode .small.text-muted, .dark-theme .small.text-muted,
-.dark-mode .text-body-secondary, .dark-theme .text-body-secondary {
+.dark-mode .text-muted,
+.dark-theme .text-muted,
+.dark-mode .text-secondary,
+.dark-theme .text-secondary,
+.dark-mode .text-sub,
+.dark-theme .text-sub,
+.dark-mode small.text-muted,
+.dark-theme small.text-muted,
+.dark-mode .small.text-muted,
+.dark-theme .small.text-muted,
+.dark-mode .text-body-secondary,
+.dark-theme .text-body-secondary {
   color: #94a3b8 !important;
 }
 
 /* Form labels and legends */
-.dark-mode label, .dark-theme label,
-.dark-mode .form-label, .dark-theme .form-label,
-.dark-mode .col-form-label, .dark-theme .col-form-label,
-.dark-mode legend, .dark-theme legend {
+.dark-mode label,
+.dark-theme label,
+.dark-mode .form-label,
+.dark-theme .form-label,
+.dark-mode .col-form-label,
+.dark-theme .col-form-label,
+.dark-mode legend,
+.dark-theme legend {
   color: #e2e8f0 !important;
 }
 
 /* Surfaces, Cards, Modals, Dropdowns, Offcanvas */
-.dark-mode .bg-white, .dark-theme .bg-white,
-.dark-mode .card:not(.pwa-pure-black-card), .dark-theme .card:not(.pwa-pure-black-card),
-.dark-mode .content-card, .dark-theme .content-card,
-.dark-mode .top-header, .dark-theme .top-header,
-.dark-mode .modal-content, .dark-theme .modal-content,
-.dark-mode .mobile-bottom-bar, .dark-theme .mobile-bottom-bar,
-.dark-mode .accordion-item, .dark-theme .accordion-item,
-.dark-mode .offcanvas, .dark-theme .offcanvas,
-.dark-mode .offcanvas-body, .dark-theme .offcanvas-body,
-.dark-mode .dropdown-menu, .dark-theme .dropdown-menu,
-.dark-mode .list-group-item, .dark-theme .list-group-item {
+.dark-mode .bg-white,
+.dark-theme .bg-white,
+.dark-mode .card:not(.pwa-pure-black-card),
+.dark-theme .card:not(.pwa-pure-black-card),
+.dark-mode .content-card,
+.dark-theme .content-card,
+.dark-mode .top-header,
+.dark-theme .top-header,
+.dark-mode .modal-content,
+.dark-theme .modal-content,
+.dark-mode .mobile-bottom-bar,
+.dark-theme .mobile-bottom-bar,
+.dark-mode .accordion-item,
+.dark-theme .accordion-item,
+.dark-mode .offcanvas,
+.dark-theme .offcanvas,
+.dark-mode .offcanvas-body,
+.dark-theme .offcanvas-body,
+.dark-mode .dropdown-menu,
+.dark-theme .dropdown-menu,
+.dark-mode .list-group-item,
+.dark-theme .list-group-item {
   background-color: var(--bg-surface) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .card-header, .dark-theme .card-header,
-.dark-mode .card-footer, .dark-theme .card-footer {
+.dark-mode .card-header,
+.dark-theme .card-header,
+.dark-mode .card-footer,
+.dark-theme .card-footer {
   background-color: var(--bg-surface) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
 /* Light backgrounds inversion */
-.dark-mode .bg-light, .dark-theme .bg-light,
-.dark-mode .bg-body-tertiary, .dark-theme .bg-body-tertiary,
-.dark-mode .bg-body-secondary, .dark-theme .bg-body-secondary,
-.dark-mode .table-light, .dark-theme .table-light,
-.dark-mode .preview-box, .dark-theme .preview-box,
-.dark-mode .search-input-group, .dark-theme .search-input-group {
+.dark-mode .bg-light,
+.dark-theme .bg-light,
+.dark-mode .bg-body-tertiary,
+.dark-theme .bg-body-tertiary,
+.dark-mode .bg-body-secondary,
+.dark-theme .bg-body-secondary,
+.dark-mode .table-light,
+.dark-theme .table-light,
+.dark-mode .preview-box,
+.dark-theme .preview-box,
+.dark-mode .search-input-group,
+.dark-theme .search-input-group {
   background-color: var(--bg-input) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
 /* Form Inputs, Selects, and Textareas */
-.dark-mode .form-control, .dark-theme .form-control,
-.dark-mode .form-select, .dark-theme .form-select,
-.dark-mode textarea, .dark-theme textarea {
+.dark-mode .form-control,
+.dark-theme .form-control,
+.dark-mode .form-select,
+.dark-theme .form-select,
+.dark-mode textarea,
+.dark-theme textarea {
   background-color: var(--bg-input) !important;
   color: #ffffff !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .form-control::placeholder, .dark-theme .form-control::placeholder,
-.dark-mode textarea::placeholder, .dark-theme textarea::placeholder {
+.dark-mode .form-control::placeholder,
+.dark-theme .form-control::placeholder,
+.dark-mode textarea::placeholder,
+.dark-theme textarea::placeholder {
   color: #94a3b8 !important;
   opacity: 1 !important;
 }
 
-.dark-mode .form-control:focus, .dark-theme .form-control:focus,
-.dark-mode .form-select:focus, .dark-theme .form-select:focus,
-.dark-mode textarea:focus, .dark-theme textarea:focus {
+.dark-mode .form-control:focus,
+.dark-theme .form-control:focus,
+.dark-mode .form-select:focus,
+.dark-theme .form-select:focus,
+.dark-mode textarea:focus,
+.dark-theme textarea:focus {
   background-color: var(--bg-input) !important;
   color: #ffffff !important;
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
 }
 
-.dark-mode .input-group-text, .dark-theme .input-group-text {
+.dark-mode .input-group-text,
+.dark-theme .input-group-text {
   background-color: var(--bg-input) !important;
   color: #cbd5e1 !important;
   border-color: var(--border-color) !important;
 }
 
 /* Tables */
-.dark-mode .table, .dark-theme .table {
+.dark-mode .table,
+.dark-theme .table {
   --bs-table-bg: transparent;
   --bs-table-color: #f1f5f9;
   --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
@@ -1625,19 +2640,23 @@ body {
   color: #f1f5f9 !important;
 }
 
-.dark-mode .table th, .dark-theme .table th {
+.dark-mode .table th,
+.dark-theme .table th {
   background-color: var(--bg-surface) !important;
   color: #f8fafc !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .table td, .dark-theme .table td {
+.dark-mode .table td,
+.dark-theme .table td {
   color: #e2e8f0 !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .table-hover tbody tr:hover, .dark-theme .table-hover tbody tr:hover,
-.dark-mode .table-hover tbody tr:hover td, .dark-theme .table-hover tbody tr:hover td {
+.dark-mode .table-hover tbody tr:hover,
+.dark-theme .table-hover tbody tr:hover,
+.dark-mode .table-hover tbody tr:hover td,
+.dark-theme .table-hover tbody tr:hover td {
   background-color: rgba(255, 255, 255, 0.06) !important;
   color: #ffffff !important;
 }
@@ -1680,82 +2699,104 @@ body {
   border-color: var(--primary-color) !important;
 }
 
-.dark-mode .btn-light, .dark-theme .btn-light {
+.dark-mode .btn-light,
+.dark-theme .btn-light {
   background-color: var(--bg-input) !important;
   color: #f1f5f9 !important;
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .btn-light:hover, .dark-theme .btn-light:hover {
+.dark-mode .btn-light:hover,
+.dark-theme .btn-light:hover {
   background-color: var(--bg-hover) !important;
   color: #ffffff !important;
 }
 
-.dark-mode .btn-outline-secondary, .dark-theme .btn-outline-secondary {
+.dark-mode .btn-outline-secondary,
+.dark-theme .btn-outline-secondary {
   border-color: var(--border-color) !important;
   color: #cbd5e1 !important;
 }
 
-.dark-mode .btn-outline-secondary:hover, .dark-theme .btn-outline-secondary:hover {
+.dark-mode .btn-outline-secondary:hover,
+.dark-theme .btn-outline-secondary:hover {
   background-color: var(--bg-hover) !important;
   color: #ffffff !important;
 }
 
-.dark-mode .modal-header, .dark-theme .modal-header,
-.dark-mode .modal-footer, .dark-theme .modal-footer {
+.dark-mode .modal-header,
+.dark-theme .modal-header,
+.dark-mode .modal-footer,
+.dark-theme .modal-footer {
   border-color: var(--border-color) !important;
 }
 
-.dark-mode .btn-close, .dark-theme .btn-close {
+.dark-mode .btn-close,
+.dark-theme .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%) !important;
 }
 
-.dark-mode .border, .dark-theme .border,
-.dark-mode .border-top, .dark-theme .border-top,
-.dark-mode .border-bottom, .dark-theme .border-bottom,
-.dark-mode .border-start, .dark-theme .border-start,
-.dark-mode .border-end, .dark-theme .border-end,
-.dark-mode .border-2, .dark-theme .border-2 {
+.dark-mode .border,
+.dark-theme .border,
+.dark-mode .border-top,
+.dark-theme .border-top,
+.dark-mode .border-bottom,
+.dark-theme .border-bottom,
+.dark-mode .border-start,
+.dark-theme .border-start,
+.dark-mode .border-end,
+.dark-theme .border-end,
+.dark-mode .border-2,
+.dark-theme .border-2 {
   border-color: var(--border-color) !important;
 }
 
 /* Badges */
-.dark-mode .badge.bg-light, .dark-theme .badge.bg-light {
+.dark-mode .badge.bg-light,
+.dark-theme .badge.bg-light {
   background-color: var(--bg-input) !important;
   color: #f1f5f9 !important;
   border: 1px solid var(--border-color) !important;
 }
 
-.dark-mode .badge.bg-white, .dark-theme .badge.bg-white {
+.dark-mode .badge.bg-white,
+.dark-theme .badge.bg-white {
   background-color: var(--bg-surface) !important;
   color: #f1f5f9 !important;
   border: 1px solid var(--border-color) !important;
 }
 
-.dark-mode .badge.bg-warning, .dark-theme .badge.bg-warning,
-.dark-mode .badge.bg-warning-subtle, .dark-theme .badge.bg-warning-subtle {
+.dark-mode .badge.bg-warning,
+.dark-theme .badge.bg-warning,
+.dark-mode .badge.bg-warning-subtle,
+.dark-theme .badge.bg-warning-subtle {
   background-color: #f59e0b !important;
   color: #0f172a !important;
 }
 
-.dark-mode .badge.bg-info, .dark-theme .badge.bg-info,
-.dark-mode .badge.bg-info-subtle, .dark-theme .badge.bg-info-subtle {
+.dark-mode .badge.bg-info,
+.dark-theme .badge.bg-info,
+.dark-mode .badge.bg-info-subtle,
+.dark-theme .badge.bg-info-subtle {
   background-color: #06b6d4 !important;
   color: #0f172a !important;
 }
 
 /* High-Contrast Subtle Badges */
-.dark-mode .bg-primary-subtle, .dark-theme .bg-primary-subtle {
+.dark-mode .bg-primary-subtle,
+.dark-theme .bg-primary-subtle {
   background-color: rgba(37, 99, 235, 0.22) !important;
   color: #93c5fd !important;
 }
 
-.dark-mode .bg-success-subtle, .dark-theme .bg-success-subtle {
+.dark-mode .bg-success-subtle,
+.dark-theme .bg-success-subtle {
   background-color: rgba(16, 185, 129, 0.22) !important;
   color: #6ee7b7 !important;
 }
 
-.dark-mode .bg-danger-subtle, .dark-theme .bg-danger-subtle {
+.dark-mode .bg-danger-subtle,
+.dark-theme .bg-danger-subtle {
   background-color: rgba(225, 29, 72, 0.22) !important;
   color: #fda4af !important;
 }
@@ -1947,7 +2988,9 @@ body {
   background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
-  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease;
+  transition:
+    width 0.25s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.3s ease;
   z-index: 1040;
   border-right: 1px solid var(--sidebar-border);
 }
@@ -2003,7 +3046,9 @@ body {
   color: var(--text-sub, #64748b);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   opacity: 0;
-  transition: opacity 0.2s ease, background-color 0.2s;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s;
   pointer-events: none;
 }
 
@@ -2238,7 +3283,7 @@ body.sidebar-resizing * {
 }
 
 .brand-title {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   letter-spacing: -0.4px;
 }
 
@@ -2398,7 +3443,9 @@ body.sidebar-resizing * {
 /* Route Transitions - Snappy SPA Feel (No Lag) */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1), transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity 0.15s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .fade-slide-enter-from {
@@ -2425,7 +3472,9 @@ body.sidebar-resizing * {
 /* Sheet slide-up transition (Slide from bottom to top) */
 .sheet-slide-up-enter-active,
 .sheet-slide-up-leave-active {
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  transition:
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.22s ease;
 }
 
 .sheet-slide-up-enter-from,
@@ -2653,9 +3702,18 @@ body.sidebar-resizing * {
 }
 
 @keyframes pulse-badge {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
 }
 
 /* Material Design 3 Cards, Surfaces & Chips (Manual Vuetify / Quasar Style) */
@@ -2663,14 +3721,19 @@ body.sidebar-resizing * {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.2s ease;
 }
 
 .m3-card-elevated {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 18px;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 4px 16px -2px rgba(0, 0, 0, 0.05),
+    0 2px 4px -2px rgba(0, 0, 0, 0.04);
 }
 
 .m3-card-tonal {
@@ -2779,8 +3842,14 @@ body.sidebar-resizing * {
   width: 100% !important;
 }
 
-.main-content.is-sidebar-extra-wide .main-view-viewport .row > [class*="col-lg-4"],
-.main-content.is-sidebar-extra-wide .main-view-viewport .row > [class*="col-xl-4"] {
+.main-content.is-sidebar-extra-wide
+  .main-view-viewport
+  .row
+  > [class*="col-lg-4"],
+.main-content.is-sidebar-extra-wide
+  .main-view-viewport
+  .row
+  > [class*="col-xl-4"] {
   flex: 0 0 100% !important;
   max-width: 100% !important;
   width: 100% !important;
@@ -2788,7 +3857,11 @@ body.sidebar-resizing * {
 
 /* Generous breathing room when cards are stacked */
 .main-view-viewport.cards-stacked-mode .row > [class*="col-"] > .card,
-.main-content.is-sidebar-wide .main-view-viewport .row > [class*="col-"] > .card {
+.main-content.is-sidebar-wide
+  .main-view-viewport
+  .row
+  > [class*="col-"]
+  > .card {
   margin-bottom: 1.5rem !important;
 }
 
@@ -2796,9 +3869,13 @@ body.sidebar-resizing * {
 .main-view-viewport .card {
   border-radius: 16px;
   border-color: var(--border-color);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.02);
   margin-bottom: 1.5rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .main-view-viewport .card-header {
@@ -2874,7 +3951,8 @@ body.sidebar-resizing * {
 }
 
 /* Prevent squished pills, badges & chips */
-.badge, .m3-chip {
+.badge,
+.m3-chip {
   white-space: nowrap;
   letter-spacing: -0.1px;
 }
@@ -3002,7 +4080,8 @@ body.sidebar-resizing * {
   }
 
   /* 2. Reset html, body, and top-level containers for full page printing */
-  html, body {
+  html,
+  body {
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
@@ -3013,7 +4092,7 @@ body.sidebar-resizing * {
     overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    color-adjust: exact !important;
+    /* color-adjust: exact !important; */
   }
 
   .app-container,
@@ -3042,7 +4121,11 @@ body.sidebar-resizing * {
     display: block !important;
   }
 
-  .col-12, .col-lg-5, .col-lg-6, .col-lg-7, .col-md-6 {
+  .col-12,
+  .col-lg-5,
+  .col-lg-6,
+  .col-lg-7,
+  .col-md-6 {
     width: 100% !important;
     max-width: 100% !important;
     flex: 0 0 100% !important;
@@ -3073,7 +4156,9 @@ body.sidebar-resizing * {
   }
 
   /* 4. Remove shadows and borders from cards during print */
-  .card, .shadow, .shadow-sm {
+  .card,
+  .shadow,
+  .shadow-sm {
     box-shadow: none !important;
     border: none !important;
     background: transparent !important;
